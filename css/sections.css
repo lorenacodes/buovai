@@ -400,6 +400,27 @@ section {
   font-weight: 600;
 }
 
+.case-modal__shot {
+  margin: var(--space-lg) 0 0;
+  border: 1px solid var(--border-hairline-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+
+.case-modal__shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.case-modal__shot figcaption {
+  padding: 0.7rem 1rem;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--border-hairline);
+}
+
 .case-modal__body {
   margin-top: var(--space-lg);
   display: grid;

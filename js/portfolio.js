@@ -11,6 +11,15 @@
 
   let projects = [];
 
+  // Prints reais dos sistemas, com dados sensíveis borrados. Mapeados por
+  // client_name porque a tabela portfolio_projects ainda não tem coluna de imagem.
+  const SCREENSHOTS = {
+    "Milatec": {
+      src: "assets/img/case-milalab.jpg",
+      caption: "Painel do MilaLab — dados sensíveis borrados para preservar a privacidade do cliente.",
+    },
+  };
+
   function escapeHtml(str) {
     const div = document.createElement("div");
     div.textContent = str ?? "";
@@ -58,6 +67,17 @@
     modalEl.querySelector(".case-modal__client").textContent = [project.client_name, project.audience]
       .filter(Boolean)
       .join(" · ");
+    const shot = SCREENSHOTS[project.client_name];
+    const shotEl = modalEl.querySelector('[data-field="shot"]');
+    if (shot) {
+      modalEl.querySelector('[data-field="shot-img"]').src = shot.src;
+      modalEl.querySelector('[data-field="shot-img"]').alt = `Interface do sistema ${project.title}`;
+      modalEl.querySelector('[data-field="shot-caption"]').textContent = shot.caption;
+      shotEl.hidden = false;
+    } else {
+      shotEl.hidden = true;
+    }
+
     modalEl.querySelector('[data-field="problem"]').textContent = project.problem || "—";
     modalEl.querySelector('[data-field="solution"]').textContent = project.solution || "—";
 
