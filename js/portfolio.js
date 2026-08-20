@@ -33,8 +33,7 @@
   function renderCard(project, index) {
     const num = String(index + 1).padStart(2, "0");
     return `
-      <article class="case-card glass-panel" data-project-id="${project.id}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Ver case completo: ${escapeHtml(project.title)}">
-        <div class="case-card__glow" aria-hidden="true"></div>
+      <article class="case-card" data-project-id="${project.id}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Ver case completo: ${escapeHtml(project.title)}">
         <div class="case-card__inner">
           <div>
             <span class="case-card__index">Case ${num}</span>
@@ -43,9 +42,8 @@
             <div class="case-card__tags">${renderTags(project.tags)}</div>
           </div>
           <div class="case-card__cta">
-            <div class="case-card__cta-circle" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
-            </div>
+            <span>Ver detalhes</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
           </div>
         </div>
       </article>

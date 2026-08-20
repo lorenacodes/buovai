@@ -60,87 +60,61 @@
   <main id="main">
     <!-- ============== HERO ============== -->
     <section class="hero" id="top">
+      <img class="hero__watermark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
       <div class="container hero__inner">
-        <div>
-          <p class="eyebrow hero__kicker">Engenharia de software</p>
-          <h1>Sistemas que <span class="text-gradient">substituem o caos</span> por controle.</h1>
-          <p class="hero__sub">Sistemas sob medida, do primeiro commit à operação em produção.</p>
+        <p class="eyebrow">Engenharia de software</p>
+        <h1>Sistemas que <span class="text-gradient">substituem o caos</span> por controle.</h1>
+        <p class="hero__sub">Sistemas sob medida, do primeiro commit à operação em produção.</p>
 
-          <div class="hero__actions">
-            <a href="#contato" class="btn btn-primary">
-              <span>Iniciar um projeto</span>
-              <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-            </a>
-            <a href="#portfolio" class="btn btn-ghost">Ver cases reais</a>
-          </div>
-
-          <dl class="hero__proof">
-            <div class="hero__proof-item">
-              <dd>2</dd>
-              <dt>Sistemas próprios em produção</dt>
-            </div>
-            <div class="hero__proof-item">
-              <dd>27k+</dd>
-              <dt>Linhas de código sob gestão</dt>
-            </div>
-            <div class="hero__proof-item">
-              <dd>100%</dd>
-              <dt>Supabase — sem dado simulado</dt>
-            </div>
-          </dl>
-        </div>
-
-        <div class="hero__stage" aria-hidden="true">
-          <div class="hero__orb"></div>
-          <div class="hero__ring"></div>
-          <div class="hero__ring hero__ring--inner"></div>
-          <div class="hero__mark">
-            <img src="assets/img/logo-mark.png" alt="Símbolo Buovai" />
-          </div>
-          <div class="hero__grain-badge glass-panel">
-            <span class="dot"></span>
-            <span>Em produção agora</span>
-          </div>
+        <div class="hero__actions">
+          <a href="#contato" class="btn btn-primary">
+            <span>Iniciar um projeto</span>
+            <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+          </a>
+          <a href="#portfolio" class="btn-text">
+            <span>Ver cases reais</span>
+            <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+          </a>
         </div>
       </div>
+
+      <dl class="container hero__stats">
+        <div class="hero__stat">
+          <dd>2</dd>
+          <dt>Sistemas próprios em produção</dt>
+        </div>
+        <div class="hero__stat">
+          <dd>27k+</dd>
+          <dt>Linhas de código sob gestão</dt>
+        </div>
+        <div class="hero__stat">
+          <dd>100%</dd>
+          <dt>Supabase — sem dado simulado</dt>
+        </div>
+      </dl>
     </section>
 
     <!-- ============== SOBRE ============== -->
     <section id="sobre">
       <div class="container about">
-        <div class="about__portrait" data-reveal>
-          <div class="about__frame glass-panel">
-            <div class="about__frame-content">
-              <span class="about__initial">LC</span>
-              <div class="divider-orn"></div>
-              <p class="about__role">
-                <strong>Fundadora &amp; Engenheira de Software</strong>
-                Constrói e mantém os sistemas da Buovai em produção.
-              </p>
-            </div>
+        <p class="eyebrow" data-reveal>Fundadora</p>
+        <blockquote class="about__quote" data-reveal style="--reveal-delay:80ms">
+          Projeto arquitetura de banco com Row Level Security, isolo chaves de serviço em Edge Functions e mantenho dois sistemas em produção com uso real.
+        </blockquote>
+        <p class="about__attribution" data-reveal style="--reveal-delay:140ms"><strong>Lorena Cardoso</strong>, 20 anos — Fundadora &amp; Engenheira de Software</p>
+
+        <div class="about__facts">
+          <div class="about__fact" data-reveal>
+            <h3>Escopo</h3>
+            <p>Cada sistema resolve um problema operacional específico da empresa.</p>
           </div>
-        </div>
-
-        <div class="about__body">
-          <p class="eyebrow" data-reveal>Fundadora</p>
-          <h2 data-reveal style="--reveal-delay:80ms">Lorena Cardoso, 20 anos.</h2>
-          <p class="about__lede" data-reveal style="--reveal-delay:140ms">
-            Projeto arquitetura de banco com Row Level Security, isolo chaves de serviço em Edge Functions e mantenho dois sistemas em produção com uso real.
-          </p>
-
-          <div class="about__points">
-            <div class="about__point" data-reveal>
-              <h3>Escopo</h3>
-              <p>Cada sistema resolve um problema operacional específico da empresa.</p>
-            </div>
-            <div class="about__point" data-reveal>
-              <h3>Método</h3>
-              <p>Testes automatizados e segurança resolvida no banco de dados.</p>
-            </div>
-            <div class="about__point" data-reveal>
-              <h3>Entrega</h3>
-              <p>Sistema em produção, não protótipo de apresentação.</p>
-            </div>
+          <div class="about__fact" data-reveal>
+            <h3>Método</h3>
+            <p>Testes automatizados e segurança resolvida no banco de dados.</p>
+          </div>
+          <div class="about__fact" data-reveal>
+            <h3>Entrega</h3>
+            <p>Sistema em produção, não protótipo de apresentação.</p>
           </div>
         </div>
       </div>
@@ -154,51 +128,52 @@
           <h2>Serviços</h2>
         </div>
 
-        <div class="services-grid">
-          <article class="service-card" data-reveal>
+        <div class="row-list">
+          <div class="row-item" data-reveal>
+            <span class="row-item__index">01</span>
             <h3>Sistemas internos de gestão</h3>
             <p>Substitui planilhas e ferramentas soltas por uma plataforma única, do primeiro contato à entrega.</p>
-          </article>
-
-          <article class="service-card" data-reveal style="--reveal-delay:90ms">
+          </div>
+          <div class="row-item" data-reveal style="--reveal-delay:70ms">
+            <span class="row-item__index">02</span>
             <h3>Portais multi-tenant</h3>
             <p>Cada cliente acessa só os próprios dados. Isolamento garantido no banco, não no frontend.</p>
-          </article>
-
-          <article class="service-card" data-reveal style="--reveal-delay:180ms">
+          </div>
+          <div class="row-item" data-reveal style="--reveal-delay:140ms">
+            <span class="row-item__index">03</span>
             <h3>Arquitetura e consultoria técnica</h3>
             <p>Revisão de sistemas existentes: risco técnico e plano de evolução sem parar a operação.</p>
-          </article>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ============== PROCESSO ============== -->
-    <section id="processo">
+    <section id="processo" class="panel-ink">
       <div class="container">
         <div class="section-head" data-reveal>
           <p class="eyebrow">Como eu trabalho</p>
           <h2>Processo</h2>
         </div>
 
-        <div class="process-list">
-          <div class="process-item" data-reveal>
-            <span class="process-item__phase">Fase 01</span>
+        <div class="row-list">
+          <div class="row-item" data-reveal>
+            <span class="row-item__index">Fase 01</span>
             <h3>Imersão</h3>
             <p>Levantamento do processo real antes de desenhar qualquer tabela.</p>
           </div>
-          <div class="process-item" data-reveal style="--reveal-delay:70ms">
-            <span class="process-item__phase">Fase 02</span>
+          <div class="row-item" data-reveal style="--reveal-delay:70ms">
+            <span class="row-item__index">Fase 02</span>
             <h3>Arquitetura</h3>
             <p>Banco, segurança e módulos definidos antes da primeira tela.</p>
           </div>
-          <div class="process-item" data-reveal style="--reveal-delay:140ms">
-            <span class="process-item__phase">Fase 03</span>
+          <div class="row-item" data-reveal style="--reveal-delay:140ms">
+            <span class="row-item__index">Fase 03</span>
             <h3>Construção</h3>
             <p>Entrega em ciclos curtos, com dado real desde o início.</p>
           </div>
-          <div class="process-item" data-reveal style="--reveal-delay:210ms">
-            <span class="process-item__phase">Fase 04</span>
+          <div class="row-item" data-reveal style="--reveal-delay:210ms">
+            <span class="row-item__index">Fase 04</span>
             <h3>Produção</h3>
             <p>Monitoramento e manutenção contínua após o lançamento.</p>
           </div>
@@ -229,27 +204,17 @@
 
           <div class="contact__channels">
             <div class="contact__channel">
-              <div class="contact__channel-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6l9 7 9-7M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" /></svg>
-              </div>
-              <div>
-                <span class="contact__channel-label">E-mail</span>
-                <span class="contact__channel-value">contato@buovai.com</span>
-              </div>
+              <span class="contact__channel-label">E-mail</span>
+              <span class="contact__channel-value">contato@buovai.com</span>
             </div>
             <div class="contact__channel">
-              <div class="contact__channel-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
-              </div>
-              <div>
-                <span class="contact__channel-label">Resposta</span>
-                <span class="contact__channel-value">Até 1 dia útil</span>
-              </div>
+              <span class="contact__channel-label">Resposta</span>
+              <span class="contact__channel-value">Até 1 dia útil</span>
             </div>
           </div>
         </div>
 
-        <form class="contact-form glass-panel" id="contact-form" data-reveal style="--reveal-delay:100ms" novalidate>
+        <form class="contact-form" id="contact-form" data-reveal style="--reveal-delay:100ms" novalidate>
           <div class="contact-form__grid">
             <input class="field-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
@@ -300,16 +265,13 @@
   </main>
 
   <!-- ============== FOOTER ============== -->
-  <footer class="site-footer">
+  <footer class="site-footer panel-ink">
     <div class="container">
       <div class="site-footer__top">
         <div>
-          <a href="#top" class="brand">
-            <img class="brand__lockup-img" src="assets/img/logo-full.png" alt="Buovai — Seu próximo nível" />
-        <span class="brand__lockup-text">
-          <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
-          <span class="brand__word">Buovai<small>Seu próximo nível</small></span>
-        </span>
+          <a href="#top" class="brand brand--on-panel">
+            <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
+            <span class="brand__word">Buovai<small>Seu próximo nível</small></span>
           </a>
           <p class="site-footer__pitch">Engenharia de software sob medida, fundada por Lorena Cardoso.</p>
         </div>
