@@ -2,9 +2,22 @@
    Buovai — Componentes
    ========================================================================== */
 
-/* ---- Marca (símbolo + wordmark) ---- */
+/* ---- Marca (lockup real em claro; símbolo + texto em escuro,
+   porque a tinta do lockup é fixa e some no fundo escuro) ---- */
 .brand {
   display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.brand__lockup-img {
+  height: 30px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand__lockup-text {
+  display: none;
   align-items: center;
   gap: 0.65rem;
 }
@@ -36,6 +49,14 @@
   margin-top: 1px;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brand__lockup-img { display: none; }
+  :root:not([data-theme="light"]) .brand__lockup-text { display: inline-flex; }
+}
+
+:root[data-theme="dark"] .brand__lockup-img { display: none; }
+:root[data-theme="dark"] .brand__lockup-text { display: inline-flex; }
+
 /* ---- Header ---- */
 .site-header {
   position: fixed;
@@ -52,7 +73,7 @@
   justify-content: space-between;
   padding: 0.7rem 0.9rem 0.7rem 1.3rem;
   border-radius: var(--radius-pill);
-  background: rgba(8, 16, 14, 0.58);
+  background: var(--header-bg);
   border: 1px solid var(--border-hairline);
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
@@ -60,7 +81,7 @@
 }
 
 .site-header.is-scrolled .site-header__inner {
-  background: rgba(6, 11, 10, 0.78);
+  background: var(--header-bg-scrolled);
   border-color: var(--border-hairline-strong);
   box-shadow: var(--shadow-lift);
 }
@@ -140,6 +161,58 @@
 .site-header.is-open .nav-toggle__bars span:nth-child(2) { opacity: 0; }
 .site-header.is-open .nav-toggle__bars span:nth-child(3) { top: 4.5px; transform: rotate(-45deg); }
 
+/* ---- Toggle de tema ---- */
+.theme-toggle {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-hairline);
+  color: var(--ink-primary);
+  flex-shrink: 0;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.theme-toggle:hover {
+  background: var(--bg-elevated-hover);
+}
+
+.theme-toggle__sun,
+.theme-toggle__moon {
+  position: absolute;
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-med) var(--ease-out);
+}
+
+.theme-toggle__moon {
+  opacity: 0;
+  transform: rotate(-40deg) scale(0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle__sun {
+    opacity: 0;
+    transform: rotate(40deg) scale(0.6);
+  }
+  :root:not([data-theme="light"]) .theme-toggle__moon {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+}
+
+:root[data-theme="dark"] .theme-toggle__sun {
+  opacity: 0;
+  transform: rotate(40deg) scale(0.6);
+}
+
+:root[data-theme="dark"] .theme-toggle__moon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
 /* ---- Botões ---- */
 .btn {
   display: inline-flex;
@@ -182,7 +255,7 @@
 
 .btn-ghost:hover {
   background: var(--bg-elevated-hover);
-  border-color: rgba(255, 255, 255, 0.28);
+  border-color: var(--border-hairline-strong);
 }
 
 .btn-arrow {
@@ -217,7 +290,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-elevated);
   border: 1px solid var(--border-hairline);
   color: var(--ink-secondary);
 }
@@ -243,7 +316,7 @@
   width: 100%;
   padding: 0.9em 1.1em;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--bg-elevated);
   border: 1px solid var(--border-hairline);
   color: var(--ink-primary);
   font-size: 0.96rem;
@@ -264,7 +337,7 @@
 .field textarea:focus,
 .field select:focus {
   outline: none;
-  border-color: var(--brand-teal-400);
+  border-color: var(--accent-strong);
   background: rgba(128, 194, 153, 0.05);
 }
 
@@ -300,7 +373,7 @@
 .form-status--ok {
   background: rgba(128, 194, 153, 0.1);
   border: 1px solid rgba(128, 194, 153, 0.35);
-  color: var(--brand-teal-300);
+  color: var(--accent-strong);
 }
 
 .form-status--error {

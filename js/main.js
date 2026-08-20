@@ -5,6 +5,41 @@
 (function () {
   "use strict";
 
+  // ---- Tema claro/escuro ----
+  var THEME_KEY = "buovai-theme";
+  var root = document.documentElement;
+  var themeToggle = document.getElementById("theme-toggle");
+
+  function applyTheme(theme) {
+    if (theme === "light" || theme === "dark") {
+      root.setAttribute("data-theme", theme);
+    } else {
+      root.removeAttribute("data-theme");
+    }
+  }
+
+  var savedTheme = null;
+  try {
+    savedTheme = localStorage.getItem(THEME_KEY);
+  } catch (e) {
+    /* localStorage indisponível (modo privado) — segue o tema do sistema */
+  }
+  applyTheme(savedTheme);
+
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var current = root.getAttribute("data-theme") || (prefersDark ? "dark" : "light");
+      var next = current === "dark" ? "light" : "dark";
+      applyTheme(next);
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch (e) {
+        /* silencioso */
+      }
+    });
+  }
+
   // ---- Header on scroll ----
   const header = document.getElementById("site-header");
   const onScroll = () => {

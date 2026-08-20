@@ -115,7 +115,7 @@ section {
 .hero__ring--inner {
   inset: 14%;
   border-style: dashed;
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: var(--border-hairline-strong);
   animation-duration: 40s;
   animation-direction: reverse;
 }
@@ -160,7 +160,7 @@ section {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--brand-teal-400);
+  background: var(--accent-strong);
   box-shadow: 0 0 10px 2px rgba(128, 194, 153, 0.7);
   animation: pulse 2.4s ease-in-out infinite;
 }
@@ -174,36 +174,6 @@ section {
   font-size: 0.76rem;
   font-weight: 700;
   color: var(--ink-secondary);
-}
-
-.marquee {
-  margin-top: var(--space-2xl);
-  overflow: hidden;
-  border-top: 1px solid var(--border-hairline);
-  border-bottom: 1px solid var(--border-hairline);
-  padding-block: var(--space-sm);
-}
-
-.marquee__track {
-  display: flex;
-  gap: 3.5rem;
-  width: max-content;
-  animation: marquee 28s linear infinite;
-}
-
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.marquee__track span {
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-  white-space: nowrap;
 }
 
 /* ==================== ABOUT ==================== */
@@ -289,26 +259,17 @@ section {
 .about__points {
   margin-top: var(--space-lg);
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-md);
 }
 
 .about__point {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--space-md);
-  padding-block: var(--space-md);
+  padding-top: var(--space-md);
   border-top: 1px solid var(--border-hairline);
 }
 
-.about__point-index {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 1.3rem;
-  color: var(--ink-muted);
-}
-
 .about__point h3 {
-  font-size: 1.08rem;
+  font-size: 1.02rem;
   font-family: var(--font-body);
   font-weight: 800;
 }
@@ -316,7 +277,7 @@ section {
 .about__point p {
   margin-top: 0.4rem;
   color: var(--ink-secondary);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }
 
 /* ==================== SERVICES ==================== */
@@ -335,7 +296,8 @@ section {
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  min-height: 340px;
+  justify-content: center;
+  min-height: 220px;
   transition: background var(--dur-med) var(--ease-out);
 }
 
@@ -343,45 +305,14 @@ section {
   background: var(--bg-surface);
 }
 
-.service-card__num {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 0.95rem;
-  color: var(--brand-teal-300);
-}
-
 .service-card h3 {
-  margin-top: var(--space-md);
   font-size: 1.4rem;
 }
 
 .service-card p {
   margin-top: var(--space-sm);
   color: var(--ink-secondary);
-  font-size: 0.94rem;
-  flex-grow: 1;
-}
-
-.service-card__meta {
-  margin-top: var(--space-md);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--border-hairline);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.service-card__meta-row {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.8rem;
-  color: var(--ink-muted);
-}
-
-.service-card__meta-row b {
-  color: var(--ink-secondary);
-  font-weight: 700;
-  flex-shrink: 0;
+  font-size: 0.96rem;
 }
 
 /* ==================== PROCESS ==================== */
@@ -466,7 +397,7 @@ section {
   font-family: var(--font-display);
   font-style: italic;
   font-size: 0.85rem;
-  color: var(--brand-teal-300);
+  color: var(--accent-strong);
 }
 
 .case-card__title {
@@ -567,7 +498,7 @@ section {
 .case-modal__backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(4, 8, 7, 0.78);
+  background: var(--scrim);
   backdrop-filter: blur(6px);
 }
 
@@ -636,7 +567,7 @@ section {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--brand-teal-300);
+  color: var(--accent-strong);
   margin-bottom: 0.6rem;
 }
 
@@ -814,7 +745,7 @@ section {
 }
 
 .site-footer__col a:hover {
-  color: var(--brand-teal-300);
+  color: var(--accent-strong);
 }
 
 .site-footer__bottom {

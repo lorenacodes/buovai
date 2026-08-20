@@ -26,8 +26,11 @@
   <header class="site-header" id="site-header">
     <div class="container site-header__inner">
       <a href="#top" class="brand">
-        <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
-        <span class="brand__word">Buovai<small>Soluções que resolvem</small></span>
+        <img class="brand__lockup-img" src="assets/img/logo-full.png" alt="Buovai — Seu próximo nível" />
+        <span class="brand__lockup-text">
+          <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
+          <span class="brand__word">Buovai<small>Seu próximo nível</small></span>
+        </span>
       </a>
 
       <nav class="nav-links" aria-label="Navegação principal">
@@ -39,6 +42,10 @@
       </nav>
 
       <div class="nav-actions">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro">
+          <svg class="theme-toggle__sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5" /><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12H5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" /></svg>
+          <svg class="theme-toggle__moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z" /></svg>
+        </button>
         <a href="#contato" class="btn btn-primary btn-sm desktop-only">
           <span>Iniciar projeto</span>
           <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
@@ -57,7 +64,7 @@
         <div>
           <p class="eyebrow hero__kicker">Engenharia de software · Sob medida</p>
           <h1>Sistemas que <em class="text-gradient" style="font-style:italic">substituem o caos</em> por controle.</h1>
-          <p class="hero__sub">A Buovai projeta e constrói software sob medida — do primeiro commit à operação em produção — para empresas que já não cabem mais em planilha.</p>
+          <p class="hero__sub">Software sob medida, do primeiro commit à operação em produção. Sem template, sem gambiarra.</p>
 
           <div class="hero__actions">
             <a href="#contato" class="btn btn-primary">
@@ -96,13 +103,6 @@
           </div>
         </div>
       </div>
-
-      <div class="marquee" aria-hidden="true">
-        <div class="marquee__track">
-          <span>Supabase</span><span>Row Level Security</span><span>Edge Functions</span><span>Realtime</span><span>PostgreSQL</span><span>JavaScript vanilla</span><span>Arquitetura multi-tenant</span>
-          <span>Supabase</span><span>Row Level Security</span><span>Edge Functions</span><span>Realtime</span><span>PostgreSQL</span><span>JavaScript vanilla</span><span>Arquitetura multi-tenant</span>
-        </div>
-      </div>
     </section>
 
     <!-- ============== SOBRE ============== -->
@@ -123,33 +123,23 @@
 
         <div class="about__body">
           <p class="eyebrow" data-reveal>Sobre a fundadora</p>
-          <h2 data-reveal style="--reveal-delay:80ms">Vinte anos não é currículo em construção. É a idade em que eu já entrego sistema em produção.</h2>
+          <h2 data-reveal style="--reveal-delay:80ms">Vinte anos não é currículo em construção.</h2>
           <p class="about__lede" data-reveal style="--reveal-delay:140ms">
-            Fundei a Buovai para provar um ponto simples: <strong>capacidade técnica não espera idade para acontecer.</strong>
-            Enquanto o mercado ainda debate se alguém jovem "está pronto", eu já projetei arquitetura de banco com isolamento de dados por Row Level Security, coloquei Edge Functions isolando chave de serviço do navegador e mantive dois sistemas rodando com usuários reais, todos os dias.
+            Capacidade técnica não espera idade para acontecer. RLS no banco, Edge Function isolando chave de serviço, dois sistemas em produção com usuário real — todo dia.
           </p>
 
           <div class="about__points">
             <div class="about__point" data-reveal>
-              <span class="about__point-index">01</span>
-              <div>
-                <h3>Visão de produto, não só de código</h3>
-                <p>Cada sistema que construo nasce de uma dor operacional real — planilha que não escala, processo que depende de e-mail, dado que se perde. O software é a consequência, não o ponto de partida.</p>
-              </div>
+              <h3>Visão de produto</h3>
+              <p>Cada sistema nasce de uma dor real — não de moda tecnológica.</p>
             </div>
             <div class="about__point" data-reveal>
-              <span class="about__point-index">02</span>
-              <div>
-                <h3>Rigor de engenheira sênior</h3>
-                <p>Testes automatizados, migrações versionadas, segurança resolvida no banco — não no frontend. Decisões técnicas que normalmente só se veem em equipes maduras, aplicadas desde a primeira linha.</p>
-              </div>
+              <h3>Rigor técnico</h3>
+              <p>Testes automatizados, segurança resolvida no banco — não no frontend.</p>
             </div>
             <div class="about__point" data-reveal>
-              <span class="about__point-index">03</span>
-              <div>
-                <h3>Ambição sem enrolação</h3>
-                <p>Não vendo "solução inovadora para o futuro". Entrego sistema funcionando, com dado real, em produção, sob prazo. A conversa técnica com você começa onde a maioria das agências termina.</p>
-              </div>
+              <h3>Sem enrolação</h3>
+              <p>Entrego sistema rodando. A conversa técnica começa onde a maioria para.</p>
             </div>
           </div>
         </div>
@@ -161,39 +151,23 @@
       <div class="container">
         <div class="section-head" data-reveal>
           <p class="eyebrow">O que fazemos</p>
-          <h2>Três formas de resolver o mesmo problema: <span class="text-gradient" style="font-style:italic">operação que não escala.</span></h2>
-          <p>Cada serviço abaixo nasce de um sistema que já construí e mantenho rodando — não é um catálogo teórico.</p>
+          <h2>Três formas de resolver <span class="text-gradient" style="font-style:italic">operação que não escala.</span></h2>
         </div>
 
         <div class="services-grid">
           <article class="service-card" data-reveal>
-            <span class="service-card__num">01</span>
             <h3>Sistemas internos de gestão</h3>
-            <p>Substituo a colcha de retalhos de planilhas e apps soltos por uma plataforma única — do primeiro contato comercial à entrega final — com dashboards, kanban e automações desenhadas para o fluxo real da sua operação.</p>
-            <div class="service-card__meta">
-              <div class="service-card__meta-row"><b>Como</b><span>Levantamento do fluxo atual → modelagem de dados → módulos interligados com sincronização em tempo real.</span></div>
-              <div class="service-card__meta-row"><b>Por quê</b><span>Porque sistema genérico de prateleira não modela o jeito específico como sua empresa trabalha.</span></div>
-            </div>
+            <p>Do primeiro contato à entrega, num só lugar. Sem planilha, sem WhatsApp decidindo o rumo da operação.</p>
           </article>
 
           <article class="service-card" data-reveal style="--reveal-delay:90ms">
-            <span class="service-card__num">02</span>
             <h3>Portais multi-tenant</h3>
-            <p>Construo portais onde cada cliente, parceiro ou franqueado acessa exatamente o que deveria — nem mais, nem menos — com isolamento de dados garantido pelo banco, não por lógica de frontend.</p>
-            <div class="service-card__meta">
-              <div class="service-card__meta-row"><b>Como</b><span>Row Level Security nativa do Postgres + Edge Functions para toda ação sensível, longe do navegador.</span></div>
-              <div class="service-card__meta-row"><b>Por quê</b><span>Porque "esconder" dado no frontend não é segurança — é esperar que ninguém abra o DevTools.</span></div>
-            </div>
+            <p>Cada cliente vê só o que é dele. Isolamento garantido pelo banco — não por lógica escondida no frontend.</p>
           </article>
 
           <article class="service-card" data-reveal style="--reveal-delay:180ms">
-            <span class="service-card__num">03</span>
-            <h3>Arquitetura &amp; consultoria técnica</h3>
-            <p>Para quem já tem um sistema, mas ele começou a rachar: reviso arquitetura, aponto onde a dívida técnica vai custar caro e desenho o caminho de evolução sem parar a operação.</p>
-            <div class="service-card__meta">
-              <div class="service-card__meta-row"><b>Como</b><span>Auditoria de schema, políticas de segurança, performance de consulta e organização de código.</span></div>
-              <div class="service-card__meta-row"><b>Por quê</b><span>Porque reescrever do zero raramente é a resposta certa — entender o que já existe é.</span></div>
-            </div>
+            <h3>Arquitetura &amp; consultoria</h3>
+            <p>Sistema que já existe mas começou a rachar? Leio o código, aponto o risco, desenho o caminho.</p>
           </article>
         </div>
       </div>
@@ -211,22 +185,22 @@
           <div class="process-item" data-reveal>
             <span class="process-item__phase">Fase 01</span>
             <h3>Imersão</h3>
-            <p>Entendo o processo real da sua operação antes de desenhar qualquer tabela — onde a informação nasce, onde ela se perde, quem decide o quê.</p>
+            <p>Entendo o processo real antes de desenhar qualquer tabela.</p>
           </div>
           <div class="process-item" data-reveal style="--reveal-delay:70ms">
             <span class="process-item__phase">Fase 02</span>
             <h3>Arquitetura</h3>
-            <p>Modelo o banco, defino as regras de segurança e desenho os módulos antes de escrever a primeira tela — a estrutura decide o que é fácil evoluir depois.</p>
+            <p>Banco, segurança e módulos definidos antes da primeira tela.</p>
           </div>
           <div class="process-item" data-reveal style="--reveal-delay:140ms">
             <span class="process-item__phase">Fase 03</span>
             <h3>Construção</h3>
-            <p>Entrego em ciclos curtos, com o sistema já rodando sobre dado real desde cedo — você acompanha o progresso, não uma promessa.</p>
+            <p>Entrego em ciclos curtos, com dado real desde o início.</p>
           </div>
           <div class="process-item" data-reveal style="--reveal-delay:210ms">
             <span class="process-item__phase">Fase 04</span>
-            <h3>Produção &amp; evolução</h3>
-            <p>Sistema no ar não é o fim — é o início da manutenção séria: monitoro, corrijo e evoluo com a mesma atenção de quem construiu.</p>
+            <h3>Produção</h3>
+            <p>No ar não é o fim. É onde a manutenção séria começa.</p>
           </div>
         </div>
       </div>
@@ -251,7 +225,7 @@
         <div class="contact__intro" data-reveal>
           <p class="eyebrow">Vamos conversar</p>
           <h2>Descreva o problema. <br />Eu volto com um caminho.</h2>
-          <p>Sem formulário de agência genérica. Conte o que está travando sua operação hoje — eu respondo pessoalmente.</p>
+          <p>Sem formulário de agência. Descreva o problema — eu respondo pessoalmente.</p>
 
           <div class="contact__channels">
             <div class="contact__channel">
@@ -331,8 +305,11 @@
       <div class="site-footer__top">
         <div>
           <a href="#top" class="brand">
-            <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
-            <span class="brand__word">Buovai<small>Soluções que resolvem</small></span>
+            <img class="brand__lockup-img" src="assets/img/logo-full.png" alt="Buovai — Seu próximo nível" />
+        <span class="brand__lockup-text">
+          <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
+          <span class="brand__word">Buovai<small>Seu próximo nível</small></span>
+        </span>
           </a>
           <p class="site-footer__pitch">Engenharia de software sob medida, fundada por Lorena Cardoso. Sistemas reais, em produção, para operações que cresceram além da planilha.</p>
         </div>

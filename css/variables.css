@@ -1,29 +1,12 @@
 /* ==========================================================================
    Buovai — Design Tokens
-   Sistema de identidade visual derivado da marca (verde-esmeralda + dourado
-   sobre navy profundo, tipografia serifada de personalidade + sans utilitária)
+   Paleta oficial: verde-sinal #80c299 · laranja #ff7a1a · dourado #d9a300 ·
+   tinta #201e1d · papel #f2f2f2. Tema claro é a base; tema escuro sobrepõe
+   via prefers-color-scheme e via toggle manual (data-theme no <html>).
    ========================================================================== */
 
 :root {
-  /* ---- Superfícies ---- */
-  --bg-void: #060b0a;
-  --bg-deep: #0a1512;
-  --bg-surface: #0d1a16;
-  --bg-elevated: rgba(255, 255, 255, 0.045);
-  --bg-elevated-hover: rgba(255, 255, 255, 0.075);
-  --bg-glass: rgba(13, 26, 22, 0.55);
-  --border-hairline: rgba(255, 255, 255, 0.09);
-  --border-hairline-strong: rgba(255, 255, 255, 0.16);
-
-  /* ---- Tinta ---- */
-  --ink-primary: #f1efec;
-  --ink-secondary: #b7b3ac;
-  --ink-muted: #78746d;
-  --ink-inverse: #201e1d;
-
-  /* ---- Marca (paleta oficial: verde-sinal #80c299 · laranja #ff7a1a ·
-     dourado #d9a300 · tinta #201e1d · papel #f2f2f2 — tons profundos
-     abaixo são derivações para contraste/gradiente sobre fundo escuro) ---- */
+  /* ---- Marca (fixa nos dois temas) ---- */
   --brand-emerald-900: #0d2118;
   --brand-emerald-700: #1c4a34;
   --brand-emerald-500: #3f8f68;
@@ -32,14 +15,41 @@
   --brand-gold-600: #b98900;
   --brand-gold-500: #d9a300;
   --brand-amber-400: #ff7a1a;
-  --paper: #f2f2f2;
-  --paper-raised: #ffffff;
+
+  /* ---- Tema claro (padrão) ---- */
+  --bg-void: #f2f2f2;
+  --bg-deep: #ffffff;
+  --bg-surface: #f7f6f4;
+  --bg-elevated: rgba(32, 30, 29, 0.05);
+  --bg-elevated-hover: rgba(32, 30, 29, 0.09);
+  --bg-glass: rgba(255, 255, 255, 0.68);
+  --header-bg: rgba(255, 255, 255, 0.72);
+  --header-bg-scrolled: rgba(255, 255, 255, 0.92);
+  --border-hairline: rgba(32, 30, 29, 0.1);
+  --border-hairline-strong: rgba(32, 30, 29, 0.18);
+
+  --ink-primary: #201e1d;
+  --ink-secondary: #55524f;
+  --ink-muted: #86827d;
+  --ink-inverse: #201e1d;
+
+  --accent-strong: var(--brand-emerald-700);
+  --accent-soft: var(--brand-emerald-500);
+  --accent-glow-rgb: 28, 74, 52;
+
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 20px 40px -24px rgba(32, 30, 29, 0.18);
+  --shadow-lift: 0 24px 60px -24px rgba(32, 30, 29, 0.22);
+  --scrim: rgba(242, 240, 236, 0.82);
+  --skeleton-base: rgba(32, 30, 29, 0.06);
+  --skeleton-shine: rgba(32, 30, 29, 0.11);
+  --noise-blend: multiply;
+  --noise-opacity: 0.02;
 
   --gradient-brand: linear-gradient(128deg, var(--brand-emerald-700) 0%, var(--brand-teal-400) 52%, var(--brand-gold-500) 100%);
-  --gradient-brand-soft: linear-gradient(128deg, rgba(28, 74, 52, 0.35) 0%, rgba(128, 194, 153, 0.28) 52%, rgba(217, 163, 0, 0.22) 100%);
+  --gradient-brand-soft: linear-gradient(128deg, rgba(28, 74, 52, 0.16) 0%, rgba(128, 194, 153, 0.16) 52%, rgba(217, 163, 0, 0.14) 100%);
   --gradient-mark: linear-gradient(160deg, #1c4a34 0%, #3f8f68 45%, #80c299 100%);
   --gradient-spark: radial-gradient(circle, #ffe0ad 0%, #d9a300 45%, rgba(255, 122, 26, 0) 75%);
-  --gradient-text: linear-gradient(96deg, #80c299 0%, #3f8f68 35%, #d9a300 100%);
+  --gradient-text: linear-gradient(96deg, #1c4a34 0%, #3f8f68 45%, #b98900 100%);
 
   /* ---- Tipografia ---- */
   --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", serif;
@@ -62,8 +72,8 @@
   --space-md: 1.5rem;
   --space-lg: 2.5rem;
   --space-xl: 4rem;
-  --space-2xl: 6rem;
-  --space-3xl: 9rem;
+  --space-2xl: 5.5rem;
+  --space-3xl: 7.5rem;
 
   --container-max: 1280px;
   --container-pad: clamp(1.25rem, 4vw, 4rem);
@@ -80,9 +90,104 @@
   --dur-fast: 180ms;
   --dur-med: 420ms;
   --dur-slow: 760ms;
+}
 
-  /* ---- Elevação ---- */
-  --shadow-glow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 20px 60px -20px rgba(63, 143, 104, 0.35);
+/* ---- Tema escuro: segue o sistema, a menos que o toggle force claro ---- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-void: #060b0a;
+    --bg-deep: #0a1512;
+    --bg-surface: #0d1a16;
+    --bg-elevated: rgba(255, 255, 255, 0.045);
+    --bg-elevated-hover: rgba(255, 255, 255, 0.075);
+    --bg-glass: rgba(13, 26, 22, 0.55);
+    --header-bg: rgba(8, 16, 14, 0.6);
+    --header-bg-scrolled: rgba(6, 11, 10, 0.82);
+    --border-hairline: rgba(255, 255, 255, 0.09);
+    --border-hairline-strong: rgba(255, 255, 255, 0.16);
+
+    --ink-primary: #f1efec;
+    --ink-secondary: #b7b3ac;
+    --ink-muted: #78746d;
+    --ink-inverse: #201e1d;
+
+    --accent-strong: var(--brand-teal-400);
+    --accent-soft: var(--brand-teal-300);
+    --accent-glow-rgb: 128, 194, 153;
+
+    --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 24px 48px -28px rgba(0, 0, 0, 0.65);
+    --shadow-lift: 0 30px 80px -30px rgba(0, 0, 0, 0.75);
+    --scrim: rgba(4, 8, 7, 0.78);
+    --skeleton-base: var(--bg-deep);
+    --skeleton-shine: var(--bg-elevated);
+    --noise-blend: overlay;
+    --noise-opacity: 0.035;
+
+    --gradient-text: linear-gradient(96deg, #80c299 0%, #3f8f68 35%, #d9a300 100%);
+  }
+}
+
+/* ---- Toggle manual: força o tema independente do sistema ---- */
+:root[data-theme="dark"] {
+  --bg-void: #060b0a;
+  --bg-deep: #0a1512;
+  --bg-surface: #0d1a16;
+  --bg-elevated: rgba(255, 255, 255, 0.045);
+  --bg-elevated-hover: rgba(255, 255, 255, 0.075);
+  --bg-glass: rgba(13, 26, 22, 0.55);
+  --header-bg: rgba(8, 16, 14, 0.6);
+  --header-bg-scrolled: rgba(6, 11, 10, 0.82);
+  --border-hairline: rgba(255, 255, 255, 0.09);
+  --border-hairline-strong: rgba(255, 255, 255, 0.16);
+
+  --ink-primary: #f1efec;
+  --ink-secondary: #b7b3ac;
+  --ink-muted: #78746d;
+  --ink-inverse: #201e1d;
+
+  --accent-strong: var(--brand-teal-400);
+  --accent-soft: var(--brand-teal-300);
+  --accent-glow-rgb: 128, 194, 153;
+
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 24px 48px -28px rgba(0, 0, 0, 0.65);
   --shadow-lift: 0 30px 80px -30px rgba(0, 0, 0, 0.75);
+  --scrim: rgba(4, 8, 7, 0.78);
+  --skeleton-base: var(--bg-deep);
+  --skeleton-shine: var(--bg-elevated);
+  --noise-blend: overlay;
+  --noise-opacity: 0.035;
+
+  --gradient-text: linear-gradient(96deg, #80c299 0%, #3f8f68 35%, #d9a300 100%);
+}
+
+:root[data-theme="light"] {
+  --bg-void: #f2f2f2;
+  --bg-deep: #ffffff;
+  --bg-surface: #f7f6f4;
+  --bg-elevated: rgba(32, 30, 29, 0.05);
+  --bg-elevated-hover: rgba(32, 30, 29, 0.09);
+  --bg-glass: rgba(255, 255, 255, 0.68);
+  --header-bg: rgba(255, 255, 255, 0.72);
+  --header-bg-scrolled: rgba(255, 255, 255, 0.92);
+  --border-hairline: rgba(32, 30, 29, 0.1);
+  --border-hairline-strong: rgba(32, 30, 29, 0.18);
+
+  --ink-primary: #201e1d;
+  --ink-secondary: #55524f;
+  --ink-muted: #86827d;
+  --ink-inverse: #201e1d;
+
+  --accent-strong: var(--brand-emerald-700);
+  --accent-soft: var(--brand-emerald-500);
+  --accent-glow-rgb: 28, 74, 52;
+
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 20px 40px -24px rgba(32, 30, 29, 0.18);
+  --shadow-lift: 0 24px 60px -24px rgba(32, 30, 29, 0.22);
+  --scrim: rgba(242, 240, 236, 0.82);
+  --skeleton-base: rgba(32, 30, 29, 0.06);
+  --skeleton-shine: rgba(32, 30, 29, 0.11);
+  --noise-blend: multiply;
+  --noise-opacity: 0.02;
+
+  --gradient-text: linear-gradient(96deg, #1c4a34 0%, #3f8f68 45%, #b98900 100%);
 }

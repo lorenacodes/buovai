@@ -93,7 +93,7 @@ h4 {
 }
 
 ::selection {
-  background: var(--brand-teal-400);
+  background: var(--accent-strong);
   color: var(--ink-inverse);
 }
 
@@ -114,8 +114,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 2000;
-  opacity: 0.035;
-  mix-blend-mode: overlay;
+  opacity: var(--noise-opacity);
+  mix-blend-mode: var(--noise-blend);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -136,7 +136,7 @@ body::before {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--brand-teal-300);
+  color: var(--accent-strong);
 }
 
 .eyebrow::before {
@@ -172,7 +172,7 @@ body::before {
   top: -100px;
   left: 1rem;
   z-index: 5000;
-  background: var(--brand-teal-400);
+  background: var(--accent-strong);
   color: var(--ink-inverse);
   padding: 0.6em 1.1em;
   border-radius: var(--radius-sm);
