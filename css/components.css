@@ -10,8 +10,9 @@
 }
 
 .brand__mark {
-  width: 34px;
+  width: 30px;
   height: 34px;
+  object-fit: contain;
   flex-shrink: 0;
 }
 

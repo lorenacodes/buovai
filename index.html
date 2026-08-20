@@ -17,40 +17,16 @@
   <link rel="stylesheet" href="css/sections.css" />
   <link rel="stylesheet" href="css/responsive.css" />
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='10' y1='90' x2='85' y2='15'%3E%3Cstop offset='0%25' stop-color='%231c4a34'/%3E%3Cstop offset='100%25' stop-color='%2380c299'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23g)' d='M78 78C55 92 22 84 12 60C6 46 8 30 18 18C14 34 20 50 34 58C48 66 64 62 72 50C76 62 74 72 78 78Z'/%3E%3C/svg%3E" />
+  <link rel="icon" type="image/png" href="assets/img/logo-mark.png" />
 </head>
 <body>
   <a class="skip-link" href="#main">Pular para o conteúdo</a>
-
-  <!-- ============== SPRITE DA MARCA ============== -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <symbol id="mark-buovai" viewBox="0 0 100 100">
-        <linearGradient id="gradMark" x1="10" y1="90" x2="85" y2="15" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stop-color="#1c4a34" />
-          <stop offset="55%" stop-color="#3f8f68" />
-          <stop offset="100%" stop-color="#80c299" />
-        </linearGradient>
-        <radialGradient id="gradSpark" cx="50%" cy="35%" r="65%">
-          <stop offset="0%" stop-color="#ffe0ad" />
-          <stop offset="45%" stop-color="#d9a300" />
-          <stop offset="100%" stop-color="#ff7a1a" />
-        </radialGradient>
-        <mask id="markCut">
-          <rect x="0" y="0" width="100" height="100" fill="#fff" />
-          <circle cx="66" cy="34" r="24" fill="#000" />
-        </mask>
-        <path mask="url(#markCut)" fill="url(#gradMark)" d="M78 78C55 92 22 84 12 60C6 46 8 30 18 18C14 34 20 50 34 58C48 66 64 62 72 50C76 62 74 72 78 78Z" />
-        <path fill="url(#gradSpark)" d="M70 6C71.5 16 73 24 84 26C73 28 71.5 36 70 46C68.5 36 67 28 56 26C67 24 68.5 16 70 6Z" />
-      </symbol>
-    </defs>
-  </svg>
 
   <!-- ============== HEADER ============== -->
   <header class="site-header" id="site-header">
     <div class="container site-header__inner">
       <a href="#top" class="brand">
-        <svg class="brand__mark" aria-hidden="true"><use href="#mark-buovai"></use></svg>
+        <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
         <span class="brand__word">Buovai<small>Soluções que resolvem</small></span>
       </a>
 
@@ -112,7 +88,7 @@
           <div class="hero__ring"></div>
           <div class="hero__ring hero__ring--inner"></div>
           <div class="hero__mark">
-            <svg viewBox="0 0 100 100"><use href="#mark-buovai"></use></svg>
+            <img src="assets/img/logo-mark.png" alt="Símbolo Buovai" />
           </div>
           <div class="hero__grain-badge glass-panel">
             <span class="dot"></span>
@@ -355,7 +331,7 @@
       <div class="site-footer__top">
         <div>
           <a href="#top" class="brand">
-            <svg class="brand__mark" aria-hidden="true"><use href="#mark-buovai"></use></svg>
+            <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
             <span class="brand__word">Buovai<small>Soluções que resolvem</small></span>
           </a>
           <p class="site-footer__pitch">Engenharia de software sob medida, fundada por Lorena Cardoso. Sistemas reais, em produção, para operações que cresceram além da planilha.</p>
