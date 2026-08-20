@@ -52,7 +52,7 @@
   --gradient-text: linear-gradient(96deg, #1c4a34 0%, #3f8f68 45%, #b98900 100%);
 
   /* ---- Tipografia ---- */
-  --font-display: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Bricolage Grotesque", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-body: "Manrope", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --fs-display-xl: clamp(2.75rem, 5.6vw + 1rem, 6.4rem);

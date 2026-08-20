@@ -317,9 +317,9 @@
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.03em;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-hairline);
-  color: var(--ink-secondary);
+  background: rgba(var(--accent-glow-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-glow-rgb), 0.28);
+  color: var(--accent-strong);
 }
 
 /* ---- Formulário: editorial, sem caixas — divisórias finas ---- */
