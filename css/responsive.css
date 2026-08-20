@@ -89,7 +89,7 @@
     display: flex;
   }
 
-  .nav-actions .btn-ghost.desktop-only {
+  .nav-actions .desktop-only {
     display: none;
   }
 

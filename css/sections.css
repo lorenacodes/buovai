@@ -132,7 +132,7 @@ section {
 }
 
 .hero__mark img {
-  width: 46%;
+  width: 58%;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 20px 60px rgba(63, 143, 104, 0.45));
