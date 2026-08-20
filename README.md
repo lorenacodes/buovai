@@ -19,8 +19,10 @@ js/
   portfolio.js         Busca e renderiza os cases publicados (tabela portfolio_projects)
   contact.js            Envia o formulário de contato (tabela contact_messages)
   main.js               Interações de UI (header, menu, reveal-on-scroll)
-  vendor/supabase-js.umd.js  Cliente Supabase JS vendorizado localmente
 ```
+
+O cliente Supabase JS é carregado via CDN (`@supabase/supabase-js@2`) em
+`index.html`, sem etapa de build.
 
 ## Backend (Supabase)
 
