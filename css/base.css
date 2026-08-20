@@ -153,6 +153,7 @@ body::before {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  font-style: normal;
 }
 
 .visually-hidden {

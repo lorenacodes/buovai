@@ -46,7 +46,6 @@ section {
 
 .hero h1 {
   font-size: var(--fs-display-xl);
-  font-style: italic;
   max-width: 15ch;
 }
 
@@ -214,7 +213,6 @@ section {
 
 .about__initial {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 5rem;
   font-weight: 600;
   line-height: 1;
@@ -235,13 +233,11 @@ section {
   color: var(--ink-primary);
   font-size: 1.05rem;
   font-family: var(--font-display);
-  font-style: italic;
   margin-bottom: 0.15rem;
 }
 
 .about__body h2 {
   font-size: var(--fs-display-md);
-  font-style: italic;
   max-width: 18ch;
 }
 
@@ -341,7 +337,6 @@ section {
 
 .process-item h3 {
   font-size: 1.5rem;
-  font-style: italic;
 }
 
 .process-item p {
@@ -395,7 +390,6 @@ section {
 
 .case-card__index {
   font-family: var(--font-display);
-  font-style: italic;
   font-size: 0.85rem;
   color: var(--accent-strong);
 }
@@ -609,7 +603,6 @@ section {
   margin-top: var(--space-sm);
   font-size: 0.82rem;
   color: var(--ink-muted);
-  font-style: italic;
 }
 
 /* ==================== CONTACT ==================== */
@@ -621,7 +614,6 @@ section {
 
 .contact__intro h2 {
   font-size: var(--fs-display-lg);
-  font-style: italic;
 }
 
 .contact__intro p {
