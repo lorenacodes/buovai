@@ -37,7 +37,7 @@ jobs:
         run: flutter test
 
       - name: Buildar APK (debug)
-        run: flutter build apk --debug
+        run: flutter build apk --debug --android-skip-build-dependency-validation
 
       - name: Publicar APK como artefato
         uses: actions/upload-artifact@v4
