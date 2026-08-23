@@ -46,7 +46,7 @@ class SettingsScreen extends StatelessWidget {
           Text('Alertas', style: Theme.of(context).textTheme.titleMedium),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            activeColor: AppColors.roseDeep,
+            activeThumbColor: AppColors.roseDeep,
             title: const Text('Alertas de padrão de gasto'),
             subtitle: const Text('Avisos quando uma categoria foge do seu costume'),
             value: profile.alertsEnabled,
@@ -54,7 +54,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            activeColor: AppColors.roseDeep,
+            activeThumbColor: AppColors.roseDeep,
             title: const Text('Resumo semanal'),
             subtitle: const Text('Um panorama leve da sua semana financeira'),
             value: profile.weeklySummaryEnabled,

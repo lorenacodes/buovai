@@ -119,7 +119,7 @@ class _QuickAddSheetState extends State<QuickAddSheet> {
                   label: Text(category.label),
                   avatar: Icon(iconForCategory(category.icon), size: 16),
                   onSelected: (_) => setState(() => _selectedCategoryId = category.id),
-                  selectedColor: AppColors.roseMuted.withOpacity(0.35),
+                  selectedColor: AppColors.roseMuted.withValues(alpha: 0.35),
                 );
               }).toList(),
             ),
