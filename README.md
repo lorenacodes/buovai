@@ -3,6 +3,10 @@
 Site institucional da Buovai, fundada por Lorena Cardoso. HTML, CSS e
 JavaScript puros, com Supabase como backend real (sem dado mockado).
 
+> O app Android **Girls Math** (educação financeira) vive em
+> [`girls_math/`](girls_math/), como projeto Flutter independente deste
+> site. Veja `girls_math/README.md` para a visão do produto e como rodar.
+
 ## Estrutura
 
 ```
