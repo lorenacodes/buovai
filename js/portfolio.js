@@ -75,6 +75,63 @@
     `;
   }
 
+  function setupShots(project) {
+    const shots = SCREENSHOTS[project.client_name];
+    const shotEl = modalEl.querySelector('[data-field="shot"]');
+    const trackEl = modalEl.querySelector('[data-field="shot-track"]');
+    const dotsEl = modalEl.querySelector('[data-field="shot-dots"]');
+    const prevBtn = modalEl.querySelector('[data-field="shot-prev"]');
+    const nextBtn = modalEl.querySelector('[data-field="shot-next"]');
+
+    if (!shots || !shots.length) {
+      shotEl.hidden = true;
+      trackEl.innerHTML = "";
+      dotsEl.innerHTML = "";
+      return;
+    }
+
+    trackEl.innerHTML = shots
+      .map(
+        (shot) => `
+          <figure class="case-modal__shot-item">
+            <img src="${shot.src}" alt="Interface do sistema ${escapeHtml(project.title)}" loading="lazy" />
+            <figcaption>${escapeHtml(shot.caption)}</figcaption>
+          </figure>
+        `
+      )
+      .join("");
+
+    const multi = shots.length > 1;
+    dotsEl.innerHTML = multi
+      ? shots.map((_, i) => `<button type="button" aria-label="Ir para imagem ${i + 1}" data-dot="${i}"></button>`).join("")
+      : "";
+    prevBtn.style.display = multi ? "" : "none";
+    nextBtn.style.display = multi ? "" : "none";
+
+    const dots = Array.from(dotsEl.querySelectorAll("button"));
+    const items = Array.from(trackEl.querySelectorAll(".case-modal__shot-item"));
+
+    function updateActive() {
+      const index = Math.round(trackEl.scrollLeft / trackEl.clientWidth);
+      dots.forEach((d, i) => d.classList.toggle("is-active", i === index));
+      if (prevBtn) prevBtn.disabled = index === 0;
+      if (nextBtn) nextBtn.disabled = index === items.length - 1;
+    }
+
+    function goTo(index) {
+      trackEl.scrollTo({ left: index * trackEl.clientWidth, behavior: "smooth" });
+    }
+
+    trackEl.addEventListener("scroll", updateActive, { passive: true });
+    dots.forEach((d, i) => d.addEventListener("click", () => goTo(i)));
+    if (prevBtn) prevBtn.onclick = () => goTo(Math.max(0, Math.round(trackEl.scrollLeft / trackEl.clientWidth) - 1));
+    if (nextBtn) nextBtn.onclick = () => goTo(Math.min(items.length - 1, Math.round(trackEl.scrollLeft / trackEl.clientWidth) + 1));
+
+    trackEl.scrollLeft = 0;
+    updateActive();
+    shotEl.hidden = false;
+  }
+
   function openModal(project) {
     if (!modalEl) return;
 
@@ -83,24 +140,7 @@
     modalEl.querySelector(".case-modal__client").textContent = [project.client_name, project.audience]
       .filter(Boolean)
       .join(" · ");
-    const shots = SCREENSHOTS[project.client_name];
-    const shotEl = modalEl.querySelector('[data-field="shot"]');
-    if (shots && shots.length) {
-      shotEl.innerHTML = shots
-        .map(
-          (shot) => `
-            <figure class="case-modal__shot-item">
-              <img src="${shot.src}" alt="Interface do sistema ${escapeHtml(project.title)}" loading="lazy" />
-              <figcaption>${escapeHtml(shot.caption)}</figcaption>
-            </figure>
-          `
-        )
-        .join("");
-      shotEl.hidden = false;
-    } else {
-      shotEl.innerHTML = "";
-      shotEl.hidden = true;
-    }
+    setupShots(project);
 
     modalEl.querySelector('[data-field="problem"]').textContent = project.problem || "—";
     modalEl.querySelector('[data-field="solution"]').textContent = project.solution || "—";

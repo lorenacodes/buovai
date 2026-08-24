@@ -330,7 +330,16 @@
       <h3 class="case-modal__title"></h3>
       <p class="case-modal__client"></p>
 
-      <div class="case-modal__shot" data-field="shot" hidden></div>
+      <div class="case-modal__shot" data-field="shot" hidden>
+        <div class="case-modal__shot-track" data-field="shot-track"></div>
+        <button type="button" class="case-modal__shot-nav case-modal__shot-nav--prev" data-field="shot-prev" aria-label="Imagem anterior">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button type="button" class="case-modal__shot-nav case-modal__shot-nav--next" data-field="shot-next" aria-label="Próxima imagem">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="case-modal__shot-dots" data-field="shot-dots"></div>
+      </div>
 
       <div class="case-modal__body">
         <div class="case-modal__block">
