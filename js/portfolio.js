@@ -65,17 +65,23 @@
 
   function renderCard(project, index) {
     const num = String(index + 1).padStart(2, "0");
+    const firstShot = (SCREENSHOTS[project.client_name] || [])[0];
+    const media = firstShot
+      ? `<img src="${firstShot.src}" alt="Interface do sistema ${escapeHtml(project.title)}" loading="lazy" />`
+      : `<span class="case-card__media-placeholder" aria-hidden="true">${num}</span>`;
+
     return `
       <article class="case-card" data-project-id="${project.id}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Ver case completo: ${escapeHtml(project.title)}">
-        <div class="case-card__inner">
-          <div>
+        <div class="case-card__media">${media}</div>
+        <div class="case-card__body">
+          <div class="case-card__meta">
             <span class="case-card__index">Case ${num}</span>
-            <h3 class="case-card__title">${escapeHtml(project.title)} <span class="case-card__client">— ${escapeHtml(project.client_name || "")}</span></h3>
-            <p class="case-card__summary">${escapeHtml(project.summary || "")}</p>
-            <div class="case-card__tags">${renderTags(project.tags)}</div>
           </div>
+          <h3 class="case-card__title">${escapeHtml(project.title)} <span class="case-card__client">— ${escapeHtml(project.client_name || "")}</span></h3>
+          <p class="case-card__summary">${escapeHtml(project.summary || "")}</p>
+          <div class="case-card__tags">${renderTags(project.tags)}</div>
           <div class="case-card__cta">
-            <span>Ver detalhes</span>
+            <span>Ver case completo</span>
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
           </div>
         </div>

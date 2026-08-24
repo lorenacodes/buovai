@@ -105,7 +105,7 @@ body::before {
   pointer-events: none;
   z-index: 2000;
   opacity: var(--noise-opacity);
-  mix-blend-mode: var(--noise-blend);
+  mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -137,12 +137,8 @@ body::before {
 }
 
 
-.text-gradient {
-  background: var(--gradient-text);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-style: normal;
+.accent {
+  color: var(--accent-strong);
 }
 
 .visually-hidden {

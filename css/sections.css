@@ -8,17 +8,13 @@ section {
   scroll-margin-top: 5rem;
 }
 
-.section-tint-teal {
-  background: linear-gradient(180deg, rgba(128, 194, 153, 0.12), transparent 65%);
-}
-
-.section-tint-gold {
-  background: linear-gradient(180deg, rgba(217, 163, 0, 0.09), transparent 65%);
-}
-
 .section-head {
   max-width: 640px;
   margin-bottom: var(--space-xl);
+}
+
+.section-head--wide {
+  max-width: 760px;
 }
 
 .section-head h2 {
@@ -212,65 +208,107 @@ section {
 .panel-ink .row-item { border-color: var(--panel-ink-border); }
 
 /* ==================== PORTFOLIO ==================== */
-.portfolio-list {
+.portfolio-grid {
   display: grid;
-  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--space-lg);
+  align-items: stretch;
 }
 
 .case-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   border-radius: var(--radius-md);
   overflow: hidden;
   cursor: pointer;
   background: var(--bg-deep);
   border: 1px solid var(--border-hairline);
-  transition: border-color var(--dur-fast) var(--ease-out);
+  transition: border-color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
 }
 
 .case-card:hover {
   border-color: var(--border-hairline-strong);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-3px);
 }
 
-.case-card__inner {
+.case-card__media {
   position: relative;
-  padding: var(--space-lg);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-lg);
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.case-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.case-card:hover .case-card__media img {
+  transform: scale(1.035);
+}
+
+.case-card__media-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 3.2rem;
+  color: var(--border-hairline-strong);
+}
+
+.case-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+
+.case-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
 }
 
 .case-card__index {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--accent-strong);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
   font-variant-numeric: tabular-nums;
-}
-
-.case-card {
-  border-top: 3px solid var(--brand-teal-400);
-}
-
-.case-card:nth-child(2n) {
-  border-top-color: var(--brand-gold-500);
+  text-transform: uppercase;
 }
 
 .case-card__title {
-  margin-top: var(--space-xs);
-  font-size: clamp(1.5rem, 2vw + 1rem, 2.1rem);
+  margin-top: var(--space-sm);
+  font-size: clamp(1.25rem, 1.2vw + 1rem, 1.55rem);
 }
 
 .case-card__client {
   color: var(--ink-muted);
   font-weight: 500;
+  font-size: 0.72em;
 }
 
 .case-card__summary {
-  margin-top: var(--space-sm);
+  margin-top: 0.6rem;
   color: var(--ink-secondary);
-  max-width: 62ch;
-  font-size: 0.98rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .case-card__tags {
@@ -281,16 +319,16 @@ section {
 }
 
 .case-card__cta {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-hairline);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.4em;
-  flex-shrink: 0;
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   font-weight: 700;
   color: var(--ink-primary);
-  border-bottom: 2px solid var(--accent-strong);
-  padding-bottom: 0.15em;
-  white-space: nowrap;
 }
 
 .case-card__cta svg {
@@ -306,6 +344,7 @@ section {
 
 .portfolio-empty,
 .portfolio-error {
+  grid-column: 1 / -1;
   padding: var(--space-lg);
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-md);
@@ -316,7 +355,7 @@ section {
 
 .skeleton {
   border-radius: var(--radius-md);
-  height: 176px;
+  height: 340px;
   background: linear-gradient(100deg, var(--bg-deep) 30%, var(--bg-elevated) 50%, var(--bg-deep) 70%);
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;

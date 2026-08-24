@@ -2,8 +2,7 @@
    Buovai — Componentes
    ========================================================================== */
 
-/* ---- Marca (lockup real em claro; símbolo + texto em escuro,
-   porque a tinta do lockup é fixa e some no fundo escuro) ---- */
+/* ---- Marca ---- */
 .brand {
   display: inline-flex;
   align-items: center;
@@ -14,12 +13,6 @@
   height: 40px;
   width: auto;
   object-fit: contain;
-}
-
-.brand__lockup-text {
-  display: none;
-  align-items: center;
-  gap: 0.75rem;
 }
 
 .brand__mark {
@@ -47,14 +40,6 @@
   color: var(--ink-muted);
   margin-top: 2px;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .brand__lockup-img { display: none; }
-  :root:not([data-theme="light"]) .brand__lockup-text { display: inline-flex; }
-}
-
-:root[data-theme="dark"] .brand__lockup-img { display: none; }
-:root[data-theme="dark"] .brand__lockup-text { display: inline-flex; }
 
 /* ---- Marca sobre painel escuro fixo (rodapé): sempre símbolo + texto claro ---- */
 .brand--on-panel .brand__word {
@@ -164,57 +149,6 @@
 .site-header.is-open .nav-toggle__bars span:nth-child(2) { opacity: 0; }
 .site-header.is-open .nav-toggle__bars span:nth-child(3) { top: 4.5px; transform: rotate(-45deg); }
 
-/* ---- Toggle de tema ---- */
-.theme-toggle {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: 1px solid var(--border-hairline-strong);
-  color: var(--ink-primary);
-  flex-shrink: 0;
-  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
-}
-
-.theme-toggle:hover {
-  background: var(--bg-elevated);
-}
-
-.theme-toggle__sun,
-.theme-toggle__moon {
-  position: absolute;
-  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-med) var(--ease-out);
-}
-
-.theme-toggle__moon {
-  opacity: 0;
-  transform: rotate(-40deg) scale(0.6);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .theme-toggle__sun {
-    opacity: 0;
-    transform: rotate(40deg) scale(0.6);
-  }
-  :root:not([data-theme="light"]) .theme-toggle__moon {
-    opacity: 1;
-    transform: rotate(0) scale(1);
-  }
-}
-
-:root[data-theme="dark"] .theme-toggle__sun {
-  opacity: 0;
-  transform: rotate(40deg) scale(0.6);
-}
-
-:root[data-theme="dark"] .theme-toggle__moon {
-  opacity: 1;
-  transform: rotate(0) scale(1);
-}
-
 /* ---- Botões: retangulares, sem gradiente, sem glow ---- */
 .btn {
   display: inline-flex;
@@ -240,20 +174,6 @@
 .btn-primary:hover {
   background: var(--brand-emerald-700);
   border-color: var(--brand-emerald-700);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .btn-primary {
-    color: var(--panel-ink);
-    background: var(--brand-teal-400);
-    border-color: var(--brand-teal-400);
-  }
-}
-
-:root[data-theme="dark"] .btn-primary {
-  color: var(--panel-ink);
-  background: var(--brand-teal-400);
-  border-color: var(--brand-teal-400);
 }
 
 .btn-ghost {

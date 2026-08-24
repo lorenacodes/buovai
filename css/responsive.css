@@ -93,11 +93,6 @@
     gap: var(--space-2xs);
   }
 
-  .case-card__inner {
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-
   .contact-form__grid {
     grid-template-columns: 1fr;
   }
