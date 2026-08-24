@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel do cliente — Buovai</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="painel.css" />
+  <link rel="icon" type="image/png" href="../assets/img/logo-mark.png" />
+</head>
+<body>
+  <div class="panel-shell">
+    <header class="panel-topbar">
+      <a href="../index.html" class="panel-topbar__brand">
+        <img src="../assets/img/logo-mark.png" alt="" aria-hidden="true" />
+        <span>Buovai</span>
+      </a>
+      <div class="panel-topbar__user">
+        <span id="user-email"></span>
+        <a href="admin.html" id="admin-link" class="btn btn-ghost btn-sm" hidden>Área admin</a>
+        <button class="btn btn-ghost btn-sm" id="logout-btn">Sair</button>
+      </div>
+    </header>
+
+    <main class="panel-main" id="main-content">
+      <div class="panel-head">
+        <p class="panel-eyebrow">Painel do cliente</p>
+        <h1>Seus projetos com a Buovai</h1>
+      </div>
+      <div id="projects-container">
+        <div class="empty-state">Carregando...</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var STAGE_LABELS = { pendente: "Pendente", em_andamento: "Em andamento", concluido: "Concluído" };
+      var PROJECT_STATUS_LABELS = { em_andamento: "Em andamento", pausado: "Pausado", concluido: "Concluído" };
+
+      function escapeHtml(str) {
+        var div = document.createElement("div");
+        div.textContent = str == null ? "" : str;
+        return div.innerHTML;
+      }
+
+      function fmtDate(iso) {
+        if (!iso) return "";
+        var d = new Date(iso);
+        return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+      }
+
+      async function boot() {
+        var { data: sessionData } = await window.buovaiClient.auth.getSession();
+        var session = sessionData.session;
+
+        if (!session) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        document.getElementById("user-email").textContent = session.user.email || "";
+
+        var { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
+        if (isAdmin) {
+          document.getElementById("admin-link").hidden = false;
+        }
+
+        await loadProjects();
+      }
+
+      async function loadProjects() {
+        var container = document.getElementById("projects-container");
+
+        var { data: projects, error } = await window.buovaiClient
+          .from("client_projects")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          container.innerHTML = '<div class="empty-state">Não foi possível carregar seus projetos agora. Atualize a página em instantes.</div>';
+          return;
+        }
+
+        if (!projects || !projects.length) {
+          container.innerHTML = '<div class="empty-state">Nenhum projeto vinculado a este e-mail ainda. Se você acabou de contratar, aguarde a configuração do seu acesso.</div>';
+          return;
+        }
+
+        var cardsHtml = await Promise.all(projects.map(renderProjectCard));
+        container.innerHTML = cardsHtml.join("");
+      }
+
+      async function renderProjectCard(project) {
+        var [{ data: stages }, { data: deliveries }] = await Promise.all([
+          window.buovaiClient.from("project_stages").select("*").eq("project_id", project.id).order("order_index", { ascending: true }),
+          window.buovaiClient.from("project_deliveries").select("*").eq("project_id", project.id).order("delivered_at", { ascending: false }),
+        ]);
+
+        var stagesHtml = (stages || [])
+          .map(function (s) {
+            var dotLabel = s.status === "concluido" ? "✓" : s.status === "em_andamento" ? "•" : "";
+            return (
+              '<div class="stage-item">' +
+                '<span class="stage-item__dot stage-item__dot--' + s.status + '">' + dotLabel + "</span>" +
+                '<div class="stage-item__body">' +
+                  "<h4>" + escapeHtml(s.title) + "</h4>" +
+                  "<p>" + (STAGE_LABELS[s.status] || s.status) + (s.notes ? " — " + escapeHtml(s.notes) : "") + "</p>" +
+                "</div>" +
+              "</div>"
+            );
+          })
+          .join("");
+
+        var deliveriesHtml = (deliveries || []).length
+          ? (deliveries || [])
+              .map(function (d) {
+                return (
+                  '<div class="delivery-item">' +
+                    '<div class="delivery-item__top"><span>' + escapeHtml(d.title) + '</span><span class="delivery-item__date">' + fmtDate(d.delivered_at) + "</span></div>" +
+                    (d.description ? "<p>" + escapeHtml(d.description) + "</p>" : "") +
+                  "</div>"
+                );
+              })
+              .join("")
+          : '<p style="color:var(--ink-muted); font-size:0.88rem;">Nenhuma entrega registrada ainda.</p>';
+
+        return (
+          '<div class="project-card">' +
+            '<div class="project-card__top">' +
+              "<h2>" + escapeHtml(project.project_title) + "</h2>" +
+              '<span class="status-tag status-tag--' + project.status + '">' + (PROJECT_STATUS_LABELS[project.status] || project.status) + "</span>" +
+            "</div>" +
+            '<div class="stage-list">' + (stagesHtml || '<p style="color:var(--ink-muted); font-size:0.88rem; padding:0.75rem 0;">Etapas ainda não configuradas.</p>') + "</div>" +
+            '<div class="delivery-list"><h3>Histórico de entregas</h3>' + deliveriesHtml + "</div>" +
+          "</div>"
+        );
+      }
+
+      document.getElementById("logout-btn").addEventListener("click", async function () {
+        await window.buovaiClient.auth.signOut();
+        window.location.href = "login.html";
+      });
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

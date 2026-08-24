@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel do cliente — Buovai</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="painel.css" />
+  <link rel="icon" type="image/png" href="../assets/img/logo-mark.png" />
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-card__brand">
+        <img src="../assets/img/logo-mark.png" alt="" aria-hidden="true" />
+        <span>Buovai</span>
+      </div>
+      <h1>Painel do cliente</h1>
+      <p class="login-card__sub">Digite o e-mail cadastrado no seu projeto. Enviamos um link de acesso — sem senha pra guardar.</p>
+
+      <form id="login-form">
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input id="email" type="email" placeholder="voce@empresa.com" required autocomplete="email" />
+        </div>
+        <button type="submit" class="btn btn-block" id="login-submit">Enviar link de acesso</button>
+      </form>
+
+      <div class="status-msg" id="login-status" role="status"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var form = document.getElementById("login-form");
+      var submitBtn = document.getElementById("login-submit");
+      var statusEl = document.getElementById("login-status");
+
+      function showStatus(text, kind) {
+        statusEl.textContent = text;
+        statusEl.className = "status-msg is-visible status-msg--" + kind;
+      }
+
+      // Se já tem sessão ativa, manda direto pro painel.
+      window.buovaiClient.auth.getSession().then(function (res) {
+        if (res.data.session) window.location.href = "index.html";
+      });
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        var email = document.getElementById("email").value.trim();
+        if (!email) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Enviando...";
+
+        var redirectTo = window.location.origin + window.location.pathname.replace(/login\.html$/, "index.html");
+
+        var { error } = await window.buovaiClient.auth.signInWithOtp({
+          email: email,
+          options: { emailRedirectTo: redirectTo },
+        });
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Enviar link de acesso";
+
+        if (error) {
+          showStatus("Não foi possível enviar o link agora. Tente de novo em instantes.", "error");
+          return;
+        }
+
+        showStatus("Link enviado! Confira sua caixa de entrada (e o spam) e clique para acessar o painel.", "ok");
+        form.reset();
+      });
+    })();
+  </script>
+</body>
+</html>
