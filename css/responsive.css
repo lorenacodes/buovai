@@ -12,6 +12,15 @@
     grid-template-columns: 1fr;
   }
 
+  .tracking {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .tracking__intro h2 {
+    max-width: none;
+  }
+
   .site-footer__top {
     grid-template-columns: 1fr;
     gap: var(--space-lg);
