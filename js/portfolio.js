@@ -14,10 +14,26 @@
   // Prints reais dos sistemas, com dados sensíveis borrados. Mapeados por
   // client_name porque a tabela portfolio_projects ainda não tem coluna de imagem.
   const SCREENSHOTS = {
-    "Milatec": {
-      src: "assets/img/case-milalab.jpg",
-      caption: "Painel do MilaLab — dados sensíveis borrados para preservar a privacidade do cliente.",
-    },
+    "Milatec": [
+      {
+        src: "assets/img/case-milalab.jpg",
+        caption: "Painel do MilaLab — dados sensíveis borrados para preservar a privacidade do cliente.",
+      },
+    ],
+    "Trilhar Contabilidade": [
+      {
+        src: "assets/img/case-trilhar-dashboard.jpg",
+        caption: "Visão geral do painel administrativo — indicadores da operação em tempo real.",
+      },
+      {
+        src: "assets/img/case-trilhar-clientes.jpg",
+        caption: "Lista de clientes — nomes, e-mails e CPFs borrados para preservar a privacidade dos clientes da Trilhar.",
+      },
+      {
+        src: "assets/img/case-trilhar-detalhe.jpg",
+        caption: "Ficha individual do cliente — dados pessoais borrados para preservar a privacidade.",
+      },
+    ],
   };
 
   function escapeHtml(str) {
@@ -67,14 +83,22 @@
     modalEl.querySelector(".case-modal__client").textContent = [project.client_name, project.audience]
       .filter(Boolean)
       .join(" · ");
-    const shot = SCREENSHOTS[project.client_name];
+    const shots = SCREENSHOTS[project.client_name];
     const shotEl = modalEl.querySelector('[data-field="shot"]');
-    if (shot) {
-      modalEl.querySelector('[data-field="shot-img"]').src = shot.src;
-      modalEl.querySelector('[data-field="shot-img"]').alt = `Interface do sistema ${project.title}`;
-      modalEl.querySelector('[data-field="shot-caption"]').textContent = shot.caption;
+    if (shots && shots.length) {
+      shotEl.innerHTML = shots
+        .map(
+          (shot) => `
+            <figure class="case-modal__shot-item">
+              <img src="${shot.src}" alt="Interface do sistema ${escapeHtml(project.title)}" loading="lazy" />
+              <figcaption>${escapeHtml(shot.caption)}</figcaption>
+            </figure>
+          `
+        )
+        .join("");
       shotEl.hidden = false;
     } else {
+      shotEl.innerHTML = "";
       shotEl.hidden = true;
     }
 

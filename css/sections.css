@@ -402,19 +402,24 @@ section {
 
 .case-modal__shot {
   margin: var(--space-lg) 0 0;
+  display: grid;
+  gap: var(--space-md);
+}
+
+.case-modal__shot-item {
   border: 1px solid var(--border-hairline-strong);
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bg-surface);
 }
 
-.case-modal__shot img {
+.case-modal__shot-item img {
   display: block;
   width: 100%;
   height: auto;
 }
 
-.case-modal__shot figcaption {
+.case-modal__shot-item figcaption {
   padding: 0.7rem 1rem;
   font-size: 0.78rem;
   color: var(--ink-muted);
