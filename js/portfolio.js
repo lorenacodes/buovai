@@ -33,6 +33,14 @@
         src: "assets/img/case-trilhar-detalhe.jpg",
         caption: "Ficha individual do cliente — dados pessoais borrados para preservar a privacidade.",
       },
+      {
+        src: "assets/img/case-trilhar-financeiro.jpg",
+        caption: "Financeiro — controle de boletos por competência, com upload de documento vinculado. Nome do cliente borrado.",
+      },
+      {
+        src: "assets/img/case-trilhar-config.jpg",
+        caption: "Configurações — categorias de documento totalmente customizáveis, sem alterar código.",
+      },
     ],
   };
 
