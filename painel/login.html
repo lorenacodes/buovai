@@ -21,15 +21,21 @@
       </div>
       <span class="login-card__badge" id="login-badge" hidden>Acesso administrativo</span>
       <h1 id="login-title">Acesso ao painel</h1>
-      <p class="login-card__sub" id="login-sub">Digite seu e-mail cadastrado. Enviamos um link de acesso — sem senha pra guardar.</p>
+      <p class="login-card__sub" id="login-sub">Digite seu e-mail e senha cadastrados para acessar o painel.</p>
 
       <form id="login-form">
         <div class="field">
           <label for="email">E-mail</label>
           <input id="email" type="email" placeholder="voce@empresa.com" required autocomplete="email" />
         </div>
-        <button type="submit" class="btn btn-block" id="login-submit">Enviar link de acesso</button>
+        <div class="field">
+          <label for="password">Senha</label>
+          <input id="password" type="password" placeholder="Sua senha" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-block" id="login-submit">Entrar</button>
       </form>
+
+      <button type="button" class="login-card__link" id="login-toggle-otp">Prefere entrar por link de acesso (e-mail)?</button>
 
       <div class="status-msg" id="login-status" role="status"></div>
     </div>
@@ -45,14 +51,38 @@
       var form = document.getElementById("login-form");
       var submitBtn = document.getElementById("login-submit");
       var statusEl = document.getElementById("login-status");
+      var passwordField = document.getElementById("password");
+      var toggleBtn = document.getElementById("login-toggle-otp");
+      var otpMode = false;
+
+      function applyMode() {
+        if (otpMode) {
+          passwordField.closest(".field").hidden = true;
+          passwordField.required = false;
+          submitBtn.textContent = "Enviar link de acesso";
+          toggleBtn.textContent = "Prefere entrar com e-mail e senha?";
+        } else {
+          passwordField.closest(".field").hidden = false;
+          passwordField.required = true;
+          submitBtn.textContent = "Entrar";
+          toggleBtn.textContent = "Prefere entrar por link de acesso (e-mail)?";
+        }
+      }
+
+      toggleBtn.addEventListener("click", function () {
+        otpMode = !otpMode;
+        applyMode();
+      });
 
       var isAdminEntry = new URLSearchParams(window.location.search).get("as") === "admin";
       if (isAdminEntry) {
         document.title = "Acesso administrativo — Buovai";
         document.getElementById("login-badge").hidden = false;
         document.getElementById("login-title").textContent = "Área administrativa da Buovai";
-        document.getElementById("login-sub").textContent = "Esta é a área restrita da equipe Buovai — não é o painel do cliente. Digite seu e-mail de administrador para receber o link de acesso.";
+        document.getElementById("login-sub").textContent = "Esta é a área restrita da equipe Buovai — não é o painel do cliente. Entre com seu e-mail e senha de administrador.";
       }
+
+      applyMode();
 
       function showStatus(text, kind) {
         statusEl.textContent = text;
@@ -72,25 +102,48 @@
         if (!email) return;
 
         submitBtn.disabled = true;
-        submitBtn.textContent = "Enviando...";
 
-        var redirectTo = window.location.origin + window.location.pathname.replace(/login\.html$/, "index.html");
+        if (otpMode) {
+          submitBtn.textContent = "Enviando...";
 
-        var { error } = await window.buovaiClient.auth.signInWithOtp({
-          email: email,
-          options: { emailRedirectTo: redirectTo },
-        });
+          var redirectTo = window.location.origin + window.location.pathname.replace(/login\.html$/, "index.html");
 
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Enviar link de acesso";
+          var { error } = await window.buovaiClient.auth.signInWithOtp({
+            email: email,
+            options: { emailRedirectTo: redirectTo },
+          });
 
-        if (error) {
-          showStatus("Não foi possível enviar o link agora. Tente de novo em instantes.", "error");
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Enviar link de acesso";
+
+          if (error) {
+            showStatus("Não foi possível enviar o link agora. Tente de novo em instantes.", "error");
+            return;
+          }
+
+          showStatus("Link enviado! Confira sua caixa de entrada (e o spam) e clique para acessar o painel.", "ok");
+          form.reset();
           return;
         }
 
-        showStatus("Link enviado! Confira sua caixa de entrada (e o spam) e clique para acessar o painel.", "ok");
-        form.reset();
+        var password = passwordField.value;
+        submitBtn.textContent = "Entrando...";
+
+        var { data: signInData, error: signInError } = await window.buovaiClient.auth.signInWithPassword({
+          email: email,
+          password: password,
+        });
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Entrar";
+
+        if (signInError) {
+          showStatus("E-mail ou senha incorretos.", "error");
+          return;
+        }
+
+        var { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
+        window.location.href = isAdmin ? "leads.html" : "index.html";
       });
     })();
   </script>
