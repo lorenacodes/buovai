@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tarefas — Admin Buovai</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="painel.css" />
+  <link rel="icon" type="image/png" href="../assets/img/logo-mark.png" />
+</head>
+<body>
+  <div class="admin-shell">
+    <div id="admin-sidebar-mount"></div>
+
+    <main class="admin-content">
+      <div class="admin-content__head">
+        <div>
+          <p class="panel-eyebrow">Operação</p>
+          <h1>Tarefas</h1>
+        </div>
+      </div>
+
+      <div class="admin-panel" style="margin-bottom:1.5rem;">
+        <form class="inline-form" id="new-task-form" style="margin-bottom:0;">
+          <input type="text" id="task-title" placeholder="Nova tarefa" required />
+          <select id="task-project" style="flex:0 0 200px; padding:0.6em 0.75em; border-radius:var(--radius-sm); border:1px solid var(--border-hairline-strong); background:var(--bg-surface); font-size:0.88rem;">
+            <option value="">Sem projeto vinculado</option>
+          </select>
+          <select id="task-priority" style="flex:0 0 130px; padding:0.6em 0.75em; border-radius:var(--radius-sm); border:1px solid var(--border-hairline-strong); background:var(--bg-surface); font-size:0.88rem;">
+            <option value="baixa">Prioridade baixa</option>
+            <option value="media" selected>Prioridade média</option>
+            <option value="alta">Prioridade alta</option>
+          </select>
+          <input type="date" id="task-due" style="flex:0 0 150px;" />
+          <button type="submit" class="btn btn-sm">Adicionar</button>
+        </form>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
+        <button class="btn btn-ghost btn-sm filter-btn is-active" data-filter="all">Todas</button>
+        <button class="btn btn-ghost btn-sm filter-btn" data-filter="pendente">Pendentes</button>
+        <button class="btn btn-ghost btn-sm filter-btn" data-filter="em_andamento">Em andamento</button>
+        <button class="btn btn-ghost btn-sm filter-btn" data-filter="concluida">Concluídas</button>
+      </div>
+
+      <div class="admin-panel">
+        <div id="tasks-container"><p style="color:var(--ink-muted);">Carregando...</p></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="admin-shared.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var A = window.BuovaiAdmin;
+      var client;
+      var tasks = [];
+      var projectsById = {};
+      var currentFilter = "all";
+
+      async function boot() {
+        var ctx = await A.boot("tasks");
+        if (!ctx) return;
+        client = ctx.client;
+
+        var { data: projects } = await client.from("client_projects").select("id, project_title").order("project_title", { ascending: true });
+        (projects || []).forEach(function (p) { projectsById[p.id] = p.project_title; });
+        var projectSelect = document.getElementById("task-project");
+        (projects || []).forEach(function (p) {
+          var opt = document.createElement("option");
+          opt.value = p.id;
+          opt.textContent = p.project_title;
+          projectSelect.appendChild(opt);
+        });
+
+        await loadTasks();
+
+        document.querySelectorAll(".filter-btn").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            document.querySelectorAll(".filter-btn").forEach(function (b) { b.classList.remove("is-active"); });
+            btn.classList.add("is-active");
+            currentFilter = btn.getAttribute("data-filter");
+            renderTasks();
+          });
+        });
+
+        document.getElementById("new-task-form").addEventListener("submit", async function (e) {
+          e.preventDefault();
+          var title = document.getElementById("task-title").value.trim();
+          if (!title) return;
+          var projectId = document.getElementById("task-project").value || null;
+          var priority = document.getElementById("task-priority").value;
+          var due = document.getElementById("task-due").value || null;
+          await client.from("tasks").insert({ title: title, project_id: projectId, priority: priority, due_date: due });
+          e.target.reset();
+          await loadTasks();
+        });
+      }
+
+      async function loadTasks() {
+        var { data } = await client.from("tasks").select("*").order("due_date", { ascending: true, nullsFirst: false });
+        tasks = data || [];
+        renderTasks();
+      }
+
+      function renderTasks() {
+        var container = document.getElementById("tasks-container");
+        var filtered = currentFilter === "all" ? tasks : tasks.filter(function (t) { return t.status === currentFilter; });
+
+        if (!filtered.length) {
+          container.innerHTML = '<p style="color:var(--ink-muted);">Nenhuma tarefa aqui.</p>';
+          return;
+        }
+
+        container.innerHTML = filtered.map(function (t) {
+          var projectLabel = t.project_id && projectsById[t.project_id] ? projectsById[t.project_id] : "Sem projeto";
+          return (
+            '<div class="task-row" data-task-id="' + t.id + '">' +
+              '<span class="badge badge--' + t.priority + '">' + t.priority + "</span>" +
+              '<span class="task-row__title' + (t.status === "concluida" ? " is-done" : "") + '">' + A.escapeHtml(t.title) + "</span>" +
+              '<span style="font-size:0.78rem; color:var(--ink-muted); flex-shrink:0;">' + A.escapeHtml(projectLabel) + (t.due_date ? " · " + A.fmtDate(t.due_date) : "") + "</span>" +
+              '<select data-field="status">' +
+                ["pendente", "em_andamento", "concluida"].map(function (v) { return '<option value="' + v + '"' + (t.status === v ? " selected" : "") + ">" + v + "</option>"; }).join("") +
+              "</select>" +
+              '<button type="button" class="icon-btn" aria-label="Excluir">×</button>' +
+            "</div>"
+          );
+        }).join("");
+
+        container.querySelectorAll(".task-row select").forEach(function (sel) {
+          sel.addEventListener("change", async function () {
+            var taskId = sel.closest(".task-row").getAttribute("data-task-id");
+            await client.from("tasks").update({ status: sel.value }).eq("id", taskId);
+            await loadTasks();
+          });
+        });
+
+        container.querySelectorAll(".task-row .icon-btn").forEach(function (btn) {
+          btn.addEventListener("click", async function () {
+            var taskId = btn.closest(".task-row").getAttribute("data-task-id");
+            await client.from("tasks").delete().eq("id", taskId);
+            await loadTasks();
+          });
+        });
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

@@ -21,7 +21,7 @@
       </a>
       <div class="panel-topbar__user">
         <span id="user-email"></span>
-        <a href="admin.html" id="admin-link" class="btn btn-ghost btn-sm" hidden>Área admin</a>
+        <a href="leads.html" id="admin-link" class="btn btn-ghost btn-sm" hidden>Área admin</a>
         <button class="btn btn-ghost btn-sm" id="logout-btn">Sair</button>
       </div>
     </header>
@@ -98,12 +98,14 @@
 
         var cardsHtml = await Promise.all(projects.map(renderProjectCard));
         container.innerHTML = cardsHtml.join("");
+        await bindFileDownloads(container);
       }
 
       async function renderProjectCard(project) {
-        var [{ data: stages }, { data: deliveries }] = await Promise.all([
+        var [{ data: stages }, { data: deliveries }, { data: files }] = await Promise.all([
           window.buovaiClient.from("project_stages").select("*").eq("project_id", project.id).order("order_index", { ascending: true }),
           window.buovaiClient.from("project_deliveries").select("*").eq("project_id", project.id).order("delivered_at", { ascending: false }),
+          window.buovaiClient.storage.from("project-files").list(project.id, { sortBy: { column: "created_at", order: "desc" } }),
         ]);
 
         var stagesHtml = (stages || [])
@@ -134,16 +136,43 @@
               .join("")
           : '<p style="color:var(--ink-muted); font-size:0.88rem;">Nenhuma entrega registrada ainda.</p>';
 
+        var filesHtml = (files || []).length
+          ? (files || [])
+              .map(function (f) {
+                return (
+                  '<div class="delivery-item" data-file-name="' + escapeHtml(f.name) + '">' +
+                    '<div class="delivery-item__top"><span>' + escapeHtml(f.name.replace(/^\d+-/, "")) + '</span><a href="#" class="btn btn-ghost btn-sm" data-action="download-file">Baixar</a></div>' +
+                  "</div>"
+                );
+              })
+              .join("")
+          : '<p style="color:var(--ink-muted); font-size:0.88rem;">Nenhum arquivo compartilhado ainda.</p>';
+
         return (
-          '<div class="project-card">' +
+          '<div class="project-card" data-project-id="' + project.id + '">' +
             '<div class="project-card__top">' +
               "<h2>" + escapeHtml(project.project_title) + "</h2>" +
               '<span class="status-tag status-tag--' + project.status + '">' + (PROJECT_STATUS_LABELS[project.status] || project.status) + "</span>" +
             "</div>" +
             '<div class="stage-list">' + (stagesHtml || '<p style="color:var(--ink-muted); font-size:0.88rem; padding:0.75rem 0;">Etapas ainda não configuradas.</p>') + "</div>" +
             '<div class="delivery-list"><h3>Histórico de entregas</h3>' + deliveriesHtml + "</div>" +
+            '<div class="delivery-list"><h3>Documentos e proposta</h3>' + filesHtml + "</div>" +
           "</div>"
         );
+      }
+
+      async function bindFileDownloads(container) {
+        container.querySelectorAll("[data-action=\"download-file\"]").forEach(function (link) {
+          link.addEventListener("click", async function (e) {
+            e.preventDefault();
+            var card = link.closest(".project-card");
+            var fileRow = link.closest("[data-file-name]");
+            var projectId = card.getAttribute("data-project-id");
+            var fileName = fileRow.getAttribute("data-file-name");
+            var { data } = await window.buovaiClient.storage.from("project-files").createSignedUrl(projectId + "/" + fileName, 300);
+            if (data && data.signedUrl) window.open(data.signedUrl, "_blank");
+          });
+        });
       }
 
       document.getElementById("logout-btn").addEventListener("click", async function () {

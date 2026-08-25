@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leads — Admin Buovai</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="painel.css" />
+  <link rel="icon" type="image/png" href="../assets/img/logo-mark.png" />
+</head>
+<body>
+  <div class="admin-shell">
+    <div id="admin-sidebar-mount"></div>
+
+    <main class="admin-content">
+      <div class="admin-content__head">
+        <div>
+          <p class="panel-eyebrow">Comercial</p>
+          <h1>Pipeline de leads</h1>
+        </div>
+        <button class="btn btn-sm" id="new-lead-btn">+ Novo lead</button>
+      </div>
+
+      <div class="kanban-board" id="kanban-board"></div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="admin-shared.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var A = window.BuovaiAdmin;
+      var STAGES = [
+        { key: "possiveis_leads", label: "Possíveis Leads" },
+        { key: "em_contato", label: "Em Contato" },
+        { key: "diagnostico", label: "Diagnóstico" },
+        { key: "proposta_enviada", label: "Proposta Enviada" },
+        { key: "negociacao", label: "Negociação" },
+        { key: "fechado", label: "Fechado" },
+        { key: "perdido", label: "Perdido" },
+      ];
+
+      var client;
+      var leads = [];
+      var draggingId = null;
+
+      async function boot() {
+        var ctx = await A.boot("leads");
+        if (!ctx) return;
+        client = ctx.client;
+        await loadLeads();
+        document.getElementById("new-lead-btn").addEventListener("click", function () { openDrawer(null); });
+      }
+
+      async function loadLeads() {
+        var { data, error } = await client.from("leads").select("*").order("created_at", { ascending: false });
+        leads = error ? [] : data || [];
+        renderBoard();
+      }
+
+      function renderBoard() {
+        var board = document.getElementById("kanban-board");
+        board.innerHTML = STAGES.map(function (stage) {
+          var items = leads.filter(function (l) { return l.stage === stage.key; });
+          var cardsHtml = items
+            .map(function (lead) {
+              return (
+                '<div class="kanban-card" draggable="true" data-id="' + lead.id + '">' +
+                  '<div class="kanban-card__title">' + A.escapeHtml(lead.company_name) + "</div>" +
+                  '<div class="kanban-card__meta">' +
+                    '<span class="badge badge--' + lead.interest_level + '">Interesse ' + lead.interest_level + "</span>" +
+                    (lead.priority === "alta" ? '<span class="badge badge--alta">Prioridade alta</span>' : "") +
+                  "</div>" +
+                "</div>"
+              );
+            })
+            .join("");
+
+          return (
+            '<div class="kanban-column" data-stage="' + stage.key + '">' +
+              '<div class="kanban-column__head"><span>' + stage.label + '</span><span class="kanban-column__count">' + items.length + "</span></div>" +
+              '<div class="kanban-column__body">' + cardsHtml + "</div>" +
+            "</div>"
+          );
+        }).join("");
+
+        board.querySelectorAll(".kanban-card").forEach(function (card) {
+          card.addEventListener("click", function () { openDrawer(card.getAttribute("data-id")); });
+          card.addEventListener("dragstart", function () {
+            draggingId = card.getAttribute("data-id");
+            card.classList.add("is-dragging");
+          });
+          card.addEventListener("dragend", function () {
+            card.classList.remove("is-dragging");
+            draggingId = null;
+          });
+        });
+
+        board.querySelectorAll(".kanban-column").forEach(function (col) {
+          col.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            col.classList.add("is-dragover");
+          });
+          col.addEventListener("dragleave", function () { col.classList.remove("is-dragover"); });
+          col.addEventListener("drop", async function (e) {
+            e.preventDefault();
+            col.classList.remove("is-dragover");
+            if (!draggingId) return;
+            var newStage = col.getAttribute("data-stage");
+            var lead = leads.find(function (l) { return l.id === draggingId; });
+            if (!lead || lead.stage === newStage) return;
+            var oldStage = lead.stage;
+            lead.stage = newStage;
+            await client.from("leads").update({ stage: newStage }).eq("id", lead.id);
+            await A.logActivity(client, "lead", lead.id, "stage_changed", oldStage + " → " + newStage);
+            renderBoard();
+          });
+        });
+      }
+
+      // ---- Drawer ----
+      function closeDrawer() {
+        var existing = document.querySelector(".drawer-overlay");
+        if (existing) existing.remove();
+        var drawer = document.querySelector(".drawer");
+        if (drawer) drawer.remove();
+      }
+
+      async function openDrawer(leadId) {
+        closeDrawer();
+        var lead = leadId ? leads.find(function (l) { return l.id === leadId; }) : null;
+
+        var overlay = document.createElement("div");
+        overlay.className = "drawer-overlay";
+        overlay.addEventListener("click", closeDrawer);
+        document.body.appendChild(overlay);
+
+        var drawer = document.createElement("div");
+        drawer.className = "drawer";
+        drawer.innerHTML = buildDrawerHtml(lead);
+        document.body.appendChild(drawer);
+
+        wireDrawer(drawer, lead);
+
+        if (lead) {
+          await populateCities(drawer, lead.state, lead.city);
+          await loadProducts(drawer, lead.id);
+          await loadActivity(drawer, lead.id);
+        } else {
+          await populateCities(drawer, "", "");
+        }
+      }
+
+      function buildDrawerHtml(lead) {
+        var l = lead || {};
+        var interestDefault = l.interest_level || "medio";
+        var priorityDefault = l.priority || "media";
+        var ufOptions = A.UF_LIST.map(function (uf) {
+          return '<option value="' + uf + '"' + (l.state === uf ? " selected" : "") + ">" + uf + "</option>";
+        }).join("");
+
+        return (
+          '<div class="drawer__head">' +
+            "<h2>" + (lead ? "Editar lead" : "Novo lead") + "</h2>" +
+            '<button class="drawer__close" id="drawer-close" aria-label="Fechar">×</button>' +
+          "</div>" +
+
+          '<div class="field"><label>Nome da empresa</label><input id="f-company" value="' + A.escapeHtml(l.company_name || "") + '" required /></div>' +
+
+          '<div class="form-grid form-grid--cols2" style="margin-top:1rem;">' +
+            '<div class="field"><label>CNPJ</label><input id="f-cnpj" value="' + A.escapeHtml(l.cnpj || "") + '" placeholder="00.000.000/0000-00" /><small id="f-cnpj-error" style="color:#a53a3a; font-size:0.76rem; display:none;">CNPJ inválido</small></div>' +
+            '<div class="field"><label>Segmento</label><input id="f-segment" value="' + A.escapeHtml(l.segment || "") + '" /></div>' +
+            '<div class="field"><label>Estado</label><select id="f-state"><option value="">Selecione</option>' + ufOptions + "</select></div>" +
+            '<div class="field"><label>Cidade</label><select id="f-city"><option value="">Selecione o estado</option></select></div>' +
+          "</div>" +
+
+          '<div class="field" style="margin-top:1rem;"><label>O que a empresa faz</label><textarea id="f-description">' + A.escapeHtml(l.description || "") + "</textarea></div>" +
+          '<div class="field" style="margin-top:1rem;"><label>Problemas identificados</label><textarea id="f-problems">' + A.escapeHtml(l.problems || "") + "</textarea></div>" +
+          '<div class="field" style="margin-top:1rem;"><label>Oportunidades com a Buovai</label><textarea id="f-opportunities">' + A.escapeHtml(l.opportunities || "") + "</textarea></div>" +
+
+          '<div class="form-grid form-grid--cols2" style="margin-top:1rem;">' +
+            '<div class="field"><label>Nível de interesse</label><select id="f-interest">' +
+              ["baixo", "medio", "alto"].map(function (v) { return '<option value="' + v + '"' + (interestDefault === v ? " selected" : "") + ">" + v + "</option>"; }).join("") +
+            "</select></div>" +
+            '<div class="field"><label>Origem do lead</label><input id="f-source" value="' + A.escapeHtml(l.source || "") + '" placeholder="Indicação, site, evento..." /></div>' +
+            '<div class="field"><label>Prioridade</label><select id="f-priority">' +
+              ["baixa", "media", "alta"].map(function (v) { return '<option value="' + v + '"' + (priorityDefault === v ? " selected" : "") + ">" + v + "</option>"; }).join("") +
+            "</select></div>" +
+            '<div class="field"><label>Previsão de fechamento</label><input id="f-expected-close" type="date" value="' + (l.expected_close_date || "") + '" /></div>' +
+          "</div>" +
+
+          '<div class="section-divider"><h3>Contato</h3></div>' +
+          '<div class="form-grid form-grid--cols2">' +
+            '<div class="field"><label>Nome do contato</label><input id="f-contact-name" value="' + A.escapeHtml(l.contact_name || "") + '" /></div>' +
+            '<div class="field"><label>E-mail do contato</label><input id="f-contact-email" type="email" value="' + A.escapeHtml(l.contact_email || "") + '" /></div>' +
+            '<div class="field" style="grid-column:1/-1;"><label>Telefone</label><input id="f-contact-phone" value="' + A.escapeHtml(l.contact_phone || "") + '" /></div>' +
+          "</div>" +
+
+          '<div class="section-divider"><h3>Comercial</h3></div>' +
+          '<div class="form-grid form-grid--cols2">' +
+            '<div class="field"><label>Valor do orçamento</label><input id="f-budget" type="number" step="0.01" value="' + (l.budget_value != null ? l.budget_value : "") + '" /></div>' +
+            '<div class="field"><label>Status da proposta</label><select id="f-proposal-status"><option value="">—</option>' +
+              ["rascunho", "enviada", "aprovada", "recusada"].map(function (v) { return '<option value="' + v + '"' + (l.proposal_status === v ? " selected" : "") + ">" + v + "</option>"; }).join("") +
+            "</select></div>" +
+          "</div>" +
+          '<div class="field" style="margin-top:1rem;"><label>Proposta comercial (PDF)</label><input id="f-proposal-file" type="file" accept="application/pdf" />' +
+            (l.proposal_file_path ? '<small id="f-proposal-current">Arquivo atual salvo — envie outro para substituir.</small>' : "") +
+          "</div>" +
+
+          '<div class="section-divider"><h3>Produtos / serviços cotados</h3></div>' +
+          '<div id="products-list"></div>' +
+          '<button type="button" class="btn btn-ghost btn-sm" id="add-product-btn">+ Adicionar item</button>' +
+
+          '<div class="field" style="margin-top:1.25rem;"><label>Observações internas</label><textarea id="f-notes">' + A.escapeHtml(l.internal_notes || "") + "</textarea></div>" +
+
+          '<div style="display:flex; gap:0.75rem; margin-top:1.5rem; flex-wrap:wrap;">' +
+            '<button class="btn btn-sm" id="save-lead-btn">Salvar</button>' +
+            (lead ? '<button class="btn btn-ghost btn-sm" id="convert-lead-btn"' + (lead.converted_project_id ? " disabled" : "") + ">" + (lead.converted_project_id ? "Já convertido em projeto" : "Converter em projeto") + "</button>" : "") +
+            (lead ? '<button class="btn btn-ghost btn-sm" id="delete-lead-btn" style="margin-left:auto; color:#a53a3a;">Excluir</button>' : "") +
+          "</div>" +
+
+          (lead
+            ? '<div class="section-divider"><h3>Histórico</h3></div><ul class="activity-feed" id="activity-feed"><li>Carregando...</li></ul>'
+            : "") +
+
+          '<div class="status-msg" id="drawer-status" role="status"></div>'
+        );
+      }
+
+      async function populateCities(drawer, selectedState, selectedCity) {
+        var stateSel = drawer.querySelector("#f-state");
+        var citySel = drawer.querySelector("#f-city");
+
+        async function refresh(uf, keepSelected) {
+          citySel.innerHTML = '<option value="">Carregando...</option>';
+          var cities = await A.loadCities(uf);
+          citySel.innerHTML = '<option value="">Selecione</option>' + cities.map(function (c) {
+            return '<option value="' + A.escapeHtml(c) + '"' + (c === keepSelected ? " selected" : "") + ">" + A.escapeHtml(c) + "</option>";
+          }).join("");
+        }
+
+        if (selectedState) await refresh(selectedState, selectedCity);
+
+        stateSel.addEventListener("change", function () { refresh(stateSel.value, null); });
+      }
+
+      async function loadProducts(drawer, leadId) {
+        var { data } = await client.from("lead_products").select("*").eq("lead_id", leadId).order("created_at", { ascending: true });
+        var list = drawer.querySelector("#products-list");
+        list.innerHTML = "";
+        (data || []).forEach(function (p) { addProductRow(list, p.id, p.name, p.price); });
+      }
+
+      function addProductRow(list, id, name, price) {
+        var row = document.createElement("div");
+        row.className = "line-item-row";
+        row.setAttribute("data-product-id", id || "");
+        row.innerHTML =
+          '<input data-field="name" placeholder="Nome do produto/serviço" value="' + A.escapeHtml(name || "") + '" />' +
+          '<input data-field="price" type="number" step="0.01" placeholder="Valor" value="' + (price != null ? price : "") + '" />' +
+          '<button type="button" class="icon-btn" aria-label="Remover">×</button>';
+        row.querySelector(".icon-btn").addEventListener("click", function () { row.remove(); });
+        list.appendChild(row);
+      }
+
+      async function loadActivity(drawer, leadId) {
+        var feed = drawer.querySelector("#activity-feed");
+        if (!feed) return;
+        var { data } = await client.from("activity_log").select("*").eq("entity_type", "lead").eq("entity_id", leadId).order("created_at", { ascending: false }).limit(30);
+        if (!data || !data.length) { feed.innerHTML = "<li>Nenhuma atividade registrada.</li>"; return; }
+        feed.innerHTML = data.map(function (a) {
+          return "<li>" + A.escapeHtml(a.action) + (a.detail ? " — " + A.escapeHtml(a.detail) : "") + "<time>" + A.fmtDateTime(a.created_at) + "</time></li>";
+        }).join("");
+      }
+
+      function showDrawerStatus(drawer, text, kind) {
+        var el = drawer.querySelector("#drawer-status");
+        el.textContent = text;
+        el.className = "status-msg is-visible status-msg--" + kind;
+      }
+
+      function wireDrawer(drawer, lead) {
+        drawer.querySelector("#drawer-close").addEventListener("click", closeDrawer);
+        drawer.querySelector("#add-product-btn").addEventListener("click", function () {
+          addProductRow(drawer.querySelector("#products-list"), null, "", "");
+        });
+
+        var cnpjInput = drawer.querySelector("#f-cnpj");
+        cnpjInput.addEventListener("input", function () {
+          cnpjInput.value = A.maskCnpj(cnpjInput.value);
+        });
+
+        drawer.querySelector("#save-lead-btn").addEventListener("click", function () { saveLead(drawer, lead); });
+
+        if (lead) {
+          drawer.querySelector("#delete-lead-btn").addEventListener("click", function () { deleteLead(lead); });
+          var convertBtn = drawer.querySelector("#convert-lead-btn");
+          if (convertBtn && !lead.converted_project_id) {
+            convertBtn.addEventListener("click", function () { convertLeadToProject(drawer, lead); });
+          }
+        }
+      }
+
+      async function saveLead(drawer, lead) {
+        var cnpjVal = drawer.querySelector("#f-cnpj").value.trim();
+        var cnpjError = drawer.querySelector("#f-cnpj-error");
+        if (cnpjVal && !A.isValidCnpj(cnpjVal)) {
+          cnpjError.style.display = "block";
+          return;
+        }
+        cnpjError.style.display = "none";
+
+        var companyName = drawer.querySelector("#f-company").value.trim();
+        if (!companyName) {
+          showDrawerStatus(drawer, "Nome da empresa é obrigatório.", "error");
+          return;
+        }
+
+        var payload = {
+          company_name: companyName,
+          cnpj: cnpjVal || null,
+          state: drawer.querySelector("#f-state").value || null,
+          city: drawer.querySelector("#f-city").value || null,
+          segment: drawer.querySelector("#f-segment").value.trim() || null,
+          description: drawer.querySelector("#f-description").value.trim() || null,
+          problems: drawer.querySelector("#f-problems").value.trim() || null,
+          opportunities: drawer.querySelector("#f-opportunities").value.trim() || null,
+          interest_level: drawer.querySelector("#f-interest").value,
+          source: drawer.querySelector("#f-source").value.trim() || null,
+          priority: drawer.querySelector("#f-priority").value,
+          expected_close_date: drawer.querySelector("#f-expected-close").value || null,
+          contact_name: drawer.querySelector("#f-contact-name").value.trim() || null,
+          contact_email: drawer.querySelector("#f-contact-email").value.trim() || null,
+          contact_phone: drawer.querySelector("#f-contact-phone").value.trim() || null,
+          budget_value: drawer.querySelector("#f-budget").value || null,
+          proposal_status: drawer.querySelector("#f-proposal-status").value || null,
+          internal_notes: drawer.querySelector("#f-notes").value.trim() || null,
+        };
+
+        var saveBtn = drawer.querySelector("#save-lead-btn");
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Salvando...";
+
+        var leadId = lead ? lead.id : null;
+
+        if (!leadId) {
+          var { data: created, error } = await client.from("leads").insert(payload).select().single();
+          if (error || !created) {
+            showDrawerStatus(drawer, "Não foi possível criar o lead.", "error");
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Salvar";
+            return;
+          }
+          leadId = created.id;
+          await A.logActivity(client, "lead", leadId, "created", "Lead criado");
+        } else {
+          await client.from("leads").update(payload).eq("id", leadId);
+          await A.logActivity(client, "lead", leadId, "updated", "Dados do lead atualizados");
+        }
+
+        // proposta (arquivo)
+        var fileInput = drawer.querySelector("#f-proposal-file");
+        if (fileInput.files && fileInput.files[0]) {
+          var file = fileInput.files[0];
+          var path = leadId + "/" + Date.now() + "-" + file.name;
+          var { error: upErr } = await client.storage.from("lead-files").upload(path, file, { upsert: true });
+          if (!upErr) {
+            await client.from("leads").update({ proposal_file_path: path }).eq("id", leadId);
+          }
+        }
+
+        // produtos: apaga os existentes e recria (simples e consistente)
+        var rows = Array.prototype.slice.call(drawer.querySelectorAll("#products-list .line-item-row"));
+        await client.from("lead_products").delete().eq("lead_id", leadId);
+        var productRows = rows
+          .map(function (row) {
+            var name = row.querySelector('[data-field="name"]').value.trim();
+            var price = row.querySelector('[data-field="price"]').value;
+            return name ? { lead_id: leadId, name: name, price: price || null } : null;
+          })
+          .filter(Boolean);
+        if (productRows.length) await client.from("lead_products").insert(productRows);
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Salvar";
+        showDrawerStatus(drawer, "Lead salvo com sucesso.", "ok");
+        await loadLeads();
+      }
+
+      async function deleteLead(lead) {
+        if (!confirm('Excluir o lead "' + lead.company_name + '"? Essa ação não pode ser desfeita.')) return;
+        await client.from("leads").delete().eq("id", lead.id);
+        closeDrawer();
+        await loadLeads();
+      }
+
+      async function convertLeadToProject(drawer, lead) {
+        if (!lead.contact_email) {
+          showDrawerStatus(drawer, "Preencha o e-mail de contato antes de converter — é o login do cliente.", "error");
+          return;
+        }
+
+        var DEFAULT_STAGES = ["Diagnóstico e alinhamento", "Arquitetura definida", "Em desenvolvimento", "Em testes", "Entregue"];
+
+        var { data: project, error } = await client
+          .from("client_projects")
+          .insert({
+            client_name: lead.contact_name || lead.company_name,
+            client_email: lead.contact_email,
+            project_title: lead.company_name,
+            kanban_stage: "planejamento",
+            budget_value: lead.budget_value,
+            priority: lead.priority,
+            lead_id: lead.id,
+          })
+          .select()
+          .single();
+
+        // Copia o arquivo da proposta do bucket interno (lead-files) para o
+        // bucket do projeto (project-files), único acessível pelo cliente.
+        if (project && lead.proposal_file_path) {
+          var { data: fileBlob } = await client.storage.from("lead-files").download(lead.proposal_file_path);
+          if (fileBlob) {
+            var fileName = lead.proposal_file_path.split("/").pop();
+            var newPath = project.id + "/" + fileName;
+            var { error: copyErr } = await client.storage.from("project-files").upload(newPath, fileBlob, { upsert: true });
+            if (!copyErr) await client.from("client_projects").update({ proposal_file_path: newPath }).eq("id", project.id);
+          }
+        }
+
+        if (error || !project) {
+          showDrawerStatus(drawer, "Não foi possível criar o projeto.", "error");
+          return;
+        }
+
+        var stageRows = DEFAULT_STAGES.map(function (title, i) { return { project_id: project.id, title: title, order_index: i }; });
+        await client.from("project_stages").insert(stageRows);
+
+        await client.from("leads").update({ stage: "fechado", converted_project_id: project.id }).eq("id", lead.id);
+        await A.logActivity(client, "lead", lead.id, "converted", "Convertido em projeto: " + lead.company_name);
+        await A.logActivity(client, "project", project.id, "created", "Projeto criado a partir do lead " + lead.company_name);
+
+        showDrawerStatus(drawer, "Projeto criado! Acesse em Projetos.", "ok");
+        await loadLeads();
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

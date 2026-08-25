@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projetos — Admin Buovai</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="painel.css" />
+  <link rel="icon" type="image/png" href="../assets/img/logo-mark.png" />
+</head>
+<body>
+  <div class="admin-shell">
+    <div id="admin-sidebar-mount"></div>
+
+    <main class="admin-content">
+      <div class="admin-content__head">
+        <div>
+          <p class="panel-eyebrow">Operação</p>
+          <h1>Projetos em andamento</h1>
+        </div>
+        <button class="btn btn-sm" id="new-project-btn">+ Novo projeto</button>
+      </div>
+
+      <div class="kanban-board" id="kanban-board"></div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="admin-shared.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var A = window.BuovaiAdmin;
+      var STAGES = [
+        { key: "planejamento", label: "Planejamento" },
+        { key: "em_desenvolvimento", label: "Em desenvolvimento" },
+        { key: "em_validacao", label: "Em validação" },
+        { key: "ajustes", label: "Ajustes" },
+        { key: "entregue", label: "Entregue" },
+      ];
+      var DEFAULT_STAGE_TITLES = ["Diagnóstico e alinhamento", "Arquitetura definida", "Em desenvolvimento", "Em testes", "Entregue"];
+
+      var client;
+      var projects = [];
+      var draggingId = null;
+
+      async function boot() {
+        var ctx = await A.boot("projects");
+        if (!ctx) return;
+        client = ctx.client;
+        await loadProjects();
+        document.getElementById("new-project-btn").addEventListener("click", function () { openDrawer(null); });
+      }
+
+      async function loadProjects() {
+        var { data, error } = await client.from("client_projects").select("*").order("created_at", { ascending: false });
+        projects = error ? [] : data || [];
+        renderBoard();
+      }
+
+      function renderBoard() {
+        var board = document.getElementById("kanban-board");
+        board.innerHTML = STAGES.map(function (stage) {
+          var items = projects.filter(function (p) { return p.kanban_stage === stage.key; });
+          var cardsHtml = items.map(function (p) {
+            return (
+              '<div class="kanban-card" draggable="true" data-id="' + p.id + '">' +
+                '<div class="kanban-card__title">' + A.escapeHtml(p.project_title) + "</div>" +
+                '<div class="kanban-card__meta">' +
+                  "<span>" + A.escapeHtml(p.client_name) + "</span>" +
+                  (p.priority === "alta" ? '<span class="badge badge--alta">Prioridade alta</span>' : "") +
+                "</div>" +
+              "</div>"
+            );
+          }).join("");
+
+          return (
+            '<div class="kanban-column" data-stage="' + stage.key + '">' +
+              '<div class="kanban-column__head"><span>' + stage.label + '</span><span class="kanban-column__count">' + items.length + "</span></div>" +
+              '<div class="kanban-column__body">' + cardsHtml + "</div>" +
+            "</div>"
+          );
+        }).join("");
+
+        board.querySelectorAll(".kanban-card").forEach(function (card) {
+          card.addEventListener("click", function () { openDrawer(card.getAttribute("data-id")); });
+          card.addEventListener("dragstart", function () { draggingId = card.getAttribute("data-id"); card.classList.add("is-dragging"); });
+          card.addEventListener("dragend", function () { card.classList.remove("is-dragging"); draggingId = null; });
+        });
+
+        board.querySelectorAll(".kanban-column").forEach(function (col) {
+          col.addEventListener("dragover", function (e) { e.preventDefault(); col.classList.add("is-dragover"); });
+          col.addEventListener("dragleave", function () { col.classList.remove("is-dragover"); });
+          col.addEventListener("drop", async function (e) {
+            e.preventDefault();
+            col.classList.remove("is-dragover");
+            if (!draggingId) return;
+            var newStage = col.getAttribute("data-stage");
+            var project = projects.find(function (p) { return p.id === draggingId; });
+            if (!project || project.kanban_stage === newStage) return;
+            var oldStage = project.kanban_stage;
+            project.kanban_stage = newStage;
+            await client.from("client_projects").update({ kanban_stage: newStage }).eq("id", project.id);
+            await A.logActivity(client, "project", project.id, "stage_changed", oldStage + " → " + newStage);
+            renderBoard();
+          });
+        });
+      }
+
+      function closeDrawer() {
+        var o = document.querySelector(".drawer-overlay");
+        if (o) o.remove();
+        var d = document.querySelector(".drawer");
+        if (d) d.remove();
+      }
+
+      async function openDrawer(projectId) {
+        closeDrawer();
+        var project = projectId ? projects.find(function (p) { return p.id === projectId; }) : null;
+
+        var overlay = document.createElement("div");
+        overlay.className = "drawer-overlay";
+        overlay.addEventListener("click", closeDrawer);
+        document.body.appendChild(overlay);
+
+        var drawer = document.createElement("div");
+        drawer.className = "drawer";
+        drawer.innerHTML = buildDrawerHtml(project);
+        document.body.appendChild(drawer);
+
+        wireDrawer(drawer, project);
+
+        if (project) {
+          await loadStages(drawer, project.id);
+          await loadDeliveries(drawer, project.id);
+          await loadFiles(drawer, project.id);
+          await loadTasks(drawer, project.id);
+          await loadActivity(drawer, project.id);
+        }
+      }
+
+      function buildDrawerHtml(project) {
+        var p = project || {};
+        return (
+          '<div class="drawer__head">' +
+            "<h2>" + (project ? "Editar projeto" : "Novo projeto") + "</h2>" +
+            '<button class="drawer__close" id="drawer-close" aria-label="Fechar">×</button>' +
+          "</div>" +
+
+          '<div class="field"><label>Título do projeto</label><input id="f-title" value="' + A.escapeHtml(p.project_title || "") + '" required /></div>' +
+          '<div class="form-grid form-grid--cols2" style="margin-top:1rem;">' +
+            '<div class="field"><label>Nome do cliente</label><input id="f-client-name" value="' + A.escapeHtml(p.client_name || "") + '" required /></div>' +
+            '<div class="field"><label>E-mail de acesso do cliente</label><input id="f-client-email" type="email" value="' + A.escapeHtml(p.client_email || "") + '" required /></div>' +
+          "</div>" +
+
+          '<div class="form-grid form-grid--cols2" style="margin-top:1rem;">' +
+            '<div class="field"><label>Status geral</label><select id="f-status">' +
+              ["em_andamento", "pausado", "concluido"].map(function (v) { return '<option value="' + v + '"' + (p.status === v ? " selected" : "") + ">" + v + "</option>"; }).join("") +
+            "</select></div>" +
+            '<div class="field"><label>Prioridade</label><select id="f-priority">' +
+              ["baixa", "media", "alta"].map(function (v) { return '<option value="' + v + '"' + ((p.priority || "media") === v ? " selected" : "") + ">" + v + "</option>"; }).join("") +
+            "</select></div>" +
+            '<div class="field"><label>Valor do orçamento</label><input id="f-budget" type="number" step="0.01" value="' + (p.budget_value != null ? p.budget_value : "") + '" /></div>' +
+            '<div class="field"><label>Proposta aprovada (PDF)</label><input id="f-proposal-file" type="file" accept="application/pdf" />' +
+              (p.proposal_file_path ? '<small>Arquivo já salvo — envie outro para substituir.</small>' : "") +
+            "</div>" +
+          "</div>" +
+
+          (project
+            ? '<div class="section-divider"><h3>Etapas (visíveis ao cliente)</h3></div><div id="stages-list"></div>' +
+              '<div class="section-divider"><h3>Nova entrega</h3></div>' +
+              '<form class="inline-form" id="new-delivery-form">' +
+                '<input type="text" id="delivery-title" placeholder="Título da entrega" required />' +
+                '<input type="text" id="delivery-desc" placeholder="Descrição (opcional)" />' +
+                '<button type="submit" class="btn btn-sm">Adicionar</button>' +
+              "</form>" +
+              '<div id="deliveries-list"></div>' +
+
+              '<div class="section-divider"><h3>Arquivos do projeto</h3></div>' +
+              '<div class="inline-form"><input type="file" id="project-file-input" style="flex:1;" /><button type="button" class="btn btn-sm" id="upload-file-btn">Enviar</button></div>' +
+              '<div id="files-list"></div>' +
+
+              '<div class="section-divider"><h3>Tarefas</h3></div>' +
+              '<form class="inline-form" id="new-task-form">' +
+                '<input type="text" id="task-title" placeholder="Nova tarefa" required />' +
+                '<input type="date" id="task-due" style="flex:0 0 150px;" />' +
+                '<button type="submit" class="btn btn-sm">Adicionar</button>' +
+              "</form>" +
+              '<div id="tasks-list"></div>' +
+
+              '<div class="section-divider"><h3>Histórico</h3></div><ul class="activity-feed" id="activity-feed"><li>Carregando...</li></ul>'
+            : "") +
+
+          '<div style="display:flex; gap:0.75rem; margin-top:1.5rem; flex-wrap:wrap;">' +
+            '<button class="btn btn-sm" id="save-project-btn">Salvar</button>' +
+            (project ? '<button class="btn btn-ghost btn-sm" id="delete-project-btn" style="margin-left:auto; color:#a53a3a;">Excluir</button>' : "") +
+          "</div>" +
+
+          '<div class="status-msg" id="drawer-status" role="status"></div>'
+        );
+      }
+
+      async function loadStages(drawer, projectId) {
+        var { data: stages } = await client.from("project_stages").select("*").eq("project_id", projectId).order("order_index", { ascending: true });
+        var list = drawer.querySelector("#stages-list");
+
+        if (!stages || !stages.length) {
+          list.innerHTML = '<p style="color:var(--ink-muted); font-size:0.86rem;">Sem etapas — </p>';
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn btn-ghost btn-sm";
+          btn.textContent = "Criar etapas padrão";
+          btn.addEventListener("click", async function () {
+            var rows = DEFAULT_STAGE_TITLES.map(function (title, i) { return { project_id: projectId, title: title, order_index: i }; });
+            await client.from("project_stages").insert(rows);
+            await loadStages(drawer, projectId);
+          });
+          list.appendChild(btn);
+          return;
+        }
+
+        list.innerHTML = stages.map(function (s) {
+          return (
+            '<div class="admin-stage-row" data-stage-id="' + s.id + '">' +
+              '<span class="admin-stage-row__title">' + A.escapeHtml(s.title) + "</span>" +
+              '<select data-field="status">' +
+                ["pendente", "em_andamento", "concluido"].map(function (v) { return '<option value="' + v + '"' + (s.status === v ? " selected" : "") + ">" + v.replace("_", " ") + "</option>"; }).join("") +
+              "</select>" +
+            "</div>"
+          );
+        }).join("");
+
+        list.querySelectorAll(".admin-stage-row select").forEach(function (sel) {
+          sel.addEventListener("change", async function () {
+            var stageId = sel.closest(".admin-stage-row").getAttribute("data-stage-id");
+            var payload = { status: sel.value };
+            if (sel.value === "concluido") payload.completed_at = new Date().toISOString();
+            await client.from("project_stages").update(payload).eq("id", stageId);
+          });
+        });
+      }
+
+      async function loadDeliveries(drawer, projectId) {
+        var { data } = await client.from("project_deliveries").select("*").eq("project_id", projectId).order("delivered_at", { ascending: false });
+        var list = drawer.querySelector("#deliveries-list");
+        list.innerHTML = (data || []).length
+          ? data.map(function (d) {
+              return '<div class="delivery-item"><div class="delivery-item__top"><span>' + A.escapeHtml(d.title) + '</span><span class="delivery-item__date">' + A.fmtDate(d.delivered_at) + "</span></div>" + (d.description ? "<p>" + A.escapeHtml(d.description) + "</p>" : "") + "</div>";
+            }).join("")
+          : '<p style="color:var(--ink-muted); font-size:0.86rem;">Nenhuma entrega ainda.</p>';
+
+        drawer.querySelector("#new-delivery-form").onsubmit = async function (e) {
+          e.preventDefault();
+          var title = drawer.querySelector("#delivery-title").value.trim();
+          var desc = drawer.querySelector("#delivery-desc").value.trim();
+          if (!title) return;
+          await client.from("project_deliveries").insert({ project_id: projectId, title: title, description: desc || null });
+          await A.logActivity(client, "project", projectId, "delivery_added", title);
+          drawer.querySelector("#new-delivery-form").reset();
+          await loadDeliveries(drawer, projectId);
+          await loadActivity(drawer, projectId);
+        };
+      }
+
+      async function loadFiles(drawer, projectId) {
+        var list = drawer.querySelector("#files-list");
+        var { data: files } = await client.storage.from("project-files").list(projectId, { sortBy: { column: "created_at", order: "desc" } });
+
+        if (!files || !files.length) {
+          list.innerHTML = '<p style="color:var(--ink-muted); font-size:0.86rem;">Nenhum arquivo enviado ainda.</p>';
+        } else {
+          list.innerHTML = files
+            .map(function (f) {
+              return (
+                '<div class="task-row" data-file-name="' + A.escapeHtml(f.name) + '">' +
+                  '<span class="task-row__title">' + A.escapeHtml(f.name.replace(/^\d+-/, "")) + "</span>" +
+                  '<a href="#" class="btn btn-ghost btn-sm" data-action="download">Baixar</a>' +
+                  '<button type="button" class="icon-btn" aria-label="Excluir" data-action="delete">×</button>' +
+                "</div>"
+              );
+            })
+            .join("");
+
+          list.querySelectorAll('[data-action="download"]').forEach(function (link) {
+            link.addEventListener("click", async function (e) {
+              e.preventDefault();
+              var name = link.closest(".task-row").getAttribute("data-file-name");
+              var { data } = await client.storage.from("project-files").createSignedUrl(projectId + "/" + name, 300);
+              if (data && data.signedUrl) window.open(data.signedUrl, "_blank");
+            });
+          });
+
+          list.querySelectorAll('[data-action="delete"]').forEach(function (btn) {
+            btn.addEventListener("click", async function () {
+              var name = btn.closest(".task-row").getAttribute("data-file-name");
+              await client.storage.from("project-files").remove([projectId + "/" + name]);
+              await loadFiles(drawer, projectId);
+            });
+          });
+        }
+
+        drawer.querySelector("#upload-file-btn").onclick = async function () {
+          var input = drawer.querySelector("#project-file-input");
+          if (!input.files || !input.files[0]) return;
+          var file = input.files[0];
+          var path = projectId + "/" + Date.now() + "-" + file.name;
+          await client.storage.from("project-files").upload(path, file);
+          await A.logActivity(client, "project", projectId, "file_uploaded", file.name);
+          input.value = "";
+          await loadFiles(drawer, projectId);
+          await loadActivity(drawer, projectId);
+        };
+      }
+
+      async function loadTasks(drawer, projectId) {
+        var { data } = await client.from("tasks").select("*").eq("project_id", projectId).order("due_date", { ascending: true, nullsFirst: false });
+        var list = drawer.querySelector("#tasks-list");
+        list.innerHTML = (data || []).length
+          ? data.map(function (t) {
+              return (
+                '<div class="task-row" data-task-id="' + t.id + '">' +
+                  '<span class="task-row__title' + (t.status === "concluida" ? " is-done" : "") + '">' + A.escapeHtml(t.title) + (t.due_date ? " · " + A.fmtDate(t.due_date) : "") + "</span>" +
+                  '<select data-field="status">' +
+                    ["pendente", "em_andamento", "concluida"].map(function (v) { return '<option value="' + v + '"' + (t.status === v ? " selected" : "") + ">" + v + "</option>"; }).join("") +
+                  "</select>" +
+                "</div>"
+              );
+            }).join("")
+          : '<p style="color:var(--ink-muted); font-size:0.86rem;">Nenhuma tarefa ainda.</p>';
+
+        list.querySelectorAll(".task-row select").forEach(function (sel) {
+          sel.addEventListener("change", async function () {
+            var taskId = sel.closest(".task-row").getAttribute("data-task-id");
+            await client.from("tasks").update({ status: sel.value }).eq("id", taskId);
+            await loadTasks(drawer, projectId);
+          });
+        });
+
+        drawer.querySelector("#new-task-form").onsubmit = async function (e) {
+          e.preventDefault();
+          var title = drawer.querySelector("#task-title").value.trim();
+          var due = drawer.querySelector("#task-due").value || null;
+          if (!title) return;
+          await client.from("tasks").insert({ project_id: projectId, title: title, due_date: due });
+          drawer.querySelector("#new-task-form").reset();
+          await loadTasks(drawer, projectId);
+        };
+      }
+
+      async function loadActivity(drawer, projectId) {
+        var feed = drawer.querySelector("#activity-feed");
+        var { data } = await client.from("activity_log").select("*").eq("entity_type", "project").eq("entity_id", projectId).order("created_at", { ascending: false }).limit(30);
+        feed.innerHTML = (data || []).length
+          ? data.map(function (a) { return "<li>" + A.escapeHtml(a.action) + (a.detail ? " — " + A.escapeHtml(a.detail) : "") + "<time>" + A.fmtDateTime(a.created_at) + "</time></li>"; }).join("")
+          : "<li>Nenhuma atividade registrada.</li>";
+      }
+
+      function showDrawerStatus(drawer, text, kind) {
+        var el = drawer.querySelector("#drawer-status");
+        el.textContent = text;
+        el.className = "status-msg is-visible status-msg--" + kind;
+      }
+
+      function wireDrawer(drawer, project) {
+        drawer.querySelector("#drawer-close").addEventListener("click", closeDrawer);
+        drawer.querySelector("#save-project-btn").addEventListener("click", function () { saveProject(drawer, project); });
+        if (project) {
+          drawer.querySelector("#delete-project-btn").addEventListener("click", function () { deleteProject(project); });
+        }
+      }
+
+      async function saveProject(drawer, project) {
+        var title = drawer.querySelector("#f-title").value.trim();
+        var clientName = drawer.querySelector("#f-client-name").value.trim();
+        var clientEmail = drawer.querySelector("#f-client-email").value.trim();
+        if (!title || !clientName || !clientEmail) {
+          showDrawerStatus(drawer, "Título, cliente e e-mail são obrigatórios.", "error");
+          return;
+        }
+
+        var payload = {
+          project_title: title,
+          client_name: clientName,
+          client_email: clientEmail,
+          status: drawer.querySelector("#f-status").value,
+          priority: drawer.querySelector("#f-priority").value,
+          budget_value: drawer.querySelector("#f-budget").value || null,
+        };
+
+        var saveBtn = drawer.querySelector("#save-project-btn");
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Salvando...";
+
+        var projectId = project ? project.id : null;
+
+        if (!projectId) {
+          payload.kanban_stage = "planejamento";
+          var { data: created, error } = await client.from("client_projects").insert(payload).select().single();
+          if (error || !created) {
+            showDrawerStatus(drawer, "Não foi possível criar o projeto.", "error");
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Salvar";
+            return;
+          }
+          projectId = created.id;
+          var rows = DEFAULT_STAGE_TITLES.map(function (t, i) { return { project_id: projectId, title: t, order_index: i }; });
+          await client.from("project_stages").insert(rows);
+          await A.logActivity(client, "project", projectId, "created", "Projeto criado manualmente");
+        } else {
+          await client.from("client_projects").update(payload).eq("id", projectId);
+          await A.logActivity(client, "project", projectId, "updated", "Dados do projeto atualizados");
+        }
+
+        var fileInput = drawer.querySelector("#f-proposal-file");
+        if (fileInput.files && fileInput.files[0]) {
+          var file = fileInput.files[0];
+          var path = projectId + "/" + Date.now() + "-" + file.name;
+          var { error: upErr } = await client.storage.from("project-files").upload(path, file, { upsert: true });
+          if (!upErr) await client.from("client_projects").update({ proposal_file_path: path }).eq("id", projectId);
+        }
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Salvar";
+        showDrawerStatus(drawer, "Projeto salvo com sucesso.", "ok");
+        await loadProjects();
+      }
+
+      async function deleteProject(project) {
+        if (!confirm('Excluir o projeto "' + project.project_title + '"? Essa ação não pode ser desfeita.')) return;
+        await client.from("client_projects").delete().eq("id", project.id);
+        closeDrawer();
+        await loadProjects();
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>
