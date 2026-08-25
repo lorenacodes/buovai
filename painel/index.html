@@ -21,7 +21,6 @@
       </a>
       <div class="panel-topbar__user">
         <span id="user-email"></span>
-        <a href="leads.html" id="admin-link" class="btn btn-ghost btn-sm" hidden>Área admin</a>
         <button class="btn btn-ghost btn-sm" id="logout-btn">Sair</button>
       </div>
     </header>
@@ -68,13 +67,13 @@
           return;
         }
 
-        document.getElementById("user-email").textContent = session.user.email || "";
-
         var { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
         if (isAdmin) {
-          document.getElementById("admin-link").hidden = false;
+          window.location.href = "leads.html";
+          return;
         }
 
+        document.getElementById("user-email").textContent = session.user.email || "";
         await loadProjects();
       }
 
