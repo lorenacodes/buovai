@@ -113,7 +113,7 @@ window.BuovaiAdmin = (function () {
     var session = sessionData.session;
 
     if (!session) {
-      window.location.href = "login.html";
+      window.location.href = "login.html?as=admin";
       return null;
     }
 
@@ -130,7 +130,7 @@ window.BuovaiAdmin = (function () {
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async function () {
         await client.auth.signOut();
-        window.location.href = "login.html";
+        window.location.href = "login.html?as=admin";
       });
     }
 

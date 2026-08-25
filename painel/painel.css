@@ -97,6 +97,20 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 800; letter-spac
 
 .login-card__brand img { height: 30px; width: auto; }
 
+.login-card__badge {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.3em 0.75em;
+  border-radius: var(--radius-pill);
+  background: var(--panel-ink);
+  color: var(--panel-ink-text);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .login-card h1 {
   font-size: 1.4rem;
 }
