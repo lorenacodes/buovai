@@ -50,9 +50,11 @@
         statusEl.className = "status-msg is-visible status-msg--" + kind;
       }
 
-      // Se já tem sessão ativa, manda direto pro painel.
-      window.buovaiClient.auth.getSession().then(function (res) {
-        if (res.data.session) window.location.href = "index.html";
+      // Se já tem sessão ativa, manda direto pro painel certo (admin ou cliente).
+      window.buovaiClient.auth.getSession().then(async function (res) {
+        if (!res.data.session) return;
+        var { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
+        window.location.href = isAdmin ? "leads.html" : "index.html";
       });
 
       form.addEventListener("submit", async function (e) {
