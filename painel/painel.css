@@ -480,6 +480,23 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 800; letter-spac
 
 .admin-sidebar__footer span { display: block; margin-bottom: 0.6rem; word-break: break-all; }
 
+.admin-sidebar__logout {
+  width: 100%;
+  padding: 0.6em 0.9em;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--panel-ink-border);
+  background: none;
+  color: var(--panel-ink-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.admin-sidebar__logout:hover {
+  background: rgba(241, 239, 236, 0.08);
+}
+
 .admin-content {
   flex: 1;
   min-width: 0;

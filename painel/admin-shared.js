@@ -95,10 +95,9 @@ window.BuovaiAdmin = (function () {
       '<aside class="admin-sidebar">' +
         '<a href="../index.html" class="admin-sidebar__brand"><img src="../assets/img/logo-mark.png" alt="" aria-hidden="true" /><span>Buovai</span></a>' +
         navHtml +
-        '<a href="index.html">Ver como cliente</a>' +
         '<div class="admin-sidebar__footer">' +
           "<span>" + escapeHtml(userEmail || "") + "</span>" +
-          '<button class="btn btn-ghost btn-sm" id="ba-logout-btn" style="width:100%;">Sair</button>' +
+          '<button class="admin-sidebar__logout" id="ba-logout-btn">Sair</button>' +
         "</div>" +
       "</aside>"
     );
