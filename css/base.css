@@ -139,14 +139,16 @@ body::before {
 
 
 .accent {
+  position: relative;
   color: var(--accent-strong);
-  font-style: italic;
-  font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: var(--brand-amber-400);
-  text-decoration-style: wavy;
-  text-decoration-thickness: 2.5px;
-  text-underline-offset: 0.1em;
+  font-weight: 700;
+  padding-bottom: 0.16em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0.3em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 15C40 6 72 21 112 11C152 1 190 19 232 9C262 2 282 15 296 10' stroke='%23ff7a1a' stroke-width='7' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 .visually-hidden {
