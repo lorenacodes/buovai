@@ -14,7 +14,7 @@ body {
   font-family: var(--font-body);
   font-size: 1rem;
   line-height: 1.55;
-  font-weight: 450;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -23,7 +23,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 input, select, textarea { font: inherit; color: inherit; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 h1, h2, h3, h4, p { margin: 0; }
-h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+h1, h2, h3, h4 { font-family: var(--font-body); font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; }
 
 .panel-shell {
   min-height: 100vh;
