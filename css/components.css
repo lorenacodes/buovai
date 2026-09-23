@@ -78,7 +78,7 @@
 .nav-links {
   display: flex;
   align-items: center;
-  gap: var(--space-xl);
+  gap: clamp(1.25rem, 2vw, var(--space-xl));
 }
 
 .nav-links a {
@@ -113,7 +113,18 @@
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.wide-only {
+  display: none;
+}
+
+@media (min-width: 1240px) {
+  .wide-only {
+    display: inline-flex;
+  }
 }
 
 .nav-toggle {

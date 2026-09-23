@@ -72,40 +72,59 @@ section {
   align-items: center;
 }
 
-.hero__stats {
+.hero__contact-bar {
   position: relative;
   z-index: 1;
   margin-top: var(--space-2xl);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  padding-block: var(--space-md);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-lg);
   border-top: 1px solid var(--border-hairline);
 }
 
-.hero__stat {
-  padding: var(--space-md) var(--space-lg) var(--space-md) 0;
-  border-left: 1px solid var(--border-hairline);
-  padding-left: var(--space-lg);
-}
-
-.hero__stat:first-child {
-  border-left: none;
-  padding-left: 0;
-}
-
-.hero__stat dd {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(1.6rem, 2vw + 1rem, 2.4rem);
+.hero__contact-bar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
   font-weight: 800;
-  font-variant-numeric: tabular-nums;
+  font-size: 1.02rem;
+  color: var(--ink-primary);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.hero__contact-bar a:hover {
   color: var(--accent-strong);
 }
 
-.hero__stat dt {
-  margin-top: 0.35rem;
-  font-size: 0.76rem;
+.hero__contact-bar a svg {
+  color: var(--accent-strong);
+  flex-shrink: 0;
+}
+
+.hero__contact-response {
+  font-size: 0.82rem;
   color: var(--ink-muted);
-  letter-spacing: 0.02em;
+}
+
+/* ---- Contato rápido no header ---- */
+.contact-quick {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.contact-quick svg {
+  color: var(--accent-strong);
+}
+
+.contact-quick:hover {
+  color: var(--ink-primary);
 }
 
 /* ==================== ABOUT ==================== */
@@ -270,19 +289,37 @@ section {
   line-height: 1.5;
 }
 
-.tracking__list-icon {
+.tracking__list-index {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  margin-top: 0.1rem;
-  border-radius: 50%;
-  background: rgba(var(--accent-glow-rgb), 0.12);
+  width: 1.8rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==================== WHATSAPP FLUTUANTE ==================== */
+.whatsapp-fab {
+  position: fixed;
+  right: var(--space-md);
+  bottom: var(--space-md);
+  z-index: 900;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 800;
+  background: var(--panel-ink);
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: var(--shadow-lift);
+  transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+
+.whatsapp-fab:hover {
+  background: var(--brand-emerald-700);
+  transform: translateY(-2px);
 }
 
 /* ==================== PORTFOLIO ==================== */
@@ -699,6 +736,13 @@ section {
   align-items: baseline;
   padding-block: var(--space-sm);
   border-bottom: 1px solid var(--border-hairline);
+  color: var(--ink-primary);
+  transition: padding-left var(--dur-fast) var(--ease-out);
+}
+
+a.contact__channel:hover {
+  padding-left: 0.4em;
+  color: var(--accent-strong);
 }
 
 .contact__channel-label {
