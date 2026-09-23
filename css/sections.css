@@ -250,10 +250,12 @@ section {
 }
 
 .tracking__panel {
-  border: 1px solid var(--border-hairline-strong);
+  border: 1.5px solid var(--panel-ink);
   border-radius: var(--radius-md);
   background: var(--bg-deep);
   padding: var(--space-lg);
+  box-shadow: var(--shadow-hard);
+  margin: 0 7px 7px 0;
 }
 
 .tracking__panel h3 {
@@ -327,14 +329,13 @@ section {
   overflow: hidden;
   cursor: pointer;
   background: var(--bg-deep);
-  border: 1px solid var(--border-hairline);
-  transition: border-color var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out);
+  border: 1.5px solid var(--panel-ink);
+  transition: box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 
 .case-card:hover {
-  border-color: var(--border-hairline-strong);
-  box-shadow: var(--shadow-lift);
-  transform: translateY(-3px);
+  box-shadow: var(--shadow-hard);
+  transform: translate(-5px, -5px);
 }
 
 .case-card__media {

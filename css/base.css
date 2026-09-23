@@ -131,14 +131,22 @@ body::before {
 
 .eyebrow::before {
   content: "";
-  width: 1.1em;
-  height: 2px;
+  width: 0.85em;
+  height: 5px;
   background: var(--accent-strong);
+  box-shadow: 0.55em 0 0 var(--brand-amber-400);
 }
 
 
 .accent {
   color: var(--accent-strong);
+  font-style: italic;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--brand-amber-400);
+  text-decoration-style: wavy;
+  text-decoration-thickness: 2.5px;
+  text-underline-offset: 0.1em;
 }
 
 .visually-hidden {
