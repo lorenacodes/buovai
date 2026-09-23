@@ -36,17 +36,6 @@ section {
   overflow: hidden;
 }
 
-.hero__watermark {
-  position: absolute;
-  top: -8%;
-  right: -6%;
-  width: min(44vw, 620px);
-  height: auto;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.9;
-}
-
 .hero__inner {
   position: relative;
   z-index: 1;
