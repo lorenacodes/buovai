@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Leads — Admin Buovai</title>
+  <title>Leads | Admin Buovai</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -212,7 +212,7 @@
             "</select></div>" +
           "</div>" +
           '<div class="field" style="margin-top:1rem;"><label>Proposta comercial (PDF)</label><input id="f-proposal-file" type="file" accept="application/pdf" />' +
-            (l.proposal_file_path ? '<small id="f-proposal-current">Arquivo atual salvo — envie outro para substituir.</small>' : "") +
+            (l.proposal_file_path ? '<small id="f-proposal-current">Arquivo atual salvo, envie outro para substituir.</small>' : "") +
           "</div>" +
 
           '<div class="section-divider"><h3>Produtos / serviços cotados</h3></div>' +
@@ -277,7 +277,7 @@
         var { data } = await client.from("activity_log").select("*").eq("entity_type", "lead").eq("entity_id", leadId).order("created_at", { ascending: false }).limit(30);
         if (!data || !data.length) { feed.innerHTML = "<li>Nenhuma atividade registrada.</li>"; return; }
         feed.innerHTML = data.map(function (a) {
-          return "<li>" + A.escapeHtml(a.action) + (a.detail ? " — " + A.escapeHtml(a.detail) : "") + "<time>" + A.fmtDateTime(a.created_at) + "</time></li>";
+          return "<li>" + A.escapeHtml(a.action) + (a.detail ? ": " + A.escapeHtml(a.detail) : "") + "<time>" + A.fmtDateTime(a.created_at) + "</time></li>";
         }).join("");
       }
 
@@ -404,7 +404,7 @@
 
       async function convertLeadToProject(drawer, lead) {
         if (!lead.contact_email) {
-          showDrawerStatus(drawer, "Preencha o e-mail de contato antes de converter — é o login do cliente.", "error");
+          showDrawerStatus(drawer, "Preencha o e-mail de contato antes de converter, é o login do cliente.", "error");
           return;
         }
 

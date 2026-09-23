@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Acesso ao painel — Buovai</title>
+  <title>Acesso ao painel | Buovai</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -76,10 +76,10 @@
 
       var isAdminEntry = new URLSearchParams(window.location.search).get("as") === "admin";
       if (isAdminEntry) {
-        document.title = "Acesso administrativo — Buovai";
+        document.title = "Acesso administrativo | Buovai";
         document.getElementById("login-badge").hidden = false;
         document.getElementById("login-title").textContent = "Área administrativa da Buovai";
-        document.getElementById("login-sub").textContent = "Esta é a área restrita da equipe Buovai — não é o painel do cliente. Entre com seu e-mail e senha de administrador.";
+        document.getElementById("login-sub").textContent = "Esta é a área restrita da equipe Buovai. Não é o painel do cliente. Entre com seu e-mail e senha de administrador.";
       }
 
       applyMode();

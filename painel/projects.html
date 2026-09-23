@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Projetos — Admin Buovai</title>
+  <title>Projetos | Admin Buovai</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -169,7 +169,7 @@
             "</select></div>" +
             '<div class="field"><label>Valor do orçamento</label><input id="f-budget" type="number" step="0.01" value="' + (p.budget_value != null ? p.budget_value : "") + '" /></div>' +
             '<div class="field"><label>Proposta aprovada (PDF)</label><input id="f-proposal-file" type="file" accept="application/pdf" />' +
-              (p.proposal_file_path ? '<small>Arquivo já salvo — envie outro para substituir.</small>' : "") +
+              (p.proposal_file_path ? '<small>Arquivo já salvo, envie outro para substituir.</small>' : "") +
             "</div>" +
           "</div>" +
 
@@ -212,7 +212,7 @@
         var list = drawer.querySelector("#stages-list");
 
         if (!stages || !stages.length) {
-          list.innerHTML = '<p style="color:var(--ink-muted); font-size:0.86rem;">Sem etapas — </p>';
+          list.innerHTML = '<p style="color:var(--ink-muted); font-size:0.86rem;">Sem etapas</p>';
           var btn = document.createElement("button");
           btn.type = "button";
           btn.className = "btn btn-ghost btn-sm";
@@ -358,7 +358,7 @@
         var feed = drawer.querySelector("#activity-feed");
         var { data } = await client.from("activity_log").select("*").eq("entity_type", "project").eq("entity_id", projectId).order("created_at", { ascending: false }).limit(30);
         feed.innerHTML = (data || []).length
-          ? data.map(function (a) { return "<li>" + A.escapeHtml(a.action) + (a.detail ? " — " + A.escapeHtml(a.detail) : "") + "<time>" + A.fmtDateTime(a.created_at) + "</time></li>"; }).join("")
+          ? data.map(function (a) { return "<li>" + A.escapeHtml(a.action) + (a.detail ? ": " + A.escapeHtml(a.detail) : "") + "<time>" + A.fmtDateTime(a.created_at) + "</time></li>"; }).join("")
           : "<li>Nenhuma atividade registrada.</li>";
       }
 

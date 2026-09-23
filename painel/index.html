@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Painel do cliente — Buovai</title>
+  <title>Painel do cliente | Buovai</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -115,7 +115,7 @@
                 '<span class="stage-item__dot stage-item__dot--' + s.status + '">' + dotLabel + "</span>" +
                 '<div class="stage-item__body">' +
                   "<h4>" + escapeHtml(s.title) + "</h4>" +
-                  "<p>" + (STAGE_LABELS[s.status] || s.status) + (s.notes ? " — " + escapeHtml(s.notes) : "") + "</p>" +
+                  "<p>" + (STAGE_LABELS[s.status] || s.status) + (s.notes ? ": " + escapeHtml(s.notes) : "") + "</p>" +
                 "</div>" +
               "</div>"
             );

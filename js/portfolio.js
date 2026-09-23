@@ -17,29 +17,29 @@
     "Milatec": [
       {
         src: "assets/img/case-milalab.jpg",
-        caption: "Painel do MilaLab — dados sensíveis borrados para preservar a privacidade do cliente.",
+        caption: "Painel do MilaLab. Dados sensíveis borrados para preservar a privacidade do cliente.",
       },
     ],
     "Trilhar Contabilidade": [
       {
         src: "assets/img/case-trilhar-dashboard.jpg",
-        caption: "Visão geral do painel administrativo — indicadores da operação em tempo real.",
+        caption: "Visão geral do painel administrativo. Indicadores da operação em tempo real.",
       },
       {
         src: "assets/img/case-trilhar-clientes.jpg",
-        caption: "Lista de clientes — nomes, e-mails e CPFs borrados para preservar a privacidade dos clientes da Trilhar.",
+        caption: "Lista de clientes. Nomes, e-mails e CPFs borrados para preservar a privacidade dos clientes da Trilhar.",
       },
       {
         src: "assets/img/case-trilhar-detalhe.jpg",
-        caption: "Ficha individual do cliente — dados pessoais borrados para preservar a privacidade.",
+        caption: "Ficha individual do cliente. Dados pessoais borrados para preservar a privacidade.",
       },
       {
         src: "assets/img/case-trilhar-financeiro.jpg",
-        caption: "Financeiro — controle de boletos por competência, com upload de documento vinculado. Nome do cliente borrado.",
+        caption: "Financeiro: controle de boletos por competência, com upload de documento vinculado. Nome do cliente borrado.",
       },
       {
         src: "assets/img/case-trilhar-config.jpg",
-        caption: "Configurações — categorias de documento totalmente customizáveis, sem alterar código.",
+        caption: "Configurações: categorias de documento totalmente customizáveis, sem alterar código.",
       },
     ],
   };
@@ -77,7 +77,7 @@
           <div class="case-card__meta">
             <span class="case-card__index">Case ${num}</span>
           </div>
-          <h3 class="case-card__title">${escapeHtml(project.title)} <span class="case-card__client">— ${escapeHtml(project.client_name || "")}</span></h3>
+          <h3 class="case-card__title">${escapeHtml(project.title)} <span class="case-card__client">· ${escapeHtml(project.client_name || "")}</span></h3>
           <p class="case-card__summary">${escapeHtml(project.summary || "")}</p>
           <div class="case-card__tags">${renderTags(project.tags)}</div>
           <div class="case-card__cta">
