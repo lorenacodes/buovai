@@ -76,10 +76,10 @@
   --container-pad: clamp(1.25rem, 4vw, 4rem);
 
   /* ---- Forma: bordas arredondadas suaves, não exageradas ---- */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-pill: 10px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 6px;
 
   /* ---- Painel de assinatura: verde profundo sólido — usado para blocar
      seções e criar ritmo editorial (não é um modo escuro, é um elemento

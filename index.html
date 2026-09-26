@@ -11,11 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="css/variables.css?v=10" />
-  <link rel="stylesheet" href="css/base.css?v=10" />
-  <link rel="stylesheet" href="css/components.css?v=10" />
-  <link rel="stylesheet" href="css/sections.css?v=10" />
-  <link rel="stylesheet" href="css/responsive.css?v=10" />
+  <link rel="stylesheet" href="css/variables.css?v=11" />
+  <link rel="stylesheet" href="css/base.css?v=11" />
+  <link rel="stylesheet" href="css/components.css?v=11" />
+  <link rel="stylesheet" href="css/sections.css?v=11" />
+  <link rel="stylesheet" href="css/responsive.css?v=11" />
 
   <link rel="icon" type="image/png" href="assets/img/logo-mark.png" />
 </head>
@@ -60,53 +60,43 @@
   <main id="main">
     <!-- ============== HERO ============== -->
     <section class="hero" id="top">
-      <div class="container hero__grid">
-        <div class="hero__inner">
-          <p class="eyebrow" data-reveal>Desenvolvimento de software</p>
-          <h1 data-reveal style="--reveal-delay:70ms">Seu projeto, do planejamento ao resultado. Com alguém que <span class="accent">realmente se importa</span>.</h1>
-          <p class="hero__sub" data-reveal style="--reveal-delay:140ms">Desenvolvimento de sistemas sob medida, com acompanhamento em todas as etapas. Você não contrata apenas um sistema, contrata uma parceria.</p>
+      <svg class="hero__bg-curve" viewBox="0 0 1400 700" fill="none" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M-40 560C260 620 520 420 700 380C920 330 1180 440 1460 260" stroke="var(--brand-green-bright)" stroke-opacity="0.16" stroke-width="1.5" />
+        <path d="M-40 120C240 40 560 160 760 90C1000 6 1220 90 1460 40" stroke="var(--panel-ink)" stroke-opacity="0.08" stroke-width="1.5" />
+      </svg>
 
-          <div class="hero__actions" data-reveal style="--reveal-delay:210ms">
-            <a href="#contato" class="btn btn-primary">
-              <span>Vamos conversar</span>
-              <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-            </a>
-            <a href="#portfolio" class="btn-text">
-              <span>Ver projetos</span>
-              <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-            </a>
-          </div>
-        </div>
+      <div class="container hero__editorial">
+        <p class="eyebrow" data-reveal>Desenvolvimento de software</p>
 
-        <div class="hero__timeline-wrap" data-reveal style="--reveal-delay:180ms">
-          <p class="hero__note">
-            Da ideia à entrega,<br />com você em<br />todas as etapas.
-            <svg class="hero__note-arrow" width="60" height="46" viewBox="0 0 60 46" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 4C10 20 22 34 40 38" /><path d="M28 40l12-2-4-12" /></svg>
+        <h1 data-reveal style="--reveal-delay:70ms">
+          Seu projeto, do planejamento ao resultado. Com alguém que <span class="accent">realmente acompanha</span> cada etapa.
+        </h1>
+
+        <div class="hero__editorial-row">
+          <p class="hero__sub" data-reveal style="--reveal-delay:140ms">Desenvolvimento sob medida, com acompanhamento real do início à entrega. Mais do que um sistema, uma parceria.</p>
+
+          <p class="hero__note" data-reveal style="--reveal-delay:200ms">
+            Da ideia à entrega,<br />em todas as etapas.
           </p>
-
-          <ol class="hero__timeline">
-            <li>
-              <span class="hero__timeline-index">01</span>
-              <h3>Entendemos sua necessidade</h3>
-              <p>Conversamos sobre o seu projeto, seus objetivos e desafios.</p>
-            </li>
-            <li>
-              <span class="hero__timeline-index">02</span>
-              <h3>Planejamos a solução</h3>
-              <p>Com foco no que realmente importa para o seu negócio.</p>
-            </li>
-            <li>
-              <span class="hero__timeline-index">03</span>
-              <h3>Desenvolvemos com você</h3>
-              <p>Com transparência e atualizações constantes.</p>
-            </li>
-            <li>
-              <span class="hero__timeline-index">04</span>
-              <h3>Entregamos e acompanhamos</h3>
-              <p>Você não fica sozinho. Estou aqui em todas as etapas.</p>
-            </li>
-          </ol>
         </div>
+
+        <div class="hero__actions" data-reveal style="--reveal-delay:260ms">
+          <a href="#contato" class="btn btn-primary">
+            <span>Vamos conversar</span>
+            <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+          </a>
+          <a href="#portfolio" class="btn-text">
+            <span>Ver projetos</span>
+            <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+          </a>
+        </div>
+
+        <ol class="hero__flow" data-reveal style="--reveal-delay:320ms">
+          <li><b>01</b> Entendemos sua necessidade</li>
+          <li><b>02</b> Planejamos a solução</li>
+          <li><b>03</b> Desenvolvemos com você</li>
+          <li><b>04</b> Entregamos e acompanhamos</li>
+        </ol>
       </div>
 
       <div class="hero__contact-strip" data-reveal>
@@ -463,10 +453,10 @@
   </a>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js?v=10"></script>
-  <script src="js/supabase-client.js?v=10"></script>
-  <script src="js/main.js?v=10"></script>
-  <script src="js/portfolio.js?v=10"></script>
-  <script src="js/contact.js?v=10"></script>
+  <script src="js/config.js?v=11"></script>
+  <script src="js/supabase-client.js?v=11"></script>
+  <script src="js/main.js?v=11"></script>
+  <script src="js/portfolio.js?v=11"></script>
+  <script src="js/contact.js?v=11"></script>
 </body>
 </html>
