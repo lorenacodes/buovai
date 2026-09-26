@@ -484,15 +484,24 @@ section {
 }
 
 /* ==================== PROCESSO (callout + fluxo horizontal) ==================== */
+.processo-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 3.2rem;
+  padding-bottom: 1.6rem;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
 #processo .section-head {
-  margin-bottom: 1.4rem;
+  flex: 0 0 auto;
+  width: 34%;
+  min-width: 280px;
+  margin-bottom: 0;
 }
 
 .processo-callout {
   position: relative;
-  margin-top: 3.2rem;
-  padding-bottom: 1.6rem;
-  border-bottom: 1px solid var(--border-hairline);
+  flex: 1 1 auto;
   display: flex;
   align-items: flex-start;
   gap: 2.4rem;
@@ -513,20 +522,9 @@ section {
 .processo-callout__block {
   position: relative;
   flex: 1 1 auto;
-  max-width: 720px;
+  max-width: 480px;
   padding-left: 2.2rem;
   border-left: 1px solid var(--border-hairline);
-}
-
-/* ---- Título e parágrafo lado a lado, aproveitando a largura ---- */
-.processo-callout__row {
-  display: flex;
-  align-items: flex-start;
-  gap: 2rem;
-}
-
-.processo-callout__heading {
-  flex: 0 0 200px;
 }
 
 .processo-callout__icon {
@@ -541,15 +539,14 @@ section {
   margin-bottom: 0.9rem;
 }
 
-.processo-callout__heading h3 {
+.processo-callout__block h3 {
   font-size: 1.35rem;
   font-weight: 700;
   font-family: var(--font-body);
 }
 
-.processo-callout__row > p {
-  flex: 1;
-  margin-top: 0.3rem;
+.processo-callout__block > p {
+  margin-top: 0.6rem;
   color: var(--ink-secondary);
   font-size: 0.96rem;
   max-width: 42ch;

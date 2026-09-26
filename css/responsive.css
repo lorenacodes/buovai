@@ -26,6 +26,16 @@
     gap: var(--space-lg);
   }
 
+  .processo-top {
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  #processo .section-head {
+    width: auto;
+    min-width: 0;
+  }
+
   .service-grid-organic {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -141,18 +151,19 @@
     grid-template-columns: 1fr;
   }
 
-  .processo-callout {
+  .processo-top {
     flex-direction: column;
     gap: 2.5rem;
   }
 
-  .processo-callout__row {
-    flex-direction: column;
-    gap: 0.8rem;
+  #processo .section-head {
+    width: auto;
+    min-width: 0;
   }
 
-  .processo-callout__heading {
-    flex-basis: auto;
+  .processo-callout {
+    flex-direction: column;
+    gap: 2.5rem;
   }
 
   .processo-callout__note--right {
