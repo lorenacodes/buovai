@@ -783,18 +783,6 @@ section {
   line-height: 1.45;
 }
 
-.tracking3__more {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  margin-top: 1.8rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--ink-primary);
-  border-bottom: 2px solid var(--accent-strong);
-  padding-bottom: 0.15em;
-}
-
 /* ==================== MOCKUP DO PAINEL ==================== */
 .tracking3__mockup {
   position: relative;
@@ -835,16 +823,6 @@ section {
 
 .tracking3__note--top svg {
   margin: 0.2em 0 0 auto;
-}
-
-.tracking3__note--float {
-  max-width: 20ch;
-  margin: 0.9rem 0 0 1.8rem;
-  transform: rotate(-2deg);
-}
-
-.tracking3__note--float svg {
-  margin: 0.2em 0 0 1.4rem;
 }
 
 .tracking3__panel {
@@ -976,9 +954,36 @@ section {
 
 .tracking3__progress-label {
   flex-shrink: 0;
-  font-size: 0.78rem;
+  font-size: 0.92rem;
   font-weight: 800;
   color: var(--accent-strong);
+}
+
+.tracking3__tag-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.tracking3__tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  animation: tracking3-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes tracking3-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.tracking3__live {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ink-muted);
 }
 
 .tracking3__timeline {
@@ -1186,6 +1191,17 @@ section {
 .tracking3__aside-card--dark span {
   font-weight: 700;
   color: var(--panel-ink-text);
+}
+
+.tracking3__closing {
+  margin-top: 2rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.15rem;
+  line-height: 1.4;
+  color: var(--ink-primary);
+  text-align: center;
 }
 
 /* ==================== WHATSAPP FLUTUANTE ==================== */
