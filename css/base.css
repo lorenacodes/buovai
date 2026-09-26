@@ -120,21 +120,19 @@ body::before {
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.55em;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 1.05rem;
+  gap: 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   text-transform: none;
-  color: var(--brand-emerald-700);
+  color: var(--ink-secondary);
 }
 
 .eyebrow::before {
-  content: "";
-  width: 18px;
-  height: 1.5px;
-  background: var(--accent-strong);
+  content: "//";
+  font-weight: 700;
+  color: var(--accent-strong);
 }
 
 
