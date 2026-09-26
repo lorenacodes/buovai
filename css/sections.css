@@ -513,9 +513,20 @@ section {
 .processo-callout__block {
   position: relative;
   flex: 1 1 auto;
-  max-width: 560px;
+  max-width: 720px;
   padding-left: 2.2rem;
   border-left: 1px solid var(--border-hairline);
+}
+
+/* ---- Título e parágrafo lado a lado, aproveitando a largura ---- */
+.processo-callout__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.processo-callout__heading {
+  flex: 0 0 200px;
 }
 
 .processo-callout__icon {
@@ -530,18 +541,18 @@ section {
   margin-bottom: 0.9rem;
 }
 
-.processo-callout__block h3 {
+.processo-callout__heading h3 {
   font-size: 1.35rem;
   font-weight: 700;
   font-family: var(--font-body);
-  max-width: 22ch;
 }
 
-.processo-callout__block p {
-  margin-top: 0.6rem;
+.processo-callout__row > p {
+  flex: 1;
+  margin-top: 0.3rem;
   color: var(--ink-secondary);
   font-size: 0.96rem;
-  max-width: 48ch;
+  max-width: 42ch;
 }
 
 .processo-callout__note {

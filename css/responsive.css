@@ -146,6 +146,15 @@
     gap: 2.5rem;
   }
 
+  .processo-callout__row {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .processo-callout__heading {
+    flex-basis: auto;
+  }
+
   .processo-callout__note--right {
     align-self: flex-start;
   }
