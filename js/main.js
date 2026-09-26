@@ -59,4 +59,21 @@
   // ---- Ano corrente ----
   const yearEl = document.getElementById("current-year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  // ---- WhatsApp flutuante: mensagem automática com saudação por horário ----
+  const whatsappFab = document.querySelector(".whatsapp-fab");
+  if (whatsappFab) {
+    const hour = new Date().getHours();
+    let saudacao;
+    if (hour >= 5 && hour < 12) saudacao = "Bom dia";
+    else if (hour >= 12 && hour < 18) saudacao = "Boa tarde";
+    else saudacao = "Boa noite";
+
+    const mensagem =
+      `${saudacao}! Encontrei seu site e gostaria de conversar sobre o desenvolvimento de um sistema ou site.\n\n` +
+      `Quero entender melhor como você trabalha e como poderia me ajudar no meu caso.`;
+
+    const numero = whatsappFab.href.match(/wa\.me\/(\d+)/)?.[1] || "5579998289485";
+    whatsappFab.href = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+  }
 })();
