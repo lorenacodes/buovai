@@ -206,17 +206,17 @@
 
 .btn-primary {
   padding-inline: 1.9em;
-  color: var(--panel-ink-text);
-  background: var(--panel-ink);
-  border: 1px solid var(--panel-ink);
-  box-shadow: var(--shadow-card);
+  color: #fff;
+  background: var(--accent-strong);
+  border: 1px solid var(--accent-strong);
+  box-shadow: 0 4px 14px -6px rgba(43, 182, 115, 0.4);
 }
 
 .btn-primary:hover {
   background: var(--brand-emerald-500);
   border-color: var(--brand-emerald-500);
-  transform: translateY(-2px) scale(1.015);
-  box-shadow: 0 16px 32px -12px rgba(43, 182, 115, 0.4), var(--shadow-lift);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px -8px rgba(43, 182, 115, 0.45);
 }
 
 .btn-ghost {
