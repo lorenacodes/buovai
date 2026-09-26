@@ -281,9 +281,9 @@ section {
   display: inline-flex;
   align-items: center;
   gap: 0.5em;
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--panel-ink-text-soft);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink-secondary);
   transition: color var(--dur-fast) var(--ease-out);
 }
 
@@ -292,7 +292,7 @@ section {
 }
 
 .contact-quick:hover {
-  color: var(--panel-ink-text);
+  color: var(--ink-primary);
 }
 
 /* ==================== ABOUT ==================== */
