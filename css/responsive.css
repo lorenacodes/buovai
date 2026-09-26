@@ -141,6 +141,27 @@
     grid-template-columns: 1fr;
   }
 
+  .processo-callout {
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .processo-callout__note--right {
+    align-self: flex-start;
+  }
+
+  .processo-flow {
+    gap: 2.2rem;
+  }
+
+  .processo-flow li {
+    flex: 1 1 45%;
+  }
+
+  .processo-flow li:not(:last-child)::after {
+    display: none;
+  }
+
   .service-grid-organic .service-card {
     --offset-y: 0rem !important;
   }
