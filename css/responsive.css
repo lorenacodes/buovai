@@ -26,6 +26,17 @@
     gap: var(--space-lg);
   }
 
+  .service-grid-organic {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .services-note--right {
+    position: static;
+    margin: var(--space-lg) 0 0 auto;
+    text-align: right;
+    width: fit-content;
+  }
+
   .about__facts {
     grid-template-columns: 1fr;
   }
@@ -126,8 +137,12 @@
     gap: var(--space-2xs);
   }
 
-  .service-grid {
+  .service-grid-organic {
     grid-template-columns: 1fr;
+  }
+
+  .service-grid-organic .service-card {
+    --offset-y: 0rem !important;
   }
 
   .contact-form__grid {
