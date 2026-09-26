@@ -41,6 +41,7 @@
   --shadow-lift: 0 24px 60px -24px rgba(32, 30, 29, 0.22);
   --shadow-hard: 7px 7px 0 var(--panel-ink);
   --shadow-hard-sm: 4px 4px 0 var(--panel-ink);
+  --shadow-hard-sm-panel: 3px 3px 0 rgba(241, 239, 236, 0.35);
   --scrim: rgba(242, 240, 236, 0.82);
   --skeleton-base: rgba(32, 30, 29, 0.06);
   --skeleton-shine: rgba(32, 30, 29, 0.11);

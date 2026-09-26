@@ -57,22 +57,17 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--bg-deep);
-  border-bottom: 1px solid var(--border-hairline);
-  transition: border-color var(--dur-med) var(--ease-out);
+  background: var(--panel-ink);
+  border-bottom: 1px solid var(--panel-ink-border);
 }
 
 .site-header__inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.1rem var(--container-pad);
+  padding: 1rem var(--container-pad);
   max-width: var(--container-max);
   margin-inline: auto;
-}
-
-.site-header.is-scrolled {
-  border-color: var(--border-hairline-strong);
 }
 
 .nav-links {
@@ -84,15 +79,16 @@
 .nav-links a {
   font-size: 0.92rem;
   font-weight: 700;
-  color: var(--ink-secondary);
+  color: var(--panel-ink-text-soft);
   position: relative;
   padding: 0.3rem 0;
   transition: color var(--dur-fast) var(--ease-out);
 }
 
 .nav-links a:hover,
-.nav-links a:focus-visible {
-  color: var(--ink-primary);
+.nav-links a:focus-visible,
+.nav-links a.is-active {
+  color: var(--panel-ink-text);
 }
 
 .nav-links a::after {
@@ -106,7 +102,8 @@
   transition: right var(--dur-med) var(--ease-out);
 }
 
-.nav-links a:hover::after {
+.nav-links a:hover::after,
+.nav-links a.is-active::after {
   right: 0;
 }
 
@@ -134,7 +131,7 @@
   align-items: center;
   justify-content: center;
   background: none;
-  border: 1px solid var(--border-hairline-strong);
+  border: 1px solid var(--panel-ink-border);
 }
 
 .nav-toggle__bars {
@@ -148,7 +145,7 @@
   left: 0;
   width: 100%;
   height: 1.5px;
-  background: var(--ink-primary);
+  background: var(--panel-ink-text);
   transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out), top var(--dur-fast) var(--ease-out);
 }
 
@@ -199,6 +196,28 @@
 
 .btn-ghost:hover {
   background: var(--bg-elevated);
+}
+
+/* ---- Header (fundo escuro): ghost vira contorno claro, CTA vira verde vivo ---- */
+.site-header .btn-ghost {
+  color: var(--panel-ink-text);
+  border-color: var(--panel-ink-border);
+}
+
+.site-header .btn-ghost:hover {
+  background: rgba(241, 239, 236, 0.08);
+}
+
+.site-header .btn-primary {
+  color: var(--panel-ink);
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  box-shadow: var(--shadow-hard-sm-panel);
+}
+
+.site-header .btn-primary:hover {
+  background: var(--brand-teal-400);
+  border-color: var(--brand-teal-400);
 }
 
 .btn-text {

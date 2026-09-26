@@ -140,16 +140,19 @@ section {
   align-items: center;
 }
 
-.hero__contact-bar {
+.hero__contact-strip {
   position: relative;
   z-index: 1;
   margin-top: var(--space-2xl);
+  background: var(--panel-ink);
+}
+
+.hero__contact-bar {
   padding-block: var(--space-md);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-lg);
-  border-top: 1px solid var(--border-hairline);
 }
 
 .hero__contact-bar a {
@@ -158,12 +161,12 @@ section {
   gap: 0.55em;
   font-weight: 800;
   font-size: 1.02rem;
-  color: var(--ink-primary);
+  color: var(--panel-ink-text);
   transition: color var(--dur-fast) var(--ease-out);
 }
 
 .hero__contact-bar a:hover {
-  color: var(--accent-strong);
+  color: var(--brand-teal-400);
 }
 
 .hero__contact-bar a svg {
@@ -172,8 +175,35 @@ section {
 }
 
 .hero__contact-response {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
   font-size: 0.82rem;
-  color: var(--ink-muted);
+  color: var(--panel-ink-text-soft);
+}
+
+.hero__contact-response-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  animation: pulse-dot 1.8s ease-in-out infinite;
+}
+
+.hero__contact-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--panel-ink-text);
+  transition: gap var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.hero__contact-cta:hover {
+  gap: 0.65em;
+  color: var(--brand-teal-400);
 }
 
 /* ---- Contato rápido no header ---- */
@@ -183,7 +213,7 @@ section {
   gap: 0.5em;
   font-size: 0.86rem;
   font-weight: 700;
-  color: var(--ink-secondary);
+  color: var(--panel-ink-text-soft);
   transition: color var(--dur-fast) var(--ease-out);
 }
 
@@ -192,7 +222,7 @@ section {
 }
 
 .contact-quick:hover {
-  color: var(--ink-primary);
+  color: var(--panel-ink-text);
 }
 
 /* ==================== ABOUT ==================== */
@@ -242,7 +272,62 @@ section {
   font-size: 0.92rem;
 }
 
-/* ==================== LISTA EM LINHA (Serviços / Processo) ==================== */
+/* ==================== SERVIÇOS (grid de cards com ícone) ==================== */
+.services-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.55fr);
+  gap: var(--space-2xl);
+  align-items: start;
+}
+
+.services-intro h2 {
+  margin-top: var(--space-sm);
+  font-size: var(--fs-display-md);
+}
+
+.services-intro p {
+  margin-top: var(--space-md);
+  color: var(--ink-secondary);
+  font-size: var(--fs-body-md);
+  max-width: 34ch;
+}
+
+.services-intro .btn {
+  margin-top: var(--space-lg);
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xl) var(--space-lg);
+}
+
+.service-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: rgba(var(--accent-glow-rgb), 0.12);
+  color: var(--brand-emerald-700);
+  margin-bottom: var(--space-sm);
+}
+
+.service-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  letter-spacing: -0.005em;
+}
+
+.service-card p {
+  margin-top: 0.4rem;
+  color: var(--ink-secondary);
+  font-size: 0.9rem;
+}
+
+/* ==================== LISTA EM LINHA (Processo) ==================== */
 .row-list {
   display: grid;
   gap: 0;

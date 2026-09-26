@@ -13,6 +13,11 @@
     max-width: none;
   }
 
+  .services-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
   .about__facts {
     grid-template-columns: 1fr;
   }
@@ -62,7 +67,14 @@
   }
 
   .nav-links a {
+    color: var(--ink-secondary);
     font-size: 1.4rem;
+  }
+
+  .nav-links a:hover,
+  .nav-links a:focus-visible,
+  .nav-links a.is-active {
+    color: var(--ink-primary);
   }
 
   .site-header.is-open .nav-links {
@@ -95,6 +107,10 @@
   .row-item {
     grid-template-columns: 1fr;
     gap: var(--space-2xs);
+  }
+
+  .service-grid {
+    grid-template-columns: 1fr;
   }
 
   .contact-form__grid {
