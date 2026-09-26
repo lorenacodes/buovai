@@ -16,8 +16,8 @@
 }
 
 .brand__mark {
-  width: 26px;
-  height: 30px;
+  width: 22px;
+  height: 26px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -25,7 +25,7 @@
 .brand__word {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   letter-spacing: -0.01em;
   color: var(--ink-primary);
 }
@@ -61,9 +61,9 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(11, 61, 46, 0.88);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(11, 61, 46, 0.66);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
   border-bottom: 1px solid var(--panel-ink-border);
 }
 
@@ -71,7 +71,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem var(--container-pad);
+  padding: 0.5rem var(--container-pad);
   max-width: var(--container-max);
   margin-inline: auto;
 }
@@ -180,6 +180,7 @@
 }
 
 .btn-primary {
+  padding-inline: 1.9em;
   color: var(--panel-ink-text);
   background: var(--panel-ink);
   border: 1px solid var(--panel-ink);
@@ -189,8 +190,8 @@
 .btn-primary:hover {
   background: var(--brand-emerald-500);
   border-color: var(--brand-emerald-500);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 16px 32px -12px rgba(43, 182, 115, 0.4), var(--shadow-lift);
 }
 
 .btn-ghost {
@@ -203,21 +204,24 @@
   background: var(--bg-elevated);
 }
 
-/* ---- Header (fundo escuro): ghost vira contorno claro, CTA vira verde vivo ---- */
+/* ---- Header (fundo escuro): secundários viram texto puro, sem caixa ---- */
 .site-header .btn-ghost {
-  color: var(--panel-ink-text);
-  border-color: var(--panel-ink-border);
+  color: var(--panel-ink-text-soft);
+  background: none;
+  border-color: transparent;
+  padding-inline: 0.5em;
 }
 
 .site-header .btn-ghost:hover {
-  background: rgba(241, 239, 236, 0.08);
+  color: var(--panel-ink-text);
+  background: none;
 }
 
 .site-header .btn-primary {
   color: var(--panel-ink);
   background: var(--accent-strong);
   border-color: var(--accent-strong);
-  box-shadow: var(--shadow-hard-sm-panel);
+  box-shadow: none;
 }
 
 .site-header .btn-primary:hover {

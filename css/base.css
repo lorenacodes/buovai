@@ -142,13 +142,13 @@ body::before {
   position: relative;
   color: var(--accent-strong);
   font-weight: 700;
-  padding-bottom: 0.14em;
+  padding-bottom: 0.18em;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 100% 0.16em;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 14' preserveAspectRatio='none'%3E%3Cpath d='M3 8C50 3 90 11 140 6C190 1 230 10 297 5' stroke='%232bb673' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-position: -2% 108%;
+  background-size: 104% 0.22em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 20' preserveAspectRatio='none'%3E%3Cpath d='M2 12C24 4 46 15 71 9C93 4 108 16 132 8C158 -1 176 14 204 7C230 1 248 13 271 6C283 3 291 10 297 8' stroke='%232bb673' stroke-width='2.6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M6 15C30 9 52 17 84 10C110 4 122 14 150 9C180 3 196 15 222 9C246 4 262 12 296 11' stroke='%232bb673' stroke-opacity='0.55' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 .visually-hidden {
