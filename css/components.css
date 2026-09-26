@@ -177,15 +177,14 @@
   color: var(--panel-ink-text);
   background: var(--panel-ink);
   border: 1px solid var(--panel-ink);
-  box-shadow: var(--shadow-hard-sm);
-  transform: translate(-3px, -3px);
+  box-shadow: var(--shadow-card);
 }
 
 .btn-primary:hover {
-  background: var(--brand-emerald-700);
-  border-color: var(--brand-emerald-700);
-  transform: translate(0, 0);
-  box-shadow: 1px 1px 0 var(--panel-ink);
+  background: var(--brand-emerald-500);
+  border-color: var(--brand-emerald-500);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
 }
 
 .btn-ghost {
