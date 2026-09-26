@@ -4,13 +4,21 @@
    ========================================================================== */
 
 @media (max-width: 980px) {
-  .hero__editorial-row {
-    align-items: flex-start;
+  .hero__layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
   }
 
-  .hero__note {
+  .hero__margin-note {
+    display: none;
+  }
+
+  .hero__main {
+    max-width: none;
+  }
+
+  .hero__process-note {
     margin-left: 0;
-    text-align: left;
   }
 
   .services-layout {
