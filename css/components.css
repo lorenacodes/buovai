@@ -120,13 +120,16 @@
   flex-shrink: 0;
 }
 
+/* !important necessário: .contact-quick e .btn já declaram seu próprio
+   display, com a mesma especificidade — sem isso, esta classe utilitária
+   nunca conseguia esconder nada, em nenhuma largura de tela. */
 .wide-only {
-  display: none;
+  display: none !important;
 }
 
-@media (min-width: 1081px) {
+@media (min-width: 1440px) {
   .wide-only {
-    display: inline-flex;
+    display: inline-flex !important;
   }
 }
 
