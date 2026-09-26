@@ -323,6 +323,26 @@ section {
   color: var(--ink-primary);
 }
 
+.about__quote-spark {
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+/* ---- Linha curva fina reaproveitada em outras seções, não só no hero ---- */
+.section-bg-curve {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#processo .container {
+  position: relative;
+  z-index: 1;
+}
+
 .about__attribution {
   margin-top: var(--space-md);
   font-size: 0.88rem;

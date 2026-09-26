@@ -131,10 +131,10 @@ body::before {
 
 .eyebrow::before {
   content: "";
-  width: 0.85em;
+  width: 5px;
   height: 5px;
+  border-radius: 50%;
   background: var(--accent-strong);
-  box-shadow: 0.55em 0 0 var(--brand-amber-400);
 }
 
 

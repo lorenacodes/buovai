@@ -50,12 +50,9 @@
 
 }
 
-@media (max-width: 720px) {
-  :root {
-    --space-3xl: 5rem;
-    --space-2xl: 3.5rem;
-  }
-
+/* Abaixo de 1080px o header vira hambúrguer — evita qualquer zona
+   intermediária onde nav + botões brigam por espaço na mesma linha. */
+@media (max-width: 1080px) {
   .nav-links {
     position: fixed;
     top: 0;
@@ -85,6 +82,10 @@
     color: var(--ink-primary);
   }
 
+  .nav-links__mobile-extra {
+    display: flex;
+  }
+
   .site-header.is-open .nav-links {
     transform: translateX(0);
   }
@@ -93,8 +94,16 @@
     display: flex;
   }
 
-  .nav-actions .desktop-only {
+  .nav-actions .desktop-only,
+  .nav-actions .wide-only {
     display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --space-3xl: 5rem;
+    --space-2xl: 3.5rem;
   }
 
   .hero__contact-bar {
