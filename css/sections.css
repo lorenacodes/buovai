@@ -42,19 +42,6 @@ section {
   overflow: hidden;
 }
 
-.hero__corner {
-  position: absolute;
-  left: 0;
-  bottom: 88px;
-  width: min(18vw, 190px);
-  height: min(15vw, 160px);
-  z-index: 0;
-  pointer-events: none;
-  background: var(--panel-ink);
-  opacity: 0.9;
-  clip-path: polygon(0 100%, 0 30%, 65% 100%);
-}
-
 .hero__bg-curve {
   position: absolute;
   inset: 0;
