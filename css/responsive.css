@@ -64,6 +64,25 @@
     max-width: none;
   }
 
+  .tracking__mockup {
+    order: -1;
+  }
+
+  .tracking__status-arrow {
+    display: none;
+  }
+
+  .tracking__feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tracking__feature {
+    border-right: none;
+    border-bottom: 1px solid var(--border-hairline);
+    padding-right: 0;
+    padding-bottom: var(--space-md);
+  }
+
   .site-footer__top {
     grid-template-columns: 1fr;
     gap: var(--space-lg);
@@ -139,6 +158,18 @@
   }
 
   .about__facts {
+    grid-template-columns: 1fr;
+  }
+
+  .tracking__mockup-body {
+    grid-template-columns: 100px 1fr;
+  }
+
+  .tracking__mockup-sidebar span:nth-child(n + 3) {
+    display: none;
+  }
+
+  .tracking__feature-grid {
     grid-template-columns: 1fr;
   }
 
