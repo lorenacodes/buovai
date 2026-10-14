@@ -246,3 +246,11 @@
   }
 }
 
+
+/* ---- Reestruturação de conteúdo (out/2026) ---- */
+[hidden] { display: none !important; }
+.hero__layout--solo { grid-template-columns: minmax(0, 52rem); }
+.hero__layout--solo .hero__main { grid-column: 1; }
+@media (min-width: 900px) {
+  .service-grid-organic { grid-template-columns: repeat(2, 1fr); }
+}
