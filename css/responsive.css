@@ -17,8 +17,9 @@
     max-width: none;
   }
 
-  .hero__process-note {
-    margin-left: 0;
+  .hero__demo-stage {
+    max-width: 340px;
+    margin-inline: auto;
   }
 
   .services-layout {
@@ -153,6 +154,21 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-sm);
+  }
+
+  .hero__demo-stage {
+    height: 260px;
+    max-width: 280px;
+  }
+
+  .hero__demo-panel {
+    width: 200px;
+    height: 150px;
+  }
+
+  .hero__demo-chip:nth-child(n + 4),
+  .hero__demo-note:nth-child(n + 6) {
+    display: none;
   }
 
   .whatsapp-fab {
