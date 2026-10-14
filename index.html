@@ -11,11 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="css/variables.css?v=37" />
-  <link rel="stylesheet" href="css/base.css?v=37" />
-  <link rel="stylesheet" href="css/components.css?v=37" />
-  <link rel="stylesheet" href="css/sections.css?v=37" />
-  <link rel="stylesheet" href="css/responsive.css?v=37" />
+  <link rel="stylesheet" href="css/variables.css?v=38" />
+  <link rel="stylesheet" href="css/base.css?v=38" />
+  <link rel="stylesheet" href="css/components.css?v=38" />
+  <link rel="stylesheet" href="css/sections.css?v=38" />
+  <link rel="stylesheet" href="css/responsive.css?v=38" />
 
   <link rel="icon" type="image/png" href="assets/img/logo-mark.png" />
 </head>
@@ -81,8 +81,8 @@
           <p class="eyebrow" data-reveal>Desenvolvimento de software</p>
 
           <h1 data-reveal style="--reveal-delay:70ms">
-            Seu projeto, do planejamento ao resultado.<br />
-            Com alguém que <span class="accent">realmente acompanha</span> cada etapa.
+            Quando a ferramenta pronta não acompanha a sua operação,<br />
+            eu construo <span class="accent">o sistema que acompanha</span>.
           </h1>
 
           <p class="hero__sub" data-reveal style="--reveal-delay:140ms">Desenvolvimento sob medida, com acompanhamento real do início à entrega. Mais do que um sistema, uma parceria.</p>
@@ -99,30 +99,46 @@
           </div>
         </div>
 
-        <div class="hero__process" data-reveal style="--reveal-delay:260ms">
-          <p class="hero__process-note">
-            Do seu primeiro contato<br />até o resultado final.
-            <svg class="hero__process-note-arrow" width="34" height="30" viewBox="0 0 34 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 3c2 10 8 16 18 18" /><path d="M14 22l8 1-2-8" /></svg>
-          </p>
+        <div class="hero__demo" data-reveal style="--reveal-delay:260ms" aria-hidden="true">
+          <div class="hero__demo-stage" id="heroDemoStage">
+            <div class="hero__demo-chaos">
+              <span class="hero__demo-chip" style="--x:-18px; --y:6px; --r:-7deg; --d:0ms">Pedido 12</span>
+              <span class="hero__demo-chip" style="--x:58px; --y:-10px; --r:5deg; --d:60ms">Boleto</span>
+              <span class="hero__demo-chip" style="--x:10px; --y:62px; --r:4deg; --d:120ms">Ficha técnica</span>
+              <span class="hero__demo-chip" style="--x:70px; --y:84px; --r:-5deg; --d:40ms">Cliente</span>
+              <span class="hero__demo-note" style="--x:-6px; --y:140px; --r:-4deg; --d:160ms">onde está a<br />versão certa?</span>
+              <span class="hero__demo-note" style="--x:66px; --y:168px; --r:3deg; --d:90ms">copiar de novo</span>
+              <span class="hero__demo-sheet" style="--x:28px; --y:-34px; --r:8deg; --d:20ms" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 9v12" /></svg>
+              </span>
+            </div>
 
-          <ol class="hero__process-spine">
-            <li>
-              <span class="hero__process-dotcol"><span class="hero__process-dot"></span></span>
-              <div><span class="hero__process-num">01</span><h3>Entendemos sua necessidade</h3><p>Conversamos sobre o seu projeto, seus objetivos e desafios.</p></div>
-            </li>
-            <li>
-              <span class="hero__process-dotcol"><span class="hero__process-dot"></span></span>
-              <div><span class="hero__process-num">02</span><h3>Planejamos a solução</h3><p>Com foco no que realmente importa para o seu negócio.</p></div>
-            </li>
-            <li>
-              <span class="hero__process-dotcol"><span class="hero__process-dot"></span></span>
-              <div><span class="hero__process-num">03</span><h3>Desenvolvemos com você</h3><p>Com transparência e atualizações constantes.</p></div>
-            </li>
-            <li>
-              <span class="hero__process-dotcol"><span class="hero__process-dot"></span></span>
-              <div><span class="hero__process-num">04</span><h3>Entregamos e acompanhamos</h3><p>Você não fica sozinho. Estou aqui em todas as etapas.</p></div>
-            </li>
-          </ol>
+            <div class="hero__demo-panel">
+              <div class="hero__demo-panel-top">
+                <svg width="11" height="13" viewBox="0 0 24 24" fill="var(--brand-green-bright)" aria-hidden="true"><path d="M12 2c.8 4.6 2 5.8 6.6 6.6-4.6.8-5.8 2-6.6 6.6-.8-4.6-2-5.8-6.6-6.6C10 7.8 11.2 6.6 12 2z" /></svg>
+                <span>Buovai</span>
+              </div>
+              <div class="hero__demo-panel-body">
+                <aside class="hero__demo-panel-side">
+                  <span class="is-active"></span>
+                  <span></span>
+                  <span></span>
+                </aside>
+                <div class="hero__demo-panel-main">
+                  <ul class="hero__demo-panel-list">
+                    <li class="is-done"><span class="hero__demo-check" aria-hidden="true"></span><span class="hero__demo-bar"></span></li>
+                    <li class="is-done"><span class="hero__demo-check" aria-hidden="true"></span><span class="hero__demo-bar"></span></li>
+                    <li class="hero__demo-panel-list-new"><span class="hero__demo-check" aria-hidden="true"></span><span class="hero__demo-bar"></span></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="hero__demo-replay" id="heroDemoReplay">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 1 3 6.7" /><path d="M3 21v-5h5" /></svg>
+            Ver de novo
+          </button>
         </div>
       </div>
 
@@ -647,10 +663,11 @@
   </a>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js?v=37"></script>
-  <script src="js/supabase-client.js?v=37"></script>
-  <script src="js/main.js?v=37"></script>
-  <script src="js/portfolio.js?v=37"></script>
-  <script src="js/contact.js?v=37"></script>
+  <script src="js/config.js?v=38"></script>
+  <script src="js/supabase-client.js?v=38"></script>
+  <script src="js/main.js?v=38"></script>
+  <script src="js/hero-demo.js?v=38"></script>
+  <script src="js/portfolio.js?v=38"></script>
+  <script src="js/contact.js?v=38"></script>
 </body>
 </html>
