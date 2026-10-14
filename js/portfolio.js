@@ -14,12 +14,6 @@
   // Prints reais dos sistemas, com dados sensíveis borrados. Mapeados por
   // client_name porque a tabela portfolio_projects ainda não tem coluna de imagem.
   const SCREENSHOTS = {
-    "Milatec": [
-      {
-        src: "assets/img/case-milalab.jpg",
-        caption: "Painel do MilaLab. Dados sensíveis borrados para preservar a privacidade do cliente.",
-      },
-    ],
     "Trilhar Contabilidade": [
       {
         src: "assets/img/case-trilhar-dashboard.jpg",
@@ -207,7 +201,11 @@
 
       if (error) throw error;
 
-      projects = data || [];
+      // Case do estágio oculto até a empresa autorizar o uso, mesmo anônimo.
+      const HIDDEN = /milatec|milalab/i;
+      projects = (data || []).filter(
+        (p) => !HIDDEN.test(`${p.client_name || ""} ${p.title || ""}`)
+      );
 
       if (!projects.length) {
         listEl.innerHTML = `<div class="portfolio-empty">Novos cases em publicação em breve.</div>`;

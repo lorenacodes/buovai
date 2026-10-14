@@ -28,8 +28,8 @@ O cliente Supabase JS é carregado via CDN (`@supabase/supabase-js@2`) em
 
 Projeto: `Buovai` (`xfdqukrmfrqqsbcctbhh`).
 
-- `portfolio_projects` — cases reais (MilaLab/Milatec e Portal do
-  Cliente/Trilhar Contabilidade), com leitura pública restrita a
+- `portfolio_projects` — cases reais (Portal do Cliente/Trilhar Contabilidade;
+  o case do estágio fica oculto no front até haver autorização), com leitura pública restrita a
   `published = true` via Row Level Security.
 - `contact_messages` — mensagens do formulário de contato, com `INSERT`
   público via RLS (sem leitura pública).
