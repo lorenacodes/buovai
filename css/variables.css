@@ -1,51 +1,51 @@
 /* ==========================================================================
    Buovai — Design Tokens
    Paleta oficial: verde-sinal #80c299 · laranja #ff7a1a · dourado #d9a300 ·
-   tinta #201e1d · papel #f2f2f2. Tema único (claro), refinado e consistente
-   — sem alternância de tema.
+   tinta #201e1d · papel #f2f2f2. Tema escuro, com o verde da marca como
+   destaque sobre um fundo quase preto com leve nuance verde.
    ========================================================================== */
 
 :root {
   /* ---- Marca ---- */
   --brand-emerald-900: #0b3d2e;
-  --brand-emerald-700: #0b3d2e;
+  --brand-emerald-700: #3fcf8e;
   --brand-emerald-500: #1f8a5c;
   --brand-green-bright: #2bb673;
   --brand-teal-400: #6fcf9e;
   --brand-teal-300: #cfe8da;
-  --brand-gold-600: #b98900;
+  --brand-gold-600: #e6ad1f;
   --brand-gold-500: #d9a300;
-  --brand-amber-400: #ff7a1a;
+  --brand-amber-400: #ff8c3a;
 
   /* ---- Superfícies ---- */
-  --bg-void: #f7f9f8;
-  --bg-deep: #ffffff;
-  --bg-surface: #f7f9f8;
-  --bg-elevated: rgba(15, 23, 42, 0.04);
-  --bg-elevated-hover: rgba(15, 23, 42, 0.07);
-  --header-bg: rgba(255, 255, 255, 0.86);
-  --header-bg-scrolled: rgba(255, 255, 255, 0.96);
-  --border-hairline: #e2e8f0;
-  --border-hairline-strong: #cbd5e1;
+  --bg-void: #0a120e;
+  --bg-deep: #0e1a14;
+  --bg-surface: #0a120e;
+  --bg-elevated: rgba(255, 255, 255, 0.045);
+  --bg-elevated-hover: rgba(255, 255, 255, 0.075);
+  --header-bg: rgba(10, 18, 14, 0.72);
+  --header-bg-scrolled: rgba(10, 18, 14, 0.92);
+  --border-hairline: rgba(255, 255, 255, 0.09);
+  --border-hairline-strong: rgba(255, 255, 255, 0.17);
 
-  --ink-primary: #0f172a;
-  --ink-secondary: #475569;
-  --ink-muted: #94a3b8;
-  --ink-inverse: #0f172a;
+  --ink-primary: #f3f7f4;
+  --ink-secondary: #a9b8b1;
+  --ink-muted: #6c7d75;
+  --ink-inverse: #ffffff;
 
   --accent-strong: var(--brand-green-bright);
   --accent-soft: var(--brand-emerald-500);
   --accent-glow-rgb: 43, 182, 115;
 
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -16px rgba(15, 23, 42, 0.12);
-  --shadow-lift: 0 20px 45px -20px rgba(15, 23, 42, 0.18);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 36px -16px rgba(0, 0, 0, 0.55);
+  --shadow-lift: 0 24px 50px -20px rgba(0, 0, 0, 0.65);
   --shadow-hard: var(--shadow-lift);
   --shadow-hard-sm: var(--shadow-card);
-  --shadow-hard-sm-panel: 0 8px 20px -8px rgba(0, 0, 0, 0.35);
-  --scrim: rgba(247, 249, 248, 0.85);
-  --skeleton-base: rgba(15, 23, 42, 0.06);
-  --skeleton-shine: rgba(15, 23, 42, 0.1);
-  --noise-opacity: 0;
+  --shadow-hard-sm-panel: 0 8px 20px -8px rgba(0, 0, 0, 0.5);
+  --scrim: rgba(10, 18, 14, 0.85);
+  --skeleton-base: rgba(255, 255, 255, 0.05);
+  --skeleton-shine: rgba(255, 255, 255, 0.09);
+  --noise-opacity: 0.05;
 
   /* ---- Tipografia ---- */
   --font-display: "Playfair Display", "Iowan Old Style", "Georgia", serif;

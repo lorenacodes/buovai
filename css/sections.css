@@ -144,9 +144,9 @@ section {
 .hero__demo-chip {
   padding: 0.5em 0.9em;
   border-radius: var(--radius-sm);
-  background: var(--panel-ink);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 22px -10px rgba(0, 0, 0, 0.5);
+  background: var(--bg-deep);
+  border: 1px solid var(--border-hairline-strong);
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6);
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--panel-ink-text-soft);
@@ -170,9 +170,9 @@ section {
   width: 38px;
   height: 38px;
   border-radius: var(--radius-sm);
-  background: var(--panel-ink);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 22px -10px rgba(0, 0, 0, 0.5);
+  background: var(--bg-deep);
+  border: 1px solid var(--border-hairline-strong);
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6);
   color: var(--panel-ink-text-soft);
 }
 
@@ -574,7 +574,7 @@ section {
 }
 
 .service-card:hover {
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--bg-elevated-hover);
   transform: translateY(calc(var(--offset-y) - 3px));
 }
 
