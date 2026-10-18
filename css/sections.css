@@ -113,7 +113,19 @@ section {
 
 /* ---- Demo "do caos ao sistema" ---- */
 .hero__demo {
+  position: relative;
   margin-top: 0.6rem;
+}
+
+.hero__demo::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  z-index: -1;
+  background: var(--brand-gradient-diag);
+  opacity: 0.22;
+  filter: blur(40px);
+  border-radius: var(--radius-lg);
 }
 
 .hero__demo-stage {
@@ -192,7 +204,7 @@ section {
   transform: scale(0.8);
   transition: opacity 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 320ms, transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 320ms;
   border-radius: var(--radius-lg);
-  background: var(--panel-ink);
+  background: var(--panel-ink-gradient);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(var(--accent-glow-rgb), 0.08);
   overflow: hidden;

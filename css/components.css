@@ -259,9 +259,9 @@
   border-radius: var(--radius-md);
 }
 
-/* ---- Painel de assinatura: verde profundo sólido, fixo nos dois temas ---- */
+/* ---- Painel de assinatura: gradiente verde em área grande, fixo nos dois temas ---- */
 .panel-ink {
-  background: var(--panel-ink);
+  background: var(--panel-ink-gradient);
   color: var(--panel-ink-text);
 }
 
