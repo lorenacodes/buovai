@@ -66,7 +66,7 @@ html {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: min(48px, 10vw);
+  width: min(34px, 7vw);
   flex-shrink: 0;
 }
 
