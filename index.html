@@ -3,21 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Buovai: sistemas e sites para a operação da sua empresa</title>
-  <meta name="description" content="Lorena Cardoso desenvolve sistemas internos, portais, automações e sites profissionais para empresas, com atendimento direto e remoto." />
-  <meta name="theme-color" content="#f2f2f2" />
+  <title>buov.ai — sites, aplicativos e automações</title>
+  <meta name="description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região." />
+  <meta name="theme-color" content="#fdf9e6" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://buovai.com.br/" />
+  <meta property="og:site_name" content="buov.ai" />
+  <meta property="og:title" content="buov.ai — sites, aplicativos e automações" />
+  <meta property="og:description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região." />
+  <meta property="og:image" content="assets/img/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="buov.ai — sites, aplicativos e automações" />
+  <meta name="twitter:description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região." />
+  <meta name="twitter:image" content="assets/img/og-image.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Inter:wght@400;500;600;700;800&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/fonts.css?v=41" />
 
-  <link rel="stylesheet" href="css/variables.css?v=40" />
-  <link rel="stylesheet" href="css/base.css?v=40" />
-  <link rel="stylesheet" href="css/components.css?v=40" />
-  <link rel="stylesheet" href="css/sections.css?v=40" />
-  <link rel="stylesheet" href="css/responsive.css?v=40" />
+  <link rel="stylesheet" href="css/variables.css?v=41" />
+  <link rel="stylesheet" href="css/base.css?v=41" />
+  <link rel="stylesheet" href="css/components.css?v=41" />
+  <link rel="stylesheet" href="css/sections.css?v=41" />
+  <link rel="stylesheet" href="css/responsive.css?v=41" />
 
-  <link rel="icon" type="image/png" href="assets/img/logo-mark.png" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/logo-mark.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png" />
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
 </head>
 <body>
   <a class="skip-link" href="#main">Pular para o conteúdo</a>
@@ -26,8 +44,7 @@
   <header class="site-header" id="site-header">
     <div class="container site-header__inner">
       <a href="#top" class="brand">
-        <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
-        <span class="brand__word">Buovai<small>Sistemas e sites</small></span>
+        <img class="brand__wordmark" src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" />
       </a>
 
       <nav class="nav-links" aria-label="Navegação principal">
@@ -39,15 +56,15 @@
         <a href="#contato">Contato</a>
 
         <div class="nav-links__mobile-extra">
-          <a href="https://wa.me/5579998289485" target="_blank" rel="noopener">WhatsApp: (79) 99828-9485</a>
+          <a href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener">WhatsApp: <span data-site-field="phone-display">(79) 9 9828-9485</span></a>
           <a href="painel/login.html">Área do cliente</a>
         </div>
       </nav>
 
       <div class="nav-actions">
-        <a href="https://wa.me/5579998289485" class="contact-quick wide-only" target="_blank" rel="noopener" title="Falar no WhatsApp: (79) 99828-9485">
+        <a href="https://wa.me/5579998289485" data-site-href="whatsapp" class="contact-quick wide-only" target="_blank" rel="noopener" title="Falar no WhatsApp">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.4.1-.6l.4-.5c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.1 0 1.2.9 2.4 1 2.6.1.2 1.8 2.8 4.4 3.9.6.3 1.1.4 1.5.6.6.2 1.2.2 1.6.1.5-.1 1.6-.6 1.8-1.3.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5.1-1.3c1.4.8 3.1 1.2 4.9 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.2-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3C3.7 14.8 3.2 13.4 3.2 12 3.2 7.1 7.1 3.2 12 3.2S20.8 7.1 20.8 12 16.9 20.2 12 20.2z"/></svg>
-          <span>(79) 99828-9485</span>
+          <span data-site-field="phone-display">(79) 9 9828-9485</span>
         </a>
         <a href="painel/login.html" class="btn btn-ghost btn-sm desktop-only">Área do cliente</a>
         <a href="#contato" class="btn btn-primary btn-sm desktop-only">
@@ -71,7 +88,7 @@
 
       <div class="container hero__layout">
         <div class="hero__main">
-          <p class="eyebrow" data-reveal>Sistemas e sites para empresas</p>
+          <p class="eyebrow" data-reveal>Sites, aplicativos e automações</p>
 
           <h1 data-reveal style="--reveal-delay:70ms">
             Quando a ferramenta pronta não acompanha a sua operação, <span class="accent">eu construo o sistema que acompanha</span>.
@@ -108,7 +125,7 @@
             <div class="hero__demo-panel">
               <div class="hero__demo-panel-top">
                 <svg width="11" height="13" viewBox="0 0 24 24" fill="var(--brand-green-bright)" aria-hidden="true"><path d="M12 2c.8 4.6 2 5.8 6.6 6.6-4.6.8-5.8 2-6.6 6.6-.8-4.6-2-5.8-6.6-6.6C10 7.8 11.2 6.6 12 2z" /></svg>
-                <span>Buovai</span>
+                <span>buov.ai</span>
               </div>
               <div class="hero__demo-panel-body">
                 <aside class="hero__demo-panel-side">
@@ -137,7 +154,7 @@
             <span class="hero__contact-response-dot" aria-hidden="true"></span>
             Resposta em até 1 dia útil
           </span>
-          <a href="https://wa.me/5579998289485" class="hero__contact-cta" target="_blank" rel="noopener">
+          <a href="https://wa.me/5579998289485" data-site-href="whatsapp" class="hero__contact-cta" target="_blank" rel="noopener">
             Falar no WhatsApp
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
           </a>
@@ -178,7 +195,7 @@
           <p class="eyebrow">Experiência profissional</p>
           <h2>Do Airtable a <span class="accent">um sistema próprio</span>.</h2>
           <p>Numa empresa industrial, a operação rodava em Airtable. A ferramenta organizava os dados, mas não conseguia gerar orçamentos, fichas técnicas para a produção nem o cálculo de aço. Reconstruí o sistema sozinha, como aplicação própria. Hoje ele está em uso na operação, o Airtable foi desativado e a evolução é feita junto com a equipe da empresa.</p>
-          <p><small>Trabalho feito durante o meu estágio, apresentado sem identificar a empresa. Não é um projeto da Buovai.</small></p>
+          <p><small>Trabalho feito durante o meu estágio, apresentado sem identificar a empresa. Não é um projeto da buov.ai.</small></p>
         </div>
       </div>
     </section>
@@ -275,7 +292,7 @@
           <svg class="about__quote-spark" width="22" height="22" viewBox="0 0 24 24" fill="var(--brand-green-bright)" aria-hidden="true"><path d="M12 2c.6 3.6 1.6 4.6 5.2 5.2-3.6.6-4.6 1.6-5.2 5.2-.6-3.6-1.6-4.6-5.2-5.2 3.6-.6 4.6-1.6 5.2-5.2z"/></svg>
           Eu mesma converso com você, desenho a solução e programo. É um modelo enxuto de propósito: quem entende o seu problema é quem escreve o código.
         </blockquote>
-        <p class="about__attribution" data-reveal style="--reveal-delay:140ms"><strong>Lorena Cardoso</strong>, fundadora e desenvolvedora da Buovai</p>
+        <p class="about__attribution" data-reveal style="--reveal-delay:140ms"><strong data-site-field="name">Lorena Cardoso</strong>, <span data-site-field="title" hidden>título profissional</span><span class="about__attribution-role">fundadora e desenvolvedora da buov.ai</span></p>
 
         <div class="about__facts">
           <div class="about__fact" data-reveal>
@@ -295,15 +312,18 @@
           <p>Descreva como a tarefa é feita hoje. Não precisa de termo técnico. Eu respondo pessoalmente.</p>
 
           <div class="contact__channels">
-            <a class="contact__channel" href="https://wa.me/5579998289485" target="_blank" rel="noopener">
+            <a class="contact__channel" href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener">
+              <span class="contact__channel-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-9.3 8.46 8.6 8.6 0 0 1-2.3-.35L3 21l1.4-4.3A8.5 8.5 0 1 1 21 11.5z" /></svg></span>
               <span class="contact__channel-label">WhatsApp</span>
-              <span class="contact__channel-value">(79) 99828-9485</span>
+              <span class="contact__channel-value" data-site-field="phone-display">(79) 9 9828-9485</span>
             </a>
-            <a class="contact__channel" href="mailto:contatobuovai@gmail.com">
+            <a class="contact__channel" href="mailto:contatobuovai@gmail.com" data-site-href="email">
+              <span class="contact__channel-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z" /><path d="M3 7l9 6 9-6" /></svg></span>
               <span class="contact__channel-label">E-mail</span>
-              <span class="contact__channel-value">contatobuovai@gmail.com</span>
+              <span class="contact__channel-value" data-site-field="email">contatobuovai@gmail.com</span>
             </a>
             <div class="contact__channel">
+              <span class="contact__channel-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 3" /><circle cx="12" cy="12" r="9" /></svg></span>
               <span class="contact__channel-label">Resposta</span>
               <span class="contact__channel-value">Até 1 dia útil</span>
             </div>
@@ -366,10 +386,9 @@
       <div class="site-footer__top">
         <div>
           <a href="#top" class="brand brand--on-panel">
-            <img class="brand__mark" src="assets/img/logo-mark.png" alt="" aria-hidden="true" />
-            <span class="brand__word">Buovai<small>Sistemas e sites</small></span>
+            <img class="brand__wordmark" src="assets/img/logo-wordmark-light.svg" alt="buov.ai" />
           </a>
-          <p class="site-footer__pitch">Sistemas e sites para empresas, por Lorena Cardoso.</p>
+          <p class="site-footer__pitch" data-site-field="tagline">Sites, aplicativos e automações, por Lorena Cardoso.</p>
         </div>
 
         <div class="site-footer__cols">
@@ -386,8 +405,8 @@
           <div class="site-footer__col">
             <h5>Contato</h5>
             <ul>
-              <li><a href="https://wa.me/5579998289485" target="_blank" rel="noopener">(79) 99828-9485</a></li>
-              <li><a href="mailto:contatobuovai@gmail.com">contatobuovai@gmail.com</a></li>
+              <li><a href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener"><span data-site-field="phone-display">(79) 9 9828-9485</span></a></li>
+              <li><a href="mailto:contatobuovai@gmail.com" data-site-href="email"><span data-site-field="email">contatobuovai@gmail.com</span></a></li>
               <li><a href="#contato">Enviar mensagem</a></li>
               <li><a href="painel/login.html">Já é cliente? Acesse o painel</a></li>
             </ul>
@@ -396,7 +415,7 @@
       </div>
 
       <div class="site-footer__bottom">
-        <span>© <span id="current-year"></span> Buovai. Todos os direitos reservados.</span>
+        <span>© <span id="current-year"></span> buov.ai. Todos os direitos reservados.</span>
         <span>Atendimento remoto</span>
       </div>
     </div>
@@ -447,16 +466,17 @@
     </div>
   </div>
 
-  <a class="whatsapp-fab" href="https://wa.me/5579998289485" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+  <a class="whatsapp-fab" href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
     <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.4.1-.6l.4-.5c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.1 0 1.2.9 2.4 1 2.6.1.2 1.8 2.8 4.4 3.9.6.3 1.1.4 1.5.6.6.2 1.2.2 1.6.1.5-.1 1.6-.6 1.8-1.3.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5.1-1.3c1.4.8 3.1 1.2 4.9 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.2-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3C3.7 14.8 3.2 13.4 3.2 12 3.2 7.1 7.1 3.2 12 3.2S20.8 7.1 20.8 12 16.9 20.2 12 20.2z"/></svg>
   </a>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/config.js?v=40"></script>
-  <script src="js/supabase-client.js?v=40"></script>
-  <script src="js/main.js?v=40"></script>
-  <script src="js/hero-demo.js?v=40"></script>
-  <script src="js/portfolio.js?v=40"></script>
-  <script src="js/contact.js?v=40"></script>
+  <script src="js/site-config.js?v=41"></script>
+  <script src="js/config.js?v=41"></script>
+  <script src="js/supabase-client.js?v=41"></script>
+  <script src="js/main.js?v=41"></script>
+  <script src="js/hero-demo.js?v=41"></script>
+  <script src="js/portfolio.js?v=41"></script>
+  <script src="js/contact.js?v=41"></script>
 </body>
 </html>

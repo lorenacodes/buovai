@@ -2,56 +2,17 @@
    Buovai — Componentes
    ========================================================================== */
 
-/* ---- Marca ---- */
+/* ---- Marca: wordmark vetorial oficial (buov.ai), duas variantes de cor ---- */
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
 }
 
-.brand__lockup-img {
-  height: 40px;
+.brand__wordmark {
+  height: 28px;
   width: auto;
   object-fit: contain;
-}
-
-.brand__mark {
-  width: 22px;
-  height: 26px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-.brand__word {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: -0.01em;
-  color: var(--ink-primary);
-}
-
-.brand__word small {
   display: block;
-  font-family: var(--font-body);
-  font-style: normal;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--ink-muted);
-  margin-top: 1px;
-}
-
-.site-header .brand__word small {
-  display: none;
-}
-
-/* ---- Marca sobre painel escuro fixo (rodapé): sempre símbolo + texto claro ---- */
-.brand--on-panel .brand__word {
-  color: var(--panel-ink-text);
-}
-
-.brand--on-panel .brand__word small {
-  color: var(--panel-ink-text-soft);
 }
 
 /* ---- Header: vidro leve, compacto, sem fundo sólido pesado ---- */
@@ -298,9 +259,9 @@
   border-radius: var(--radius-md);
 }
 
-/* ---- Painel de assinatura: verde profundo sólido, fixo nos dois temas ---- */
+/* ---- Painel de assinatura: gradiente verde em área grande, fixo nos dois temas ---- */
 .panel-ink {
-  background: var(--panel-ink);
+  background: var(--panel-ink-gradient);
   color: var(--panel-ink-text);
 }
 
