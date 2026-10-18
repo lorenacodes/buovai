@@ -93,7 +93,7 @@ window.BuovaiAdmin = (function () {
 
     return (
       '<aside class="admin-sidebar">' +
-        '<a href="../index.html" class="admin-sidebar__brand"><img src="../assets/img/logo-mark.png" alt="" aria-hidden="true" /><span>Buovai</span></a>' +
+        '<a href="../index.html" class="admin-sidebar__brand"><img src="../assets/img/logo-mark.svg" alt="" aria-hidden="true" /><span>Buovai</span></a>' +
         navHtml +
         '<div class="admin-sidebar__footer">' +
           "<span>" + escapeHtml(userEmail || "") + "</span>" +
