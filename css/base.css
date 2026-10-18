@@ -47,7 +47,7 @@ html {
 }
 
 .site-intro__half {
-  height: min(64px, 13vw);
+  height: min(78px, 16vw);
   width: auto;
   opacity: 0;
   animation: site-intro-letter 500ms var(--ease-out) forwards;
@@ -66,7 +66,7 @@ html {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: min(34px, 7vw);
+  width: min(42px, 8.5vw);
   flex-shrink: 0;
 }
 
@@ -85,7 +85,7 @@ html {
 }
 
 .site-intro__robot {
-  width: min(54px, 11vw);
+  width: min(66px, 13vw);
   height: auto;
   opacity: 0;
   transform: scale(2.2);
