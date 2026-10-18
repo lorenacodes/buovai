@@ -35,89 +35,74 @@ html {
 }
 
 .site-intro__mark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.site-intro__row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.site-intro__half {
-  height: min(78px, 16vw);
-  width: auto;
-  opacity: 0;
-  animation: site-intro-letter 500ms var(--ease-out) forwards;
-}
-
-.site-intro__half--bu {
-  animation-delay: 1050ms;
-}
-
-.site-intro__half--vai {
-  animation-delay: 1150ms;
-}
-
-.site-intro__robot-slot {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: min(42px, 8.5vw);
-  flex-shrink: 0;
+  min-height: 90px;
 }
 
 .site-intro__shadow {
   position: absolute;
   left: 50%;
-  bottom: -6px;
-  width: 70%;
+  bottom: 18%;
+  width: 70px;
   height: 10px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.45);
   filter: blur(4px);
   transform: translateX(-50%) scale(0.6);
   opacity: 0;
-  animation: site-intro-shadow 1650ms var(--ease-out) forwards;
+  animation: site-intro-shadow 1500ms var(--ease-out) forwards;
 }
 
+/* Fase 1: robô grande, decorativo, só pra entrada — depois some. */
 .site-intro__robot {
-  width: min(66px, 13vw);
+  position: absolute;
+  width: min(72px, 15vw);
   height: auto;
   opacity: 0;
   transform: scale(2.2);
   filter: drop-shadow(0 0 28px rgba(var(--accent-glow-rgb), 0.55));
   animation:
-    site-intro-robot 1650ms var(--ease-out) forwards,
+    site-intro-robot 1500ms var(--ease-out) forwards,
     site-intro-glow 1.7s ease-in-out infinite;
 }
 
 .site-intro__eyelid {
   opacity: 0;
-  animation: site-intro-blink 220ms ease-in-out 650ms 2;
+  animation: site-intro-blink 220ms ease-in-out 600ms 2;
+}
+
+/* Fase 2: a logo real (robô + buov.ai), exatamente como no arquivo
+   oficial — sem recriar o espaçamento à mão. */
+.site-intro__logo {
+  width: min(190px, 44vw);
+  height: auto;
+  opacity: 0;
+  animation: site-intro-logo-in 600ms var(--ease-out) forwards;
+  animation-delay: 1250ms;
 }
 
 @keyframes site-intro-robot {
   0% { opacity: 0; transform: scale(2.2); }
   18% { opacity: 1; transform: scale(3.6); }
   22% { opacity: 1; transform: scale(3.4); }
-  58% { opacity: 1; transform: scale(3.4); }
-  100% { opacity: 1; transform: scale(1); }
+  55% { opacity: 1; transform: scale(3.4); }
+  85% { opacity: 0; transform: scale(0.55); }
+  100% { opacity: 0; transform: scale(0.5); }
 }
 
 @keyframes site-intro-shadow {
   0% { opacity: 0; transform: translateX(-50%) scale(0.6); }
   20% { opacity: 0.35; transform: translateX(-50%) scale(1); }
-  58% { opacity: 0.35; transform: translateX(-50%) scale(1); }
+  55% { opacity: 0.35; transform: translateX(-50%) scale(1); }
   100% { opacity: 0; transform: translateX(-50%) scale(0.4); }
 }
 
-@keyframes site-intro-letter {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
+@keyframes site-intro-logo-in {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @keyframes site-intro-glow {
