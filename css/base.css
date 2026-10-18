@@ -13,7 +13,7 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-/* ---- Intro: abertura rápida com o robô da marca ---- */
+/* ---- Intro: abertura com a marca completa (robô + buov.ai) ---- */
 .site-intro {
   position: fixed;
   inset: 0;
@@ -25,7 +25,7 @@ html {
   background-attachment: fixed;
   background-size: 100% 100%;
   opacity: 1;
-  transition: opacity 500ms var(--ease-out), visibility 0ms linear 500ms;
+  transition: opacity 650ms var(--ease-out), visibility 0ms linear 650ms;
 }
 
 .site-intro.is-hidden {
@@ -35,18 +35,25 @@ html {
 }
 
 .site-intro__mark {
-  width: 84px;
+  width: min(220px, 48vw);
   height: auto;
   opacity: 0;
-  transform: scale(0.5);
-  filter: drop-shadow(0 0 24px rgba(var(--accent-glow-rgb), 0.6));
-  animation: site-intro-pop 700ms cubic-bezier(0.22, 1.28, 0.36, 1) forwards;
+  transform: scale(0.6);
+  filter: drop-shadow(0 0 28px rgba(var(--accent-glow-rgb), 0.55));
+  animation:
+    site-intro-pop 800ms cubic-bezier(0.22, 1.28, 0.36, 1) forwards,
+    site-intro-glow 1.7s ease-in-out 800ms infinite;
 }
 
 @keyframes site-intro-pop {
-  0% { opacity: 0; transform: scale(0.5); }
-  60% { opacity: 1; transform: scale(1.08); }
+  0% { opacity: 0; transform: scale(0.6); }
+  65% { opacity: 1; transform: scale(1.06); }
   100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes site-intro-glow {
+  0%, 100% { filter: drop-shadow(0 0 22px rgba(var(--accent-glow-rgb), 0.45)); }
+  50% { filter: drop-shadow(0 0 38px rgba(var(--accent-glow-rgb), 0.75)); }
 }
 
 html.no-intro .site-intro {

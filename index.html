@@ -47,16 +47,51 @@
 </head>
 <body>
   <div class="site-intro" id="siteIntro" aria-hidden="true">
-    <img class="site-intro__mark" src="assets/img/logo-mark-light.svg" alt="" />
+    <img class="site-intro__mark" src="assets/img/logo-wordmark-light.svg" alt="" />
   </div>
   <script>
     (function () {
       var el = document.getElementById("siteIntro");
       if (!el || document.documentElement.classList.contains("no-intro")) return;
+
+      // Som curto e sintetizado (sem arquivo externo) — dois tons subindo.
+      // Navegadores bloqueiam áudio com som antes de qualquer interação do
+      // usuário nessa página, então isso toca no primeiro clique/toque/
+      // tecla depois de carregar (não dá pra tocar sozinho no load).
+      var soundPlayed = false;
+      function tryPlayChime() {
+        if (soundPlayed) return;
+        soundPlayed = true;
+        try {
+          var Ctx = window.AudioContext || window.webkitAudioContext;
+          var ctx = new Ctx();
+          var fire = function () {
+            var now = ctx.currentTime;
+            [[523.25, 0], [783.99, 0.1]].forEach(function (pair) {
+              var osc = ctx.createOscillator();
+              var gain = ctx.createGain();
+              osc.type = "sine";
+              osc.frequency.value = pair[0];
+              gain.gain.setValueAtTime(0, now + pair[1]);
+              gain.gain.linearRampToValueAtTime(0.14, now + pair[1] + 0.04);
+              gain.gain.exponentialRampToValueAtTime(0.0001, now + pair[1] + 0.5);
+              osc.connect(gain).connect(ctx.destination);
+              osc.start(now + pair[1]);
+              osc.stop(now + pair[1] + 0.55);
+            });
+          };
+          if (ctx.state === "suspended") ctx.resume().then(fire);
+          else fire();
+        } catch (e) {}
+      }
+      ["pointerdown", "keydown", "touchstart"].forEach(function (evt) {
+        document.addEventListener(evt, tryPlayChime, { once: true, passive: true });
+      });
+
       setTimeout(function () {
         el.classList.add("is-hidden");
         try { sessionStorage.setItem("buovaiIntroShown", "1"); } catch (e) {}
-      }, 900);
+      }, 1700);
     })();
   </script>
 
