@@ -36,36 +36,88 @@ html {
 
 .site-intro__mark {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.8rem;
+  justify-content: center;
+}
+
+.site-intro__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-intro__half {
+  height: min(64px, 13vw);
+  width: auto;
   opacity: 0;
-  transform: scale(0.6);
-  filter: drop-shadow(0 0 28px rgba(var(--accent-glow-rgb), 0.55));
-  animation:
-    site-intro-pop 800ms cubic-bezier(0.22, 1.28, 0.36, 1) forwards,
-    site-intro-glow 1.7s ease-in-out 800ms infinite;
+  animation: site-intro-letter 500ms var(--ease-out) forwards;
+}
+
+.site-intro__half--bu {
+  animation-delay: 1050ms;
+}
+
+.site-intro__half--vai {
+  animation-delay: 1150ms;
+}
+
+.site-intro__robot-slot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: min(48px, 10vw);
+  flex-shrink: 0;
+}
+
+.site-intro__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 70%;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  filter: blur(4px);
+  transform: translateX(-50%) scale(0.6);
+  opacity: 0;
+  animation: site-intro-shadow 1650ms var(--ease-out) forwards;
 }
 
 .site-intro__robot {
-  width: min(96px, 22vw);
+  width: min(54px, 11vw);
   height: auto;
+  opacity: 0;
+  transform: scale(2.2);
+  filter: drop-shadow(0 0 28px rgba(var(--accent-glow-rgb), 0.55));
+  animation:
+    site-intro-robot 1650ms var(--ease-out) forwards,
+    site-intro-glow 1.7s ease-in-out infinite;
 }
 
 .site-intro__eyelid {
   opacity: 0;
-  animation: site-intro-blink 220ms ease-in-out 1150ms 2;
+  animation: site-intro-blink 220ms ease-in-out 650ms 2;
 }
 
-.site-intro__word {
-  width: min(150px, 34vw);
-  height: auto;
-}
-
-@keyframes site-intro-pop {
-  0% { opacity: 0; transform: scale(0.6); }
-  65% { opacity: 1; transform: scale(1.06); }
+@keyframes site-intro-robot {
+  0% { opacity: 0; transform: scale(2.2); }
+  18% { opacity: 1; transform: scale(3.6); }
+  22% { opacity: 1; transform: scale(3.4); }
+  58% { opacity: 1; transform: scale(3.4); }
   100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes site-intro-shadow {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.6); }
+  20% { opacity: 0.35; transform: translateX(-50%) scale(1); }
+  58% { opacity: 0.35; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) scale(0.4); }
+}
+
+@keyframes site-intro-letter {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes site-intro-glow {

@@ -48,15 +48,21 @@
 <body>
   <div class="site-intro" id="siteIntro" aria-hidden="true">
     <div class="site-intro__mark">
-      <svg class="site-intro__robot" viewBox="38 76 569 675" fill="#fdf9e6">
-        <g stroke="#fdf9e6" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250" /><line x1="511" y1="92" x2="442" y2="250" /></g>
-        <ellipse cx="108" cy="518" rx="62" ry="52" /><ellipse cx="538" cy="518" rx="62" ry="52" />
-        <path fill-rule="evenodd" d="M64 476a262 262 0 1 0 524 0a262 262 0 1 0 -524 0ZM162 500a164 146 0 1 0 328 0a164 146 0 1 0 -328 0Z" />
-        <path fill-rule="evenodd" d="M277 412H368A92 92 0 0 1 368 596H277A92 92 0 0 1 277 412ZM230 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0ZM367 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0Z" />
-        <ellipse class="site-intro__eyelid" cx="253" cy="504" rx="25" ry="25" />
-        <ellipse class="site-intro__eyelid" cx="390" cy="504" rx="25" ry="25" />
-      </svg>
-      <img class="site-intro__word" src="assets/img/logo-wordtext-light.svg" alt="buov.ai" />
+      <div class="site-intro__row">
+        <img class="site-intro__half site-intro__half--bu" src="assets/img/logo-text-bu-light.svg" alt="" />
+        <span class="site-intro__robot-slot">
+          <span class="site-intro__shadow"></span>
+          <svg class="site-intro__robot" viewBox="38 76 569 675" fill="#fdf9e6">
+            <g stroke="#fdf9e6" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250" /><line x1="511" y1="92" x2="442" y2="250" /></g>
+            <ellipse cx="108" cy="518" rx="62" ry="52" /><ellipse cx="538" cy="518" rx="62" ry="52" />
+            <path fill-rule="evenodd" d="M64 476a262 262 0 1 0 524 0a262 262 0 1 0 -524 0ZM162 500a164 146 0 1 0 328 0a164 146 0 1 0 -328 0Z" />
+            <path fill-rule="evenodd" d="M277 412H368A92 92 0 0 1 368 596H277A92 92 0 0 1 277 412ZM230 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0ZM367 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0Z" />
+            <ellipse class="site-intro__eyelid" cx="253" cy="504" rx="25" ry="25" />
+            <ellipse class="site-intro__eyelid" cx="390" cy="504" rx="25" ry="25" />
+          </svg>
+        </span>
+        <img class="site-intro__half site-intro__half--vai" src="assets/img/logo-text-vai-light.svg" alt="" />
+      </div>
     </div>
   </div>
   <script>
@@ -101,7 +107,7 @@
       setTimeout(function () {
         el.classList.add("is-hidden");
         try { sessionStorage.setItem("buovaiIntroShown", "1"); } catch (e) {}
-      }, 1700);
+      }, 2500);
     })();
   </script>
 
