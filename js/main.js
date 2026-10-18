@@ -5,6 +5,20 @@
 (function () {
   "use strict";
 
+  // ---- Config única de contato/identidade (ver js/site-config.js) ----
+  const cfg = window.BUOVAI_SITE;
+  if (cfg) {
+    document.querySelectorAll('[data-site-field="name"]').forEach((el) => { el.textContent = cfg.name; });
+    document.querySelectorAll('[data-site-field="title"]').forEach((el) => {
+      if (cfg.title) { el.textContent = cfg.title; el.hidden = false; }
+      else { el.hidden = true; }
+    });
+    document.querySelectorAll('[data-site-field="phone-display"]').forEach((el) => { el.textContent = cfg.phoneDisplay; });
+    document.querySelectorAll('[data-site-field="email"]').forEach((el) => { el.textContent = cfg.email; });
+    document.querySelectorAll('[data-site-href="whatsapp"]').forEach((el) => { el.href = cfg.whatsappUrl; });
+    document.querySelectorAll('[data-site-href="email"]').forEach((el) => { el.href = "mailto:" + cfg.email; });
+  }
+
   // ---- Header on scroll ----
   const header = document.getElementById("site-header");
   const onScroll = () => {
@@ -73,7 +87,7 @@
       `${saudacao}! Encontrei seu site e gostaria de conversar sobre o desenvolvimento de um sistema ou site.\n\n` +
       `Quero entender melhor como você trabalha e como poderia me ajudar no meu caso.`;
 
-    const numero = whatsappFab.href.match(/wa\.me\/(\d+)/)?.[1] || "5579998289485";
+    const numero = (cfg && cfg.phoneDigits) || "5579998289485";
     whatsappFab.href = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
   }
 })();
