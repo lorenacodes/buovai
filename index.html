@@ -36,8 +36,30 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png" />
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+  <script>
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var seen = false;
+      try { seen = sessionStorage.getItem("buovaiIntroShown") === "1"; } catch (e) {}
+      if (reduce || seen) document.documentElement.classList.add("no-intro");
+    })();
+  </script>
 </head>
 <body>
+  <div class="site-intro" id="siteIntro" aria-hidden="true">
+    <img class="site-intro__mark" src="assets/img/logo-mark-light.svg" alt="" />
+  </div>
+  <script>
+    (function () {
+      var el = document.getElementById("siteIntro");
+      if (!el || document.documentElement.classList.contains("no-intro")) return;
+      setTimeout(function () {
+        el.classList.add("is-hidden");
+        try { sessionStorage.setItem("buovaiIntroShown", "1"); } catch (e) {}
+      }, 900);
+    })();
+  </script>
+
   <a class="skip-link" href="#main">Pular para o conteúdo</a>
 
   <!-- ============== HEADER ============== -->
