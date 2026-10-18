@@ -7,8 +7,8 @@
    chips do hero) — reescopam os tokens de texto/borda pro par claro. ---- */
 .case-card,
 .case-modal__panel,
-.hero__demo-chip,
-.hero__demo-sheet {
+.hero__mock-main,
+.hero__badge {
   --ink-primary: #010c1d;
   --ink-secondary: rgba(1, 12, 29, 0.72);
   --ink-muted: rgba(1, 12, 29, 0.48);
