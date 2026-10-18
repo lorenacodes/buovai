@@ -1,62 +1,76 @@
 /* ==========================================================================
    Buovai — Design Tokens
-   Paleta oficial: verde-sinal #80c299 · laranja #ff7a1a · dourado #d9a300 ·
-   tinta #201e1d · papel #f2f2f2. Tema escuro, com o verde da marca como
-   destaque sobre um fundo quase preto com leve nuance verde.
+   Identidade "buov.ai": creme de fundo, azul-marinho quase preto no texto,
+   gradiente verde (oliva escuro → lima) como destaque em áreas grandes.
+   Cores extraídas do cartão de visita oficial (/brand).
    ========================================================================== */
 
 :root {
-  /* ---- Marca ---- */
-  --brand-emerald-900: #0b3d2e;
-  --brand-emerald-700: #3fcf8e;
-  --brand-emerald-500: #1f8a5c;
-  --brand-green-bright: #2bb673;
-  --brand-teal-400: #6fcf9e;
-  --brand-teal-300: #cfe8da;
-  --brand-gold-600: #e6ad1f;
-  --brand-gold-500: #d9a300;
-  --brand-amber-400: #ff8c3a;
+  /* ---- Marca: gradiente verde (oliva escuro → lima) ---- */
+  --brand-olive-900: #1f4905;
+  --brand-olive-800: #3f5204;
+  --brand-green-800: #457528;
+  --brand-green-700: #2b4e23;
+  --brand-green-600: #779d6d;
+  --brand-green-500: #7aae4f;
+  --brand-lime-300: #c6e575;
 
-  /* ---- Superfícies ---- */
-  --bg-void: #0a120e;
-  --bg-deep: #0e1a14;
-  --bg-surface: #0a120e;
-  --bg-elevated: rgba(255, 255, 255, 0.045);
-  --bg-elevated-hover: rgba(255, 255, 255, 0.075);
-  --header-bg: rgba(10, 18, 14, 0.72);
-  --header-bg-scrolled: rgba(10, 18, 14, 0.92);
-  --border-hairline: rgba(255, 255, 255, 0.09);
-  --border-hairline-strong: rgba(255, 255, 255, 0.17);
+  --brand-gradient: linear-gradient(90deg, var(--brand-olive-900) 0%, var(--brand-olive-800) 22%, var(--brand-green-800) 42%, var(--brand-green-600) 66%, var(--brand-green-500) 84%, var(--brand-lime-300) 100%);
+  --brand-gradient-diag: linear-gradient(135deg, var(--brand-olive-900) 0%, var(--brand-green-800) 45%, var(--brand-green-500) 75%, var(--brand-lime-300) 100%);
 
-  --ink-primary: #f3f7f4;
-  --ink-secondary: #a9b8b1;
-  --ink-muted: #6c7d75;
-  --ink-inverse: #ffffff;
+  /* Mantidos por compatibilidade com partes do CSS ainda não migradas */
+  --brand-emerald-900: var(--brand-olive-900);
+  --brand-emerald-700: var(--brand-green-800);
+  --brand-emerald-500: var(--brand-green-500);
+  --brand-green-bright: var(--brand-green-800);
+  --brand-teal-400: var(--brand-green-600);
+  --brand-teal-300: var(--brand-lime-300);
+  --brand-gold-600: #a86a1a;
+  --brand-gold-500: #c27f1f;
+  --brand-amber-400: #c27f1f;
 
-  --accent-strong: var(--brand-green-bright);
-  --accent-soft: var(--brand-emerald-500);
-  --accent-glow-rgb: 43, 182, 115;
+  /* ---- Superfícies: creme de leitura, navy no texto ---- */
+  --bg-void: #fdf9e6;
+  --bg-deep: #ffffff;
+  --bg-surface: #fdf9e6;
+  --bg-elevated: rgba(1, 12, 29, 0.035);
+  --bg-elevated-hover: rgba(1, 12, 29, 0.065);
+  --header-bg: rgba(253, 249, 230, 0.82);
+  --header-bg-scrolled: rgba(253, 249, 230, 0.96);
+  --border-hairline: rgba(1, 12, 29, 0.1);
+  --border-hairline-strong: rgba(1, 12, 29, 0.18);
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 36px -16px rgba(0, 0, 0, 0.55);
-  --shadow-lift: 0 24px 50px -20px rgba(0, 0, 0, 0.65);
+  --ink-primary: #010c1d;
+  --ink-secondary: rgba(1, 12, 29, 0.72);
+  --ink-muted: rgba(1, 12, 29, 0.48);
+  --ink-inverse: #fdf9e6;
+
+  --accent-strong: var(--brand-green-800);
+  --accent-soft: var(--brand-green-700);
+  --accent-glow-rgb: 69, 117, 40;
+
+  --shadow-card: 0 1px 2px rgba(1, 12, 29, 0.05), 0 16px 32px -16px rgba(1, 12, 29, 0.16);
+  --shadow-lift: 0 24px 48px -20px rgba(1, 12, 29, 0.24);
   --shadow-hard: var(--shadow-lift);
   --shadow-hard-sm: var(--shadow-card);
-  --shadow-hard-sm-panel: 0 8px 20px -8px rgba(0, 0, 0, 0.5);
-  --scrim: rgba(10, 18, 14, 0.85);
-  --skeleton-base: rgba(255, 255, 255, 0.05);
-  --skeleton-shine: rgba(255, 255, 255, 0.09);
-  --noise-opacity: 0.05;
+  --shadow-hard-sm-panel: 0 10px 22px -10px rgba(1, 12, 29, 0.35);
+  --scrim: rgba(253, 249, 230, 0.88);
+  --skeleton-base: rgba(1, 12, 29, 0.06);
+  --skeleton-shine: rgba(1, 12, 29, 0.1);
+  --noise-opacity: 0;
 
-  /* ---- Tipografia ---- */
-  --font-display: "Playfair Display", "Iowan Old Style", "Georgia", serif;
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* ---- Tipografia ----
+     Unbounded      — equivalente livre do Cy Grotesk V3 Wide (títulos)
+     Plus Jakarta Sans — equivalente livre do Stavok Grotesque (corpo/apoio) */
+  --font-display: "Unbounded", "Arial Narrow", sans-serif;
+  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-hand: "Caveat", cursive;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-mono: var(--font-body);
 
-  --fs-display-xl: clamp(2.1rem, 3.2vw + 1rem, 3.75rem);
-  --fs-display-lg: clamp(1.75rem, 2vw + 1rem, 2.75rem);
-  --fs-display-md: clamp(1.4rem, 1.3vw + 1rem, 1.9rem);
-  --fs-display-sm: clamp(1.2rem, 0.8vw + 1rem, 1.45rem);
+  --fs-display-xl: clamp(2rem, 2.8vw + 1rem, 3.4rem);
+  --fs-display-lg: clamp(1.65rem, 1.8vw + 1rem, 2.5rem);
+  --fs-display-md: clamp(1.3rem, 1.1vw + 1rem, 1.75rem);
+  --fs-display-sm: clamp(1.1rem, 0.7vw + 1rem, 1.3rem);
   --fs-body-lg: clamp(1rem, 0.3vw + 1rem, 1.1rem);
   --fs-body-md: 1rem;
   --fs-body-sm: 0.875rem;
@@ -76,19 +90,17 @@
   --container-max: 1280px;
   --container-pad: clamp(1.25rem, 4vw, 4rem);
 
-  /* ---- Forma: bordas arredondadas suaves, não exageradas ---- */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-pill: 6px;
+  /* ---- Forma: orgânica, cantos bem arredondados ---- */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
 
-  /* ---- Painel de assinatura: verde profundo sólido — usado para blocar
-     seções e criar ritmo editorial (não é um modo escuro, é um elemento
-     de design fixo) ---- */
-  --panel-ink: #0b3d2e;
-  --panel-ink-text: #f7f9f8;
-  --panel-ink-text-soft: #a9c9ba;
-  --panel-ink-border: rgba(247, 249, 248, 0.14);
+  /* ---- Painel de assinatura: verde escuro sólido — blocos de seção ---- */
+  --panel-ink: var(--brand-green-700);
+  --panel-ink-text: #fdf9e6;
+  --panel-ink-text-soft: #cfe0c3;
+  --panel-ink-border: rgba(253, 249, 230, 0.16);
 
   /* ---- Movimento ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
