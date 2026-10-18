@@ -158,10 +158,10 @@ section {
   border-radius: var(--radius-sm);
   background: var(--bg-deep);
   border: 1px solid var(--border-hairline-strong);
-  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 24px -8px rgba(1, 12, 29, 0.25);
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--panel-ink-text-soft);
+  color: var(--ink-secondary);
   white-space: nowrap;
 }
 
@@ -184,8 +184,8 @@ section {
   border-radius: var(--radius-sm);
   background: var(--bg-deep);
   border: 1px solid var(--border-hairline-strong);
-  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.6);
-  color: var(--panel-ink-text-soft);
+  box-shadow: 0 10px 24px -8px rgba(1, 12, 29, 0.25);
+  color: var(--ink-secondary);
 }
 
 @keyframes hero-demo-float {
