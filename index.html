@@ -65,10 +65,12 @@
       var el = document.getElementById("siteIntro");
       if (!el || document.documentElement.classList.contains("no-intro")) return;
 
-      // Som curto e sintetizado (sem arquivo externo) — dois tons subindo.
-      // Navegadores bloqueiam áudio com som antes de qualquer interação do
-      // usuário nessa página, então isso toca no primeiro clique/toque/
-      // tecla depois de carregar (não dá pra tocar sozinho no load).
+      // Som curto e sintetizado (sem arquivo externo) — um "power-up"
+      // digital: sweep sintético subindo + dois blips quadrados de
+      // confirmação, tipo interface/sistema ligando. Navegadores bloqueiam
+      // áudio com som antes de qualquer interação do usuário nessa página,
+      // então isso toca no primeiro clique/toque/tecla depois de carregar
+      // (não dá pra tocar sozinho no load).
       var soundPlayed = false;
       function tryPlayChime() {
         if (soundPlayed) return;
@@ -78,17 +80,37 @@
           var ctx = new Ctx();
           var fire = function () {
             var now = ctx.currentTime;
-            [[523.25, 0], [783.99, 0.1]].forEach(function (pair) {
-              var osc = ctx.createOscillator();
-              var gain = ctx.createGain();
-              osc.type = "sine";
-              osc.frequency.value = pair[0];
-              gain.gain.setValueAtTime(0, now + pair[1]);
-              gain.gain.linearRampToValueAtTime(0.14, now + pair[1] + 0.04);
-              gain.gain.exponentialRampToValueAtTime(0.0001, now + pair[1] + 0.5);
-              osc.connect(gain).connect(ctx.destination);
-              osc.start(now + pair[1]);
-              osc.stop(now + pair[1] + 0.55);
+
+            // Sweep: onda dente-de-serra subindo (textura mais "digital"
+            // que uma senoide pura), tipo sistema inicializando.
+            var sweep = ctx.createOscillator();
+            var sweepGain = ctx.createGain();
+            sweep.type = "sawtooth";
+            sweep.frequency.setValueAtTime(140, now);
+            sweep.frequency.exponentialRampToValueAtTime(620, now + 0.22);
+            var sweepFilter = ctx.createBiquadFilter();
+            sweepFilter.type = "lowpass";
+            sweepFilter.frequency.setValueAtTime(900, now);
+            sweepFilter.frequency.exponentialRampToValueAtTime(3200, now + 0.22);
+            sweepGain.gain.setValueAtTime(0, now);
+            sweepGain.gain.linearRampToValueAtTime(0.09, now + 0.03);
+            sweepGain.gain.linearRampToValueAtTime(0.0001, now + 0.24);
+            sweep.connect(sweepFilter).connect(sweepGain).connect(ctx.destination);
+            sweep.start(now);
+            sweep.stop(now + 0.25);
+
+            // Dois blips quadrados curtos de confirmação, tipo "pronto".
+            [[0.26, 880], [0.36, 1318.5]].forEach(function (pair) {
+              var blip = ctx.createOscillator();
+              var blipGain = ctx.createGain();
+              blip.type = "square";
+              blip.frequency.value = pair[1];
+              blipGain.gain.setValueAtTime(0, now + pair[0]);
+              blipGain.gain.linearRampToValueAtTime(0.06, now + pair[0] + 0.015);
+              blipGain.gain.exponentialRampToValueAtTime(0.0001, now + pair[0] + 0.1);
+              blip.connect(blipGain).connect(ctx.destination);
+              blip.start(now + pair[0]);
+              blip.stop(now + pair[0] + 0.12);
             });
           };
           if (ctx.state === "suspended") ctx.resume().then(fire);
