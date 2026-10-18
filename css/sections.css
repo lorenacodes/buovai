@@ -37,9 +37,23 @@ section {
 /* ==================== HERO ==================== */
 .hero {
   position: relative;
-  padding-top: 6.5rem;
-  padding-bottom: 0;
+  padding-top: calc(var(--header-h, 60px) + 1.75rem);
+  padding-bottom: 2.5rem;
   overflow: hidden;
+}
+
+@media (min-width: 981px) {
+  .hero {
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - var(--header-h, 60px));
+    padding-top: calc(var(--header-h, 60px) + 2rem);
+    padding-bottom: 3rem;
+  }
+
+  .hero__layout {
+    width: 100%;
+  }
 }
 
 .hero__bg-curve {
@@ -118,17 +132,6 @@ section {
   height: 420px;
 }
 
-.hero__demo::before {
-  content: "";
-  position: absolute;
-  inset: -10%;
-  z-index: -1;
-  background: var(--brand-gradient-diag);
-  opacity: 0.22;
-  filter: blur(40px);
-  border-radius: var(--radius-lg);
-}
-
 .hero__net {
   display: block;
   width: 100%;
@@ -161,7 +164,11 @@ section {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero__net,
+  .hero__net {
+    opacity: 1;
+    transition: none;
+  }
+
   .hero__net-mark {
     opacity: 1;
     transition: none;

@@ -19,6 +19,13 @@
   const POINT_COUNT_DESKTOP = 46;
   const POINT_COUNT_MOBILE = 26;
 
+  // ---- Interação com o cursor: pequeno deslocamento elástico por ponto,
+  // não é "seguir o mouse" — é um empurrão suave que relaxa de volta sozinho.
+  const REPEL_RADIUS = 140;
+  const MAX_OFFSET = 9;
+  const RETURN_EASE = 0.055;
+  const mouse = { x: 0, y: 0, active: false };
+
   let width = 0;
   let height = 0;
   let dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -44,6 +51,8 @@
         vy: (Math.random() - 0.5) * 0.35,
         r: 1.4 + Math.random() * 1.8,
         pull,
+        ox: 0,
+        oy: 0,
         color: Math.random() < 0.3 ? LIME : CREAM,
       });
     }
@@ -75,6 +84,26 @@
       if (p.y < 0 || p.y > height) p.vy *= -1;
       p.x = Math.max(0, Math.min(width, p.x));
       p.y = Math.max(0, Math.min(height, p.y));
+
+      // Empurrão elástico do cursor: só pontos próximos sentem, com força
+      // proporcional à proximidade; o alvo volta a (0,0) sozinho quando o
+      // cursor se afasta ou sai do hero, e a suavização (RETURN_EASE) é o
+      // que dá a desaceleração natural em vez de "grudar" no mouse.
+      let targetOx = 0;
+      let targetOy = 0;
+      if (mouse.active) {
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < REPEL_RADIUS && dist > 0.001) {
+          const strength = 1 - dist / REPEL_RADIUS;
+          const push = strength * strength * MAX_OFFSET;
+          targetOx = (dx / dist) * push;
+          targetOy = (dy / dist) * push;
+        }
+      }
+      p.ox += (targetOx - p.ox) * RETURN_EASE;
+      p.oy += (targetOy - p.oy) * RETURN_EASE;
     });
   }
 
@@ -85,14 +114,22 @@
       for (let j = i + 1; j < points.length; j++) {
         const a = points[i];
         const b = points[j];
-        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        const ax = a.x + a.ox;
+        const ay = a.y + a.oy;
+        const bx = b.x + b.ox;
+        const by = b.y + b.oy;
+        const d = Math.hypot(ax - bx, ay - by);
         if (d < LINK_DIST) {
-          const alpha = (1 - d / LINK_DIST) * 0.35;
+          const heat = Math.min(
+            1,
+            (Math.abs(a.ox) + Math.abs(a.oy) + Math.abs(b.ox) + Math.abs(b.oy)) / (3 * MAX_OFFSET)
+          );
+          const alpha = (1 - d / LINK_DIST) * 0.35 * (1 + heat * 0.5);
           ctx.strokeStyle = `rgba(${CREAM}, ${alpha})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
+          ctx.moveTo(ax, ay);
+          ctx.lineTo(bx, by);
           ctx.stroke();
         }
       }
@@ -101,7 +138,7 @@
     points.forEach((p) => {
       ctx.beginPath();
       ctx.fillStyle = `rgba(${p.color}, 0.85)`;
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.arc(p.x + p.ox, p.y + p.oy, p.r, 0, Math.PI * 2);
       ctx.fill();
     });
   }
@@ -134,6 +171,25 @@
     },
     { passive: true }
   );
+
+  // ---- Cursor: desligado por completo em prefers-reduced-motion (o canvas
+  // já fica num frame estático nesse caso, sem loop pra reagir a nada).
+  if (!reduceMotion) {
+    const heroSection = canvas.closest(".hero");
+    if (heroSection) {
+      heroSection.addEventListener(
+        "pointermove",
+        (e) => {
+          const rect = demo.getBoundingClientRect();
+          mouse.x = e.clientX - rect.left;
+          mouse.y = e.clientY - rect.top;
+          mouse.active = true;
+        },
+        { passive: true }
+      );
+      heroSection.addEventListener("pointerleave", () => { mouse.active = false; }, { passive: true });
+    }
+  }
 
   // Só liga a animação quando o hero entra na tela (ela já está no topo da
   // página, mas isso evita gastar ciclo antes do layout/fontes assentarem).

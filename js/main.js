@@ -28,6 +28,15 @@
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
 
+  // ---- Altura real do header, exposta como --header-h pro hero calcular
+  // a própria altura sem recorrer a um min-height arbitrário ----
+  const setHeaderHeight = () => {
+    document.documentElement.style.setProperty("--header-h", `${header.getBoundingClientRect().height}px`);
+  };
+  setHeaderHeight();
+  window.addEventListener("resize", setHeaderHeight, { passive: true });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(setHeaderHeight);
+
   // ---- Menu mobile ----
   const toggle = document.getElementById("nav-toggle");
   if (toggle) {

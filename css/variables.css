@@ -7,6 +7,10 @@
    ========================================================================== */
 
 :root {
+  /* ---- Layout: altura real do header fixo, medida via JS (js/main.js);
+     o valor aqui é só o fallback antes do primeiro cálculo. ---- */
+  --header-h: 60px;
+
   /* ---- Marca: gradiente verde (oliva escuro → lima) ---- */
   --brand-olive-900: #1f4905;
   --brand-olive-800: #3f5204;
