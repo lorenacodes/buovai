@@ -65,14 +65,14 @@
       var el = document.getElementById("siteIntro");
       if (!el || document.documentElement.classList.contains("no-intro")) return;
 
-      // Som curto e sintetizado (sem arquivo externo) — um "abrir" suave:
-      // um sopro filtrado subindo (textura de algo se revelando) por baixo
-      // de uma cascata curta de notas tipo sino, graves pro agudo, com um
-      // harmônico sutil por cima pra dar brilho sem ficar infantil. Volume
-      // baixo e intervalo curto pra manter discreto/profissional.
-      // Navegadores bloqueiam áudio com som antes de qualquer interação do
-      // usuário nessa página, então isso toca no primeiro clique/toque/
-      // tecla depois de carregar (não dá pra tocar sozinho no load).
+      // Som curto e sintetizado (sem arquivo externo) — minimalista, tipo
+      // notificação de app/SO (Slack, macOS): só duas notas senoidais
+      // limpas, bem próximas, sem sopro, sem harmônicos extras, sem
+      // ataque percussivo. Nada de sintetizador "retrô" — só um sino
+      // suave e curto. Navegadores bloqueiam áudio com som antes de
+      // qualquer interação do usuário nessa página, então isso toca no
+      // primeiro clique/toque/tecla depois de carregar (não dá pra tocar
+      // sozinho no load).
       var soundPlayed = false;
       function tryPlayChime() {
         if (soundPlayed) return;
@@ -82,56 +82,19 @@
           var ctx = new Ctx();
           var fire = function () {
             var now = ctx.currentTime;
-
-            // Sopro: ruído filtrado com um passa-faixa subindo, bem suave —
-            // a sensação de algo se abrindo/revelando, não um "whoosh" de
-            // efeito especial.
-            var noiseDur = 0.5;
-            var noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * noiseDur, ctx.sampleRate);
-            var noiseData = noiseBuffer.getChannelData(0);
-            for (var i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
-            var noise = ctx.createBufferSource();
-            noise.buffer = noiseBuffer;
-            var noiseFilter = ctx.createBiquadFilter();
-            noiseFilter.type = "bandpass";
-            noiseFilter.Q.value = 0.7;
-            noiseFilter.frequency.setValueAtTime(300, now);
-            noiseFilter.frequency.exponentialRampToValueAtTime(2600, now + 0.45);
-            var noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0, now);
-            noiseGain.gain.linearRampToValueAtTime(0.045, now + 0.2);
-            noiseGain.gain.linearRampToValueAtTime(0.0001, now + 0.48);
-            noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
-            noise.start(now);
-            noise.stop(now + noiseDur);
-
-            // Duas notas (não cinco — mantém discreto/profissional) tipo
-            // sino, subindo, com leve brilho harmônico por cima.
-            var notes = [1046.5, 1567.98];
+            var notes = [880, 1318.51];
             notes.forEach(function (freq, i) {
-              var start = now + 0.22 + i * 0.1;
-
-              var bell = ctx.createOscillator();
-              var bellGain = ctx.createGain();
-              bell.type = "sine";
-              bell.frequency.value = freq;
-              bellGain.gain.setValueAtTime(0, start);
-              bellGain.gain.linearRampToValueAtTime(0.09, start + 0.012);
-              bellGain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
-              bell.connect(bellGain).connect(ctx.destination);
-              bell.start(start);
-              bell.stop(start + 0.55);
-
-              var shimmer = ctx.createOscillator();
-              var shimmerGain = ctx.createGain();
-              shimmer.type = "triangle";
-              shimmer.frequency.value = freq * 2;
-              shimmerGain.gain.setValueAtTime(0, start);
-              shimmerGain.gain.linearRampToValueAtTime(0.025, start + 0.012);
-              shimmerGain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
-              shimmer.connect(shimmerGain).connect(ctx.destination);
-              shimmer.start(start);
-              shimmer.stop(start + 0.35);
+              var start = now + i * 0.09;
+              var osc = ctx.createOscillator();
+              var gain = ctx.createGain();
+              osc.type = "sine";
+              osc.frequency.value = freq;
+              gain.gain.setValueAtTime(0, start);
+              gain.gain.linearRampToValueAtTime(0.07, start + 0.02);
+              gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+              osc.connect(gain).connect(ctx.destination);
+              osc.start(start);
+              osc.stop(start + 0.4);
             });
           };
           if (ctx.state === "suspended") ctx.resume().then(fire);
