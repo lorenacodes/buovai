@@ -6,9 +6,7 @@
    estes componentes são ilhas de leitura densa (fotos de case, modal,
    chips do hero) — reescopam os tokens de texto/borda pro par claro. ---- */
 .case-card,
-.case-modal__panel,
-.hero__mock-main,
-.hero__badge {
+.case-modal__panel {
   --ink-primary: #010c1d;
   --ink-secondary: rgba(1, 12, 29, 0.72);
   --ink-muted: rgba(1, 12, 29, 0.48);

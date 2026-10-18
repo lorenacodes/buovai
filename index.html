@@ -105,71 +105,8 @@
         </div>
 
         <div class="hero__demo" data-reveal style="--reveal-delay:260ms" aria-hidden="true">
-          <span class="hero__badge hero__badge--top">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" /></svg>
-            Fluxo organizado
-          </span>
-          <span class="hero__badge hero__badge--bottom">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V5l-8-3z" /></svg>
-            Mais controle
-          </span>
-
-          <div class="hero__mock">
-            <aside class="hero__mock-side">
-              <div class="hero__mock-brand">
-                <img class="brand__wordmark" src="assets/img/logo-wordmark-light.svg" alt="buov.ai" />
-              </div>
-              <nav class="hero__mock-nav">
-                <span class="is-active"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>Visão geral</span>
-                <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4" /><path d="M5 21c0-4 3-6.5 7-6.5s7 2.5 7 6.5" /></svg>Clientes</span>
-                <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z" /><path d="M14 3v5h5" /></svg>Documentos</span>
-                <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M7 15h3" /><rect x="3" y="5" width="18" height="14" rx="2" /></svg>Financeiro</span>
-              </nav>
-            </aside>
-            <div class="hero__mock-main">
-              <p class="hero__mock-head">Visão geral</p>
-              <div class="hero__mock-stats">
-                <div class="hero__mock-stat">
-                  <span class="hero__mock-stat-label">Clientes ativos</span>
-                  <span class="hero__mock-stat-value">128</span>
-                  <span class="hero__mock-stat-trend">↑ 12%</span>
-                </div>
-                <div class="hero__mock-stat">
-                  <span class="hero__mock-stat-label">Documentos</span>
-                  <span class="hero__mock-stat-value">342</span>
-                  <span class="hero__mock-stat-trend">↑ 8%</span>
-                </div>
-                <div class="hero__mock-stat">
-                  <span class="hero__mock-stat-label">Faturamento</span>
-                  <span class="hero__mock-stat-value">R$ 12.480</span>
-                  <span class="hero__mock-stat-trend">↑ 15%</span>
-                </div>
-              </div>
-              <p class="hero__mock-subhead">Atividades recentes</p>
-              <ul class="hero__mock-activity">
-                <li>
-                  <span class="hero__mock-activity-icon is-ok">✓</span>
-                  <span class="hero__mock-activity-text"><strong>Documento enviado</strong><small>Cliente: Trilhar Contabilidade</small></span>
-                  <time>Hoje, 14:32</time>
-                </li>
-                <li>
-                  <span class="hero__mock-activity-icon is-info">$</span>
-                  <span class="hero__mock-activity-text"><strong>Boleto pago</strong><small>Cliente: Trilhar Contabilidade</small></span>
-                  <time>Hoje, 11:20</time>
-                </li>
-                <li>
-                  <span class="hero__mock-activity-icon is-new">+</span>
-                  <span class="hero__mock-activity-text"><strong>Nova solicitação</strong><small>Cliente: Empresa parceira</small></span>
-                  <time>Ontem, 17:45</time>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <span class="hero__mock-note">
-            Fácil de usar,<br />feito pra você.
-            <svg class="hero__mock-note-arrow" width="26" height="20" viewBox="0 0 26 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 3C10 2 20 6 24 17M24 17l-7-2M24 17l-3 6" /></svg>
-          </span>
+          <canvas class="hero__net" id="heroNet"></canvas>
+          <img class="hero__net-mark" src="assets/img/logo-mark-light.svg" alt="" />
         </div>
       </div>
 
@@ -502,7 +439,7 @@
   <script src="js/config.js?v=41"></script>
   <script src="js/supabase-client.js?v=41"></script>
   <script src="js/main.js?v=41"></script>
-  <script src="js/hero-mock.js?v=41"></script>
+  <script src="js/hero-network.js?v=41"></script>
   <script src="js/portfolio.js?v=41"></script>
   <script src="js/contact.js?v=41"></script>
 </body>
