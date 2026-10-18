@@ -342,6 +342,14 @@
   background-position: right 0.2em center;
 }
 
+/* O painel nativo do <select> aberto ignora o fundo em gradiente da página
+   e renderiza sobre um fundo claro do sistema — força texto escuro nas
+   opções pra não ficar creme sobre branco (quase invisível). */
+.field select option {
+  color: var(--ink-inverse, #010c1d);
+  background-color: #fffdf6;
+}
+
 .field-hp {
   position: absolute;
   left: -9999px;
