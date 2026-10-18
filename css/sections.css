@@ -597,8 +597,8 @@ section {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: var(--brand-gradient-dark);
-  color: var(--ink-inverse);
+  background: var(--bg-deep);
+  color: var(--brand-green-800);
   margin-bottom: var(--space-sm);
 }
 
@@ -648,7 +648,7 @@ section {
   bottom: -1px;
   width: 2px;
   height: 2.6rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 60' preserveAspectRatio='none'%3E%3Cpath d='M5 1C2 15 8 25 4 38C1 48 7 55 5 59' stroke='%23457528' stroke-opacity='0.3' stroke-width='2' fill='none' stroke-dasharray='1 6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 60' preserveAspectRatio='none'%3E%3Cpath d='M5 1C2 15 8 25 4 38C1 48 7 55 5 59' stroke='%23c6e575' stroke-opacity='0.3' stroke-width='2' fill='none' stroke-dasharray='1 6' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -756,7 +756,7 @@ section {
   left: calc(100% + 0.1rem);
   width: calc(1rem - 0.2rem);
   height: 16px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 16' preserveAspectRatio='none'%3E%3Cpath d='M2 8C15 2 25 14 38 6C45 2 52 10 58 8' stroke='%23457528' stroke-opacity='0.35' stroke-width='2' fill='none' stroke-dasharray='1 6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 16' preserveAspectRatio='none'%3E%3Cpath d='M2 8C15 2 25 14 38 6C45 2 52 10 58 8' stroke='%23c6e575' stroke-opacity='0.35' stroke-width='2' fill='none' stroke-dasharray='1 6' stroke-linecap='round'/%3E%3C/svg%3E");
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
@@ -769,8 +769,8 @@ section {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--brand-gradient-dark);
-  color: var(--ink-inverse);
+  background: var(--bg-deep);
+  color: var(--brand-green-800);
 }
 
 .processo-flow__index {
@@ -1349,15 +1349,15 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--panel-ink);
-  color: #fff;
+  background: var(--bg-deep);
+  color: var(--brand-green-800);
   border-radius: 50%;
   box-shadow: var(--shadow-lift);
   transition: transform var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 
 .whatsapp-fab:hover {
-  background: var(--brand-emerald-700);
+  background: var(--accent-strong);
   transform: translateY(-2px);
 }
 
@@ -1787,8 +1787,8 @@ section {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--brand-gradient-dark);
-  color: var(--ink-inverse);
+  background: var(--bg-deep);
+  color: var(--brand-green-800);
 }
 
 .contact__channel-label {
@@ -1834,9 +1834,12 @@ a.contact__channel:hover {
   color: var(--ink-muted);
 }
 
-/* ==================== FOOTER ==================== */
+/* ==================== FOOTER ====================
+   Sem fundo próprio: a página inteira já é o gradiente, o footer é só
+   uma continuação dela com uma divisória fina em cima. */
 .site-footer {
   padding-block: var(--space-xl) var(--space-lg);
+  border-top: 1px solid var(--border-hairline);
 }
 
 .site-footer__top {

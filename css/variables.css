@@ -1,8 +1,9 @@
 /* ==========================================================================
    Buovai — Design Tokens
-   Identidade "buov.ai": creme de fundo, azul-marinho quase preto no texto,
-   gradiente verde (oliva escuro → lima) como destaque em áreas grandes.
-   Cores extraídas do cartão de visita oficial (/brand).
+   Identidade "buov.ai" v2: o gradiente verde é o fundo da página inteira
+   (não só um destaque pontual), texto principal em creme, cartões claros
+   pontuais onde o conteúdo pede leitura mais densa. Cores extraídas do
+   cartão de visita oficial (/brand).
    ========================================================================== */
 
 :root {
@@ -16,50 +17,59 @@
   --brand-lime-300: #c6e575;
 
   --brand-gradient: linear-gradient(90deg, var(--brand-olive-900) 0%, var(--brand-olive-800) 22%, var(--brand-green-800) 42%, var(--brand-green-600) 66%, var(--brand-green-500) 84%, var(--brand-lime-300) 100%);
-  --brand-gradient-diag: linear-gradient(135deg, var(--brand-olive-900) 0%, var(--brand-green-800) 45%, var(--brand-green-500) 75%, var(--brand-lime-300) 100%);
+  /* Gradiente de página: mesma direção/cores do cartão, mas com o trecho
+     escuro esticado — o lima vira só um brilho no canto, não um terço da
+     tela, pra manter o texto creme legível em qualquer ponto da página. */
+  --brand-gradient-diag: linear-gradient(135deg, var(--brand-olive-900) 0%, var(--brand-olive-800) 26%, var(--brand-green-800) 52%, var(--brand-green-600) 74%, var(--brand-green-500) 89%, var(--brand-lime-300) 100%);
   /* Variante restrita à faixa escura do gradiente (oliva → verde médio), sem
-     chegar ao lima — mantém o texto creme legível em áreas grandes de texto. */
+     chegar ao lima — usada em elementos pequenos onde o texto creme precisa
+     de garantia extra de contraste. */
   --brand-gradient-dark: linear-gradient(135deg, var(--brand-olive-900) 0%, var(--brand-olive-800) 38%, var(--brand-green-800) 72%, var(--brand-green-700) 100%);
+  /* Fundo da página: o mesmo gradiente, mas sem o trecho claro (verde-médio/
+     lima) — como o fundo é fixo (acompanha a janela, não o documento), esse
+     trecho claro cairia sempre no mesmo canto da tela em QUALQUER seção,
+     e qualquer texto creme que caísse ali ficaria ilegível. */
+  --page-gradient: var(--brand-gradient-dark);
 
   /* Mantidos por compatibilidade com partes do CSS ainda não migradas */
   --brand-emerald-900: var(--brand-olive-900);
-  --brand-emerald-700: var(--brand-green-800);
+  --brand-emerald-700: var(--brand-lime-300);
   --brand-emerald-500: var(--brand-green-500);
-  --brand-green-bright: var(--brand-green-800);
+  --brand-green-bright: var(--brand-lime-300);
   --brand-teal-400: var(--brand-green-600);
   --brand-teal-300: var(--brand-lime-300);
   --brand-gold-600: #a86a1a;
   --brand-gold-500: #c27f1f;
   --brand-amber-400: #c27f1f;
 
-  /* ---- Superfícies: creme de leitura, navy no texto ---- */
-  --bg-void: #fdf9e6;
-  --bg-deep: #ffffff;
-  --bg-surface: #fdf9e6;
-  --bg-elevated: rgba(1, 12, 29, 0.035);
-  --bg-elevated-hover: rgba(1, 12, 29, 0.065);
-  --header-bg: rgba(253, 249, 230, 0.82);
-  --header-bg-scrolled: rgba(253, 249, 230, 0.96);
-  --border-hairline: rgba(1, 12, 29, 0.1);
-  --border-hairline-strong: rgba(1, 12, 29, 0.18);
+  /* ---- Superfícies: a página é o gradiente; creme vira cartão pontual ---- */
+  --bg-void: var(--brand-olive-900);
+  --bg-deep: #fffdf6;
+  --bg-surface: var(--brand-olive-900);
+  --bg-elevated: rgba(253, 249, 230, 0.08);
+  --bg-elevated-hover: rgba(253, 249, 230, 0.14);
+  --header-bg: rgba(10, 23, 6, 0.32);
+  --header-bg-scrolled: rgba(10, 23, 6, 0.58);
+  --border-hairline: rgba(253, 249, 230, 0.16);
+  --border-hairline-strong: rgba(253, 249, 230, 0.32);
 
-  --ink-primary: #010c1d;
-  --ink-secondary: rgba(1, 12, 29, 0.72);
-  --ink-muted: rgba(1, 12, 29, 0.48);
-  --ink-inverse: #fdf9e6;
+  --ink-primary: #fdf9e6;
+  --ink-secondary: rgba(253, 249, 230, 0.8);
+  --ink-muted: rgba(253, 249, 230, 0.56);
+  --ink-inverse: #010c1d;
 
-  --accent-strong: var(--brand-green-800);
-  --accent-soft: var(--brand-green-700);
-  --accent-glow-rgb: 69, 117, 40;
+  --accent-strong: var(--brand-lime-300);
+  --accent-soft: var(--brand-green-500);
+  --accent-glow-rgb: 198, 229, 117;
 
-  --shadow-card: 0 1px 2px rgba(1, 12, 29, 0.05), 0 16px 32px -16px rgba(1, 12, 29, 0.16);
-  --shadow-lift: 0 24px 48px -20px rgba(1, 12, 29, 0.24);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.12), 0 16px 32px -16px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 24px 48px -20px rgba(0, 0, 0, 0.45);
   --shadow-hard: var(--shadow-lift);
   --shadow-hard-sm: var(--shadow-card);
-  --shadow-hard-sm-panel: 0 10px 22px -10px rgba(1, 12, 29, 0.35);
-  --scrim: rgba(253, 249, 230, 0.88);
-  --skeleton-base: rgba(1, 12, 29, 0.06);
-  --skeleton-shine: rgba(1, 12, 29, 0.1);
+  --shadow-hard-sm-panel: 0 10px 22px -10px rgba(0, 0, 0, 0.45);
+  --scrim: rgba(1, 12, 29, 0.72);
+  --skeleton-base: rgba(253, 249, 230, 0.08);
+  --skeleton-shine: rgba(253, 249, 230, 0.16);
   --noise-opacity: 0;
 
   /* ---- Tipografia ----
