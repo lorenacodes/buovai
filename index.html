@@ -65,12 +65,14 @@
       var el = document.getElementById("siteIntro");
       if (!el || document.documentElement.classList.contains("no-intro")) return;
 
-      // Som curto e sintetizado (sem arquivo externo) — um "power-up"
-      // digital: sweep sintético subindo + dois blips quadrados de
-      // confirmação, tipo interface/sistema ligando. Navegadores bloqueiam
-      // áudio com som antes de qualquer interação do usuário nessa página,
-      // então isso toca no primeiro clique/toque/tecla depois de carregar
-      // (não dá pra tocar sozinho no load).
+      // Som curto e sintetizado (sem arquivo externo) — um "abrir" suave:
+      // um sopro filtrado subindo (textura de algo se revelando) por baixo
+      // de uma cascata curta de notas tipo sino, graves pro agudo, com um
+      // harmônico sutil por cima pra dar brilho sem ficar infantil. Volume
+      // baixo e intervalo curto pra manter discreto/profissional.
+      // Navegadores bloqueiam áudio com som antes de qualquer interação do
+      // usuário nessa página, então isso toca no primeiro clique/toque/
+      // tecla depois de carregar (não dá pra tocar sozinho no load).
       var soundPlayed = false;
       function tryPlayChime() {
         if (soundPlayed) return;
@@ -81,36 +83,55 @@
           var fire = function () {
             var now = ctx.currentTime;
 
-            // Sweep: onda dente-de-serra subindo (textura mais "digital"
-            // que uma senoide pura), tipo sistema inicializando.
-            var sweep = ctx.createOscillator();
-            var sweepGain = ctx.createGain();
-            sweep.type = "sawtooth";
-            sweep.frequency.setValueAtTime(140, now);
-            sweep.frequency.exponentialRampToValueAtTime(620, now + 0.22);
-            var sweepFilter = ctx.createBiquadFilter();
-            sweepFilter.type = "lowpass";
-            sweepFilter.frequency.setValueAtTime(900, now);
-            sweepFilter.frequency.exponentialRampToValueAtTime(3200, now + 0.22);
-            sweepGain.gain.setValueAtTime(0, now);
-            sweepGain.gain.linearRampToValueAtTime(0.09, now + 0.03);
-            sweepGain.gain.linearRampToValueAtTime(0.0001, now + 0.24);
-            sweep.connect(sweepFilter).connect(sweepGain).connect(ctx.destination);
-            sweep.start(now);
-            sweep.stop(now + 0.25);
+            // Sopro: ruído filtrado com um passa-faixa subindo, bem suave —
+            // a sensação de algo se abrindo/revelando, não um "whoosh" de
+            // efeito especial.
+            var noiseDur = 0.5;
+            var noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * noiseDur, ctx.sampleRate);
+            var noiseData = noiseBuffer.getChannelData(0);
+            for (var i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
+            var noise = ctx.createBufferSource();
+            noise.buffer = noiseBuffer;
+            var noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = "bandpass";
+            noiseFilter.Q.value = 0.7;
+            noiseFilter.frequency.setValueAtTime(300, now);
+            noiseFilter.frequency.exponentialRampToValueAtTime(2600, now + 0.45);
+            var noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0, now);
+            noiseGain.gain.linearRampToValueAtTime(0.045, now + 0.2);
+            noiseGain.gain.linearRampToValueAtTime(0.0001, now + 0.48);
+            noise.connect(noiseFilter).connect(noiseGain).connect(ctx.destination);
+            noise.start(now);
+            noise.stop(now + noiseDur);
 
-            // Dois blips quadrados curtos de confirmação, tipo "pronto".
-            [[0.26, 880], [0.36, 1318.5]].forEach(function (pair) {
-              var blip = ctx.createOscillator();
-              var blipGain = ctx.createGain();
-              blip.type = "square";
-              blip.frequency.value = pair[1];
-              blipGain.gain.setValueAtTime(0, now + pair[0]);
-              blipGain.gain.linearRampToValueAtTime(0.06, now + pair[0] + 0.015);
-              blipGain.gain.exponentialRampToValueAtTime(0.0001, now + pair[0] + 0.1);
-              blip.connect(blipGain).connect(ctx.destination);
-              blip.start(now + pair[0]);
-              blip.stop(now + pair[0] + 0.12);
+            // Duas notas (não cinco — mantém discreto/profissional) tipo
+            // sino, subindo, com leve brilho harmônico por cima.
+            var notes = [1046.5, 1567.98];
+            notes.forEach(function (freq, i) {
+              var start = now + 0.22 + i * 0.1;
+
+              var bell = ctx.createOscillator();
+              var bellGain = ctx.createGain();
+              bell.type = "sine";
+              bell.frequency.value = freq;
+              bellGain.gain.setValueAtTime(0, start);
+              bellGain.gain.linearRampToValueAtTime(0.09, start + 0.012);
+              bellGain.gain.exponentialRampToValueAtTime(0.0001, start + 0.5);
+              bell.connect(bellGain).connect(ctx.destination);
+              bell.start(start);
+              bell.stop(start + 0.55);
+
+              var shimmer = ctx.createOscillator();
+              var shimmerGain = ctx.createGain();
+              shimmer.type = "triangle";
+              shimmer.frequency.value = freq * 2;
+              shimmerGain.gain.setValueAtTime(0, start);
+              shimmerGain.gain.linearRampToValueAtTime(0.025, start + 0.012);
+              shimmerGain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+              shimmer.connect(shimmerGain).connect(ctx.destination);
+              shimmer.start(start);
+              shimmer.stop(start + 0.35);
             });
           };
           if (ctx.state === "suspended") ctx.resume().then(fire);
