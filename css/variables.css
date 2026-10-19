@@ -1,88 +1,74 @@
 /* ==========================================================================
    Buovai — Design Tokens
-   Identidade "buov.ai" v2: o gradiente verde é o fundo da página inteira
-   (não só um destaque pontual), texto principal em creme, cartões claros
-   pontuais onde o conteúdo pede leitura mais densa. Cores extraídas do
-   cartão de visita oficial (/brand).
+   Identidade editorial "buov.ai" v3: base creme/papel com tipografia preta,
+   e o gradiente verde (oliva escuro → lima) reservado para painéis — hero,
+   casos, processo, sobre, contato, rodapé. Cores extraídas do cartão de
+   visita oficial (/brand) e do novo guia de composição (broadsheet).
    ========================================================================== */
 
 :root {
   /* ---- Layout: altura real do header fixo, medida via JS (js/main.js);
      o valor aqui é só o fallback antes do primeiro cálculo. ---- */
-  --header-h: 60px;
+  --header-h: 66px;
 
   /* ---- Marca: gradiente verde (oliva escuro → lima) ---- */
   --brand-olive-900: #1f4905;
   --brand-olive-800: #3f5204;
   --brand-green-800: #457528;
   --brand-green-700: #2b4e23;
-  --brand-green-600: #779d6d;
-  --brand-green-500: #7aae4f;
-  --brand-lime-300: #c6e575;
+  --brand-sage-600: #94ab86;
+  --brand-lime-300: #defa9a;
+  --brand-green-bright: var(--brand-lime-300);
 
-  --brand-gradient: linear-gradient(90deg, var(--brand-olive-900) 0%, var(--brand-olive-800) 22%, var(--brand-green-800) 42%, var(--brand-green-600) 66%, var(--brand-green-500) 84%, var(--brand-lime-300) 100%);
-  /* Gradiente de página: mesma direção/cores do cartão, mas com o trecho
-     escuro esticado — o lima vira só um brilho no canto, não um terço da
-     tela, pra manter o texto creme legível em qualquer ponto da página. */
-  --brand-gradient-diag: linear-gradient(135deg, var(--brand-olive-900) 0%, var(--brand-olive-800) 26%, var(--brand-green-800) 52%, var(--brand-green-600) 74%, var(--brand-green-500) 89%, var(--brand-lime-300) 100%);
-  /* Variante restrita à faixa escura do gradiente (oliva → verde médio), sem
-     chegar ao lima — usada em elementos pequenos onde o texto creme precisa
-     de garantia extra de contraste. */
-  --brand-gradient-dark: linear-gradient(135deg, var(--brand-olive-900) 0%, var(--brand-olive-800) 38%, var(--brand-green-800) 72%, var(--brand-green-700) 100%);
-  /* Fundo da página: o mesmo gradiente, mas sem o trecho claro (verde-médio/
-     lima) — como o fundo é fixo (acompanha a janela, não o documento), esse
-     trecho claro cairia sempre no mesmo canto da tela em QUALQUER seção,
-     e qualquer texto creme que caísse ali ficaria ilegível. */
-  --page-gradient: var(--brand-gradient-dark);
+  /* Gradiente de painel: usado em áreas grandes de cor sólida (hero, cases,
+     banner do processo, contato, rodapé) — nunca no fundo da página. */
+  --brand-gradient-radial: radial-gradient(circle at 0% 0%, var(--brand-olive-800) 0%, var(--brand-sage-600) 28%, var(--brand-olive-900) 62%, var(--brand-lime-300) 100%);
+  --brand-gradient-diag: linear-gradient(90deg, var(--brand-olive-800), var(--brand-olive-900), var(--brand-green-800));
+  --brand-gradient-footer: radial-gradient(circle at 100% 100%, var(--brand-lime-300) 0%, var(--brand-green-800) 24%, var(--brand-olive-900) 52%, var(--brand-olive-800) 100%);
 
   /* Mantidos por compatibilidade com partes do CSS ainda não migradas */
   --brand-emerald-900: var(--brand-olive-900);
   --brand-emerald-700: var(--brand-lime-300);
-  --brand-emerald-500: var(--brand-green-500);
-  --brand-green-bright: var(--brand-lime-300);
-  --brand-teal-400: var(--brand-green-600);
-  --brand-teal-300: var(--brand-lime-300);
   --brand-gold-600: #a86a1a;
-  --brand-gold-500: #c27f1f;
-  --brand-amber-400: #c27f1f;
 
-  /* ---- Superfícies: a página é o gradiente; creme vira cartão pontual ---- */
-  --bg-void: var(--brand-olive-900);
-  --bg-deep: #fffdf6;
-  --bg-surface: var(--brand-olive-900);
-  --bg-elevated: rgba(253, 249, 230, 0.08);
-  --bg-elevated-hover: rgba(253, 249, 230, 0.14);
-  --header-bg: rgba(10, 23, 6, 0.32);
-  --header-bg-scrolled: rgba(10, 23, 6, 0.58);
-  --border-hairline: rgba(253, 249, 230, 0.16);
-  --border-hairline-strong: rgba(253, 249, 230, 0.32);
+  /* ---- Superfícies ----
+     A página é creme por padrão; texto escuro. Painéis pontuais (hero,
+     cases, processo, sobre, contato, rodapé) invertem pro par escuro/creme. */
+  --bg-page: #fffceb;
+  --bg-panel-light: #efeedb;
+  --bg-ink: #0e0f0b;
+  --header-bg: rgba(255, 252, 235, 0.86);
+  --header-bg-scrolled: rgba(255, 252, 235, 0.97);
+  --border-hairline: rgba(14, 15, 11, 0.14);
+  --border-hairline-strong: rgba(14, 15, 11, 0.4);
 
-  --ink-primary: #fdf9e6;
-  --ink-secondary: rgba(253, 249, 230, 0.8);
-  --ink-muted: rgba(253, 249, 230, 0.56);
-  --ink-inverse: #010c1d;
+  --ink-primary: #0e0f0b;
+  --ink-secondary: #2b2e24;
+  --ink-muted: rgba(14, 15, 11, 0.56);
+  --ink-inverse: #fffceb;
 
-  --accent-strong: var(--brand-lime-300);
-  --accent-soft: var(--brand-green-500);
-  --accent-glow-rgb: 198, 229, 117;
+  /* ---- Pares invertidos: painéis escuros (hero, processo, sobre, rodapé) ---- */
+  --ink-on-dark: #fffceb;
+  --ink-on-dark-soft: rgba(255, 252, 235, 0.78);
+  --ink-on-dark-muted: rgba(255, 252, 235, 0.56);
+  --border-on-dark: rgba(255, 252, 235, 0.3);
 
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.12), 0 16px 32px -16px rgba(0, 0, 0, 0.35);
-  --shadow-lift: 0 24px 48px -20px rgba(0, 0, 0, 0.45);
-  --shadow-hard: var(--shadow-lift);
-  --shadow-hard-sm: var(--shadow-card);
-  --shadow-hard-sm-panel: 0 10px 22px -10px rgba(0, 0, 0, 0.45);
-  --scrim: rgba(1, 12, 29, 0.72);
-  --skeleton-base: rgba(253, 249, 230, 0.08);
-  --skeleton-shine: rgba(253, 249, 230, 0.16);
-  --noise-opacity: 0;
+  --accent-strong: var(--brand-green-800);
+  --accent-on-dark: var(--brand-lime-300);
+  --accent-glow-rgb: 69, 117, 40;
+
+  --shadow-card: 0 30px 60px -20px rgba(31, 73, 5, 0.22);
+  --shadow-lift: 0 24px 48px -20px rgba(14, 15, 11, 0.3);
+  --scrim: rgba(14, 15, 11, 0.6);
+  --skeleton-base: rgba(14, 15, 11, 0.06);
+  --skeleton-shine: rgba(14, 15, 11, 0.12);
 
   /* ---- Tipografia ----
-     Unbounded      — equivalente livre do Cy Grotesk V3 Wide (títulos)
-     Plus Jakarta Sans — equivalente livre do Stavok Grotesque (corpo/apoio) */
-  --font-display: "Unbounded", "Arial Narrow", sans-serif;
-  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-hand: "Caveat", cursive;
-  --font-mono: var(--font-body);
+     Lexend Exa — display, títulos e rótulos editoriais
+     Open Sans  — corpo de texto */
+  --font-display: "Lexend Exa", "Arial Narrow", sans-serif;
+  --font-body: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-display);
 
   --fs-display-xl: clamp(2rem, 2.8vw + 1rem, 3.4rem);
   --fs-display-lg: clamp(1.65rem, 1.8vw + 1rem, 2.5rem);
@@ -91,7 +77,7 @@
   --fs-body-lg: clamp(1rem, 0.3vw + 1rem, 1.1rem);
   --fs-body-md: 1rem;
   --fs-body-sm: 0.875rem;
-  --fs-eyebrow: 0.78rem;
+  --fs-eyebrow: 0.76rem;
 
   /* ---- Espaçamento / ritmo ---- */
   --space-3xs: 0.25rem;
@@ -104,21 +90,14 @@
   --space-2xl: 4rem;
   --space-3xl: 5rem;
 
-  --container-max: 1280px;
+  --container-max: 1320px;
   --container-pad: clamp(1.25rem, 4vw, 4rem);
 
-  /* ---- Forma: orgânica, cantos bem arredondados ---- */
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
-  --radius-pill: 999px;
-
-  /* ---- Painel de assinatura: verde escuro sólido — blocos de seção ---- */
-  --panel-ink: var(--brand-green-700);
-  --panel-ink-gradient: var(--brand-gradient-dark);
-  --panel-ink-text: #fdf9e6;
-  --panel-ink-text-soft: #cfe0c3;
-  --panel-ink-border: rgba(253, 249, 230, 0.16);
+  /* ---- Forma: editorial, cantos retos — sem radius em botões/cartões ---- */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-pill: 2px;
 
   /* ---- Movimento ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);

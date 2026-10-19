@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>buov.ai — sites, aplicativos e automações</title>
   <meta name="description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região." />
-  <meta name="theme-color" content="#fdf9e6" />
+  <meta name="theme-color" content="#fffceb" />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://buovai.com.br/" />
@@ -23,14 +23,13 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/fonts.css?v=41" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500;600&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="css/variables.css?v=41" />
-  <link rel="stylesheet" href="css/base.css?v=41" />
-  <link rel="stylesheet" href="css/components.css?v=41" />
-  <link rel="stylesheet" href="css/sections.css?v=41" />
-  <link rel="stylesheet" href="css/responsive.css?v=41" />
+  <link rel="stylesheet" href="css/variables.css?v=42" />
+  <link rel="stylesheet" href="css/base.css?v=42" />
+  <link rel="stylesheet" href="css/components.css?v=42" />
+  <link rel="stylesheet" href="css/sections.css?v=42" />
+  <link rel="stylesheet" href="css/responsive.css?v=42" />
 
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png" />
@@ -49,15 +48,15 @@
   <div class="site-intro" id="siteIntro" aria-hidden="true">
     <div class="site-intro__mark">
       <span class="site-intro__shadow"></span>
-      <svg class="site-intro__robot" viewBox="38 76 569 675" fill="#fdf9e6">
-        <g stroke="#fdf9e6" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250" /><line x1="511" y1="92" x2="442" y2="250" /></g>
+      <svg class="site-intro__robot" viewBox="38 76 569 675" fill="#0e0f0b">
+        <g stroke="#0e0f0b" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250" /><line x1="511" y1="92" x2="442" y2="250" /></g>
         <ellipse cx="108" cy="518" rx="62" ry="52" /><ellipse cx="538" cy="518" rx="62" ry="52" />
         <path fill-rule="evenodd" d="M64 476a262 262 0 1 0 524 0a262 262 0 1 0 -524 0ZM162 500a164 146 0 1 0 328 0a164 146 0 1 0 -328 0Z" />
         <path fill-rule="evenodd" d="M277 412H368A92 92 0 0 1 368 596H277A92 92 0 0 1 277 412ZM230 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0ZM367 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0Z" />
         <ellipse class="site-intro__eyelid" cx="253" cy="504" rx="25" ry="25" />
         <ellipse class="site-intro__eyelid" cx="390" cy="504" rx="25" ry="25" />
       </svg>
-      <img class="site-intro__logo" src="assets/img/logo-wordmark-light.svg" alt="buov.ai" />
+      <img class="site-intro__logo" src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" />
     </div>
   </div>
   <script>
@@ -118,7 +117,7 @@
   <header class="site-header" id="site-header">
     <div class="container site-header__inner">
       <a href="#top" class="brand">
-        <img class="brand__wordmark" src="assets/img/logo-wordmark-light.svg" alt="buov.ai" />
+        <img class="brand__wordmark" src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" />
       </a>
 
       <nav class="nav-links" aria-label="Navegação principal">
@@ -127,6 +126,7 @@
         <a href="#servicos">Serviços</a>
         <a href="#processo">Como trabalho</a>
         <a href="#sobre">Sobre</a>
+        <a href="#duvidas">Dúvidas</a>
         <a href="#contato">Contato</a>
 
         <div class="nav-links__mobile-extra">
@@ -151,48 +151,80 @@
   <main id="main">
     <!-- ============== HERO ============== -->
     <section class="hero" id="top">
-      <svg class="hero__bg-curve" viewBox="0 0 1400 700" fill="none" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M600 690C760 660 860 700 1020 640C1160 588 1260 610 1400 540" stroke="var(--brand-green-bright)" stroke-opacity="0.22" stroke-width="1.4" />
-      </svg>
-      <svg class="hero__spark" width="26" height="26" viewBox="0 0 24 24" fill="var(--brand-green-bright)" aria-hidden="true"><path d="M12 2c.6 3.6 1.6 4.6 5.2 5.2-3.6.6-4.6 1.6-5.2 5.2-.6-3.6-1.6-4.6-5.2-5.2 3.6-.6 4.6-1.6 5.2-5.2z"/></svg>
+      <div class="hero__panel" id="heroPanel">
+        <div class="hero__blobs" id="heroBlobs" aria-hidden="true"></div>
+        <span class="hero__star" aria-hidden="true">✦</span>
 
-      <div class="container hero__layout">
-        <div class="hero__main">
-          <p class="eyebrow" data-reveal>Sites, aplicativos e automações</p>
-
-          <h1 data-reveal style="--reveal-delay:70ms">
-            Quando a ferramenta pronta não acompanha a sua operação, <span class="accent">eu construo o sistema que acompanha</span>.
-          </h1>
-
-          <p class="hero__sub" data-reveal style="--reveal-delay:140ms">Sistemas internos, portais e sites profissionais construídos para a sua operação. Atendimento direto, do entendimento do problema até a entrega.</p>
-
-          <div class="hero__actions" data-reveal style="--reveal-delay:210ms">
-            <a href="#contato" class="btn btn-primary">
-              <span>Contar meu problema</span>
-              <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-            </a>
-            <a href="#portfolio" class="btn-text">
-              <span>Ver um caso real</span>
-              <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-            </a>
-          </div>
+        <div class="container hero__eyebrow-row">
+          <p class="eyebrow">Sites, aplicativos e automações</p>
         </div>
 
-        <div class="hero__demo" data-reveal style="--reveal-delay:260ms" aria-hidden="true">
-          <canvas class="hero__net" id="heroNet"></canvas>
-          <img class="hero__net-mark" src="assets/img/logo-mark-light.svg" alt="" />
+        <div class="container hero__content">
+          <h1 id="heroHeading">Quando a ferramenta pronta não acompanha a sua operação, <span class="accent" id="heroAccent">eu construo o sistema que acompanha</span>.</h1>
+
+          <div class="hero__building">
+            <p class="hero__building-label">
+              <span class="static">//construindo:</span>
+              <span class="hero__building-typed" id="heroTyped"></span><span class="hero__caret" aria-hidden="true"></span>
+            </p>
+
+            <button class="hero__bot" id="heroBot" type="button" title="Ver de novo" aria-label="Reiniciar animação">
+              <svg viewBox="-20 10 390 460" aria-hidden="true">
+                <defs>
+                  <mask id="buov-bot-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480">
+                    <circle cx="170" cy="283" r="172" fill="#fff"></circle>
+                    <rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect>
+                    <path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path>
+                    <rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect>
+                    <g id="botEyes"><g id="botLid">
+                      <circle cx="122" cy="297" r="15" fill="#000"></circle>
+                      <circle cx="218" cy="297" r="15" fill="#000"></circle>
+                    </g></g>
+                  </mask>
+                </defs>
+                <g id="botHead" class="hero__bot-head">
+                  <g id="botAntL" class="hero__bot-ant"><line x1="76" y1="132" x2="18" y2="38" stroke="var(--ink-on-dark)" stroke-width="8" stroke-linecap="round"></line></g>
+                  <g id="botAntR" class="hero__bot-ant hero__bot-ant--r"><line x1="246" y1="126" x2="292" y2="24" stroke="var(--ink-on-dark)" stroke-width="8" stroke-linecap="round"></line></g>
+                  <rect x="-8" y="266" width="14" height="38" rx="7" fill="var(--ink-on-dark)"></rect>
+                  <rect x="334" y="266" width="14" height="38" rx="7" fill="var(--ink-on-dark)"></rect>
+                  <rect x="-10" y="100" width="370" height="370" fill="var(--ink-on-dark)" mask="url(#buov-bot-mask)"></rect>
+                </g>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
+      <div class="hero__footer">
+        <div class="container hero__footer-inner">
+          <p>Sistemas internos, portais e sites profissionais construídos para a sua operação. Atendimento direto, do entendimento do problema até a entrega.</p>
+          <div class="hero__footer-actions">
+            <a href="#contato" class="btn btn-primary">
+              <span>Contar meu problema</span>
+              <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+            </a>
+            <a href="#portfolio" class="btn-text">
+              <span>Ver um caso real</span>
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ============== PONTO DE PARTIDA ============== -->
     <section id="diferenca">
       <div class="container">
-        <div class="section-head section-head--wide" data-reveal>
-          <p class="eyebrow">O ponto de partida</p>
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">01 — O ponto de partida</p>
           <h2>Adaptar a empresa à ferramenta <span class="accent">tem um limite</span>.</h2>
+        </div>
+        <div class="diferenca__aside" data-reveal style="--reveal-delay:80ms">
           <p>Planilhas e ferramentas prontas resolvem bem o começo, mas têm limite. Por isso eu começo entendendo como a sua operação funciona — só depois decido o que construir, e se vale construir.</p>
+          <div class="diferenca__steps">
+            <span>Entender a operação</span>
+            <span>Decidir o que construir</span>
+            <span>E se vale construir</span>
+          </div>
         </div>
       </div>
     </section>
@@ -200,10 +232,11 @@
     <!-- ============== PORTFÓLIO ============== -->
     <section id="portfolio">
       <div class="container">
-        <div class="section-head section-head--wide" data-reveal>
-          <p class="eyebrow">Caso real</p>
-          <h2>Um portal para uma contabilidade, <span class="accent">feito para a rotina dela</span>.</h2>
-          <p>O administrador publica boletos e documentos, e o cliente acessa o portal para pagar. Abra o caso para ver as telas, com os dados pessoais borrados.</p>
+        <div class="section-head-row" data-reveal>
+          <div class="section-head section-head--wide">
+            <p class="eyebrow">02 — Casos reais</p>
+            <h2>Sistemas feitos <span class="accent">para a rotina de cada cliente</span>.</h2>
+          </div>
         </div>
 
         <div class="portfolio-grid" id="portfolio-list" aria-live="polite"></div>
@@ -225,102 +258,165 @@
 
     <!-- ============== SERVIÇOS ============== -->
     <section id="servicos">
-      <svg class="section-bg-curve" viewBox="0 0 1400 700" fill="none" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M-40 20C220 90 360 -10 600 60C820 122 980 40 1220 100C1300 120 1360 90 1440 130" stroke="var(--brand-green-bright)" stroke-opacity="0.16" stroke-width="1.4" />
-      </svg>
-
-      <div class="container services-layout">
-        <div class="services-intro" data-reveal>
-          <p class="eyebrow">O que eu faço</p>
-          <h2>Do site ao sistema <span class="accent">da sua operação</span>.</h2>
+      <div class="container">
+        <div class="services-head" data-reveal>
+          <div class="section-head">
+            <p class="eyebrow">03 — O que eu faço</p>
+            <h2>Do site ao sistema <span class="accent">da sua operação</span>.</h2>
+          </div>
           <p>Cada serviço serve a uma situação diferente. Se você não sabe qual é a sua, descreva o problema e eu indico o caminho, inclusive quando a resposta for algo mais simples do que você esperava.</p>
-          <a href="#contato" class="btn btn-primary">
-            <span>Descrever meu problema</span>
-            <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-          </a>
         </div>
 
-        <div class="service-grid-organic">
-          <div class="service-card" data-reveal>
-            <span class="service-card__icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg></span>
-            <h3>Sistemas para a operação</h3>
-            <p>Para empresas que controlam pedidos, orçamentos, clientes ou produção em planilhas e ferramentas soltas. O sistema segue as regras do seu processo, não o contrário.</p>
-          </div>
-          <div class="service-card service-card--down" data-reveal style="--reveal-delay:70ms">
-            <span class="service-card__icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.3 15.3L20 20" /></svg></span>
-            <h3>Reconstrução e evolução</h3>
-            <p>Para quem já tem um sistema ou uma plataforma pronta que travou. Avalio o que mantém, o que refaço e como migrar sem parar a operação.</p>
-          </div>
-          <div class="service-card" data-reveal style="--reveal-delay:140ms">
-            <span class="service-card__icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14.5-4.5" /><path d="M20 12a8 8 0 0 1-14.5 4.5" /><path d="M18.5 3v4.5H14" /><path d="M5.5 21v-4.5H10" /></svg></span>
-            <h3>Automação e integrações</h3>
-            <p>Para tarefas repetidas à mão, como digitar o mesmo dado em dois lugares ou conferir planilhas. Conecto os sistemas que você já usa.</p>
-          </div>
-          <div class="service-card service-card--up" data-reveal style="--reveal-delay:210ms">
-            <span class="service-card__icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4-8 4-8-4 8-4z" /><path d="M4 11l8 4 8-4" /><path d="M4 15l8 4 8-4" /></svg></span>
-            <h3>Sites profissionais</h3>
-            <p>Para quem precisa de uma presença clara na internet: site que abre bem no celular, com serviços, contato e domínio próprio publicado.</p>
-          </div>
+        <div class="service-rows" data-reveal style="--reveal-delay:80ms">
+          <a href="#contato" class="service-row">
+            <span class="service-row__n">//01</span>
+            <span class="service-row__title">Sistemas para a operação</span>
+            <span class="service-row__text">Para empresas que controlam pedidos, orçamentos, clientes ou produção em planilhas e ferramentas soltas. O sistema segue as regras do seu processo, não o contrário.</span>
+            <span class="service-row__arrow">↗</span>
+          </a>
+          <a href="#contato" class="service-row">
+            <span class="service-row__n">//02</span>
+            <span class="service-row__title">Reconstrução e evolução</span>
+            <span class="service-row__text">Para quem já tem um sistema ou uma plataforma pronta que travou. Avalio o que mantém, o que refaço e como migrar sem parar a operação.</span>
+            <span class="service-row__arrow">↗</span>
+          </a>
+          <a href="#contato" class="service-row">
+            <span class="service-row__n">//03</span>
+            <span class="service-row__title">Automação e integrações</span>
+            <span class="service-row__text">Para tarefas repetidas à mão, como digitar o mesmo dado em dois lugares ou conferir planilhas. Conecto os sistemas que você já usa.</span>
+            <span class="service-row__arrow">↗</span>
+          </a>
+          <a href="#contato" class="service-row">
+            <span class="service-row__n">//04</span>
+            <span class="service-row__title">Sites profissionais</span>
+            <span class="service-row__text">Para quem precisa de uma presença clara na internet: site que abre bem no celular, com serviços, contato e domínio próprio publicado.</span>
+            <span class="service-row__arrow">↗</span>
+          </a>
         </div>
       </div>
     </section>
 
     <!-- ============== PROCESSO ============== -->
     <section id="processo">
-      <svg class="section-bg-curve" viewBox="0 0 1400 500" fill="none" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M-40 60C200 10 380 110 620 40C860 -22 1000 90 1220 30C1300 8 1360 40 1440 20" stroke="var(--brand-green-bright)" stroke-opacity="0.16" stroke-width="1.4" />
-      </svg>
-
       <div class="container">
-        <div class="section-head section-head--wide" data-reveal>
-          <p class="eyebrow">Como trabalho</p>
-          <h2>Direto com você, <span class="accent">em etapas curtas</span>.</h2>
+        <div class="processo-head" data-reveal>
+          <div class="section-head">
+            <p class="eyebrow">04 — Como trabalho</p>
+            <h2>Direto com você, <span class="accent">em etapas curtas</span>.</h2>
+          </div>
           <p>Não há equipe entre o seu problema e o código. O projeto avança em ciclos curtos, e você valida cada parte pronta em vez de descobrir um desalinhamento só na entrega.</p>
         </div>
 
-        <ol class="processo-flow">
-          <li data-reveal>
-            <span class="processo-flow__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-9.3 8.46 8.6 8.6 0 0 1-2.3-.35L3 21l1.4-4.3A8.5 8.5 0 1 1 21 11.5z" /></svg></span>
-            <span class="processo-flow__index">01</span>
-            <h3>Conversa<br />inicial</h3>
+        <ol class="processo-flow" data-reveal style="--reveal-delay:80ms">
+          <li>
+            <span class="processo-flow__n">01</span>
+            <h3>Conversa inicial</h3>
             <p>Você descreve o problema e eu pergunto sobre a operação até entender como ela funciona hoje.</p>
           </li>
-          <li data-reveal style="--reveal-delay:70ms">
-            <span class="processo-flow__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6l1 4H8l1-4z" /><path d="M6 6h12v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6z" /><path d="M9 12h6M9 16h6" /></svg></span>
-            <span class="processo-flow__index">02</span>
-            <h3>Definição do<br />que é "pronto"</h3>
+          <li>
+            <span class="processo-flow__n">02</span>
+            <h3>Definição do que é "pronto"</h3>
             <p>Combinamos escopo, prioridades e o critério para considerar cada entrega concluída.</p>
           </li>
-          <li data-reveal style="--reveal-delay:140ms">
-            <span class="processo-flow__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6L2 12l6 6" /><path d="M16 6l6 6-6 6" /></svg></span>
-            <span class="processo-flow__index">03</span>
-            <h3>Construção em<br />ciclos curtos</h3>
+          <li>
+            <span class="processo-flow__n">03</span>
+            <h3>Construção em ciclos curtos</h3>
             <p>Mostro cada parte funcionando e ajusto com o seu retorno antes de seguir para a próxima.</p>
           </li>
-          <li data-reveal style="--reveal-delay:210ms">
-            <span class="processo-flow__icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg></span>
-            <span class="processo-flow__index">04</span>
-            <h3>Entrega e<br />acompanhamento</h3>
+          <li>
+            <span class="processo-flow__n">04</span>
+            <h3>Entrega e acompanhamento</h3>
             <p>Coloco o sistema no ar e continuo disponível para ajustes depois da entrega.</p>
           </li>
         </ol>
       </div>
     </section>
 
+    <!-- ============== PORTAL DO CLIENTE ============== -->
+    <section id="portal">
+      <div class="container">
+        <div class="portal__frame" data-reveal aria-hidden="true">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="1" /><path d="M3 9h18" /><path d="M7 14h4" /></svg>
+          <span>Portal exclusivo para clientes</span>
+        </div>
+        <div data-reveal style="--reveal-delay:80ms">
+          <p class="eyebrow">05 — Portal do cliente</p>
+          <h2>Acompanhe o seu projeto em um <span class="accent">portal exclusivo para clientes</span>.</h2>
+          <p>Cada parte pronta fica disponível para você validar, sem precisar esperar a entrega final.</p>
+          <a href="painel/login.html" class="btn btn-primary">
+            <span>Entrar na área do cliente</span>
+            <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- ============== SOBRE ============== -->
     <section id="sobre">
-      <div class="container about">
-        <p class="eyebrow" data-reveal>Quem faz</p>
-        <blockquote class="about__quote" data-reveal style="--reveal-delay:80ms">
-          <svg class="about__quote-spark" width="22" height="22" viewBox="0 0 24 24" fill="var(--brand-green-bright)" aria-hidden="true"><path d="M12 2c.6 3.6 1.6 4.6 5.2 5.2-3.6.6-4.6 1.6-5.2 5.2-.6-3.6-1.6-4.6-5.2-5.2 3.6-.6 4.6-1.6 5.2-5.2z"/></svg>
-          Eu mesma converso com você, desenho a solução e programo. É um modelo enxuto de propósito: quem entende o seu problema é quem escreve o código.
-        </blockquote>
-        <p class="about__attribution" data-reveal style="--reveal-delay:140ms"><strong data-site-field="name">Lorena Cardoso</strong>, <span data-site-field="title" hidden>título profissional</span><span class="about__attribution-role">fundadora e desenvolvedora da buov.ai</span></p>
+      <div class="about__mark" aria-hidden="true">
+        <svg viewBox="38 76 569 675" fill="var(--ink-on-dark)">
+          <g stroke="var(--ink-on-dark)" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250" /><line x1="511" y1="92" x2="442" y2="250" /></g>
+          <ellipse cx="108" cy="518" rx="62" ry="52" /><ellipse cx="538" cy="518" rx="62" ry="52" />
+          <path fill-rule="evenodd" d="M64 476a262 262 0 1 0 524 0a262 262 0 1 0 -524 0ZM162 500a164 146 0 1 0 328 0a164 146 0 1 0 -328 0Z" />
+          <path fill-rule="evenodd" d="M277 412H368A92 92 0 0 1 368 596H277A92 92 0 0 1 277 412ZM230 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0ZM367 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0Z" />
+        </svg>
+      </div>
+      <div class="about__body">
+        <div data-reveal>
+          <p class="eyebrow">06 — Quem faz</p>
+          <h2>Eu mesma converso com você, desenho a solução <span class="accent">e escrevo o código</span>.</h2>
+        </div>
+        <div class="about__meta" data-reveal style="--reveal-delay:80ms">
+          <div class="name" data-site-field="name">Lorena Cardoso</div>
+          <div class="role"><span data-site-field="title" hidden>título profissional</span><span class="role-fallback">Arquiteta de soluções &amp; migração de sistemas</span></div>
+          <div class="area">Atendimento remoto, com conversas por vídeo ou WhatsApp. Atendo empresas de Sergipe, de Recife e de outras regiões.</div>
+        </div>
+      </div>
+    </section>
 
-        <div class="about__facts">
-          <div class="about__fact" data-reveal>
-            <h3>Atendimento</h3>
-            <p>Remoto, com conversas por vídeo ou WhatsApp. Atendo empresas de Sergipe, de Recife e de outras regiões.</p>
+    <!-- ============== DÚVIDAS ============== -->
+    <section id="duvidas">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">07 — Antes de contratar</p>
+          <h2>Dúvidas <span class="accent">frequentes</span>.</h2>
+        </div>
+
+        <div class="faq-list" data-reveal style="--reveal-delay:80ms">
+          <div class="faq-item">
+            <button class="faq-item__q" aria-expanded="false">
+              <span>Preciso saber exatamente o que eu quero?</span>
+              <span class="faq-item__sign" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-item__a"><p>Não. Descreva o problema e eu indico o caminho, inclusive quando a resposta for algo mais simples do que você esperava.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-item__q" aria-expanded="false">
+              <span>Com quem eu falo durante o projeto?</span>
+              <span class="faq-item__sign" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-item__a"><p>Comigo. Não há equipe entre o seu problema e o código: eu converso com você, desenho a solução e escrevo o código.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-item__q" aria-expanded="false">
+              <span>Como acompanho o andamento?</span>
+              <span class="faq-item__sign" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-item__a"><p>O projeto avança em ciclos curtos, e você valida cada parte pronta pelo portal exclusivo para clientes.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-item__q" aria-expanded="false">
+              <span>Já tenho um sistema que travou. Dá para aproveitar?</span>
+              <span class="faq-item__sign" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-item__a"><p>Avalio o que mantém, o que refaço e como migrar sem parar a operação.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-item__q" aria-expanded="false">
+              <span>E depois da entrega?</span>
+              <span class="faq-item__sign" aria-hidden="true">+</span>
+            </button>
+            <div class="faq-item__a"><p>Coloco o sistema no ar e continuo disponível para ajustes depois da entrega.</p></div>
           </div>
         </div>
       </div>
@@ -328,11 +424,13 @@
 
     <!-- ============== CONTATO ============== -->
     <section id="contato">
-      <div class="container contact">
+      <div class="contact">
         <div class="contact__intro" data-reveal>
-          <p class="eyebrow">Vamos conversar</p>
-          <h2>Conte o problema. <br />Eu respondo com um caminho.</h2>
-          <p>Descreva como a tarefa é feita hoje. Não precisa de termo técnico. Eu respondo pessoalmente.</p>
+          <div>
+            <p class="eyebrow">08 — Vamos conversar</p>
+            <h2>Conte o problema. <span class="accent">Eu respondo com um caminho.</span></h2>
+            <p>Descreva como a tarefa é feita hoje. Não precisa de termo técnico. Eu respondo pessoalmente.</p>
+          </div>
 
           <div class="contact__channels">
             <a class="contact__channel" href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener">
@@ -353,52 +451,56 @@
           </div>
         </div>
 
-        <form class="contact-form" id="contact-form" data-reveal style="--reveal-delay:100ms" novalidate>
-          <div class="contact-form__grid">
-            <input class="field-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="contact__form-wrap" data-reveal style="--reveal-delay:100ms">
+          <form class="contact-form" id="contact-form" novalidate>
+            <div class="contact-form__grid">
+              <input class="field-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
-            <div class="field field--full">
-              <label for="cf-name">Nome</label>
-              <input id="cf-name" name="name" type="text" placeholder="Seu nome completo" required autocomplete="name" />
+              <div class="field">
+                <label for="cf-name">Nome</label>
+                <input id="cf-name" name="name" type="text" placeholder="Seu nome completo" required autocomplete="name" />
+              </div>
+
+              <div class="contact-form__row">
+                <div class="field">
+                  <label for="cf-email">E-mail</label>
+                  <input id="cf-email" name="email" type="email" placeholder="voce@empresa.com" required autocomplete="email" />
+                </div>
+
+                <div class="field">
+                  <label for="cf-company">Empresa</label>
+                  <input id="cf-company" name="company" type="text" placeholder="Nome da empresa" autocomplete="organization" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="cf-budget">Faixa de orçamento (opcional)</label>
+                <select id="cf-budget" name="budget">
+                  <option value="">Prefiro conversar primeiro</option>
+                  <option value="ate-1.5k">Até R$ 1,5 mil</option>
+                  <option value="1.5k-5k">R$ 1,5 mil – R$ 5 mil</option>
+                  <option value="5k-15k">R$ 5 mil – R$ 15 mil</option>
+                  <option value="acima-15k">Acima de R$ 15 mil</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="cf-message">O que precisa ser resolvido?</label>
+                <textarea id="cf-message" name="message" placeholder="Descreva o processo, sistema ou dor atual da sua operação." required></textarea>
+              </div>
             </div>
 
-            <div class="field">
-              <label for="cf-email">E-mail</label>
-              <input id="cf-email" name="email" type="email" placeholder="voce@empresa.com" required autocomplete="email" />
+            <div class="contact-form__submit">
+              <button type="submit" class="btn btn-primary">
+                <span class="btn-label">Enviar mensagem</span>
+                <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+              </button>
+              <span class="contact-form__hint">Sua mensagem chega direto para mim.</span>
             </div>
 
-            <div class="field">
-              <label for="cf-company">Empresa</label>
-              <input id="cf-company" name="company" type="text" placeholder="Nome da empresa" autocomplete="organization" />
-            </div>
-
-            <div class="field field--full">
-              <label for="cf-budget">Faixa de orçamento (opcional)</label>
-              <select id="cf-budget" name="budget">
-                <option value="">Prefiro conversar primeiro</option>
-                <option value="ate-1.5k">Até R$ 1,5 mil</option>
-                <option value="1.5k-5k">R$ 1,5 mil – R$ 5 mil</option>
-                <option value="5k-15k">R$ 5 mil – R$ 15 mil</option>
-                <option value="acima-15k">Acima de R$ 15 mil</option>
-              </select>
-            </div>
-
-            <div class="field field--full">
-              <label for="cf-message">O que precisa ser resolvido?</label>
-              <textarea id="cf-message" name="message" placeholder="Descreva o processo, sistema ou dor atual da sua operação." required></textarea>
-            </div>
-          </div>
-
-          <div class="contact-form__submit">
-            <button type="submit" class="btn btn-primary">
-              <span class="btn-label">Enviar mensagem</span>
-              <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-            </button>
-            <span class="contact-form__hint">Sua mensagem chega direto para mim.</span>
-          </div>
-
-          <div class="form-status" id="contact-status" role="status"></div>
-        </form>
+            <div class="form-status" id="contact-status" role="status"></div>
+          </form>
+        </div>
       </div>
     </section>
   </main>
@@ -407,33 +509,27 @@
   <footer class="site-footer">
     <div class="container">
       <div class="site-footer__top">
-        <div>
-          <a href="#top" class="brand brand--on-panel">
-            <img class="brand__wordmark" src="assets/img/logo-wordmark-light.svg" alt="buov.ai" />
+        <div class="site-footer__brand">
+          <a href="#top" class="brand">
+            <img src="assets/img/logo-wordmark-light.svg" alt="buov.ai" />
           </a>
           <p class="site-footer__pitch" data-site-field="tagline">Sites, aplicativos e automações, por Lorena Cardoso.</p>
         </div>
 
-        <div class="site-footer__cols">
-          <div class="site-footer__col">
-            <h5>Navegação</h5>
-            <ul>
-              <li><a href="#portfolio">Caso real</a></li>
-              <li><a href="#servicos">Serviços</a></li>
-              <li><a href="#processo">Como trabalho</a></li>
-              <li><a href="#sobre">Sobre</a></li>
-              <li><a href="#contato">Contato</a></li>
-            </ul>
-          </div>
-          <div class="site-footer__col">
-            <h5>Contato</h5>
-            <ul>
-              <li><a href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener"><span data-site-field="phone-display">(79) 9 9828-9485</span></a></li>
-              <li><a href="mailto:contatobuovai@gmail.com" data-site-href="email"><span data-site-field="email">contatobuovai@gmail.com</span></a></li>
-              <li><a href="#contato">Enviar mensagem</a></li>
-              <li><a href="painel/login.html">Já é cliente? Acesse o painel</a></li>
-            </ul>
-          </div>
+        <div class="site-footer__col">
+          <h5>Navegação</h5>
+          <a href="#portfolio">Caso real</a>
+          <a href="#servicos">Serviços</a>
+          <a href="#processo">Como trabalho</a>
+          <a href="#sobre">Sobre</a>
+          <a href="#contato">Contato</a>
+        </div>
+        <div class="site-footer__col">
+          <h5>Contato</h5>
+          <a href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener"><span data-site-field="phone-display">(79) 9 9828-9485</span></a>
+          <a href="mailto:contatobuovai@gmail.com" data-site-href="email"><span data-site-field="email">contatobuovai@gmail.com</span></a>
+          <a href="#contato">Enviar mensagem</a>
+          <a href="painel/login.html">Já é cliente? Acesse o painel</a>
         </div>
       </div>
 
@@ -494,12 +590,13 @@
   </a>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/site-config.js?v=41"></script>
-  <script src="js/config.js?v=41"></script>
-  <script src="js/supabase-client.js?v=41"></script>
-  <script src="js/main.js?v=41"></script>
-  <script src="js/hero-network.js?v=41"></script>
-  <script src="js/portfolio.js?v=41"></script>
-  <script src="js/contact.js?v=41"></script>
+  <script src="js/site-config.js?v=42"></script>
+  <script src="js/config.js?v=42"></script>
+  <script src="js/supabase-client.js?v=42"></script>
+  <script src="js/main.js?v=42"></script>
+  <script src="js/hero-anim.js?v=42"></script>
+  <script src="js/faq.js?v=42"></script>
+  <script src="js/portfolio.js?v=42"></script>
+  <script src="js/contact.js?v=42"></script>
 </body>
 </html>

@@ -21,9 +21,7 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-void) var(--page-gradient);
-  background-attachment: fixed;
-  background-size: 100% 100%;
+  background: var(--bg-page);
   opacity: 1;
   transition: opacity 650ms var(--ease-out), visibility 0ms linear 650ms;
 }
@@ -49,7 +47,7 @@ html {
   width: 70px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(14, 15, 11, 0.16);
   filter: blur(4px);
   transform: translateX(-50%) scale(0.6);
   opacity: 0;
@@ -63,10 +61,8 @@ html {
   height: auto;
   opacity: 0;
   transform: scale(2.2);
-  filter: drop-shadow(0 0 28px rgba(var(--accent-glow-rgb), 0.55));
   animation:
-    site-intro-robot 1500ms var(--ease-out) forwards,
-    site-intro-glow 1.7s ease-in-out infinite;
+    site-intro-robot 1500ms var(--ease-out) forwards;
 }
 
 .site-intro__eyelid {
@@ -105,11 +101,6 @@ html {
   100% { opacity: 1; transform: scale(1); }
 }
 
-@keyframes site-intro-glow {
-  0%, 100% { filter: drop-shadow(0 0 22px rgba(var(--accent-glow-rgb), 0.45)); }
-  50% { filter: drop-shadow(0 0 38px rgba(var(--accent-glow-rgb), 0.75)); }
-}
-
 @keyframes site-intro-blink {
   0%, 100% { opacity: 0; }
   50% { opacity: 1; }
@@ -141,9 +132,7 @@ html.no-intro .site-intro {
 
 body {
   margin: 0;
-  background: var(--bg-void) var(--page-gradient);
-  background-attachment: fixed;
-  background-size: 100% 100%;
+  background: var(--bg-page);
   color: var(--ink-primary);
   font-family: var(--font-body);
   font-size: var(--fs-body-md);
@@ -152,15 +141,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-}
-
-@media (max-width: 760px) {
-  /* background-attachment:fixed é instável no scroll do mobile Safari/Chrome;
-     deixa o gradiente rolar com o documento nessas larguras. */
-  body {
-    background-attachment: scroll;
-    background-size: 100% 220vh;
-  }
 }
 
 img,
@@ -210,26 +190,14 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.08;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 1.12;
 }
 
 ::selection {
-  background: var(--accent-strong);
-  color: var(--ink-inverse);
-}
-
-/* ---- Grão sutil para acabamento (sem gradiente de fundo — flat, preciso) ---- */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2000;
-  opacity: var(--noise-opacity);
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background: var(--brand-lime-300);
+  color: var(--bg-ink);
 }
 
 /* ---- Utilitários ---- */
@@ -243,29 +211,21 @@ body::before {
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.5em;
-  font-family: var(--font-mono);
-  font-size: 0.86rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--ink-secondary);
+  gap: 0.3em;
+  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--accent-strong);
 }
 
 .eyebrow::before {
-  content: "";
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2c.8 4.6 2 5.8 6.6 6.6-4.6.8-5.8 2-6.6 6.6-.8-4.6-2-5.8-6.6-6.6C10 7.8 11.2 6.6 12 2z' fill='%23c6e575'/%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
+  content: "//";
+  opacity: 0.75;
 }
-
 
 .accent {
   color: var(--accent-strong);
-  font-weight: 700;
 }
 
 .visually-hidden {
@@ -285,10 +245,9 @@ body::before {
   top: -100px;
   left: 1rem;
   z-index: 5000;
-  background: var(--accent-strong);
-  color: var(--ink-inverse);
+  background: var(--bg-ink);
+  color: var(--bg-page);
   padding: 0.6em 1.1em;
-  border-radius: var(--radius-sm);
   font-weight: 700;
   transition: top var(--dur-fast) var(--ease-out);
 }
