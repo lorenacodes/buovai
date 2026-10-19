@@ -1,607 +1,399 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>buov.ai — sites, aplicativos e automações</title>
-  <meta name="description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região." />
-  <meta name="theme-color" content="#fffceb" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://buovai.com.br/" />
-  <meta property="og:site_name" content="buov.ai" />
-  <meta property="og:title" content="buov.ai — sites, aplicativos e automações" />
-  <meta property="og:description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região." />
-  <meta property="og:image" content="assets/img/og-image.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:locale" content="pt_BR" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="buov.ai — sites, aplicativos e automações" />
-  <meta name="twitter:description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região." />
-  <meta name="twitter:image" content="assets/img/og-image.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500;600&family=Open+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="css/variables.css?v=42" />
-  <link rel="stylesheet" href="css/base.css?v=42" />
-  <link rel="stylesheet" href="css/components.css?v=42" />
-  <link rel="stylesheet" href="css/sections.css?v=42" />
-  <link rel="stylesheet" href="css/responsive.css?v=42" />
-
-  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16.png" />
-  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
-  <script>
-    (function () {
-      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      var seen = false;
-      try { seen = sessionStorage.getItem("buovaiIntroShown") === "1"; } catch (e) {}
-      if (reduce || seen) document.documentElement.classList.add("no-intro");
-    })();
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>buov.ai — sites, aplicativos e automações</title>
+<meta name="description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região.">
+<meta name="theme-color" content="#fffceb">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://buovai.com.br/">
+<meta property="og:site_name" content="buov.ai">
+<meta property="og:title" content="buov.ai — sites, aplicativos e automações">
+<meta property="og:description" content="Lorena Cardoso desenvolve sites, aplicativos e automações para empresas, com atendimento remoto e presencial em Sergipe e região.">
+<meta property="og:image" content="assets/img/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css?v=43">
 </head>
 <body>
-  <div class="site-intro" id="siteIntro" aria-hidden="true">
-    <div class="site-intro__mark">
-      <span class="site-intro__shadow"></span>
-      <svg class="site-intro__robot" viewBox="38 76 569 675" fill="#0e0f0b">
-        <g stroke="#0e0f0b" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250" /><line x1="511" y1="92" x2="442" y2="250" /></g>
-        <ellipse cx="108" cy="518" rx="62" ry="52" /><ellipse cx="538" cy="518" rx="62" ry="52" />
-        <path fill-rule="evenodd" d="M64 476a262 262 0 1 0 524 0a262 262 0 1 0 -524 0ZM162 500a164 146 0 1 0 328 0a164 146 0 1 0 -328 0Z" />
-        <path fill-rule="evenodd" d="M277 412H368A92 92 0 0 1 368 596H277A92 92 0 0 1 277 412ZM230 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0ZM367 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0Z" />
-        <ellipse class="site-intro__eyelid" cx="253" cy="504" rx="25" ry="25" />
-        <ellipse class="site-intro__eyelid" cx="390" cy="504" rx="25" ry="25" />
-      </svg>
-      <img class="site-intro__logo" src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" />
+
+<a class="skip-link" href="#main">Pular para o conteúdo</a>
+
+<div style="min-height:100vh;background:#fffceb;overflow:hidden">
+
+<header style="position:sticky;top:0;z-index:20;background:rgba(255,252,235,.92);backdrop-filter:blur(12px)">
+  <nav style="max-width:1320px;margin:0 auto;padding:16px 28px;display:flex;align-items:center;gap:32px">
+    <a href="#top" style="display:block;line-height:0;flex-shrink:0"><img src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" style="height:30px;width:auto"></a>
+    <div class="nav-wide" style="gap:28px;flex:1;justify-content:center;font-family:'Lexend Exa',sans-serif;font-size:12px;letter-spacing:.02em;white-space:nowrap">
+      <a href="#caso" class="nav-a" style="color:#0e0f0b">Caso real</a>
+      <a href="#servicos" class="nav-a" style="color:#0e0f0b">Serviços</a>
+      <a href="#processo" class="nav-a" style="color:#0e0f0b">Como trabalho</a>
+      <a href="#sobre" class="nav-a" style="color:#0e0f0b">Sobre</a>
+      <a href="#duvidas" class="nav-a" style="color:#0e0f0b">Dúvidas</a>
+    </div>
+    <div style="display:flex;gap:10px;margin-left:auto;white-space:nowrap;font-family:'Lexend Exa',sans-serif;font-size:12px">
+      <a href="painel/login.html" class="hdr-ghost" style="padding:12px 16px;border:1px solid #0e0f0b;color:#0e0f0b">Área do cliente</a>
+      <a href="#contato" class="hdr-primary" style="padding:12px 18px;background:#0e0f0b;color:#fffceb;border:1px solid #0e0f0b;white-space:nowrap">Contar meu problema ↗</a>
+    </div>
+  </nav>
+</header>
+
+<section id="top" data-screen-label="Hero" style="position:relative;min-height:calc(100vh - 66px);display:flex;flex-direction:column;overflow:hidden;background:#d6d6cf">
+  <div id="hero" style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:space-between">
+
+    <div id="brand" style="position:absolute;inset:0;pointer-events:none"></div>
+    <canvas id="cover" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block"></canvas>
+
+    <div id="star" style="position:absolute;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;display:grid;place-items:center;pointer-events:none;color:#fffceb;font-size:34px;line-height:1;opacity:0;text-shadow:0 0 14px #defa9a">✦</div>
+    <div id="spark" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
+    <div style="position:relative;max-width:1320px;width:100%;margin:0 auto;padding:44px 28px 0;display:flex;justify-content:space-between;gap:20px;font-family:'Lexend Exa',sans-serif;font-size:12px;color:#0e0f0b">
+      <span>//sites, aplicativos e automações</span>
+    </div>
+    <div style="position:relative;max-width:1320px;width:100%;margin:0 auto;padding:48px 28px 72px">
+      <h1 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(30px,4.6vw,68px);line-height:1.08;letter-spacing:-.055em;margin:0;max-width:1180px;color:#0e0f0b;text-wrap:balance">Quando a ferramenta pronta não acompanha a sua operação, <span id="words" style="color:#fffceb;text-shadow:0 2px 28px rgba(31,73,5,.6)"><span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">eu</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">construo</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">o</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">sistema</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">que</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">acompanha.</span></span></h1>
+      <div style="margin-top:40px;display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap">
+        <div style="font-family:'Lexend Exa',sans-serif;font-size:clamp(13px,1.3vw,17px);color:#fffceb;display:flex;gap:10px;align-items:center;min-height:24px"><span style="color:#0e0f0b">//construindo:</span><span id="slot" style="display:inline-flex;align-items:center;gap:10px;min-width:22ch;text-shadow:0 1px 14px rgba(31,73,5,.7)"><span id="typed" style="display:inline-flex;align-items:center;gap:10px"><span id="typedText"></span><span id="caret" style="width:10px;height:1.1em;background:#fffceb;animation:blink 1s steps(1) infinite"></span></span></span></div>
+        <div id="botSlide" style="flex:none;will-change:transform"><div id="botWrap" title="Ver de novo" style="width:clamp(50px,5vw,76px);flex:none;transform:scale(0);transform-origin:50% 100%">
+          <svg id="bot" viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;cursor:pointer;display:block">
+            <defs>
+              <mask id="buov-bot-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480">
+                <circle cx="170" cy="283" r="172" fill="#fff"></circle>
+                <rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect>
+                <path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path>
+                <rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect>
+                <g id="eyes"><g id="lid">
+                  <circle cx="122" cy="297" r="15" fill="#000"></circle>
+                  <circle cx="218" cy="297" r="15" fill="#000"></circle>
+                </g></g>
+              </mask>
+            </defs>
+            <g id="head" style="transform-origin:170px 283px">
+              <g id="antL" style="transform-origin:76px 132px"><line x1="76" y1="132" x2="18" y2="38" stroke="#0e0f0b" stroke-width="8" stroke-linecap="round"></line></g>
+              <g id="antR" style="transform-origin:246px 126px"><line x1="246" y1="126" x2="292" y2="24" stroke="#0e0f0b" stroke-width="8" stroke-linecap="round"></line></g>
+              <rect x="-8" y="266" width="14" height="38" rx="7" fill="#0e0f0b"></rect>
+              <rect x="334" y="266" width="14" height="38" rx="7" fill="#0e0f0b"></rect>
+              <rect x="-10" y="100" width="370" height="370" fill="#0e0f0b" mask="url(#buov-bot-mask)"></rect>
+            </g>
+          </svg>
+        </div></div>
+      </div>
     </div>
   </div>
-  <script>
-    (function () {
-      var el = document.getElementById("siteIntro");
-      if (!el || document.documentElement.classList.contains("no-intro")) return;
-
-      // Som curto e sintetizado (sem arquivo externo) — minimalista, tipo
-      // notificação de app/SO (Slack, macOS): só duas notas senoidais
-      // limpas, bem próximas, sem sopro, sem harmônicos extras, sem
-      // ataque percussivo. Nada de sintetizador "retrô" — só um sino
-      // suave e curto. Navegadores bloqueiam áudio com som antes de
-      // qualquer interação do usuário nessa página, então isso toca no
-      // primeiro clique/toque/tecla depois de carregar (não dá pra tocar
-      // sozinho no load).
-      var soundPlayed = false;
-      function tryPlayChime() {
-        if (soundPlayed) return;
-        soundPlayed = true;
-        try {
-          var Ctx = window.AudioContext || window.webkitAudioContext;
-          var ctx = new Ctx();
-          var fire = function () {
-            var now = ctx.currentTime;
-            var notes = [880, 1318.51];
-            notes.forEach(function (freq, i) {
-              var start = now + i * 0.09;
-              var osc = ctx.createOscillator();
-              var gain = ctx.createGain();
-              osc.type = "sine";
-              osc.frequency.value = freq;
-              gain.gain.setValueAtTime(0, start);
-              gain.gain.linearRampToValueAtTime(0.07, start + 0.02);
-              gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
-              osc.connect(gain).connect(ctx.destination);
-              osc.start(start);
-              osc.stop(start + 0.4);
-            });
-          };
-          if (ctx.state === "suspended") ctx.resume().then(fire);
-          else fire();
-        } catch (e) {}
-      }
-      ["pointerdown", "keydown", "touchstart"].forEach(function (evt) {
-        document.addEventListener(evt, tryPlayChime, { once: true, passive: true });
-      });
-
-      setTimeout(function () {
-        el.classList.add("is-hidden");
-        try { sessionStorage.setItem("buovaiIntroShown", "1"); } catch (e) {}
-      }, 2500);
-    })();
-  </script>
-
-  <a class="skip-link" href="#main">Pular para o conteúdo</a>
-
-  <!-- ============== HEADER ============== -->
-  <header class="site-header" id="site-header">
-    <div class="container site-header__inner">
-      <a href="#top" class="brand">
-        <img class="brand__wordmark" src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" />
-      </a>
-
-      <nav class="nav-links" aria-label="Navegação principal">
-        <a href="#top" class="is-active">Início</a>
-        <a href="#portfolio">Caso real</a>
-        <a href="#servicos">Serviços</a>
-        <a href="#processo">Como trabalho</a>
-        <a href="#sobre">Sobre</a>
-        <a href="#duvidas">Dúvidas</a>
-        <a href="#contato">Contato</a>
-
-        <div class="nav-links__mobile-extra">
-          <a href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener">WhatsApp: <span data-site-field="phone-display">(79) 9 9828-9485</span></a>
-          <a href="painel/login.html">Área do cliente</a>
-        </div>
-      </nav>
-
-      <div class="nav-actions">
-        <a href="painel/login.html" class="btn btn-ghost btn-sm desktop-only">Área do cliente</a>
-        <a href="#contato" class="btn btn-primary btn-sm desktop-only">
-          <span>Contar meu problema</span>
-          <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-        </a>
-        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menu" aria-expanded="false">
-          <span class="nav-toggle__bars"><span></span><span></span><span></span></span>
-        </button>
+  <div style="position:relative;background:#fffceb">
+    <div style="max-width:1320px;margin:0 auto;padding:32px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:28px;align-items:center">
+      <p style="font-size:17px;line-height:1.65;margin:0;max-width:560px;color:#2b2e24;text-wrap:pretty">Sistemas internos, portais e sites profissionais construídos para a sua operação. Atendimento direto, do entendimento do problema até a entrega.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;white-space:nowrap;font-family:'Lexend Exa',sans-serif;font-size:13px">
+        <a href="#contato" class="hdr-primary" style="padding:18px 26px;background:#0e0f0b;color:#fffceb;white-space:nowrap">Contar meu problema ↗</a>
+        <a href="#caso" class="hdr-ghost" style="padding:18px 26px;border:1px solid #0e0f0b;color:#0e0f0b">Ver um caso real</a>
       </div>
     </div>
-  </header>
+  </div>
+</section>
 
-  <main id="main">
-    <!-- ============== HERO ============== -->
-    <section class="hero" id="top">
-      <div class="hero__panel" id="heroPanel">
-        <div class="hero__blobs" id="heroBlobs" aria-hidden="true"></div>
-        <canvas class="hero__cover" id="heroCover" aria-hidden="true"></canvas>
-        <span class="hero__star" id="heroStar" aria-hidden="true">✦</span>
-        <div class="hero__sparks" id="heroSparks" aria-hidden="true"></div>
+<section data-screen-label="Ponto de partida" data-reveal style="max-width:1320px;margin:0 auto;padding:140px 28px 120px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:56px 80px">
+  <div>
+    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//01 — O ponto de partida</div>
+    <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0;text-wrap:balance">Adaptar a empresa à ferramenta <span style="color:#457528">tem um limite.</span></h2>
+  </div>
+  <div style="display:flex;flex-direction:column;justify-content:flex-end;gap:36px">
+    <p style="font-size:19px;line-height:1.7;margin:0;color:#2b2e24;text-wrap:pretty">Planilhas e ferramentas prontas resolvem bem o começo, mas têm limite. Por isso eu começo entendendo como a sua operação funciona — só depois decido o que construir, e se vale construir.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #0e0f0b;font-family:'Lexend Exa',sans-serif;font-size:12px;line-height:1.5">
+      <div style="padding:16px 12px 0 0">Entender a operação</div>
+      <div style="padding:16px 12px 0;border-left:1px solid #c9c8b4">Decidir o que construir</div>
+      <div style="padding:16px 0 0 12px;border-left:1px solid #c9c8b4">E se vale construir</div>
+    </div>
+  </div>
+</section>
 
-        <div class="container hero__eyebrow-row">
-          <p class="eyebrow">Sites, aplicativos e automações</p>
-        </div>
+<section id="caso" data-screen-label="Casos reais">
+  <div data-reveal style="max-width:1320px;margin:0 auto;padding:120px 28px 56px;display:flex;justify-content:space-between;align-items:end;gap:32px;flex-wrap:wrap">
+    <div>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//02 — Casos reais</div>
+      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Sistemas feitos <span style="color:#457528">para a rotina de cada cliente.</span></h2>
+    </div>
+    <span id="caseCount" style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#2b2e24"></span>
+  </div>
 
-        <div class="container hero__content">
-          <h1 id="heroHeading">Quando a ferramenta pronta não acompanha a sua operação, <span class="accent" id="heroAccent">eu construo o sistema que acompanha</span>.</h1>
+  <div id="portfolio-list" aria-live="polite"></div>
+</section>
 
-          <div class="hero__building">
-            <p class="hero__building-label">
-              <span class="static">//construindo:</span>
-              <span class="hero__building-typed" id="heroSlot"><span id="heroTyped"></span><span class="hero__caret" aria-hidden="true"></span></span>
-            </p>
+<section id="servicos" data-screen-label="Serviços" style="max-width:1320px;margin:0 auto;padding:140px 28px 120px">
+  <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px 80px;margin-bottom:64px;align-items:end">
+    <div>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//03 — O que eu faço</div>
+      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Do site ao sistema <span style="color:#457528">da sua operação.</span></h2>
+    </div>
+    <p style="font-size:17px;line-height:1.7;margin:0;color:#2b2e24;max-width:520px;text-wrap:pretty">Cada serviço serve a uma situação diferente. Se você não sabe qual é a sua, descreva o problema e eu indico o caminho, inclusive quando a resposta for algo mais simples do que você esperava.</p>
+  </div>
+  <div data-reveal style="border-top:1px solid #0e0f0b">
+    <a href="#contato" class="service-row" style="display:grid;grid-template-columns:72px minmax(0,1.1fr) minmax(0,1.4fr) 32px;gap:24px;align-items:baseline;padding:34px 20px;border-bottom:1px solid #0e0f0b;color:#0e0f0b;transition:background .25s">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#457528">//01</span>
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;line-height:1.2">Sistemas para a operação</span>
+      <span style="font-size:16px;line-height:1.65;color:#2b2e24">Para empresas que controlam pedidos, orçamentos, clientes ou produção em planilhas e ferramentas soltas. O sistema segue as regras do seu processo, não o contrário.</span>
+      <span style="font-size:20px;text-align:right">↗</span>
+    </a>
+    <a href="#contato" class="service-row" style="display:grid;grid-template-columns:72px minmax(0,1.1fr) minmax(0,1.4fr) 32px;gap:24px;align-items:baseline;padding:34px 20px;border-bottom:1px solid #0e0f0b;color:#0e0f0b;transition:background .25s">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#457528">//02</span>
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;line-height:1.2">Reconstrução e evolução</span>
+      <span style="font-size:16px;line-height:1.65;color:#2b2e24">Para quem já tem um sistema ou uma plataforma pronta que travou. Avalio o que mantém, o que refaço e como migrar sem parar a operação.</span>
+      <span style="font-size:20px;text-align:right">↗</span>
+    </a>
+    <a href="#contato" class="service-row" style="display:grid;grid-template-columns:72px minmax(0,1.1fr) minmax(0,1.4fr) 32px;gap:24px;align-items:baseline;padding:34px 20px;border-bottom:1px solid #0e0f0b;color:#0e0f0b;transition:background .25s">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#457528">//03</span>
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;line-height:1.2">Automação e integrações</span>
+      <span style="font-size:16px;line-height:1.65;color:#2b2e24">Para tarefas repetidas à mão, como digitar o mesmo dado em dois lugares ou conferir planilhas. Conecto os sistemas que você já usa.</span>
+      <span style="font-size:20px;text-align:right">↗</span>
+    </a>
+    <a href="#contato" class="service-row" style="display:grid;grid-template-columns:72px minmax(0,1.1fr) minmax(0,1.4fr) 32px;gap:24px;align-items:baseline;padding:34px 20px;border-bottom:1px solid #0e0f0b;color:#0e0f0b;transition:background .25s">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#457528">//04</span>
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;line-height:1.2">Sites profissionais</span>
+      <span style="font-size:16px;line-height:1.65;color:#2b2e24">Para quem precisa de uma presença clara na internet: site que abre bem no celular, com serviços, contato e domínio próprio publicado.</span>
+      <span style="font-size:20px;text-align:right">↗</span>
+    </a>
+  </div>
+</section>
 
-            <div class="hero__bot-slide" id="heroBotSlide">
-              <button class="hero__bot" id="heroBot" type="button" title="Ver de novo" aria-label="Reiniciar animação">
-                <svg viewBox="-20 10 390 460" aria-hidden="true">
-                  <defs>
-                    <mask id="buov-bot-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480">
-                      <circle cx="170" cy="283" r="172" fill="#fff"></circle>
-                      <rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect>
-                      <path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path>
-                      <rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect>
-                      <g id="botEyes"><g id="botLid">
-                        <circle cx="122" cy="297" r="15" fill="#000"></circle>
-                        <circle cx="218" cy="297" r="15" fill="#000"></circle>
-                      </g></g>
-                    </mask>
-                  </defs>
-                  <g id="botHead" class="hero__bot-head">
-                    <g id="botAntL" class="hero__bot-ant"><line x1="76" y1="132" x2="18" y2="38" stroke="var(--ink-on-dark)" stroke-width="8" stroke-linecap="round"></line></g>
-                    <g id="botAntR" class="hero__bot-ant hero__bot-ant--r"><line x1="246" y1="126" x2="292" y2="24" stroke="var(--ink-on-dark)" stroke-width="8" stroke-linecap="round"></line></g>
-                    <rect x="-8" y="266" width="14" height="38" rx="7" fill="var(--ink-on-dark)"></rect>
-                    <rect x="334" y="266" width="14" height="38" rx="7" fill="var(--ink-on-dark)"></rect>
-                    <rect x="-10" y="100" width="370" height="370" fill="var(--ink-on-dark)" mask="url(#buov-bot-mask)"></rect>
-                  </g>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
+<section id="processo" data-screen-label="Como trabalho" style="background:linear-gradient(90deg,#3f5204,#1f4905,#457528);color:#fffceb">
+  <div style="max-width:1320px;margin:0 auto;padding:130px 28px 110px">
+    <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px 80px;align-items:end;margin-bottom:80px">
+      <div>
+        <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#defa9a;margin-bottom:28px">//04 — Como trabalho</div>
+        <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Direto com você, <span style="color:#defa9a">em etapas curtas.</span></h2>
       </div>
-
-      <div class="hero__footer">
-        <div class="container hero__footer-inner">
-          <p>Sistemas internos, portais e sites profissionais construídos para a sua operação. Atendimento direto, do entendimento do problema até a entrega.</p>
-          <div class="hero__footer-actions">
-            <a href="#contato" class="btn btn-primary">
-              <span>Contar meu problema</span>
-              <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-            </a>
-            <a href="#portfolio" class="btn-text">
-              <span>Ver um caso real</span>
-            </a>
-          </div>
-        </div>
+      <p style="font-size:17px;line-height:1.7;margin:0;color:#e6e8d4;max-width:520px;text-wrap:pretty">Não há equipe entre o seu problema e o código. O projeto avança em ciclos curtos, e você valida cada parte pronta em vez de descobrir um desalinhamento só na entrega.</p>
+    </div>
+    <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));border-top:1px solid rgba(255,252,235,.5)">
+      <div style="padding:28px 28px 8px 0;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Lexend Exa',sans-serif;font-weight:300;font-size:56px;letter-spacing:-.06em;line-height:1;color:#defa9a">01</span>
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:17px;letter-spacing:-.03em;line-height:1.3">Conversa inicial</span>
+        <span style="font-size:15px;line-height:1.65;color:#e6e8d4">Você descreve o problema e eu pergunto sobre a operação até entender como ela funciona hoje.</span>
       </div>
-    </section>
-
-    <!-- ============== PONTO DE PARTIDA ============== -->
-    <section id="diferenca">
-      <div class="container">
-        <div class="section-head" data-reveal>
-          <p class="eyebrow">01 — O ponto de partida</p>
-          <h2>Adaptar a empresa à ferramenta <span class="accent">tem um limite</span>.</h2>
-        </div>
-        <div class="diferenca__aside" data-reveal style="--reveal-delay:80ms">
-          <p>Planilhas e ferramentas prontas resolvem bem o começo, mas têm limite. Por isso eu começo entendendo como a sua operação funciona — só depois decido o que construir, e se vale construir.</p>
-          <div class="diferenca__steps">
-            <span>Entender a operação</span>
-            <span>Decidir o que construir</span>
-            <span>E se vale construir</span>
-          </div>
-        </div>
+      <div style="padding:28px 28px 8px 0;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Lexend Exa',sans-serif;font-weight:300;font-size:56px;letter-spacing:-.06em;line-height:1;color:#defa9a">02</span>
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:17px;letter-spacing:-.03em;line-height:1.3">Definição do que é "pronto"</span>
+        <span style="font-size:15px;line-height:1.65;color:#e6e8d4">Combinamos escopo, prioridades e o critério para considerar cada entrega concluída.</span>
       </div>
-    </section>
-
-    <!-- ============== PORTFÓLIO ============== -->
-    <section id="portfolio">
-      <div class="container">
-        <div class="section-head-row" data-reveal>
-          <div class="section-head section-head--wide">
-            <p class="eyebrow">02 — Casos reais</p>
-            <h2>Sistemas feitos <span class="accent">para a rotina de cada cliente</span>.</h2>
-          </div>
-          <span class="count" id="portfolio-count"></span>
-        </div>
+      <div style="padding:28px 28px 8px 0;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Lexend Exa',sans-serif;font-weight:300;font-size:56px;letter-spacing:-.06em;line-height:1;color:#defa9a">03</span>
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:17px;letter-spacing:-.03em;line-height:1.3">Construção em ciclos curtos</span>
+        <span style="font-size:15px;line-height:1.65;color:#e6e8d4">Mostro cada parte funcionando e ajusto com o seu retorno antes de seguir para a próxima.</span>
       </div>
-
-      <div id="portfolio-list" aria-live="polite"></div>
-    </section>
-
-    <!-- ============== EXPERIÊNCIA (oculta até a empresa autorizar) ============== -->
-    <!-- Para publicar: remova o atributo hidden da section abaixo e inclua "#experiencia" na navegação, se quiser. -->
-    <section id="experiencia" hidden>
-      <div class="container">
-        <div class="section-head section-head--wide" data-reveal>
-          <p class="eyebrow">Experiência profissional</p>
-          <h2>Do Airtable a <span class="accent">um sistema próprio</span>.</h2>
-          <p>Numa empresa industrial, a operação rodava em Airtable. A ferramenta organizava os dados, mas não conseguia gerar orçamentos, fichas técnicas para a produção nem o cálculo de aço. Reconstruí o sistema sozinha, como aplicação própria. Hoje ele está em uso na operação, o Airtable foi desativado e a evolução é feita junto com a equipe da empresa.</p>
-          <p><small>Trabalho feito durante o meu estágio, apresentado sem identificar a empresa. Não é um projeto da buov.ai.</small></p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== SERVIÇOS ============== -->
-    <section id="servicos">
-      <div class="container">
-        <div class="services-head" data-reveal>
-          <div class="section-head">
-            <p class="eyebrow">03 — O que eu faço</p>
-            <h2>Do site ao sistema <span class="accent">da sua operação</span>.</h2>
-          </div>
-          <p>Cada serviço serve a uma situação diferente. Se você não sabe qual é a sua, descreva o problema e eu indico o caminho, inclusive quando a resposta for algo mais simples do que você esperava.</p>
-        </div>
-
-        <div class="service-rows" data-reveal style="--reveal-delay:80ms">
-          <a href="#contato" class="service-row">
-            <span class="service-row__n">//01</span>
-            <span class="service-row__title">Sistemas para a operação</span>
-            <span class="service-row__text">Para empresas que controlam pedidos, orçamentos, clientes ou produção em planilhas e ferramentas soltas. O sistema segue as regras do seu processo, não o contrário.</span>
-            <span class="service-row__arrow">↗</span>
-          </a>
-          <a href="#contato" class="service-row">
-            <span class="service-row__n">//02</span>
-            <span class="service-row__title">Reconstrução e evolução</span>
-            <span class="service-row__text">Para quem já tem um sistema ou uma plataforma pronta que travou. Avalio o que mantém, o que refaço e como migrar sem parar a operação.</span>
-            <span class="service-row__arrow">↗</span>
-          </a>
-          <a href="#contato" class="service-row">
-            <span class="service-row__n">//03</span>
-            <span class="service-row__title">Automação e integrações</span>
-            <span class="service-row__text">Para tarefas repetidas à mão, como digitar o mesmo dado em dois lugares ou conferir planilhas. Conecto os sistemas que você já usa.</span>
-            <span class="service-row__arrow">↗</span>
-          </a>
-          <a href="#contato" class="service-row">
-            <span class="service-row__n">//04</span>
-            <span class="service-row__title">Sites profissionais</span>
-            <span class="service-row__text">Para quem precisa de uma presença clara na internet: site que abre bem no celular, com serviços, contato e domínio próprio publicado.</span>
-            <span class="service-row__arrow">↗</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== PROCESSO ============== -->
-    <section id="processo">
-      <div class="container">
-        <div class="processo-head" data-reveal>
-          <div class="section-head">
-            <p class="eyebrow">04 — Como trabalho</p>
-            <h2>Direto com você, <span class="accent">em etapas curtas</span>.</h2>
-          </div>
-          <p>Não há equipe entre o seu problema e o código. O projeto avança em ciclos curtos, e você valida cada parte pronta em vez de descobrir um desalinhamento só na entrega.</p>
-        </div>
-
-        <ol class="processo-flow" data-reveal style="--reveal-delay:80ms">
-          <li>
-            <span class="processo-flow__n">01</span>
-            <h3>Conversa inicial</h3>
-            <p>Você descreve o problema e eu pergunto sobre a operação até entender como ela funciona hoje.</p>
-          </li>
-          <li>
-            <span class="processo-flow__n">02</span>
-            <h3>Definição do que é "pronto"</h3>
-            <p>Combinamos escopo, prioridades e o critério para considerar cada entrega concluída.</p>
-          </li>
-          <li>
-            <span class="processo-flow__n">03</span>
-            <h3>Construção em ciclos curtos</h3>
-            <p>Mostro cada parte funcionando e ajusto com o seu retorno antes de seguir para a próxima.</p>
-          </li>
-          <li>
-            <span class="processo-flow__n">04</span>
-            <h3>Entrega e acompanhamento</h3>
-            <p>Coloco o sistema no ar e continuo disponível para ajustes depois da entrega.</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- ============== PORTAL DO CLIENTE ============== -->
-    <section id="portal">
-      <div class="container">
-        <div class="portal__frame" data-reveal aria-hidden="true">
-          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="1" /><path d="M3 9h18" /><path d="M7 14h4" /></svg>
-          <span>Portal exclusivo para clientes</span>
-        </div>
-        <div data-reveal style="--reveal-delay:80ms">
-          <p class="eyebrow">05 — Portal do cliente</p>
-          <h2>Acompanhe o seu projeto em um <span class="accent">portal exclusivo para clientes</span>.</h2>
-          <p>Cada parte pronta fica disponível para você validar, sem precisar esperar a entrega final.</p>
-          <a href="painel/login.html" class="btn btn-primary">
-            <span>Entrar na área do cliente</span>
-            <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== SOBRE ============== -->
-    <section id="sobre">
-      <div class="about__mark" aria-hidden="true">
-        <svg viewBox="38 76 569 675" fill="var(--ink-on-dark)">
-          <g stroke="var(--ink-on-dark)" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250" /><line x1="511" y1="92" x2="442" y2="250" /></g>
-          <ellipse cx="108" cy="518" rx="62" ry="52" /><ellipse cx="538" cy="518" rx="62" ry="52" />
-          <path fill-rule="evenodd" d="M64 476a262 262 0 1 0 524 0a262 262 0 1 0 -524 0ZM162 500a164 146 0 1 0 328 0a164 146 0 1 0 -328 0Z" />
-          <path fill-rule="evenodd" d="M277 412H368A92 92 0 0 1 368 596H277A92 92 0 0 1 277 412ZM230 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0ZM367 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0Z" />
-        </svg>
-      </div>
-      <div class="about__body">
-        <div data-reveal>
-          <p class="eyebrow">06 — Quem faz</p>
-          <h2>Eu mesma converso com você, desenho a solução <span class="accent">e escrevo o código</span>.</h2>
-        </div>
-        <div class="about__meta" data-reveal style="--reveal-delay:80ms">
-          <div class="name" data-site-field="name">Lorena Cardoso</div>
-          <div class="role"><span data-site-field="title" hidden>título profissional</span><span class="role-fallback">Arquiteta de soluções &amp; migração de sistemas</span></div>
-          <div class="area">Atendimento remoto, com conversas por vídeo ou WhatsApp. Atendo empresas de Sergipe, de Recife e de outras regiões.</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== DÚVIDAS ============== -->
-    <section id="duvidas">
-      <div class="container">
-        <div class="section-head" data-reveal>
-          <p class="eyebrow">07 — Antes de contratar</p>
-          <h2>Dúvidas <span class="accent">frequentes</span>.</h2>
-        </div>
-
-        <div class="faq-list" data-reveal style="--reveal-delay:80ms">
-          <div class="faq-item">
-            <button class="faq-item__q" aria-expanded="false">
-              <span>Preciso saber exatamente o que eu quero?</span>
-              <span class="faq-item__sign" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-item__a"><p>Não. Descreva o problema e eu indico o caminho, inclusive quando a resposta for algo mais simples do que você esperava.</p></div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-item__q" aria-expanded="false">
-              <span>Com quem eu falo durante o projeto?</span>
-              <span class="faq-item__sign" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-item__a"><p>Comigo. Não há equipe entre o seu problema e o código: eu converso com você, desenho a solução e escrevo o código.</p></div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-item__q" aria-expanded="false">
-              <span>Como acompanho o andamento?</span>
-              <span class="faq-item__sign" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-item__a"><p>O projeto avança em ciclos curtos, e você valida cada parte pronta pelo portal exclusivo para clientes.</p></div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-item__q" aria-expanded="false">
-              <span>Já tenho um sistema que travou. Dá para aproveitar?</span>
-              <span class="faq-item__sign" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-item__a"><p>Avalio o que mantém, o que refaço e como migrar sem parar a operação.</p></div>
-          </div>
-          <div class="faq-item">
-            <button class="faq-item__q" aria-expanded="false">
-              <span>E depois da entrega?</span>
-              <span class="faq-item__sign" aria-hidden="true">+</span>
-            </button>
-            <div class="faq-item__a"><p>Coloco o sistema no ar e continuo disponível para ajustes depois da entrega.</p></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============== CONTATO ============== -->
-    <section id="contato">
-      <div class="contact">
-        <div class="contact__intro" data-reveal>
-          <div>
-            <p class="eyebrow">08 — Vamos conversar</p>
-            <h2>Conte o problema. <span class="accent">Eu respondo com um caminho.</span></h2>
-            <p>Descreva como a tarefa é feita hoje. Não precisa de termo técnico. Eu respondo pessoalmente.</p>
-          </div>
-
-          <div class="contact__channels">
-            <a class="contact__channel" href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener">
-              <span class="contact__channel-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-9.3 8.46 8.6 8.6 0 0 1-2.3-.35L3 21l1.4-4.3A8.5 8.5 0 1 1 21 11.5z" /></svg></span>
-              <span class="contact__channel-label">WhatsApp</span>
-              <span class="contact__channel-value" data-site-field="phone-display">(79) 9 9828-9485</span>
-            </a>
-            <a class="contact__channel" href="mailto:contatobuovai@gmail.com" data-site-href="email">
-              <span class="contact__channel-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z" /><path d="M3 7l9 6 9-6" /></svg></span>
-              <span class="contact__channel-label">E-mail</span>
-              <span class="contact__channel-value" data-site-field="email">contatobuovai@gmail.com</span>
-            </a>
-            <div class="contact__channel">
-              <span class="contact__channel-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 3" /><circle cx="12" cy="12" r="9" /></svg></span>
-              <span class="contact__channel-label">Resposta</span>
-              <span class="contact__channel-value">Até 1 dia útil</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="contact__form-wrap" data-reveal style="--reveal-delay:100ms">
-          <form class="contact-form" id="contact-form" novalidate>
-            <div class="contact-form__grid">
-              <input class="field-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
-
-              <div class="field">
-                <label for="cf-name">Nome</label>
-                <input id="cf-name" name="name" type="text" placeholder="Seu nome completo" required autocomplete="name" />
-              </div>
-
-              <div class="contact-form__row">
-                <div class="field">
-                  <label for="cf-email">E-mail</label>
-                  <input id="cf-email" name="email" type="email" placeholder="voce@empresa.com" required autocomplete="email" />
-                </div>
-
-                <div class="field">
-                  <label for="cf-company">Empresa</label>
-                  <input id="cf-company" name="company" type="text" placeholder="Nome da empresa" autocomplete="organization" />
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="cf-budget">Faixa de orçamento (opcional)</label>
-                <select id="cf-budget" name="budget">
-                  <option value="">Prefiro conversar primeiro</option>
-                  <option value="ate-1.5k">Até R$ 1,5 mil</option>
-                  <option value="1.5k-5k">R$ 1,5 mil – R$ 5 mil</option>
-                  <option value="5k-15k">R$ 5 mil – R$ 15 mil</option>
-                  <option value="acima-15k">Acima de R$ 15 mil</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label for="cf-message">O que precisa ser resolvido?</label>
-                <textarea id="cf-message" name="message" placeholder="Descreva o processo, sistema ou dor atual da sua operação." required></textarea>
-              </div>
-            </div>
-
-            <div class="contact-form__submit">
-              <button type="submit" class="btn btn-primary">
-                <span class="btn-label">Enviar mensagem</span>
-                <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-              </button>
-              <span class="contact-form__hint">Sua mensagem chega direto para mim.</span>
-            </div>
-
-            <div class="form-status" id="contact-status" role="status"></div>
-          </form>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- ============== FOOTER ============== -->
-  <footer class="site-footer">
-    <div class="container">
-      <div class="site-footer__top">
-        <div class="site-footer__brand">
-          <a href="#top" class="brand">
-            <img src="assets/img/logo-wordmark-light.svg" alt="buov.ai" />
-          </a>
-          <p class="site-footer__pitch" data-site-field="tagline">Sites, aplicativos e automações, por Lorena Cardoso.</p>
-        </div>
-
-        <div class="site-footer__col">
-          <h5>Navegação</h5>
-          <a href="#portfolio">Caso real</a>
-          <a href="#servicos">Serviços</a>
-          <a href="#processo">Como trabalho</a>
-          <a href="#sobre">Sobre</a>
-          <a href="#contato">Contato</a>
-        </div>
-        <div class="site-footer__col">
-          <h5>Contato</h5>
-          <a href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener"><span data-site-field="phone-display">(79) 9 9828-9485</span></a>
-          <a href="mailto:contatobuovai@gmail.com" data-site-href="email"><span data-site-field="email">contatobuovai@gmail.com</span></a>
-          <a href="#contato">Enviar mensagem</a>
-          <a href="painel/login.html">Já é cliente? Acesse o painel</a>
-        </div>
-      </div>
-
-      <div class="site-footer__bottom">
-        <span>© <span id="current-year"></span> buov.ai. Todos os direitos reservados.</span>
-        <span>Atendimento remoto</span>
+      <div style="padding:28px 28px 8px 0;display:flex;flex-direction:column;gap:18px">
+        <span style="font-family:'Lexend Exa',sans-serif;font-weight:300;font-size:56px;letter-spacing:-.06em;line-height:1;color:#defa9a">04</span>
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:17px;letter-spacing:-.03em;line-height:1.3">Entrega e acompanhamento</span>
+        <span style="font-size:15px;line-height:1.65;color:#e6e8d4">Coloco o sistema no ar e continuo disponível para ajustes depois da entrega.</span>
       </div>
     </div>
-  </footer>
+  </div>
+</section>
 
-  <!-- ============== MODAL DE CASE ============== -->
-  <div class="case-modal" id="case-modal" role="dialog" aria-modal="true" aria-label="Detalhe do case">
-    <div class="case-modal__backdrop"></div>
-    <div class="case-modal__panel">
-      <button class="case-modal__close" aria-label="Fechar">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
+<section id="portal" data-screen-label="Portal do cliente" data-reveal style="max-width:1320px;margin:0 auto;padding:140px 28px 120px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px 80px;align-items:center">
+  <div style="position:relative;aspect-ratio:4/3;width:100%;border:1px solid #0e0f0b;display:grid;place-items:center;color:#2b2e24;font-family:'Lexend Exa',sans-serif;font-size:12px;text-align:center;padding:2rem">
+    Print do portal exclusivo para clientes
+  </div>
+  <div>
+    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//05 — Portal do cliente</div>
+    <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,3vw,42px);line-height:1.14;letter-spacing:-.05em;margin:0 0 24px;text-wrap:balance">Acompanhe o seu projeto em um <span style="color:#457528">portal exclusivo para clientes.</span></h2>
+    <p style="font-size:17px;line-height:1.7;margin:0 0 36px;color:#2b2e24;max-width:480px">Cada parte pronta fica disponível para você validar, sem precisar esperar a entrega final.</p>
+    <a href="painel/login.html" class="hdr-primary" style="display:inline-block;padding:18px 26px;background:#0e0f0b;color:#fffceb;font-family:'Lexend Exa',sans-serif;font-size:13px;white-space:nowrap">Entrar na área do cliente ↗</a>
+  </div>
+</section>
+
+<section id="sobre" data-screen-label="Quem faz" data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));background:#0e0f0b;color:#fffceb">
+  <div style="position:relative;min-height:560px;display:grid;place-items:center;background:radial-gradient(circle at 0% 0%,#3f5204 0%,#94ab86 28%,#1f4905 62%,#defa9a 100%)">
+    <svg viewBox="38 76 569 675" style="width:min(160px,30%);height:auto" fill="#fffceb">
+      <g stroke="#fffceb" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250"/><line x1="511" y1="92" x2="442" y2="250"/></g>
+      <ellipse cx="108" cy="518" rx="62" ry="52"/><ellipse cx="538" cy="518" rx="62" ry="52"/>
+      <path fill-rule="evenodd" d="M64 476a262 262 0 1 0 524 0a262 262 0 1 0 -524 0ZM162 500a164 146 0 1 0 328 0a164 146 0 1 0 -328 0Z"/>
+      <path fill-rule="evenodd" d="M277 412H368A92 92 0 0 1 368 596H277A92 92 0 0 1 277 412ZM230 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0ZM367 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0Z"/>
+    </svg>
+  </div>
+  <div style="padding:clamp(40px,6vw,96px) clamp(28px,5vw,80px);display:flex;flex-direction:column;justify-content:space-between;gap:56px">
+    <div>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#defa9a;margin-bottom:28px">//06 — Quem faz</div>
+      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,3vw,42px);line-height:1.16;letter-spacing:-.05em;margin:0;text-wrap:balance">Eu mesma converso com você, desenho a solução <span style="color:#defa9a">e escrevo o código.</span></h2>
+    </div>
+    <div style="border-top:1px solid rgba(255,252,235,.35);padding-top:24px">
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:clamp(22px,2.4vw,32px);letter-spacing:-.05em">Lorena Cardoso</div>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#c9cbb5;margin-top:8px">Arquiteta de Soluções &amp; Migração de Sistemas</div>
+    </div>
+  </div>
+</section>
+
+<section id="duvidas" data-screen-label="Dúvidas" data-reveal style="max-width:1320px;margin:0 auto;padding:140px 28px 120px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px 80px">
+  <div>
+    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//07 — Antes de contratar</div>
+    <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Dúvidas <span style="color:#457528">frequentes.</span></h2>
+  </div>
+  <div id="faqList" style="border-top:1px solid #0e0f0b">
+    <div class="faq-item" style="border-bottom:1px solid #0e0f0b">
+      <button type="button" class="faq-q" aria-expanded="false" style="width:100%;display:flex;justify-content:space-between;gap:24px;align-items:center;padding:26px 0;background:none;border:0;cursor:pointer;text-align:left;font-family:'Lexend Exa',sans-serif;font-size:16px;letter-spacing:-.03em;color:#0e0f0b">
+        <span>Preciso saber exatamente o que eu quero?</span><span class="faq-sign" style="font-size:20px;font-weight:300">+</span>
       </button>
-
-      <div class="case-modal__tags"></div>
-      <h3 class="case-modal__title"></h3>
-      <p class="case-modal__client"></p>
-
-      <div class="case-modal__shot" data-field="shot" hidden>
-        <div class="case-modal__shot-track" data-field="shot-track"></div>
-        <button type="button" class="case-modal__shot-nav case-modal__shot-nav--prev" data-field="shot-prev" aria-label="Imagem anterior">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <button type="button" class="case-modal__shot-nav case-modal__shot-nav--next" data-field="shot-next" aria-label="Próxima imagem">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <div class="case-modal__shot-dots" data-field="shot-dots"></div>
+      <div class="faq-a" style="max-height:0;overflow:hidden">
+        <p style="margin:0;padding:0 48px 28px 0;font-size:16px;line-height:1.7;color:#2b2e24">Não. Descreva o problema e eu indico o caminho, inclusive quando a resposta for algo mais simples do que você esperava.</p>
       </div>
-
-      <div class="case-modal__body">
-        <div class="case-modal__block">
-          <h4>Problema</h4>
-          <p data-field="problem"></p>
-        </div>
-        <div class="case-modal__block">
-          <h4>Solução</h4>
-          <p data-field="solution"></p>
-        </div>
-        <div class="case-modal__block">
-          <h4>Destaques do sistema</h4>
-          <ul class="case-modal__highlights" data-field="highlights"></ul>
-        </div>
-        <div class="case-modal__block">
-          <h4>Stack técnica</h4>
-          <div class="case-modal__stack" data-field="stack"></div>
-        </div>
-        <p class="case-modal__note" data-field="note"></p>
+    </div>
+    <div class="faq-item" style="border-bottom:1px solid #0e0f0b">
+      <button type="button" class="faq-q" aria-expanded="false" style="width:100%;display:flex;justify-content:space-between;gap:24px;align-items:center;padding:26px 0;background:none;border:0;cursor:pointer;text-align:left;font-family:'Lexend Exa',sans-serif;font-size:16px;letter-spacing:-.03em;color:#0e0f0b">
+        <span>Com quem eu falo durante o projeto?</span><span class="faq-sign" style="font-size:20px;font-weight:300">+</span>
+      </button>
+      <div class="faq-a" style="max-height:0;overflow:hidden">
+        <p style="margin:0;padding:0 48px 28px 0;font-size:16px;line-height:1.7;color:#2b2e24">Comigo. Não há equipe entre o seu problema e o código: eu converso com você, desenho a solução e escrevo o código.</p>
+      </div>
+    </div>
+    <div class="faq-item" style="border-bottom:1px solid #0e0f0b">
+      <button type="button" class="faq-q" aria-expanded="false" style="width:100%;display:flex;justify-content:space-between;gap:24px;align-items:center;padding:26px 0;background:none;border:0;cursor:pointer;text-align:left;font-family:'Lexend Exa',sans-serif;font-size:16px;letter-spacing:-.03em;color:#0e0f0b">
+        <span>Como acompanho o andamento?</span><span class="faq-sign" style="font-size:20px;font-weight:300">+</span>
+      </button>
+      <div class="faq-a" style="max-height:0;overflow:hidden">
+        <p style="margin:0;padding:0 48px 28px 0;font-size:16px;line-height:1.7;color:#2b2e24">O projeto avança em ciclos curtos, e você valida cada parte pronta pelo portal exclusivo para clientes.</p>
+      </div>
+    </div>
+    <div class="faq-item" style="border-bottom:1px solid #0e0f0b">
+      <button type="button" class="faq-q" aria-expanded="false" style="width:100%;display:flex;justify-content:space-between;gap:24px;align-items:center;padding:26px 0;background:none;border:0;cursor:pointer;text-align:left;font-family:'Lexend Exa',sans-serif;font-size:16px;letter-spacing:-.03em;color:#0e0f0b">
+        <span>Já tenho um sistema que travou. Dá para aproveitar?</span><span class="faq-sign" style="font-size:20px;font-weight:300">+</span>
+      </button>
+      <div class="faq-a" style="max-height:0;overflow:hidden">
+        <p style="margin:0;padding:0 48px 28px 0;font-size:16px;line-height:1.7;color:#2b2e24">Avalio o que mantém, o que refaço e como migrar sem parar a operação.</p>
+      </div>
+    </div>
+    <div class="faq-item" style="border-bottom:1px solid #0e0f0b">
+      <button type="button" class="faq-q" aria-expanded="false" style="width:100%;display:flex;justify-content:space-between;gap:24px;align-items:center;padding:26px 0;background:none;border:0;cursor:pointer;text-align:left;font-family:'Lexend Exa',sans-serif;font-size:16px;letter-spacing:-.03em;color:#0e0f0b">
+        <span>E depois da entrega?</span><span class="faq-sign" style="font-size:20px;font-weight:300">+</span>
+      </button>
+      <div class="faq-a" style="max-height:0;overflow:hidden">
+        <p style="margin:0;padding:0 48px 28px 0;font-size:16px;line-height:1.7;color:#2b2e24">Coloco o sistema no ar e continuo disponível para ajustes depois da entrega.</p>
       </div>
     </div>
   </div>
+</section>
 
-  <a class="whatsapp-fab" href="https://wa.me/5579998289485" data-site-href="whatsapp" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.4.1-.6l.4-.5c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4-.1-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.1 0 1.2.9 2.4 1 2.6.1.2 1.8 2.8 4.4 3.9.6.3 1.1.4 1.5.6.6.2 1.2.2 1.6.1.5-.1 1.6-.6 1.8-1.3.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5.1-1.3c1.4.8 3.1 1.2 4.9 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.2-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3C3.7 14.8 3.2 13.4 3.2 12 3.2 7.1 7.1 3.2 12 3.2S20.8 7.1 20.8 12 16.9 20.2 12 20.2z"/></svg>
-  </a>
+<section id="contato" data-screen-label="Contato" data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
+  <div style="background:radial-gradient(circle at 0% 0%,#3f5204 0%,#94ab86 28%,#1f4905 62%,#defa9a 100%);padding:clamp(48px,7vw,110px) clamp(28px,5vw,80px);display:flex;flex-direction:column;justify-content:space-between;gap:56px">
+    <div>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#fffceb;margin-bottom:28px">//08 — Vamos conversar</div>
+      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(30px,3.8vw,56px);line-height:1.06;letter-spacing:-.06em;margin:0 0 24px;color:#0e0f0b;text-wrap:balance">Conte o problema. <span style="color:#fffceb">Eu respondo com um caminho.</span></h2>
+      <p style="font-size:17px;line-height:1.65;margin:0;color:#0e0f0b;max-width:460px">Descreva como a tarefa é feita hoje. Não precisa de termo técnico. Eu respondo pessoalmente.</p>
+    </div>
+    <div style="border-top:1px solid #0e0f0b">
+      <a href="https://wa.me/5579998289485" class="contact-channel" style="display:flex;align-items:center;gap:16px;padding:22px 0;border-bottom:1px solid #0e0f0b;color:#0e0f0b"><span style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 0% 0%,#94ab86,#1f4905);display:grid;place-items:center;color:#fffceb;font-size:14px;flex:none">☏</span><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;flex:1;min-width:0">WhatsApp</span><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(13px,1.3vw,16px);letter-spacing:-.02em;text-align:right;white-space:nowrap">(79) 9 9828-9485</span></a>
+      <a href="mailto:contatobuovai@gmail.com" class="contact-channel" style="display:flex;align-items:center;gap:16px;padding:22px 0;border-bottom:1px solid #0e0f0b;color:#0e0f0b"><span style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 0% 0%,#94ab86,#1f4905);display:grid;place-items:center;color:#fffceb;font-size:14px;flex:none">@</span><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;flex:1;min-width:0">E-mail</span><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(13px,1.3vw,16px);letter-spacing:-.02em;text-align:right;white-space:nowrap">contatobuovai@gmail.com</span></a>
+      <div style="display:flex;align-items:center;gap:16px;padding:22px 0;border-bottom:1px solid #0e0f0b;color:#0e0f0b"><span style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 0% 0%,#94ab86,#1f4905);display:grid;place-items:center;color:#fffceb;font-size:14px;flex:none">◷</span><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;flex:1;min-width:0">Resposta</span><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(13px,1.3vw,16px);letter-spacing:-.02em;white-space:nowrap">Até 1 dia útil</span></div>
+    </div>
+  </div>
+  <div style="background:#fffceb;padding:clamp(48px,7vw,110px) clamp(28px,5vw,80px);display:flex;flex-direction:column;justify-content:center">
+    <form id="contact-form" novalidate style="display:flex;flex-direction:column;gap:32px">
+      <input class="field-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">Nome</span><input id="cf-name" name="name" required placeholder="Seu nome completo" autocomplete="name" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0"></label>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:32px 24px">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">E-mail</span><input id="cf-email" name="email" required type="email" placeholder="voce@empresa.com" autocomplete="email" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">Empresa</span><input id="cf-company" name="company" placeholder="Nome da empresa" autocomplete="organization" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0"></label>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">Faixa de orçamento (opcional)</span><select id="cf-budget" name="budget" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0;cursor:pointer;appearance:auto">
+        <option value="">Prefiro conversar primeiro</option>
+        <option value="ate-1.5k">Até R$ 1,5 mil</option>
+        <option value="1.5k-5k">R$ 1,5 mil – R$ 5 mil</option>
+        <option value="5k-15k">R$ 5 mil – R$ 15 mil</option>
+        <option value="acima-15k">Acima de R$ 15 mil</option>
+      </select></label>
+      <label style="display:flex;flex-direction:column;gap:10px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">O que precisa ser resolvido?</span><textarea id="cf-message" name="message" required rows="5" placeholder="Descreva o processo, sistema ou dor atual da sua operação." class="field-box" style="width:100%;padding:16px;background:transparent;border:1px solid #0e0f0b;font:400 16px/1.6 'Open Sans',sans-serif;color:#0e0f0b;resize:vertical;border-radius:0"></textarea></label>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <button type="submit" class="submit-btn" style="padding:18px 28px;background:#0e0f0b;color:#fffceb;border:0;font-family:'Lexend Exa',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap"><span class="btn-label">Enviar mensagem ↗</span></button>
+        <span style="font-size:13px;color:#2b2e24">Sua mensagem chega direto para mim.</span>
+      </div>
+      <div class="form-status" id="contact-status" role="status" style="display:none;font-size:14px;font-weight:600"></div>
+    </form>
+  </div>
+</section>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/site-config.js?v=42"></script>
-  <script src="js/config.js?v=42"></script>
-  <script src="js/supabase-client.js?v=42"></script>
-  <script src="js/main.js?v=42"></script>
-  <script src="js/hero-anim.js?v=42"></script>
-  <script src="js/faq.js?v=42"></script>
-  <script src="js/portfolio.js?v=42"></script>
-  <script src="js/contact.js?v=42"></script>
+<footer style="background:radial-gradient(circle at 100% 100%,#defa9a 0%,#457528 24%,#1f4905 52%,#3f5204 100%);color:#fffceb">
+  <div style="max-width:1320px;margin:0 auto;padding:96px 28px 0;display:flex;flex-wrap:wrap;gap:48px 64px">
+    <div style="flex:2 1 320px;display:flex;flex-direction:column;gap:24px;min-width:0">
+      <img src="assets/img/logo-wordmark-light.svg" alt="buov.ai" style="height:clamp(48px,6vw,84px);width:auto;align-self:flex-start">
+      <span style="font-size:15px;color:#fffceb">Sites, aplicativos e automações, por Lorena Cardoso.</span>
+    </div>
+    <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:14px;font-size:15px">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#defa9a;margin-bottom:6px">Navegação</span>
+      <a href="#caso" class="footer-link" style="color:#fffceb">Caso real</a>
+      <a href="#servicos" class="footer-link" style="color:#fffceb">Serviços</a>
+      <a href="#processo" class="footer-link" style="color:#fffceb">Como trabalho</a>
+      <a href="#sobre" class="footer-link" style="color:#fffceb">Sobre</a>
+      <a href="#contato" class="footer-link" style="color:#fffceb">Contato</a>
+    </div>
+    <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:14px;font-size:15px">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#defa9a;margin-bottom:6px">Contato</span>
+      <a href="https://wa.me/5579998289485" class="footer-link" style="color:#fffceb">(79) 9 9828-9485</a>
+      <a href="mailto:contatobuovai@gmail.com" class="footer-link" style="color:#fffceb">contatobuovai@gmail.com</a>
+      <a href="#contato" class="footer-link" style="color:#fffceb">Enviar mensagem</a>
+      <a href="painel/login.html" class="footer-link" style="color:#fffceb">Já é cliente? Acesse o painel</a>
+    </div>
+  </div>
+  <div style="max-width:1320px;margin:0 auto;padding:72px 28px 32px">
+    <div style="border-top:1px solid rgba(255,252,235,.5);padding-top:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:'Lexend Exa',sans-serif;font-size:11px">
+      <span>© <span id="current-year"></span> buov.ai. Todos os direitos reservados.</span>
+      <span>Atendimento remoto</span>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/5579998289485" class="fab" aria-label="WhatsApp" style="position:fixed;right:24px;bottom:24px;z-index:30;width:56px;height:56px;background:#0e0f0b;color:#defa9a;display:grid;place-items:center;box-shadow:0 12px 30px rgba(14,15,11,.3)">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.2-.2-.5-.3z"></path></svg>
+</a>
+
+<!-- ============== MODAL DE CASE (navegação do carrossel completo de capturas) ============== -->
+<div class="case-modal" id="case-modal" role="dialog" aria-modal="true" aria-label="Detalhe do case" style="position:fixed;inset:0;z-index:2000;display:none;align-items:flex-start;justify-content:center;padding:clamp(1rem,4vw,4rem) 1rem;overflow-y:auto">
+  <div class="case-modal__backdrop" style="position:fixed;inset:0;background:rgba(14,15,11,.6)"></div>
+  <div class="case-modal__panel" style="position:relative;width:min(880px,100%);background:#fffceb;padding:clamp(1.75rem,4vw,3.5rem);color:#0e0f0b">
+    <button class="case-modal__close" aria-label="Fechar" style="position:absolute;top:1.25rem;right:1.25rem;width:40px;height:40px;display:grid;place-items:center;border:1px solid rgba(14,15,11,.4);color:#0e0f0b;background:none;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="case-modal__tags" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.25rem;padding-right:3rem"></div>
+    <h3 class="case-modal__title" style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(1.4rem,2.6vw,2rem);letter-spacing:-.03em;line-height:1.18;margin:0"></h3>
+    <p class="case-modal__client" style="margin-top:.5rem;color:rgba(14,15,11,.56);font-size:.95rem"></p>
+    <div class="case-modal__shot" data-field="shot" hidden style="position:relative;margin-top:1.75rem">
+      <div class="case-modal__shot-track shot-track" data-field="shot-track" style="display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border:1px solid rgba(14,15,11,.4)"></div>
+      <button type="button" class="case-modal__shot-nav" data-field="shot-prev" aria-label="Imagem anterior" style="position:absolute;top:40%;transform:translateY(-50%);left:-14px;width:36px;height:36px;display:grid;place-items:center;background:#fffceb;border:1px solid rgba(14,15,11,.4);color:#0e0f0b;cursor:pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="case-modal__shot-nav" data-field="shot-next" aria-label="Próxima imagem" style="position:absolute;top:40%;transform:translateY(-50%);right:-14px;width:36px;height:36px;display:grid;place-items:center;background:#fffceb;border:1px solid rgba(14,15,11,.4);color:#0e0f0b;cursor:pointer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="case-modal__shot-dots" data-field="shot-dots" style="display:flex;justify-content:center;gap:.4rem;margin-top:.85rem"></div>
+    </div>
+    <div class="case-modal__body" style="margin-top:2rem;display:grid;gap:1.75rem">
+      <div class="case-modal__block">
+        <h4 style="font-family:'Lexend Exa',sans-serif;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#457528;margin:0 0 .6rem">Problema</h4>
+        <p data-field="problem" style="font-size:.98rem;line-height:1.65;color:#2b2e24;margin:0"></p>
+      </div>
+      <div class="case-modal__block">
+        <h4 style="font-family:'Lexend Exa',sans-serif;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#457528;margin:0 0 .6rem">Solução</h4>
+        <p data-field="solution" style="font-size:.98rem;line-height:1.65;color:#2b2e24;margin:0"></p>
+      </div>
+      <div class="case-modal__block">
+        <h4 style="font-family:'Lexend Exa',sans-serif;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#457528;margin:0 0 .6rem">Destaques do sistema</h4>
+        <ul class="case-modal__highlights" data-field="highlights" style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem"></ul>
+      </div>
+      <div class="case-modal__block">
+        <h4 style="font-family:'Lexend Exa',sans-serif;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;color:#457528;margin:0 0 .6rem">Stack técnica</h4>
+        <div class="case-modal__stack" data-field="stack" style="display:flex;flex-wrap:wrap;gap:.5rem"></div>
+      </div>
+      <p class="case-modal__note" data-field="note" style="font-size:.85rem;color:rgba(14,15,11,.56);margin:0"></p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js?v=43"></script>
+<script src="js/supabase-client.js?v=43"></script>
+<script src="js/main.js?v=43"></script>
+<script src="js/hero-anim.js?v=43"></script>
+<script src="js/faq.js?v=43"></script>
+<script src="js/portfolio.js?v=43"></script>
+<script src="js/contact.js?v=43"></script>
 </body>
 </html>

@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Buovai — estilos globais e estados (:hover/:focus) que HTML inline não
+   consegue expressar. Todo o resto do visual vem de style="" inline nos
+   elementos, copiado literalmente do arquivo "Buov Site v2" enviado.
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #fffceb;
+  font-family: 'Open Sans', sans-serif;
+  color: #0e0f0b;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: #1f4905;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #457528;
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes satin {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-4%, 3%) scale(1.08); }
+}
+
+/* ---- Acessibilidade: não altera o visual, só fica visível ao navegar
+   por teclado (não está no arquivo original porque ele não é o site real) ---- */
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 1rem;
+  z-index: 50;
+  background: #0e0f0b;
+  color: #fffceb;
+  padding: 0.6em 1.1em;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+:focus-visible {
+  outline: 2px solid #457528;
+  outline-offset: 2px;
+}
+
+/* ---- Nav (desktop, >=1100px — abaixo disso o arquivo original simplesmente
+   esconde esses links, sem alternativa de menu) ---- */
+.nav-wide {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .nav-wide {
+    display: flex;
+  }
+}
+
+.nav-a:hover { color: #457528; }
+.hdr-ghost:hover { background: #0e0f0b; color: #fffceb; }
+.hdr-primary:hover { background: #1f4905; color: #fffceb; }
+.case-link:hover { color: #fffceb; border-color: #fffceb; }
+.service-row:hover { background: #defa9a; color: #0e0f0b; }
+.faq-q:hover { color: #457528; }
+.contact-channel:hover { color: #fffceb; }
+.submit-btn:hover { background: #1f4905; }
+.footer-link:hover { color: #0e0f0b; }
+.fab:hover { background: #1f4905; color: #fffceb; }
+.case-tab-btn:hover { opacity: 0.85; }
+
+.field-line:focus { border-bottom-color: #457528; outline: none; }
+.field-box:focus { border-color: #457528; outline: none; }
+
+.case-modal.is-open {
+  display: flex !important;
+}
+
+/* ---- Carrossel do modal: sem barra de rolagem visível ---- */
+.shot-track {
+  scrollbar-width: none;
+}
+.shot-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Reveal-on-scroll (comportamento já existente no site, não no mockup
+   estático — mantém a entrada suave das seções ao rolar) ---- */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms cubic-bezier(.16,.84,.24,1), transform 700ms cubic-bezier(.16,.84,.24,1);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
