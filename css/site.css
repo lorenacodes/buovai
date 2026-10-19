@@ -44,6 +44,105 @@ button {
   50% { transform: translate(-4%, 3%) scale(1.08); }
 }
 
+/* ---- Entrada rápida (robô + nome) ao abrir o site pela primeira vez ---- */
+.site-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fffceb;
+  opacity: 1;
+  transition: opacity 650ms cubic-bezier(.16,.84,.24,1), visibility 0ms linear 650ms;
+}
+
+.site-intro.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.site-intro__mark {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 90px;
+}
+
+.site-intro__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 70px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(14, 15, 11, 0.16);
+  filter: blur(4px);
+  transform: translateX(-50%) scale(0.6);
+  opacity: 0;
+  animation: site-intro-shadow 1500ms cubic-bezier(.16,.84,.24,1) forwards;
+}
+
+.site-intro__robot {
+  position: absolute;
+  width: min(72px, 15vw);
+  height: auto;
+  opacity: 0;
+  transform: scale(2.2);
+  animation: site-intro-robot 1500ms cubic-bezier(.16,.84,.24,1) forwards;
+}
+
+.site-intro__eyelid {
+  opacity: 0;
+  animation: site-intro-blink 220ms ease-in-out 600ms 2;
+}
+
+.site-intro__logo {
+  width: min(190px, 44vw);
+  height: auto;
+  opacity: 0;
+  animation: site-intro-logo-in 600ms cubic-bezier(.16,.84,.24,1) forwards;
+  animation-delay: 1250ms;
+}
+
+@keyframes site-intro-robot {
+  0% { opacity: 0; transform: scale(2.2); }
+  18% { opacity: 1; transform: scale(3.6); }
+  22% { opacity: 1; transform: scale(3.4); }
+  55% { opacity: 1; transform: scale(3.4); }
+  85% { opacity: 0; transform: scale(0.55); }
+  100% { opacity: 0; transform: scale(0.5); }
+}
+
+@keyframes site-intro-shadow {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.6); }
+  20% { opacity: 0.35; transform: translateX(-50%) scale(1); }
+  55% { opacity: 0.35; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) scale(0.4); }
+}
+
+@keyframes site-intro-logo-in {
+  0% { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes site-intro-blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+html.no-intro .site-intro {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-intro {
+    display: none;
+  }
+}
+
 /* ---- Acessibilidade: não altera o visual, só fica visível ao navegar
    por teclado (não está no arquivo original porque ele não é o site real) ---- */
 .skip-link {

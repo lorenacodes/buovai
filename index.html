@@ -16,9 +16,81 @@
 <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=43">
+<link rel="stylesheet" href="css/site.css?v=44">
+<script>
+  (function () {
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var seen = false;
+    try { seen = sessionStorage.getItem("buovaiIntroShown") === "1"; } catch (e) {}
+    if (reduce || seen) document.documentElement.classList.add("no-intro");
+  })();
+</script>
 </head>
 <body>
+
+<div class="site-intro" id="siteIntro" aria-hidden="true">
+  <div class="site-intro__mark">
+    <span class="site-intro__shadow"></span>
+    <svg class="site-intro__robot" viewBox="38 76 569 675" fill="#0e0f0b">
+      <g stroke="#0e0f0b" stroke-width="22"><line x1="105" y1="112" x2="200" y2="250" /><line x1="511" y1="92" x2="442" y2="250" /></g>
+      <ellipse cx="108" cy="518" rx="62" ry="52" /><ellipse cx="538" cy="518" rx="62" ry="52" />
+      <path fill-rule="evenodd" d="M64 476a262 262 0 1 0 524 0a262 262 0 1 0 -524 0ZM162 500a164 146 0 1 0 328 0a164 146 0 1 0 -328 0Z" />
+      <path fill-rule="evenodd" d="M277 412H368A92 92 0 0 1 368 596H277A92 92 0 0 1 277 412ZM230 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0ZM367 504a23 23 0 1 0 46 0a23 23 0 1 0 -46 0Z" />
+      <ellipse class="site-intro__eyelid" cx="253" cy="504" rx="25" ry="25" />
+      <ellipse class="site-intro__eyelid" cx="390" cy="504" rx="25" ry="25" />
+    </svg>
+    <img class="site-intro__logo" src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" />
+  </div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("siteIntro");
+    if (!el || document.documentElement.classList.contains("no-intro")) return;
+
+    // Som curto e sintetizado (sem arquivo externo) — minimalista, tipo
+    // notificação de app/SO (Slack, macOS): só duas notas senoidais
+    // limpas, bem próximas, sem sopro, sem harmônicos extras, sem
+    // ataque percussivo. Navegadores bloqueiam áudio com som antes de
+    // qualquer interação do usuário, então isso toca no primeiro
+    // clique/toque/tecla depois de carregar.
+    var soundPlayed = false;
+    function tryPlayChime() {
+      if (soundPlayed) return;
+      soundPlayed = true;
+      try {
+        var Ctx = window.AudioContext || window.webkitAudioContext;
+        var ctx = new Ctx();
+        var fire = function () {
+          var now = ctx.currentTime;
+          var notes = [880, 1318.51];
+          notes.forEach(function (freq, i) {
+            var start = now + i * 0.09;
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, start);
+            gain.gain.linearRampToValueAtTime(0.07, start + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(start);
+            osc.stop(start + 0.4);
+          });
+        };
+        if (ctx.state === "suspended") ctx.resume().then(fire);
+        else fire();
+      } catch (e) {}
+    }
+    ["pointerdown", "keydown", "touchstart"].forEach(function (evt) {
+      document.addEventListener(evt, tryPlayChime, { once: true, passive: true });
+    });
+
+    setTimeout(function () {
+      el.classList.add("is-hidden");
+      try { sessionStorage.setItem("buovaiIntroShown", "1"); } catch (e) {}
+    }, 2500);
+  })();
+</script>
 
 <a class="skip-link" href="#main">Pular para o conteúdo</a>
 
@@ -388,12 +460,12 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/config.js?v=43"></script>
-<script src="js/supabase-client.js?v=43"></script>
-<script src="js/main.js?v=43"></script>
-<script src="js/hero-anim.js?v=43"></script>
-<script src="js/faq.js?v=43"></script>
-<script src="js/portfolio.js?v=43"></script>
-<script src="js/contact.js?v=43"></script>
+<script src="js/config.js?v=44"></script>
+<script src="js/supabase-client.js?v=44"></script>
+<script src="js/main.js?v=44"></script>
+<script src="js/hero-anim.js?v=44"></script>
+<script src="js/faq.js?v=44"></script>
+<script src="js/portfolio.js?v=44"></script>
+<script src="js/contact.js?v=44"></script>
 </body>
 </html>
