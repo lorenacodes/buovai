@@ -108,7 +108,7 @@
     </div>
     <div style="display:flex;gap:10px;margin-left:auto;white-space:nowrap;font-family:'Lexend Exa',sans-serif;font-size:12px">
       <a href="painel/login.html" id="portalBtn" class="hdr-ghost nav-notnarrow" style="padding:12px 16px;border:1px solid #0e0f0b;color:#0e0f0b">Área do cliente</a>
-      <a href="#contato" class="hdr-primary" data-magnet="1" style="padding:12px 18px;background:#0e0f0b;color:#fffceb;border:1px solid #0e0f0b;white-space:nowrap">Contar meu problema ↗</a>
+      <a href="#contato" id="navCta" class="hdr-primary" data-magnet="1" style="padding:12px 18px;display:none;background:#0e0f0b;color:#fffceb;border:1px solid #0e0f0b;white-space:nowrap">Contar meu problema ↗</a>
     </div>
   </nav>
 </header>
@@ -122,10 +122,10 @@
     <div id="star" style="position:absolute;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;display:grid;place-items:center;pointer-events:none;color:#fffceb;font-size:34px;line-height:1;opacity:0;text-shadow:0 0 14px #defa9a">✦</div>
     <div id="spark" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
     <div style="position:relative;max-width:1320px;width:100%;margin:0 auto;padding:44px 28px 0;display:flex;justify-content:space-between;gap:20px;font-family:'Lexend Exa',sans-serif;font-size:12px;color:#0e0f0b">
-      <span>//sites, aplicativos e automações</span>
+      <span>//sites, aplicativos, automações, migrações e integrações</span>
     </div>
     <div style="position:relative;max-width:1320px;width:100%;margin:0 auto;padding:48px 28px 72px">
-      <h1 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(30px,4.6vw,68px);line-height:1.08;letter-spacing:-.055em;margin:0;max-width:1180px;color:#0e0f0b;text-wrap:balance">Quando a ferramenta pronta não acompanha a sua operação, <span id="words" style="color:#fffceb;text-shadow:0 2px 28px rgba(31,73,5,.6)"><span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">eu</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">construo</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">o</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">sistema</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">que</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">acompanha.</span></span></h1>
+      <h1 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(30px,4.6vw,68px);line-height:1.08;letter-spacing:-.055em;margin:0;max-width:1180px;color:#0e0f0b;text-wrap:balance">Quando a ferramenta pronta não acompanha a sua operação, <span id="words" style="color:#fffceb;text-shadow:0 2px 28px rgba(31,73,5,.6)"><span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">construímos</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">o</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">sistema</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">que</span> <span style="display:inline-block;opacity:0;transform:translateY(.55em);clip-path:inset(0 0 100% 0);transition:opacity .2s ease,transform 1s cubic-bezier(.16,.84,.24,1),clip-path 1s cubic-bezier(.16,.84,.24,1)">acompanha.</span></span></h1>
       <div style="margin-top:40px;display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap">
         <div style="font-family:'Lexend Exa',sans-serif;font-size:clamp(13px,1.3vw,17px);color:#fffceb;display:flex;gap:10px;align-items:center;min-height:24px"><span style="color:#0e0f0b">//construindo:</span><span id="slot" style="display:inline-flex;align-items:center;gap:10px;min-width:22ch;text-shadow:0 1px 14px rgba(31,73,5,.7)"><span id="typed" style="display:inline-flex;align-items:center;gap:10px"><span id="typedText"></span><span id="caret" style="width:10px;height:1.1em;background:#fffceb;animation:blink 1s steps(1) infinite"></span></span></span></div>
         <div id="botSlide" style="flex:none;will-change:transform"><div id="botWrap" title="Ver de novo" style="width:clamp(50px,5vw,76px);flex:none;transform:scale(0);transform-origin:50% 100%">
@@ -156,7 +156,7 @@
   </div>
   <div style="position:relative;background:#fffceb">
     <div style="max-width:1320px;margin:0 auto;padding:32px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:28px;align-items:center">
-      <p style="font-size:17px;line-height:1.65;margin:0;max-width:560px;color:#2b2e24;text-wrap:pretty">Sistemas internos, portais e sites profissionais construídos para a sua operação. Atendimento direto, do entendimento do problema até a entrega.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:560px"><span id="heroSectorLine" style="display:none;font-family:'Lexend Exa',sans-serif;font-size:12px;color:#1f4905;line-height:1.6"></span><p style="font-size:17px;line-height:1.65;margin:0;max-width:560px;color:#2b2e24;text-wrap:pretty">Sistemas internos, portais e sites profissionais construídos para a sua operação. Tudo pensado para crescer com a sua empresa e exigir o mínimo de manutenção. Atendimento direto, do entendimento do problema até a entrega.</p></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;white-space:nowrap;font-family:'Lexend Exa',sans-serif;font-size:13px">
         <a href="#contato" class="hdr-primary" data-magnet="1" style="padding:18px 26px;background:#0e0f0b;color:#fffceb;white-space:nowrap">Contar meu problema ↗</a>
         <a href="#caso" class="hdr-ghost" style="padding:18px 26px;border:1px solid #0e0f0b;color:#0e0f0b">Ver um caso real</a>
@@ -165,13 +165,38 @@
   </div>
 </section>
 
+<section id="servicos" data-screen-label="Serviços" style="max-width:1320px;margin:0 auto;padding:56px 28px 8px">
+  <div style="display:grid;grid-template-columns:var(--svc-strip-cols);gap:20px 32px;padding-top:28px;border-top:1px solid #0e0f0b">
+    <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:baseline">
+      <span style="width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#1f4905;font-size:10px;line-height:1">✓</span>
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:14px;letter-spacing:-.03em;line-height:1.3;color:#0e0f0b">Sistemas para a operação</span>
+      <span></span><span style="font-size:14px;line-height:1.55;color:#2b2e24">Seu processo vira sistema, sem você se adaptar à ferramenta.</span>
+    </div>
+    <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:baseline">
+      <span style="width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#1f4905;font-size:10px;line-height:1">✓</span>
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:14px;letter-spacing:-.03em;line-height:1.3;color:#0e0f0b">Migração e reconstrução</span>
+      <span></span><span style="font-size:14px;line-height:1.55;color:#2b2e24">Sem perder dados e sem parar a operação durante a troca.</span>
+    </div>
+    <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:baseline">
+      <span style="width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#1f4905;font-size:10px;line-height:1">✓</span>
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:14px;letter-spacing:-.03em;line-height:1.3;color:#0e0f0b">Automação e integrações</span>
+      <span></span><span style="font-size:14px;line-height:1.55;color:#2b2e24">Sistemas conversando sozinhos, sem digitação dupla.</span>
+    </div>
+    <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:baseline">
+      <span style="width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#1f4905;font-size:10px;line-height:1">✓</span>
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:14px;letter-spacing:-.03em;line-height:1.3;color:#0e0f0b">Sites e identidade visual</span>
+      <span></span><span style="font-size:14px;line-height:1.55;color:#2b2e24">Presença profissional, com a marca criada se precisar.</span>
+    </div>
+  </div>
+</section>
+
 <section data-screen-label="Ponto de partida" data-reveal style="max-width:1320px;margin:0 auto;padding:140px 28px 120px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:56px 80px">
   <div>
-    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//01 — O ponto de partida</div>
+    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//01 · O ponto de partida</div>
     <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0;text-wrap:balance">Adaptar a empresa à ferramenta <span style="color:#457528">tem um limite.</span></h2>
   </div>
   <div style="display:flex;flex-direction:column;justify-content:flex-end;gap:36px">
-    <p style="font-size:19px;line-height:1.7;margin:0;color:#2b2e24;text-wrap:pretty">Planilhas e ferramentas prontas resolvem bem o começo, mas têm limite. Por isso eu começo entendendo como a sua operação funciona — só depois decido o que construir, e se vale construir.</p>
+    <p style="font-size:19px;line-height:1.7;margin:0;color:#2b2e24;text-wrap:pretty">Planilhas e ferramentas prontas resolvem bem o começo, mas têm limite. Por isso eu começo entendendo como a sua operação funciona. Só depois decido o que construir, e se vale construir.</p>
     <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #0e0f0b;font-family:'Lexend Exa',sans-serif;font-size:12px;line-height:1.5">
       <div style="padding:16px 12px 0 0">Entender a operação</div>
       <div style="padding:16px 12px 0;border-left:1px solid #c9c8b4">Decidir o que construir</div>
@@ -183,7 +208,7 @@
 <section id="caso" data-screen-label="Casos reais">
   <div data-reveal style="max-width:1320px;margin:0 auto;padding:120px 28px 56px;display:flex;justify-content:space-between;align-items:end;gap:32px;flex-wrap:wrap">
     <div>
-      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//02 — Casos reais</div>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//02 · Casos reais</div>
       <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Sistemas feitos <span style="color:#457528">para a rotina de cada cliente.</span></h2>
     </div>
     <span id="caseCount" style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#2b2e24"></span>
@@ -192,47 +217,11 @@
   <div id="portfolio-list" aria-live="polite"></div>
 </section>
 
-<section id="servicos" data-screen-label="Serviços" style="max-width:1320px;margin:0 auto;padding:140px 28px 120px">
-  <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px 80px;margin-bottom:64px;align-items:end">
-    <div>
-      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//03 — O que eu faço</div>
-      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Do site ao sistema <span style="color:#457528">da sua operação.</span></h2>
-    </div>
-    <p style="font-size:17px;line-height:1.7;margin:0;color:#2b2e24;max-width:520px;text-wrap:pretty">Cada serviço serve a uma situação diferente. Se você não sabe qual é a sua, descreva o problema e eu indico o caminho, inclusive quando a resposta for algo mais simples do que você esperava.</p>
-  </div>
-  <div data-reveal style="border-top:1px solid #0e0f0b">
-    <a href="#contato" class="service-row" style="display:grid;grid-template-columns:var(--svc-cols);gap:12px 24px;align-items:baseline;padding:34px 20px;border-bottom:1px solid #0e0f0b;color:#0e0f0b;transition:background .25s">
-      <span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#457528">//01</span>
-      <span style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;line-height:1.2">Sistemas para a operação</span></span>
-      <span class="service-row__text" style="font-size:16px;line-height:1.65;color:#2b2e24">Para empresas que controlam pedidos, orçamentos, clientes ou produção em planilhas e ferramentas soltas. O sistema segue as regras do seu processo, não o contrário.</span>
-      <span class="service-row__arrow" style="font-size:20px;text-align:right">↗</span>
-    </a>
-    <a href="#contato" class="service-row" style="display:grid;grid-template-columns:var(--svc-cols);gap:12px 24px;align-items:baseline;padding:34px 20px;border-bottom:1px solid #0e0f0b;color:#0e0f0b;transition:background .25s">
-      <span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#457528">//02</span>
-      <span style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;line-height:1.2">Reconstrução e evolução</span></span>
-      <span class="service-row__text" style="font-size:16px;line-height:1.65;color:#2b2e24">Para quem já tem um sistema ou uma plataforma pronta que travou. Avalio o que mantém, o que refaço e como migrar sem parar a operação.</span>
-      <span class="service-row__arrow" style="font-size:20px;text-align:right">↗</span>
-    </a>
-    <a href="#contato" class="service-row" style="display:grid;grid-template-columns:var(--svc-cols);gap:12px 24px;align-items:baseline;padding:34px 20px;border-bottom:1px solid #0e0f0b;color:#0e0f0b;transition:background .25s">
-      <span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#457528">//03</span>
-      <span style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;line-height:1.2">Automação e integrações</span></span>
-      <span class="service-row__text" style="font-size:16px;line-height:1.65;color:#2b2e24">Para tarefas repetidas à mão, como digitar o mesmo dado em dois lugares ou conferir planilhas. Conecto os sistemas que você já usa.</span>
-      <span class="service-row__arrow" style="font-size:20px;text-align:right">↗</span>
-    </a>
-    <a href="#contato" class="service-row" style="display:grid;grid-template-columns:var(--svc-cols);gap:12px 24px;align-items:baseline;padding:34px 20px;border-bottom:1px solid #0e0f0b;color:#0e0f0b;transition:background .25s">
-      <span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#457528">//04</span>
-      <span style="display:flex;flex-direction:column;gap:8px"><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(18px,2vw,26px);letter-spacing:-.04em;line-height:1.2">Sites profissionais</span></span>
-      <span class="service-row__text" style="font-size:16px;line-height:1.65;color:#2b2e24">Para quem precisa de uma presença clara na internet: site que abre bem no celular, com serviços, contato e domínio próprio publicado.</span>
-      <span class="service-row__arrow" style="font-size:20px;text-align:right">↗</span>
-    </a>
-  </div>
-</section>
-
 <section id="processo" data-glow="1" data-screen-label="Como trabalho" style="background:linear-gradient(90deg,#3f5204,#1f4905,#457528);color:#fffceb">
   <div style="max-width:1320px;margin:0 auto;padding:130px 28px 110px">
     <div data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:40px 80px;align-items:end;margin-bottom:80px">
       <div>
-        <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#defa9a;margin-bottom:28px">//04 — Como trabalho</div>
+        <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#defa9a;margin-bottom:28px">//03 · Como trabalho</div>
         <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Direto com você, <span style="color:#defa9a">em etapas curtas.</span></h2>
       </div>
       <p style="font-size:17px;line-height:1.7;margin:0;color:#e6e8d4;max-width:520px;text-wrap:pretty">Não há equipe entre o seu problema e o código. O projeto avança em ciclos curtos, e você valida cada parte pronta em vez de descobrir um desalinhamento só na entrega.</p>
@@ -240,8 +229,7 @@
     <div id="tlRoot" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px;align-items:start">
       <div id="tlSteps" style="display:flex;flex-direction:column;border-top:1px solid rgba(255,252,235,.4)"></div>
       <div style="display:flex;flex-direction:column;gap:22px">
-        <div style="font-family:'Lexend Exa',sans-serif;font-size:11px;color:#defa9a;margin-bottom:-10px">//qual é a sua situação?</div>
-        <div id="tlThemes" style="display:flex;gap:6px;flex-wrap:wrap;font-family:'Lexend Exa',sans-serif;font-size:11px"></div>
+        <button type="button" id="tlAreaBtn" style="align-self:flex-start;padding:0 0 3px;background:none;border:0;border-bottom:1px solid rgba(222,250,154,.6);color:#defa9a;font-family:'Lexend Exa',sans-serif;font-size:11px;cursor:pointer">//exemplo para <span id="tlAreaLabel">comércio</span> · trocar área</button>
         <div id="tlWindow" style="background:#fffceb;box-shadow:0 40px 80px rgba(14,15,11,.35);transition:background .4s">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:#0e0f0b;font-family:'Lexend Exa',sans-serif;font-size:10px">
             <span style="color:#defa9a">buov.ai / projeto</span>
@@ -258,7 +246,7 @@
             <div id="tlTrackFill" style="position:absolute;left:0;top:13px;height:2px;width:0%;background:#defa9a"></div>
             <div id="tlTrackThumb" style="position:absolute;top:6px;left:0%;width:16px;height:16px;margin-left:-8px;background:#defa9a;box-shadow:0 0 0 6px rgba(222,250,154,.18)"></div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#e6e8d4"><span style="width:14px;height:14px;display:grid;place-items:center;background:#defa9a;color:#0e0f0b">✓</span>parte validada com você</div>
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#e6e8d4"><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;display:grid;place-items:center;background:#defa9a;color:#0e0f0b">✓</span>parte validada com você</span><span style="color:#defa9a">Sem identidade visual? Eu crio a marca e aplico no projeto, incluído no serviço.</span></div>
           <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));font-family:'Lexend Exa',sans-serif;font-size:10px;color:#e6e8d4">
             <span>Conversa</span><span>Definição</span><span>Construção</span><span style="text-align:right">Entrega</span>
           </div>
@@ -273,7 +261,7 @@
     Print do portal exclusivo para clientes
   </div>
   <div>
-    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//05 — Portal do cliente</div>
+    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//04 · Portal do cliente</div>
     <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,3vw,42px);line-height:1.14;letter-spacing:-.05em;margin:0 0 24px;text-wrap:balance">Acompanhe o seu projeto em um <span style="color:#457528">portal exclusivo para clientes.</span></h2>
     <p style="font-size:17px;line-height:1.7;margin:0 0 36px;color:#2b2e24;max-width:480px">Cada parte pronta fica disponível para você validar, sem precisar esperar a entrega final.</p>
     <a href="painel/login.html" class="hdr-primary" data-magnet="1" style="display:inline-block;padding:18px 26px;background:#0e0f0b;color:#fffceb;font-family:'Lexend Exa',sans-serif;font-size:13px;white-space:nowrap">Entrar na área do cliente ↗</a>
@@ -291,8 +279,8 @@
   </div>
   <div style="padding:clamp(40px,6vw,96px) clamp(28px,5vw,80px);display:flex;flex-direction:column;justify-content:space-between;gap:56px">
     <div>
-      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#defa9a;margin-bottom:28px">//06 — Quem faz</div>
-      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,3vw,42px);line-height:1.16;letter-spacing:-.05em;margin:0;text-wrap:balance">Eu mesma converso com você, desenho a solução <span style="color:#defa9a">e escrevo o código.</span></h2>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#defa9a;margin-bottom:28px">//05 · Quem faz</div>
+      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,3vw,42px);line-height:1.16;letter-spacing:-.05em;margin:0;text-wrap:balance">Quem entende o seu problema <span style="color:#defa9a">é quem constrói a solução.</span></h2>
     </div>
     <div style="border-top:1px solid rgba(255,252,235,.35);padding-top:24px">
       <div style="font-family:'Lexend Exa',sans-serif;font-size:clamp(22px,2.4vw,32px);letter-spacing:-.05em">Lorena Cardoso</div>
@@ -303,7 +291,7 @@
 
 <section id="duvidas" data-screen-label="Dúvidas" data-reveal style="max-width:1320px;margin:0 auto;padding:140px 28px 120px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px 80px">
   <div>
-    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//07 — Antes de contratar</div>
+    <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//06 · Antes de contratar</div>
     <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Dúvidas <span style="color:#457528">frequentes.</span></h2>
   </div>
   <div id="faqList" style="border-top:1px solid #0e0f0b">
@@ -351,11 +339,11 @@
 </section>
 
 <section id="contato" data-screen-label="Contato" data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
-  <div data-glow="1" style="background:radial-gradient(circle at 0% 0%,#3f5204 0%,#94ab86 28%,#1f4905 62%,#defa9a 100%);padding:clamp(48px,7vw,110px) clamp(28px,5vw,80px);display:flex;flex-direction:column;justify-content:space-between;gap:56px">
+  <div data-glow="1" style="background:radial-gradient(circle at 0% 0%,rgba(69,117,40,.6),rgba(14,15,11,0) 62%),#0e0f0b;padding:clamp(48px,7vw,110px) clamp(28px,5vw,80px) clamp(48px,7vw,110px) max(28px, calc((100vw - 1320px) / 2 + 28px));display:flex;flex-direction:column;justify-content:space-between;gap:56px">
     <div>
-      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#fffceb;margin-bottom:28px">//08 — Vamos conversar</div>
-      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(30px,3.8vw,56px);line-height:1.06;letter-spacing:-.06em;margin:0 0 24px;color:#0e0f0b;text-wrap:balance">Conte o problema. <span style="color:#fffceb">Eu respondo com um caminho.</span></h2>
-      <p style="font-size:17px;line-height:1.65;margin:0;color:#0e0f0b;max-width:460px">Descreva como a tarefa é feita hoje. Não precisa de termo técnico. Eu respondo pessoalmente.</p>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#fffceb;margin-bottom:28px">//07 · Vamos conversar</div>
+      <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(30px,3.8vw,56px);line-height:1.06;letter-spacing:-.06em;margin:0 0 24px;color:#fffceb;text-wrap:balance">Conte o problema. <span style="color:#defa9a">Eu respondo com um caminho.</span></h2>
+      <p style="font-size:17px;line-height:1.65;margin:0;color:#fffceb;max-width:460px">Descreva como a tarefa é feita hoje. Não precisa de termo técnico. Eu respondo pessoalmente.</p>
       <div id="liveCard" style="margin-top:40px;background:#fffceb;color:#0e0f0b;box-shadow:0 30px 60px rgba(14,15,11,.28);max-width:480px;transform-origin:50% 50%">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;background:#0e0f0b;color:#fffceb;font-family:'Lexend Exa',sans-serif;font-size:10px">
           <span style="color:#defa9a">buov.ai / portal · novo projeto</span>
@@ -376,59 +364,55 @@
         </div>
       </div>
     </div>
-    <div style="border-top:1px solid #0e0f0b">
-      <a href="https://wa.me/5579998289485" class="contact-channel" style="display:flex;align-items:center;gap:16px;padding:22px 0;border-bottom:1px solid #0e0f0b;color:#0e0f0b"><span style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 0% 0%,#94ab86,#1f4905);display:grid;place-items:center;color:#fffceb;font-size:14px;flex:none">☏</span><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;flex:1;min-width:0">WhatsApp</span><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(13px,1.3vw,16px);letter-spacing:-.02em;text-align:right;white-space:nowrap">(79) 9 9828-9485</span></a>
-      <a href="mailto:contatobuovai@gmail.com" class="contact-channel" style="display:flex;align-items:center;gap:16px;padding:22px 0;border-bottom:1px solid #0e0f0b;color:#0e0f0b"><span style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 0% 0%,#94ab86,#1f4905);display:grid;place-items:center;color:#fffceb;font-size:14px;flex:none">@</span><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;flex:1;min-width:0">E-mail</span><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(13px,1.3vw,16px);letter-spacing:-.02em;text-align:right;white-space:nowrap">contatobuovai@gmail.com</span></a>
-      <div style="display:flex;align-items:center;gap:16px;padding:22px 0;border-bottom:1px solid #0e0f0b;color:#0e0f0b"><span style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 0% 0%,#94ab86,#1f4905);display:grid;place-items:center;color:#fffceb;font-size:14px;flex:none">◷</span><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;flex:1;min-width:0">Resposta</span><span style="font-family:'Lexend Exa',sans-serif;font-size:clamp(13px,1.3vw,16px);letter-spacing:-.02em;white-space:nowrap">Até 1 dia útil</span></div>
-    </div>
   </div>
-  <div style="background:#fffceb;padding:clamp(48px,7vw,110px) clamp(28px,5vw,80px);display:flex;flex-direction:column;justify-content:center">
+  <div style="background:#0e0f0b;color-scheme:dark;padding:clamp(48px,7vw,110px) max(28px, calc((100vw - 1320px) / 2 + 28px)) clamp(48px,7vw,110px) clamp(28px,5vw,80px);display:flex;flex-direction:column;justify-content:center">
     <div id="notSentWrap">
-      <div style="display:flex;border:1px solid #0e0f0b;width:max-content;max-width:100%;font-family:'Lexend Exa',sans-serif;font-size:12px;margin-bottom:32px">
-        <button type="button" id="toChatBtn" style="padding:12px 16px;border:0;cursor:pointer;font:inherit;background:#0e0f0b;color:#fffceb">Conversar</button>
-        <button type="button" id="toFormBtn" style="padding:12px 16px;border:0;cursor:pointer;font:inherit;background:transparent;color:#0e0f0b">Formulário</button>
+      <div style="display:flex;border:1px solid rgba(255,252,235,.35);width:max-content;max-width:100%;font-family:'Lexend Exa',sans-serif;font-size:12px;margin-bottom:32px">
+        <button type="button" id="toFormBtn" style="padding:12px 16px;border:0;cursor:pointer;font:inherit;background:transparent;color:#fffceb">Formulário</button>
+        <button type="button" id="toChatBtn" style="padding:12px 16px;border:0;cursor:pointer;font:inherit;background:#defa9a;color:#0e0f0b">Prefiro conversar</button>
       </div>
 
       <div id="chatPanel" style="display:flex;flex-direction:column;gap:18px">
         <div id="chatLog" style="display:flex;flex-direction:column;gap:12px;max-height:440px;min-height:280px;overflow:auto;padding-right:4px"></div>
-        <form id="chatForm" style="display:flex;align-items:center;gap:12px;border-bottom:1px solid #0e0f0b">
-          <input id="chatInput" type="text" placeholder="" autocomplete="off" style="flex:1;min-width:0;padding:16px 0;background:transparent;border:0;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;outline:none">
-          <button type="submit" style="padding:12px 16px;background:#0e0f0b;color:#fffceb;border:0;font-family:'Lexend Exa',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap" class="chat-send-btn">Responder ↵</button>
+        <form id="chatForm" style="display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,252,235,.35)">
+          <input id="chatInput" type="text" placeholder="" autocomplete="off" style="flex:1;min-width:0;padding:16px 0;background:transparent;border:0;font:400 17px 'Open Sans',sans-serif;color:#fffceb;outline:none">
+          <button type="submit" style="padding:12px 16px;background:#defa9a;color:#0e0f0b;border:0;font-family:'Lexend Exa',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap" class="chat-send-btn">Responder ↵</button>
         </form>
+        <button type="button" id="chatSkipBtn" style="display:none;align-self:flex-start;padding:0;background:none;border:0;color:#c9cbb5;font-family:'Lexend Exa',sans-serif;font-size:11px;cursor:pointer;text-decoration:underline">Pular esta pergunta</button>
         <div id="chatConfirm" style="display:none;gap:10px;flex-wrap:wrap">
-          <button type="button" id="chatSendBtn" data-magnet="1" style="padding:18px 26px;background:#0e0f0b;color:#fffceb;border:0;font-family:'Lexend Exa',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap" class="chat-confirm-btn">Enviar pedido ↗</button>
-          <button type="button" id="chatRestartBtn" style="padding:18px 22px;background:transparent;color:#0e0f0b;border:1px solid #0e0f0b;font-family:'Lexend Exa',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap" class="chat-restart-btn">Corrigir</button>
+          <button type="button" id="chatSendBtn" data-magnet="1" style="padding:18px 26px;background:#defa9a;color:#0e0f0b;border:0;font-family:'Lexend Exa',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap" class="chat-confirm-btn">Enviar pedido ↗</button>
+          <button type="button" id="chatRestartBtn" style="padding:18px 22px;background:transparent;color:#fffceb;border:1px solid rgba(255,252,235,.35);font-family:'Lexend Exa',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap" class="chat-restart-btn">Corrigir</button>
         </div>
       </div>
 
       <form id="contact-form" novalidate style="display:none;flex-direction:column;gap:32px">
         <input class="field-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
-        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">Nome <span style="color:#457528">*</span></span><input id="cf-name" name="name" required placeholder="Seu nome completo" autocomplete="name" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9cbb5">Nome <span style="color:#defa9a">*</span></span><input id="cf-name" name="name" required placeholder="Seu nome completo" autocomplete="name" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid rgba(255,252,235,.35);font:400 17px 'Open Sans',sans-serif;color:#fffceb;border-radius:0"></label>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:32px 24px">
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">E-mail <span style="color:#457528">*</span></span><input id="cf-email" name="email" required type="email" placeholder="seu@email.com" autocomplete="email" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0"></label>
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">Empresa (opcional)</span><input id="cf-company" name="company" placeholder="Se for para uma empresa" autocomplete="organization" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9cbb5">E-mail (opcional)</span><input id="cf-email" name="email" type="email" placeholder="seu@email.com" autocomplete="email" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid rgba(255,252,235,.35);font:400 17px 'Open Sans',sans-serif;color:#fffceb;border-radius:0"></label>
+          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9cbb5">Empresa (opcional)</span><input id="cf-company" name="company" placeholder="Se for para uma empresa" autocomplete="organization" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid rgba(255,252,235,.35);font:400 17px 'Open Sans',sans-serif;color:#fffceb;border-radius:0"></label>
         </div>
-        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">Telefone / WhatsApp <span style="color:#457528">*</span></span><input id="cf-phone" name="phone" required type="tel" placeholder="(00) 0 0000-0000" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0"></label>
-        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">Faixa de orçamento (opcional)</span><select id="cf-budget" name="budget" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid #0e0f0b;font:400 17px 'Open Sans',sans-serif;color:#0e0f0b;border-radius:0;cursor:pointer;appearance:auto">
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9cbb5">Telefone / WhatsApp <span style="color:#defa9a">*</span></span><input id="cf-phone" name="phone" required type="tel" placeholder="(00) 0 0000-0000" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid rgba(255,252,235,.35);font:400 17px 'Open Sans',sans-serif;color:#fffceb;border-radius:0"></label>
+        <label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9cbb5">Faixa de orçamento (opcional)</span><select id="cf-budget" name="budget" class="field-line" style="width:100%;padding:14px 0;background:transparent;border:0;border-bottom:1px solid rgba(255,252,235,.35);font:400 17px 'Open Sans',sans-serif;color:#fffceb;border-radius:0;cursor:pointer;appearance:auto">
           <option value="">Prefiro conversar primeiro</option>
           <option value="ate-1.5k">Até R$ 1,5 mil</option>
           <option value="1.5k-5k">R$ 1,5 mil – R$ 5 mil</option>
           <option value="5k-15k">R$ 5 mil – R$ 15 mil</option>
           <option value="acima-15k">Acima de R$ 15 mil</option>
         </select></label>
-        <label style="display:flex;flex-direction:column;gap:10px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#2b2e24">O que precisa ser resolvido? <span style="color:#457528">*</span></span><textarea id="cf-message" name="message" required rows="5" placeholder="Descreva o processo, sistema ou dor atual da sua operação." class="field-box" style="width:100%;padding:16px;background:transparent;border:1px solid #0e0f0b;font:400 16px/1.6 'Open Sans',sans-serif;color:#0e0f0b;resize:vertical;border-radius:0"></textarea></label>
+        <label style="display:flex;flex-direction:column;gap:10px"><span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#c9cbb5">O que precisa ser resolvido? <span style="color:#defa9a">*</span></span><textarea id="cf-message" name="message" required rows="5" placeholder="Descreva o processo, sistema ou dor atual da sua operação." class="field-box" style="width:100%;padding:16px;background:transparent;border:1px solid rgba(255,252,235,.35);font:400 16px/1.6 'Open Sans',sans-serif;color:#fffceb;resize:vertical;border-radius:0"></textarea></label>
         <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-          <button type="submit" class="submit-btn" data-magnet="1" style="padding:18px 28px;background:#0e0f0b;color:#fffceb;border:0;font-family:'Lexend Exa',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap"><span class="btn-label">Enviar mensagem ↗</span></button>
-          <span style="font-size:13px;color:#2b2e24">Sua mensagem chega direto para mim. <span style="color:#457528">*</span> obrigatório</span>
+          <button type="submit" class="submit-btn" data-magnet="1" style="padding:18px 28px;background:#defa9a;color:#0e0f0b;border:0;font-family:'Lexend Exa',sans-serif;font-size:13px;cursor:pointer;white-space:nowrap"><span class="btn-label">Enviar mensagem ↗</span></button>
+          <span style="font-size:13px;color:#c9cbb5">Sua mensagem chega direto para mim. <span style="color:#defa9a">*</span> obrigatório</span>
         </div>
-        <div class="form-status" id="contact-status" role="status" style="display:none;font-size:13px;color:#8a1c1c;font-weight:600"></div>
+        <div class="form-status" id="contact-status" role="status" style="display:none;font-size:13px;color:#ff9b8a;font-weight:600"></div>
       </form>
     </div>
 
     <div id="sentWrap" style="display:none;flex-direction:column;gap:20px">
-      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528">//mensagem enviada</div>
-      <div style="font-family:'Lexend Exa',sans-serif;font-size:clamp(24px,2.6vw,36px);letter-spacing:-.05em;line-height:1.15">Recebi. Respondo em até 1 dia útil.</div>
-      <button type="button" id="sendAnotherBtn" style="width:max-content;padding:0 0 4px;background:none;border:0;border-bottom:1px solid #0e0f0b;font-family:'Lexend Exa',sans-serif;font-size:12px;cursor:pointer;color:#0e0f0b">Enviar outra mensagem</button>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#defa9a">//mensagem enviada</div>
+      <div style="font-family:'Lexend Exa',sans-serif;font-size:clamp(24px,2.6vw,36px);letter-spacing:-.05em;line-height:1.15;color:#fffceb">Recebi. Respondo em até 1 dia útil.</div>
+      <button type="button" id="sendAnotherBtn" style="width:max-content;padding:0 0 4px;background:none;border:0;border-bottom:1px solid rgba(255,252,235,.35);font-family:'Lexend Exa',sans-serif;font-size:12px;cursor:pointer;color:#fffceb">Enviar outra mensagem</button>
     </div>
   </div>
 </section>
@@ -519,6 +503,7 @@
 <script src="js/timeline.js?v=44"></script>
 <script src="js/portfolio.js?v=44"></script>
 <script src="js/contact-flow.js?v=44"></script>
+<script src="js/sector-picker.js?v=44"></script>
 <script src="js/page-fx.js?v=44"></script>
 </body>
 </html>

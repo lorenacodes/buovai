@@ -33,12 +33,21 @@
     lid: document.getElementById("lid"),
   };
 
-  const words = ["sistemas internos", "portais para clientes", "automações", "integrações", "sites profissionais", "migração de sistemas"];
+  const defaultWords = ["sistemas internos", "portais para clientes", "automações", "integrações", "sites profissionais", "migração de sistemas"];
+  let words = defaultWords;
   let state = { wi: 0, ci: 0, del: false };
   let typeTimer = null;
 
+  // O setor escolhido em js/sector-picker.js troca a lista de palavras
+  // digitadas, igual a curWords()/chooseSector() no arquivo original.
+  window.addEventListener("buovai:sector", (e) => {
+    const picked = e.detail && e.detail.sector ? e.detail.sector.words : null;
+    words = picked && picked.length ? picked : defaultWords;
+    state = { wi: 0, ci: 0, del: false };
+  });
+
   function tick() {
-    const word = words[state.wi];
+    const word = words[state.wi % words.length];
     let delay = state.del ? 35 : 70;
     if (!state.del && state.ci < word.length) {
       state.ci++;
@@ -52,7 +61,7 @@
       state.wi = (state.wi + 1) % words.length;
       delay = 300;
     }
-    if (rf.typedText) rf.typedText.textContent = words[state.wi].slice(0, state.ci);
+    if (rf.typedText) rf.typedText.textContent = words[state.wi % words.length].slice(0, state.ci);
     typeTimer = setTimeout(tick, delay);
   }
 

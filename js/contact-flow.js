@@ -81,10 +81,10 @@
     chatMode = toChat;
     chatPanel.style.display = toChat ? "flex" : "none";
     formPanel.style.display = toChat ? "none" : "flex";
-    toChatBtn.style.background = toChat ? "#0e0f0b" : "transparent";
-    toChatBtn.style.color = toChat ? "#fffceb" : "#0e0f0b";
-    toFormBtn.style.background = toChat ? "transparent" : "#0e0f0b";
-    toFormBtn.style.color = toChat ? "#0e0f0b" : "#fffceb";
+    toChatBtn.style.background = toChat ? "#defa9a" : "transparent";
+    toChatBtn.style.color = toChat ? "#0e0f0b" : "#fffceb";
+    toFormBtn.style.background = toChat ? "transparent" : "#defa9a";
+    toFormBtn.style.color = toChat ? "#fffceb" : "#0e0f0b";
     // Sincroniza os campos do formulário com o que já foi dito na conversa.
     if (!toChat) {
       document.getElementById("cf-name").value = state.fName;
@@ -104,12 +104,13 @@
   const chatConfirm = document.getElementById("chatConfirm");
   const chatSendBtn = document.getElementById("chatSendBtn");
   const chatRestartBtn = document.getElementById("chatRestartBtn");
+  const chatSkipBtn = document.getElementById("chatSkipBtn");
 
   const chatQ = [
     { key: "fName", foc: "name", ph: "Seu nome", type: "text" },
     { key: "msg", foc: "msg", ph: "Descreva com suas palavras", type: "text" },
-    { key: "fEmail", foc: "email", ph: "seu@email.com", type: "email" },
     { key: "fPhone", foc: "phone", ph: "(00) 0 0000-0000", type: "tel" },
+    { key: "fEmail", foc: "email", ph: "seu@email.com (opcional)", type: "email", optional: true },
   ];
   let chatStep = 0;
   let botTyping = false;
@@ -120,10 +121,10 @@
     const row = document.createElement("div");
     row.style.cssText = `display:flex;flex-direction:column;align-items:${entry.me ? "flex-end" : "flex-start"};gap:6px;animation:modIn .45s cubic-bezier(.16,.84,.24,1) both`;
     const who = document.createElement("span");
-    who.style.cssText = "font-family:'Lexend Exa',sans-serif;font-size:10px;color:#6b6f60";
+    who.style.cssText = "font-family:'Lexend Exa',sans-serif;font-size:10px;color:#a3a693";
     who.textContent = entry.me ? "você" : "buov.ai";
     const bubble = document.createElement("div");
-    bubble.style.cssText = `max-width:86%;padding:13px 16px;background:${entry.me ? "#defa9a" : "#0e0f0b"};color:${entry.me ? "#0e0f0b" : "#fffceb"};font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere`;
+    bubble.style.cssText = `max-width:86%;padding:13px 16px;background:${entry.me ? "#defa9a" : "#1f4905"};color:${entry.me ? "#0e0f0b" : "#fffceb"};font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere`;
     bubble.textContent = entry.text;
     row.append(who, bubble);
     chatLogEl.appendChild(row);
@@ -136,11 +137,12 @@
     const askConfirm = !q && !botTyping;
     chatForm.style.display = askInput ? "flex" : "none";
     chatConfirm.style.display = askConfirm ? "flex" : "none";
+    chatSkipBtn.style.display = q && q.optional && !botTyping ? "block" : "none";
     if (q) {
       chatInput.placeholder = q.ph;
       chatInput.type = q.type;
       chatInput.value = state[q.key] || "";
-      if (askInput) chatInput.focus();
+      if (askInput) chatInput.focus({ preventScroll: true });
     }
   }
 
@@ -152,7 +154,7 @@
         dots = document.createElement("div");
         dots.id = "botTypingRow";
         dots.style.cssText = "display:flex;flex-direction:column;align-items:flex-start;gap:6px";
-        dots.innerHTML = '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:#6b6f60">buov.ai</span><div style="padding:13px 16px;background:#0e0f0b;color:#defa9a;font-family:\'Lexend Exa\',sans-serif;font-size:14px;letter-spacing:.2em">•••</div>';
+        dots.innerHTML = '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:#a3a693">buov.ai</span><div style="padding:13px 16px;background:#1f4905;color:#defa9a;font-family:\'Lexend Exa\',sans-serif;font-size:14px;letter-spacing:.2em">•••</div>';
         chatLogEl.appendChild(dots);
         chatLogEl.scrollTop = chatLogEl.scrollHeight;
       }
@@ -206,9 +208,22 @@
     renderChatInput();
 
     if (chatStep === 1) botSay("Prazer, " + first + ". Como essa tarefa é feita hoje, e onde ela trava? Pode escrever do seu jeito.");
-    else if (chatStep === 2) botSay("Entendi. Para qual e-mail a Lorena pode responder?");
-    else if (chatStep === 3) botSay("E um telefone ou WhatsApp para contato, com DDD?");
+    else if (chatStep === 2) botSay("Entendi. Qual telefone ou WhatsApp a Lorena pode usar para falar com você? Com DDD, por favor.");
+    else if (chatStep === 3) botSay("Quer deixar um e-mail também? É opcional.");
     else botSay("Pronto. Montei o resumo do seu pedido ao lado. Posso enviar?");
+  });
+
+  chatSkipBtn.addEventListener("click", () => {
+    const q = chatQ[chatStep];
+    if (!q || !q.optional || botTyping) return;
+    chatLog.push({ me: true, text: "Prefiro não informar" });
+    addBubble({ me: true, text: "Prefiro não informar" });
+    chatInput.value = "";
+    state[q.key] = "";
+    chatStep++;
+    renderCard();
+    renderChatInput();
+    botSay("Sem problema. Montei o resumo do seu pedido ao lado. Posso enviar?");
   });
 
   chatInput.addEventListener("input", () => {
@@ -233,13 +248,14 @@
     renderChatInput();
   });
 
+  addBubble(chatLog[0]);
   renderChatInput();
 
   // ---- Envio real (Supabase) ----
   async function saveContact() {
     const payload = {
       name: state.fName.trim(),
-      email: state.fEmail.trim(),
+      email: state.fEmail.trim() || null,
       company: state.fCompany.trim() || null,
       budget: state.fBudget.trim() || null,
       message: state.msg.trim(),
@@ -364,7 +380,7 @@
 
     const bad = [
       ["name", !state.fName.trim()],
-      ["email", !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(state.fEmail || "")],
+      ["email", !!(state.fEmail || "").trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(state.fEmail || "")],
       ["tel", (state.fPhone || "").replace(/\D/g, "").length < 10],
       ["msg", !state.msg.trim()],
     ].find((x) => x[1]);

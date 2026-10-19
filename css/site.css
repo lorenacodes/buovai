@@ -212,6 +212,9 @@ html.no-intro .site-intro {
 .footer-link:hover { color: #0e0f0b; }
 .fab:hover { background: #1f4905; color: #fffceb; }
 .case-tab-btn:hover { opacity: 0.85; }
+.area-opt-btn:hover { background: #defa9a !important; color: #0e0f0b !important; }
+.area-chip-btn:hover { background: #1f4905; }
+.area-chip-close:hover { background: #1f4905; color: #fffceb; }
 
 .field-line:focus { border-bottom-color: #457528; outline: none; }
 .field-box:focus { border-color: #457528; outline: none; }
