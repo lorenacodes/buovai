@@ -117,7 +117,7 @@
 
     return `
       <div data-project-id="${project.id}" data-screen-label="Caso ${index + 1}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
-        <div style="position:relative;overflow:hidden;background:radial-gradient(circle at 0% 0%,#3f5204 0%,#94ab86 28%,#1f4905 62%,#defa9a 100%);padding:clamp(40px,6vw,88px) clamp(28px,5vw,72px);display:flex;flex-direction:column;justify-content:space-between;gap:48px;min-height:620px">
+        <div data-glow="1" style="position:relative;overflow:hidden;background:radial-gradient(circle at 0% 0%,#3f5204 0%,#94ab86 28%,#1f4905 62%,#defa9a 100%);padding:clamp(40px,6vw,88px) clamp(28px,5vw,72px);display:flex;flex-direction:column;justify-content:space-between;gap:48px;min-height:620px">
           <div>
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#fffceb;margin-bottom:28px">//caso ${String(index + 1).padStart(2, "0")} — ${escapeHtml(project.client_name || "")}</div>
             <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,2.8vw,40px);line-height:1.14;letter-spacing:-.05em;margin:0 0 24px;color:#0e0f0b;text-wrap:balance">${escapeHtml(project.title)}</h2>
