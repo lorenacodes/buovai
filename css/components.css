@@ -340,127 +340,16 @@
   transform: translateY(-2px);
 }
 
-/* ---- Portfólio: cards editoriais (dados reais via js/portfolio.js) ---- */
-.portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-  border-top: 1px solid var(--bg-ink);
-}
-
-.case-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  cursor: pointer;
-  color: inherit;
-  border-bottom: 1px solid var(--bg-ink);
-}
-
-.case-card:nth-child(odd) {
-  border-right: 1px solid var(--bg-ink);
-}
-
-@media (max-width: 760px) {
-  .case-card:nth-child(odd) {
-    border-right: none;
-  }
-}
-
-.case-card__media {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-  background: var(--bg-panel-light);
-}
-
-.case-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
-  transition: transform var(--dur-slow) var(--ease-out);
-}
-
-.case-card:hover .case-card__media img {
-  transform: scale(1.03);
-}
-
+/* ---- Portfólio: cases reais (dados via js/portfolio.js) ---- */
 .case-card__media-placeholder {
-  position: absolute;
-  inset: 0;
   display: grid;
   place-items: center;
+  width: 100%;
+  height: 100%;
   font-family: var(--font-display);
   font-size: 3rem;
   color: var(--accent-strong);
   opacity: 0.4;
-}
-
-.case-card__body {
-  padding: clamp(1.5rem, 3vw, 2.5rem);
-}
-
-.case-card__meta {
-  margin-bottom: 1rem;
-}
-
-.case-card__index {
-  font-family: var(--font-display);
-  font-size: 0.72rem;
-  color: var(--accent-strong);
-}
-
-.case-card__title {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(1.2rem, 1.6vw, 1.6rem);
-  letter-spacing: -0.03em;
-  line-height: 1.2;
-}
-
-.case-card__client {
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-size: 0.85rem;
-  color: var(--ink-muted);
-}
-
-.case-card__summary {
-  margin-top: 0.85rem;
-  font-size: 0.98rem;
-  line-height: 1.6;
-  color: var(--ink-secondary);
-  max-width: 48ch;
-}
-
-.case-card__tags {
-  margin-top: 1.25rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.case-card__cta {
-  margin-top: 1.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  font-family: var(--font-display);
-  font-size: 0.78rem;
-  border-bottom: 1px solid var(--bg-ink);
-  padding-bottom: 0.2em;
-}
-
-.case-card__cta svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2.2;
-  stroke: currentColor;
-  fill: none;
-  transition: transform var(--dur-fast) var(--ease-out);
-}
-
-.case-card:hover .case-card__cta svg {
-  transform: translate(2px, -2px);
 }
 
 .portfolio-error,

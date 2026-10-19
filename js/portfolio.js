@@ -57,29 +57,76 @@
       .join("");
   }
 
-  function renderCard(project, index) {
-    const num = String(index + 1).padStart(2, "0");
-    const firstShot = (SCREENSHOTS[project.client_name] || [])[0];
-    const media = firstShot
-      ? `<img src="${firstShot.src}" alt="Interface do sistema ${escapeHtml(project.title)}" loading="lazy" />`
-      : `<span class="case-card__media-placeholder" aria-hidden="true">${num}</span>`;
-
+  // Testemunho real ainda não coletado — mantém o bloco como roteiro
+  // (texto entre colchetes), igual ao protótipo, até termos a citação e o
+  // vídeo de verdade.
+  function renderTestimonial(index) {
     return `
-      <article class="case-card" data-project-id="${project.id}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="Ver case completo: ${escapeHtml(project.title)}">
-        <div class="case-card__media">${media}</div>
-        <div class="case-card__body">
-          <div class="case-card__meta">
-            <span class="case-card__index">Case ${num}</span>
+      <div class="case-testimonial" data-screen-label="Depoimento">
+        <div class="container case-testimonial__inner">
+          <div class="case-testimonial__video">
+            <div class="case-testimonial__play">
+              <span class="btn-circle" aria-hidden="true">▶</span>
+              <span class="eyebrow">vídeo do depoimento</span>
+            </div>
           </div>
-          <h3 class="case-card__title">${escapeHtml(project.title)} <span class="case-card__client">· ${escapeHtml(project.client_name || "")}</span></h3>
-          <p class="case-card__summary">${escapeHtml(project.summary || "")}</p>
-          <div class="case-card__tags">${renderTags(project.tags)}</div>
-          <div class="case-card__cta">
-            <span>Ver case completo</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H8M17 7v9"/></svg>
+          <div>
+            <p class="eyebrow">depoimento — caso ${String(index + 1).padStart(2, "0")}</p>
+            <blockquote>“[Trecho do depoimento da cliente, em uma ou duas frases.]”</blockquote>
+            <div class="case-testimonial__who">
+              <div class="n">[Nome da cliente]</div>
+              <div class="r">[Cargo] — [Nome do escritório de contabilidade]</div>
+            </div>
           </div>
         </div>
-      </article>
+      </div>
+    `;
+  }
+
+  function renderCase(project, index) {
+    const shots = SCREENSHOTS[project.client_name] || [];
+    const tabShots = shots.slice(0, 2);
+    const hasTabs = tabShots.length > 1;
+    const tabLabels = ["Administrador", "Cliente"];
+
+    const media = tabShots.length
+      ? tabShots
+          .map(
+            (shot, i) => `
+              <img src="${shot.src}" alt="Interface do sistema ${escapeHtml(project.title)}" loading="lazy" data-tab-img="${i}" ${i === 0 ? "" : "hidden"} />
+            `
+          )
+          .join("")
+      : `<span class="case-card__media-placeholder" aria-hidden="true">${String(index + 1).padStart(2, "0")}</span>`;
+
+    const tabs = hasTabs
+      ? `
+        <div class="case-tabs" role="tablist">
+          ${tabLabels
+            .map((label, i) => `<button type="button" role="tab" data-tab-btn="${i}" class="${i === 0 ? "is-active" : ""}">${label}</button>`)
+            .join("")}
+        </div>
+      `
+      : "";
+
+    return `
+      <div class="case-panel" data-project-id="${project.id}" data-screen-label="Caso ${index + 1}">
+        <div class="case-panel__intro">
+          <div>
+            <p class="eyebrow">caso ${String(index + 1).padStart(2, "0")} — ${escapeHtml(project.client_name || "")}</p>
+            <h3>${escapeHtml(project.title)}</h3>
+            <p>${escapeHtml(project.summary || "")}</p>
+            <div class="case-panel__tags">${renderTags(project.tags)}</div>
+          </div>
+          <div class="case-panel__foot">
+            ${tabs}
+            <button type="button" class="case-panel__link" data-open-case="${project.id}">Abrir o caso completo ↗</button>
+          </div>
+        </div>
+        <div class="case-panel__media">
+          <div class="case-panel__frame">${media}</div>
+        </div>
+      </div>
     `;
   }
 
@@ -174,18 +221,23 @@
     document.body.style.overflow = "";
   }
 
-  function bindCardEvents() {
-    listEl.querySelectorAll(".case-card").forEach((card) => {
-      const id = card.getAttribute("data-project-id");
+  function bindCaseEvents() {
+    listEl.querySelectorAll("[data-open-case]").forEach((btn) => {
+      const id = btn.getAttribute("data-open-case");
       const project = projects.find((p) => String(p.id) === id);
       if (!project) return;
+      btn.addEventListener("click", () => openModal(project));
+    });
 
-      card.addEventListener("click", () => openModal(project));
-      card.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          openModal(project);
-        }
+    listEl.querySelectorAll(".case-panel").forEach((panel) => {
+      const tabBtns = panel.querySelectorAll("[data-tab-btn]");
+      const imgs = panel.querySelectorAll("[data-tab-img]");
+      tabBtns.forEach((tabBtn) => {
+        tabBtn.addEventListener("click", () => {
+          const target = tabBtn.getAttribute("data-tab-btn");
+          tabBtns.forEach((b) => b.classList.toggle("is-active", b === tabBtn));
+          imgs.forEach((img) => { img.hidden = img.getAttribute("data-tab-img") !== target; });
+        });
       });
     });
   }
@@ -212,10 +264,15 @@
         return;
       }
 
-      listEl.innerHTML = projects.map(renderCard).join("");
-      bindCardEvents();
+      const countEl = document.getElementById("portfolio-count");
+      if (countEl) countEl.textContent = `${String(projects.length).padStart(2, "0")} caso${projects.length > 1 ? "s" : ""}`;
 
-      if (window.buovaiReveal) window.buovaiReveal(listEl.querySelectorAll(".case-card"));
+      listEl.innerHTML = projects
+        .map((project, index) => renderCase(project, index) + (index === 0 ? renderTestimonial(index) : ""))
+        .join("");
+      bindCaseEvents();
+
+      if (window.buovaiReveal) window.buovaiReveal(listEl.querySelectorAll(".case-panel, .case-testimonial"));
     } catch (err) {
       console.error("[Buovai] Falha ao carregar portfólio:", err);
       listEl.innerHTML = `<div class="portfolio-error">Não foi possível carregar os cases agora. Atualize a página em instantes.</div>`;

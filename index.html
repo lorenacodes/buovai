@@ -153,7 +153,9 @@
     <section class="hero" id="top">
       <div class="hero__panel" id="heroPanel">
         <div class="hero__blobs" id="heroBlobs" aria-hidden="true"></div>
-        <span class="hero__star" aria-hidden="true">✦</span>
+        <canvas class="hero__cover" id="heroCover" aria-hidden="true"></canvas>
+        <span class="hero__star" id="heroStar" aria-hidden="true">✦</span>
+        <div class="hero__sparks" id="heroSparks" aria-hidden="true"></div>
 
         <div class="container hero__eyebrow-row">
           <p class="eyebrow">Sites, aplicativos e automações</p>
@@ -165,32 +167,34 @@
           <div class="hero__building">
             <p class="hero__building-label">
               <span class="static">//construindo:</span>
-              <span class="hero__building-typed" id="heroTyped"></span><span class="hero__caret" aria-hidden="true"></span>
+              <span class="hero__building-typed" id="heroSlot"><span id="heroTyped"></span><span class="hero__caret" aria-hidden="true"></span></span>
             </p>
 
-            <button class="hero__bot" id="heroBot" type="button" title="Ver de novo" aria-label="Reiniciar animação">
-              <svg viewBox="-20 10 390 460" aria-hidden="true">
-                <defs>
-                  <mask id="buov-bot-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480">
-                    <circle cx="170" cy="283" r="172" fill="#fff"></circle>
-                    <rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect>
-                    <path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path>
-                    <rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect>
-                    <g id="botEyes"><g id="botLid">
-                      <circle cx="122" cy="297" r="15" fill="#000"></circle>
-                      <circle cx="218" cy="297" r="15" fill="#000"></circle>
-                    </g></g>
-                  </mask>
-                </defs>
-                <g id="botHead" class="hero__bot-head">
-                  <g id="botAntL" class="hero__bot-ant"><line x1="76" y1="132" x2="18" y2="38" stroke="var(--ink-on-dark)" stroke-width="8" stroke-linecap="round"></line></g>
-                  <g id="botAntR" class="hero__bot-ant hero__bot-ant--r"><line x1="246" y1="126" x2="292" y2="24" stroke="var(--ink-on-dark)" stroke-width="8" stroke-linecap="round"></line></g>
-                  <rect x="-8" y="266" width="14" height="38" rx="7" fill="var(--ink-on-dark)"></rect>
-                  <rect x="334" y="266" width="14" height="38" rx="7" fill="var(--ink-on-dark)"></rect>
-                  <rect x="-10" y="100" width="370" height="370" fill="var(--ink-on-dark)" mask="url(#buov-bot-mask)"></rect>
-                </g>
-              </svg>
-            </button>
+            <div class="hero__bot-slide" id="heroBotSlide">
+              <button class="hero__bot" id="heroBot" type="button" title="Ver de novo" aria-label="Reiniciar animação">
+                <svg viewBox="-20 10 390 460" aria-hidden="true">
+                  <defs>
+                    <mask id="buov-bot-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480">
+                      <circle cx="170" cy="283" r="172" fill="#fff"></circle>
+                      <rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect>
+                      <path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path>
+                      <rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect>
+                      <g id="botEyes"><g id="botLid">
+                        <circle cx="122" cy="297" r="15" fill="#000"></circle>
+                        <circle cx="218" cy="297" r="15" fill="#000"></circle>
+                      </g></g>
+                    </mask>
+                  </defs>
+                  <g id="botHead" class="hero__bot-head">
+                    <g id="botAntL" class="hero__bot-ant"><line x1="76" y1="132" x2="18" y2="38" stroke="var(--ink-on-dark)" stroke-width="8" stroke-linecap="round"></line></g>
+                    <g id="botAntR" class="hero__bot-ant hero__bot-ant--r"><line x1="246" y1="126" x2="292" y2="24" stroke="var(--ink-on-dark)" stroke-width="8" stroke-linecap="round"></line></g>
+                    <rect x="-8" y="266" width="14" height="38" rx="7" fill="var(--ink-on-dark)"></rect>
+                    <rect x="334" y="266" width="14" height="38" rx="7" fill="var(--ink-on-dark)"></rect>
+                    <rect x="-10" y="100" width="370" height="370" fill="var(--ink-on-dark)" mask="url(#buov-bot-mask)"></rect>
+                  </g>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -237,10 +241,11 @@
             <p class="eyebrow">02 — Casos reais</p>
             <h2>Sistemas feitos <span class="accent">para a rotina de cada cliente</span>.</h2>
           </div>
+          <span class="count" id="portfolio-count"></span>
         </div>
-
-        <div class="portfolio-grid" id="portfolio-list" aria-live="polite"></div>
       </div>
+
+      <div id="portfolio-list" aria-live="polite"></div>
     </section>
 
     <!-- ============== EXPERIÊNCIA (oculta até a empresa autorizar) ============== -->
