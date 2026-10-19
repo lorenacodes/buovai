@@ -36,7 +36,7 @@
   // ---- CTA do header: só aparece depois que o hero sai de vista,
   // igual a onScrollNav/showNavCta do arquivo original ----
   const navCta = document.getElementById("navCta");
-  const heroEl = document.getElementById("top");
+  const heroEl = document.getElementById("inicio");
   if (navCta && heroEl) {
     let shown = false;
     const onScrollNav = () => {
