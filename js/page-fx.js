@@ -389,18 +389,20 @@
             ex = -10; ey = -6;
           }
           if (scene === 2) { ex = 20; ey = -4; rot = 4; }
-          if (scene === 3) {
-            ex = -12;
-            if (act > 2600) {
-              const c = cl((act - 2600) / 900);
-              lv = 1 - c * 0.92; rot = -4 * c;
-              if (c >= 1) state = "sleep";
-            }
+          if (scene === 3) { ex = -12; }
+          // Depois de falar, o robô volta a dormir (pedido da Lorena) —
+          // no arquivo original só a cena 3 fazia isso; aqui todas fazem.
+          const windDownStart = 2600;
+          if (act > windDownStart) {
+            const c = cl((act - windDownStart) / 900);
+            lv = (scene === 3 ? 1 : lv) - c * (scene === 3 ? 0.92 : lv - 0.08);
+            rot = -4 * c;
+            if (c >= 1) state = "sleep";
           }
           const msg = lines[scene], n = Math.min(msg.length, Math.floor(act / 34));
           const tx = msg.slice(0, n);
           if (tx !== typed) { typed = tx; bub.textContent = tx || " "; }
-          const show = act < 4200 || scene === 2;
+          const show = act < windDownStart || scene === 2;
           bub.style.opacity = show && state !== "sleep" ? "1" : "0";
           bub.style.transform = show ? "none" : "translateY(6px)";
         }
