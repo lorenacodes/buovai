@@ -40,9 +40,12 @@
       if (getComputedStyle(el).position === "static") el.style.position = "relative";
       el.style.overflow = "hidden";
       const o = document.createElement("div");
+      // Brilho mais suave e orgânico (como as manchas que seguem o cursor
+      // no hero), em vez do ponto de luz nítido do arquivo original —
+      // pedido explícito da Lorena, única exceção à fidelidade literal.
       o.style.cssText =
-        "position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s ease;mix-blend-mode:soft-light;" +
-        "background:radial-gradient(520px circle at var(--gx,50%) var(--gy,50%),rgba(255,252,235,.85),rgba(255,252,235,0) 70%)";
+        "position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .9s ease;mix-blend-mode:soft-light;filter:blur(50px);" +
+        "background:radial-gradient(760px circle at var(--gx,50%) var(--gy,50%),rgba(222,250,154,.6) 0%,rgba(148,171,134,.4) 35%,rgba(69,117,40,.2) 60%,rgba(69,117,40,0) 80%)";
       el.insertBefore(o, el.firstChild);
       Array.from(el.children).forEach((c) => {
         if (c !== o && getComputedStyle(c).position === "static") c.style.position = "relative";
