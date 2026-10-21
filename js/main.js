@@ -54,31 +54,68 @@
     onScrollNav();
   }
 
-  // ---- Modal "Área do cliente": porte de loginOpen/loginAsCli/loginAsAdm
-  // do arquivo original, ligado à página real de login (painel/login.html)
-  // em vez do preview do arquivo de design ----
+  // ---- Modal "Área do cliente": porte literal de loginOpen/loginAsCli/
+  // loginAsAdm/loginForm/loginSent/loginMagic/loginSubmit do arquivo
+  // original. Autenticação real (Supabase Auth) embutida no próprio
+  // modal — mesma lógica de painel/login.html (signInWithPassword/
+  // signInWithOtp + rpc is_admin), mas sem navegar para nenhuma outra
+  // página até o login funcionar. O link "demonstração" abre
+  // painel/demo.html?role=... (porte do "Buov Portal v2.dc.html"
+  // enviado), que não precisa de login real. ----
   const loginModal = document.getElementById("loginModal");
   const portalBtn = document.getElementById("portalBtn");
-  if (loginModal && portalBtn) {
+  if (loginModal && portalBtn && window.buovaiClient) {
     const headEl = document.getElementById("loginModalHead");
-    const enterEl = document.getElementById("loginModalEnter");
     const clientBtn = document.getElementById("loginRoleClient");
     const adminBtn = document.getElementById("loginRoleAdmin");
     const closeBtn = document.getElementById("loginModalClose");
     const skipLink = document.getElementById("loginModalSkip");
+    const formEl = document.getElementById("loginForm");
+    const sentView = document.getElementById("loginSentView");
+    const sentEmailEl = document.getElementById("loginSentEmail");
+    const backBtn = document.getElementById("loginBackBtn");
+    const emailEl = document.getElementById("loginEmail");
+    const passEl = document.getElementById("loginPass");
+    const errEl = document.getElementById("loginErr");
+    const submitBtn = document.getElementById("loginSubmitBtn");
+    const demoLink = document.getElementById("loginDemoLink");
+    const magicBtn = document.getElementById("loginMagicBtn");
 
-    function setRole(role) {
+    let role = "client";
+
+    function setRole(r) {
+      role = r;
       const isAdmin = role === "admin";
       headEl.textContent = isAdmin ? "Entre no painel de administração." : "Entre para acompanhar o seu projeto.";
-      enterEl.href = isAdmin ? "painel/login.html?as=admin" : "painel/login.html";
       clientBtn.style.background = isAdmin ? "transparent" : "#0e0f0b";
       clientBtn.style.color = isAdmin ? "#0e0f0b" : "#fffceb";
       adminBtn.style.background = isAdmin ? "#0e0f0b" : "transparent";
       adminBtn.style.color = isAdmin ? "#fffceb" : "#0e0f0b";
+      demoLink.href = "painel/demo.html?role=" + (isAdmin ? "admin" : "client");
+    }
+
+    function showForm() {
+      sentView.style.display = "none";
+      formEl.style.display = "flex";
+    }
+    function showSent(email) {
+      sentEmailEl.textContent = email;
+      sentView.style.display = "flex";
+      formEl.style.display = "none";
+    }
+    function showErr(msg) {
+      errEl.textContent = msg;
+      errEl.style.display = "block";
+    }
+    function clearErr() {
+      errEl.style.display = "none";
     }
 
     function openModal() {
       setRole("client");
+      showForm();
+      clearErr();
+      formEl.reset();
       loginModal.style.display = "flex";
     }
     function closeModal() {
@@ -90,11 +127,69 @@
     skipLink.addEventListener("click", closeModal);
     clientBtn.addEventListener("click", () => setRole("client"));
     adminBtn.addEventListener("click", () => setRole("admin"));
+    backBtn.addEventListener("click", () => { showForm(); clearErr(); });
+    emailEl.addEventListener("input", clearErr);
+    passEl.addEventListener("input", clearErr);
     loginModal.addEventListener("click", (e) => {
       if (e.target === loginModal) closeModal();
     });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && loginModal.style.display === "flex") closeModal();
+    });
+
+    async function goToPanel() {
+      const { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
+      window.location.href = "painel/" + (isAdmin ? "leads.html" : "index.html");
+    }
+
+    formEl.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = emailEl.value.trim();
+      const pass = passEl.value;
+      if (!email || !pass) {
+        showErr("Preencha e-mail e senha.");
+        return;
+      }
+      clearErr();
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Entrando...";
+      const { error } = await window.buovaiClient.auth.signInWithPassword({ email, password: pass });
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Entrar";
+      if (error) {
+        showErr("E-mail ou senha incorretos.");
+        return;
+      }
+      await goToPanel();
+    });
+
+    magicBtn.addEventListener("click", async () => {
+      const email = emailEl.value.trim();
+      if (!email.includes("@")) {
+        showErr("Preencha e-mail e senha.");
+        return;
+      }
+      clearErr();
+      magicBtn.disabled = true;
+      const redirectTo = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/painel/index.html");
+      const { error } = await window.buovaiClient.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+      magicBtn.disabled = false;
+      if (error) {
+        showErr("Não foi possível enviar o link agora. Tente de novo em instantes.");
+        return;
+      }
+      showSent(email);
+    });
+
+    // Se já tem sessão ativa, nem precisa abrir o modal de login —
+    // manda direto pro painel certo ao clicar.
+    window.buovaiClient.auth.getSession().then((res) => {
+      if (!res.data.session) return;
+      portalBtn.removeEventListener("click", openModal);
+      portalBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        goToPanel();
+      });
     });
   }
 })();

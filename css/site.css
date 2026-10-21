@@ -225,7 +225,8 @@ html.no-intro .site-intro {
 .case-link:hover { color: #fffceb; border-color: #fffceb; }
 .faq-q:hover { color: #457528; }
 .submit-btn:hover { background: #1f4905; }
-.login-enter-btn:hover { background: #1f4905; }
+.login-submit-btn:hover { background: #1f4905; }
+.login-demo-link:hover { background: #defa9a; color: #0e0f0b; }
 .footer-link:hover { color: #0e0f0b; }
 .fab:hover { background: #1f4905; color: #fffceb; }
 .case-tab-btn:hover { opacity: 0.85; }
