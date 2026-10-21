@@ -44,20 +44,7 @@ button {
   to { opacity: 1; transform: none; }
 }
 
-:root {
-  --svc-cols: 72px minmax(0,1.1fr) minmax(0,1.4fr) 32px;
-}
-
 @media (max-width: 640px) {
-  :root {
-    --svc-cols: 48px minmax(0,1fr);
-  }
-  .service-row__text {
-    grid-column: 2 / 3;
-  }
-  .service-row__arrow {
-    display: none;
-  }
   .nav-notnarrow {
     display: none !important;
   }
@@ -222,9 +209,7 @@ html.no-intro .site-intro {
 .hdr-ghost:hover { background: #0e0f0b; color: #fffceb; }
 .hdr-primary:hover { background: #1f4905; color: #fffceb; }
 .case-link:hover { color: #fffceb; border-color: #fffceb; }
-.service-row:hover { background: #defa9a; color: #0e0f0b; }
 .faq-q:hover { color: #457528; }
-.contact-channel:hover { color: #fffceb; }
 .submit-btn:hover { background: #1f4905; }
 .footer-link:hover { color: #0e0f0b; }
 .fab:hover { background: #1f4905; color: #fffceb; }
