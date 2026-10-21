@@ -107,11 +107,33 @@
       <a href="#duvidas" class="nav-a" style="color:#0e0f0b">Dúvidas</a>
     </div>
     <div style="display:flex;gap:10px;margin-left:auto;white-space:nowrap;font-family:'Lexend Exa',sans-serif;font-size:12px">
-      <a href="painel/login.html" id="portalBtn" class="hdr-ghost nav-notnarrow" style="padding:12px 16px;border:1px solid #0e0f0b;color:#0e0f0b">Área do cliente</a>
+      <button type="button" id="portalBtn" class="hdr-ghost nav-notnarrow" style="padding:12px 16px;border:1px solid #0e0f0b;color:#0e0f0b;background:transparent;font:inherit;cursor:pointer">Área do cliente</button>
       <a href="#contato" id="navCta" class="hdr-primary" data-magnet="1" style="padding:12px 18px;display:none;background:#0e0f0b;color:#fffceb;border:1px solid #0e0f0b;white-space:nowrap">Contar meu problema ↗</a>
     </div>
   </nav>
 </header>
+
+<!-- ============== MODAL DE LOGIN (abre pelo botão "Área do cliente" do
+     header; porte do loginOpen/loginAsCli/loginAsAdm do arquivo original,
+     ligado à página real de login — painel/login.html — em vez do
+     preview "Buov Portal v2" do arquivo de design) ============== -->
+<div id="loginModal" style="display:none;position:fixed;inset:0;z-index:90;background:rgba(14,15,11,.78);backdrop-filter:blur(6px);overflow-y:auto;padding:20px">
+  <div style="margin:auto;width:100%;max-width:440px;background:#fffceb;color:#0e0f0b;padding:clamp(28px,5vw,44px);display:flex;flex-direction:column;gap:26px;animation:modIn .45s cubic-bezier(.16,.84,.24,1) both">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+      <span style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:11px;color:#457528">//área restrita</span>
+        <span id="loginModalHead" style="font-family:'Lexend Exa',sans-serif;font-size:24px;letter-spacing:-.04em;line-height:1.2">Entre para acompanhar o seu projeto.</span>
+      </span>
+      <button type="button" id="loginModalClose" aria-label="Fechar" style="border:0;background:none;font:inherit;font-size:22px;line-height:1;cursor:pointer;color:#0e0f0b;padding:4px">×</button>
+    </div>
+    <div style="display:flex;border:1px solid #0e0f0b;font-family:'Lexend Exa',sans-serif;font-size:12px">
+      <button type="button" id="loginRoleClient" style="flex:1;padding:12px;border:0;cursor:pointer;font:inherit;background:#0e0f0b;color:#fffceb">Cliente</button>
+      <button type="button" id="loginRoleAdmin" style="flex:1;padding:12px;border:0;cursor:pointer;font:inherit;background:transparent;color:#0e0f0b">Administrador</button>
+    </div>
+    <a id="loginModalEnter" href="painel/login.html" class="login-enter-btn" style="font-family:'Lexend Exa',sans-serif;font-size:13px;padding:16px 20px;background:#0e0f0b;color:#fffceb;cursor:pointer;text-align:center">Entrar</a>
+    <a href="#contato" id="loginModalSkip" style="font-family:'Lexend Exa',sans-serif;font-size:13px;text-align:center;color:#2b2e24">Ainda não sou cliente</a>
+  </div>
+</div>
 
 <section id="inicio" data-screen-label="Hero" style="position:relative;min-height:calc(100vh - 66px);display:flex;flex-direction:column;overflow:hidden;background:#d6d6cf">
   <div id="hero" style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:space-between">
@@ -205,7 +227,7 @@
   </div>
 </section>
 
-<section id="caso" data-screen-label="Casos reais">
+<section id="caso" data-screen-label="Casos reais" style="display:flex;flex-direction:column;gap:clamp(48px,6vw,88px);background:#efeedb;padding-bottom:clamp(72px,9vw,140px)">
   <div data-reveal style="max-width:1320px;margin:0 auto;padding:120px 28px 56px;display:flex;justify-content:space-between;align-items:end;gap:32px;flex-wrap:wrap">
     <div>
       <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//02 · Casos reais</div>
@@ -368,6 +390,7 @@
       </div>
 
       <div id="chatPanel" style="display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;align-items:center;gap:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,252,235,.14)"><svg viewBox="-20 10 390 460" style="width:46px;height:auto;overflow:visible;display:block;flex:none"><line x1="76" y1="132" x2="18" y2="38" stroke="#defa9a" stroke-width="14" stroke-linecap="round"></line><line x1="246" y1="126" x2="292" y2="24" stroke="#defa9a" stroke-width="14" stroke-linecap="round"></line><circle cx="170" cy="283" r="172" fill="#defa9a"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#0e0f0b"></rect><rect x="66" y="230" width="208" height="134" rx="67" fill="#defa9a"></rect><g style="transform-origin:170px 297px;animation:botBlink 4.2s infinite"><circle cx="122" cy="297" r="15" fill="#0e0f0b"></circle><circle cx="218" cy="297" r="15" fill="#0e0f0b"></circle></g></svg><span style="display:flex;flex-direction:column;gap:4px"><span style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#fffceb">Assistente buov.ai</span><span style="font-size:13px;color:#a3a693">Faz as primeiras perguntas e encaminha o seu projeto.</span></span></div>
         <div id="chatLog" style="display:flex;flex-direction:column;gap:12px;max-height:440px;min-height:280px;overflow:auto;padding-right:4px"></div>
         <form id="chatForm" style="display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,252,235,.35)">
           <input id="chatInput" type="text" placeholder="" autocomplete="off" style="flex:1;min-width:0;padding:16px 0;background:transparent;border:0;font:400 17px 'Open Sans',sans-serif;color:#fffceb;outline:none">

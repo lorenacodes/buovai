@@ -117,12 +117,15 @@
   let chatLog = [{ me: false, text: "Olá. Eu recebo os novos projetos da Lorena. Para começar, qual é o seu nome?" }];
   let botTimer = null;
 
+  const BOT_ICON_22 =
+    '<svg viewBox="-20 10 390 460" style="width:22px;height:auto;overflow:visible;display:block;flex:none"><line x1="76" y1="132" x2="18" y2="38" stroke="#defa9a" stroke-width="14" stroke-linecap="round"></line><line x1="246" y1="126" x2="292" y2="24" stroke="#defa9a" stroke-width="14" stroke-linecap="round"></line><circle cx="170" cy="283" r="172" fill="#defa9a"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#0e0f0b"></rect><rect x="66" y="230" width="208" height="134" rx="67" fill="#defa9a"></rect><g style="transform-origin:170px 297px;animation:botBlink 4.2s infinite"><circle cx="122" cy="297" r="15" fill="#0e0f0b"></circle><circle cx="218" cy="297" r="15" fill="#0e0f0b"></circle></g></svg>';
+
   function addBubble(entry) {
     const row = document.createElement("div");
     row.style.cssText = `display:flex;flex-direction:column;align-items:${entry.me ? "flex-end" : "flex-start"};gap:6px;animation:modIn .45s cubic-bezier(.16,.84,.24,1) both`;
     const who = document.createElement("span");
-    who.style.cssText = "font-family:'Lexend Exa',sans-serif;font-size:10px;color:#a3a693";
-    who.textContent = entry.me ? "você" : "buov.ai";
+    who.style.cssText = "display:flex;align-items:center;gap:8px;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#a3a693";
+    who.innerHTML = (entry.me ? "" : BOT_ICON_22) + (entry.me ? "você" : "buov.ai");
     const bubble = document.createElement("div");
     bubble.style.cssText = `max-width:86%;padding:13px 16px;background:${entry.me ? "#defa9a" : "#1f4905"};color:${entry.me ? "#0e0f0b" : "#fffceb"};font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere`;
     bubble.textContent = entry.text;
@@ -154,7 +157,7 @@
         dots = document.createElement("div");
         dots.id = "botTypingRow";
         dots.style.cssText = "display:flex;flex-direction:column;align-items:flex-start;gap:6px";
-        dots.innerHTML = '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:#a3a693">buov.ai</span><div style="padding:13px 16px;background:#1f4905;color:#defa9a;font-family:\'Lexend Exa\',sans-serif;font-size:14px;letter-spacing:.2em">•••</div>';
+        dots.innerHTML = '<span style="display:flex;align-items:center;gap:8px;font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:#a3a693">' + BOT_ICON_22 + 'buov.ai</span><div style="padding:13px 16px;background:#1f4905;color:#defa9a;font-family:\'Lexend Exa\',sans-serif;font-size:14px;letter-spacing:.2em">•••</div>';
         chatLogEl.appendChild(dots);
         chatLogEl.scrollTop = chatLogEl.scrollHeight;
       }

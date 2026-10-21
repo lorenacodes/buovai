@@ -53,4 +53,48 @@
     window.addEventListener("scroll", onScrollNav, { passive: true });
     onScrollNav();
   }
+
+  // ---- Modal "Área do cliente": porte de loginOpen/loginAsCli/loginAsAdm
+  // do arquivo original, ligado à página real de login (painel/login.html)
+  // em vez do preview do arquivo de design ----
+  const loginModal = document.getElementById("loginModal");
+  const portalBtn = document.getElementById("portalBtn");
+  if (loginModal && portalBtn) {
+    const headEl = document.getElementById("loginModalHead");
+    const enterEl = document.getElementById("loginModalEnter");
+    const clientBtn = document.getElementById("loginRoleClient");
+    const adminBtn = document.getElementById("loginRoleAdmin");
+    const closeBtn = document.getElementById("loginModalClose");
+    const skipLink = document.getElementById("loginModalSkip");
+
+    function setRole(role) {
+      const isAdmin = role === "admin";
+      headEl.textContent = isAdmin ? "Entre no painel de administração." : "Entre para acompanhar o seu projeto.";
+      enterEl.href = isAdmin ? "painel/login.html?as=admin" : "painel/login.html";
+      clientBtn.style.background = isAdmin ? "transparent" : "#0e0f0b";
+      clientBtn.style.color = isAdmin ? "#0e0f0b" : "#fffceb";
+      adminBtn.style.background = isAdmin ? "#0e0f0b" : "transparent";
+      adminBtn.style.color = isAdmin ? "#fffceb" : "#0e0f0b";
+    }
+
+    function openModal() {
+      setRole("client");
+      loginModal.style.display = "flex";
+    }
+    function closeModal() {
+      loginModal.style.display = "none";
+    }
+
+    portalBtn.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+    skipLink.addEventListener("click", closeModal);
+    clientBtn.addEventListener("click", () => setRole("client"));
+    adminBtn.addEventListener("click", () => setRole("admin"));
+    loginModal.addEventListener("click", (e) => {
+      if (e.target === loginModal) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && loginModal.style.display === "flex") closeModal();
+    });
+  }
 })();
