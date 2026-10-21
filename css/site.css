@@ -48,6 +48,15 @@ button {
   .nav-notnarrow {
     display: none !important;
   }
+  /* FAB do WhatsApp um pouco menor e com mais respiro em telas pequenas,
+     pra não ficar apertado perto de botões no fim de seção (pedido da
+     Lorena). */
+  .fab {
+    right: 16px;
+    bottom: 16px;
+    width: 48px;
+    height: 48px;
+  }
 }
 
 /* ---- Faixa de "Serviços" compacta sob o hero: svcStripCols no original

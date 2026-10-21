@@ -138,6 +138,9 @@
   // ---- initGuide: robô que acompanha a rolagem e anota a seção ativa ----
   function initGuide() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Em telas pequenas o robô flutuante atrapalha mais do que ajuda
+    // (pedido da Lorena) — desativado abaixo de 640px.
+    if (window.innerWidth < 640) return;
 
     const BOT =
       '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><defs><mask id="buov-guide-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480"><circle cx="170" cy="283" r="172" fill="#fff"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect><path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path><rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect><g class="g-eyes"><g class="g-lid"><circle cx="122" cy="297" r="15" fill="#000"></circle><circle cx="218" cy="297" r="15" fill="#000"></circle></g></g></mask></defs><g class="g-head" style="transform-origin:170px 283px"><g class="g-antL" style="transform-origin:76px 132px"><line x1="76" y1="132" x2="18" y2="38" stroke="#0e0f0b" stroke-width="8" stroke-linecap="round"></line></g><g class="g-antR" style="transform-origin:246px 126px"><line x1="246" y1="126" x2="292" y2="24" stroke="#0e0f0b" stroke-width="8" stroke-linecap="round"></line></g><rect x="-8" y="266" width="14" height="38" rx="7" fill="#0e0f0b"></rect><rect x="334" y="266" width="14" height="38" rx="7" fill="#0e0f0b"></rect><rect x="-10" y="100" width="370" height="370" fill="#0e0f0b" mask="url(#buov-guide-mask)"></rect></g></svg>';

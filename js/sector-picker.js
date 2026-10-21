@@ -65,18 +65,20 @@
     if (popupEl) { popupEl.remove(); popupEl = null; }
 
     if (open) {
-      // "showAsk": pergunta com todas as opções
+      // "showAsk": pergunta com todas as opções. Em telas pequenas, caixa
+      // mais compacta (menos padding, opções menores) — pedido da Lorena.
+      const narrow = window.innerWidth < 480;
       popupEl = document.createElement("div");
-      popupEl.style.cssText = "position:fixed;left:20px;bottom:20px;z-index:45;width:min(380px,calc(100vw - 40px));background:#0e0f0b;color:#fffceb;padding:20px;box-shadow:0 24px 60px rgba(14,15,11,.4);animation:modIn .5s cubic-bezier(.16,.84,.24,1) both";
+      popupEl.style.cssText = `position:fixed;left:${narrow ? "12px" : "20px"};right:${narrow ? "12px" : "auto"};bottom:${narrow ? "12px" : "20px"};z-index:45;width:${narrow ? "auto" : "min(380px,calc(100vw - 40px))"};background:#0e0f0b;color:#fffceb;padding:${narrow ? "14px" : "20px"};box-shadow:0 24px 60px rgba(14,15,11,.4);animation:modIn .5s cubic-bezier(.16,.84,.24,1) both`;
       const opts = SECT.map(
         (x) =>
-          `<button type="button" data-area-opt="${x.key}" class="area-opt-btn" style="padding:9px 12px;border:1px solid rgba(255,252,235,.4);background:${x.key === sector ? "#defa9a" : "transparent"};color:${x.key === sector ? "#0e0f0b" : "#fffceb"};font:inherit;cursor:pointer">${x.label}</button>`
+          `<button type="button" data-area-opt="${x.key}" class="area-opt-btn" style="padding:${narrow ? "7px 10px" : "9px 12px"};border:1px solid rgba(255,252,235,.4);background:${x.key === sector ? "#defa9a" : "transparent"};color:${x.key === sector ? "#0e0f0b" : "#fffceb"};font:inherit;cursor:pointer">${x.label}</button>`
       ).join("");
       popupEl.innerHTML = `
-        <div style="font-family:'Lexend Exa',sans-serif;font-size:10px;color:#defa9a;margin-bottom:10px">buov.ai</div>
-        <div style="font-size:15px;line-height:1.5;margin-bottom:16px">Para mostrar exemplos da sua realidade: qual é a sua área?</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;font-family:'Lexend Exa',sans-serif;font-size:11px">${opts}</div>
-        <div style="display:flex;gap:16px;margin-top:14px">
+        <div style="font-family:'Lexend Exa',sans-serif;font-size:10px;color:#defa9a;margin-bottom:${narrow ? "8px" : "10px"}">buov.ai</div>
+        <div style="font-size:${narrow ? "13px" : "15px"};line-height:1.5;margin-bottom:${narrow ? "12px" : "16px"}">Para mostrar exemplos da sua realidade: qual é a sua área?</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;font-family:'Lexend Exa',sans-serif;font-size:${narrow ? "10px" : "11px"}">${opts}</div>
+        <div style="display:flex;gap:16px;margin-top:${narrow ? "10px" : "14px"}">
           ${s ? '<button type="button" data-area-clear style="padding:0;background:none;border:0;color:#defa9a;font-family:\'Lexend Exa\',sans-serif;font-size:10px;cursor:pointer;text-decoration:underline">Remover exemplo</button>' : ""}
           <button type="button" data-area-skip style="padding:0;background:none;border:0;color:#c9cbb5;font-family:'Lexend Exa',sans-serif;font-size:10px;cursor:pointer;text-decoration:underline">${s ? "Fechar" : "Pular"}</button>
         </div>
