@@ -311,7 +311,7 @@
     if (!ft) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const box = document.createElement("div");
-    box.style.cssText = "position:relative;width:72px;margin-top:28px;pointer-events:none";
+    box.style.cssText = "position:relative;width:72px;margin-top:28px;pointer-events:auto;cursor:pointer";
     box.innerHTML =
       '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><defs><mask id="buov-foot-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480"><circle cx="170" cy="283" r="172" fill="#fff"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect><path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path><rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect><g class="f-eyes"><g class="f-lid"><circle cx="122" cy="297" r="15" fill="#000"></circle><circle cx="218" cy="297" r="15" fill="#000"></circle></g></g></mask></defs><g class="f-head" style="transform-origin:170px 440px"><g class="f-antL" style="transform-origin:76px 132px"><line x1="76" y1="132" x2="18" y2="38" stroke="#fffceb" stroke-width="8" stroke-linecap="round"></line></g><g class="f-antR" style="transform-origin:246px 126px"><line x1="246" y1="126" x2="292" y2="24" stroke="#fffceb" stroke-width="8" stroke-linecap="round"></line></g><rect x="-8" y="266" width="14" height="38" rx="7" fill="#fffceb"></rect><rect x="334" y="266" width="14" height="38" rx="7" fill="#fffceb"></rect><rect x="-10" y="100" width="370" height="370" fill="#fffceb" mask="url(#buov-foot-mask)"></rect></g></svg>';
     const zz = document.createElement("div");
@@ -339,6 +339,23 @@
     ];
     let state = "sleep", t0 = performance.now(), typed = "";
     const wa = () => document.querySelector('a[aria-label="WhatsApp"]');
+
+    // ---- Tocar no robô acorda ele na hora, com uma fala própria e um
+    // convite pro WhatsApp (pedido da Lorena) ----
+    const WA_LINK = "https://wa.me/5579998289485";
+    const TAP_MSG = "Olá! Você me acordou 😄 Quer falar no nosso WhatsApp?";
+    let tapActive = false;
+    box.addEventListener("click", (e) => {
+      if (e.target === bub && tapActive) {
+        window.open(WA_LINK, "_blank", "noopener");
+        return;
+      }
+      tapActive = true;
+      footSpark = false;
+      state = "wake";
+      t0 = performance.now();
+      typed = "";
+    });
     const io = new IntersectionObserver(
       (es) =>
         es.forEach((en) => {
@@ -378,33 +395,39 @@
         rot = Math.sin(t / 140) * 3 * (1 - cl(t / 1200));
         const act = t - 1200;
         if (act > 0) {
-          if (scene === 0) {
+          if (tapActive) {
+            const j = act < 500 ? Math.sin((act / 500) * Math.PI) : 0;
+            ex = 18; ey = -6; rot = j * 10;
+            if (act > 200 && !footSpark) { footSpark = true; spawnAt(box); }
+          } else if (scene === 0) {
             const w = Math.sin(act / 120) * 28 * (act < 2400 ? 1 : 0);
             aRr = w; aLr = -w * 0.3; ex = -14;
-          }
-          if (scene === 1) {
+          } else if (scene === 1) {
             const j = act < 700 ? Math.sin((act / 700) * Math.PI) : 0;
             ty = -j * 26; rot = j * -6;
             if (act > 300 && !footSpark) { footSpark = true; spawnAt(box); }
             ex = -10; ey = -6;
-          }
-          if (scene === 2) { ex = 20; ey = -4; rot = 4; }
-          if (scene === 3) { ex = -12; }
+          } else if (scene === 2) { ex = 20; ey = -4; rot = 4; }
+          else if (scene === 3) { ex = -12; }
           // Depois de falar, o robô volta a dormir (pedido da Lorena) —
           // no arquivo original só a cena 3 fazia isso; aqui todas fazem.
-          const windDownStart = 2600;
+          // Tocar nele deixa a fala um pouco mais tempo na tela, pro
+          // cliente ter chance de clicar no convite do WhatsApp.
+          const windDownStart = tapActive ? 6500 : 2600;
           if (act > windDownStart) {
             const c = cl((act - windDownStart) / 900);
-            lv = (scene === 3 ? 1 : lv) - c * (scene === 3 ? 0.92 : lv - 0.08);
+            lv = (scene === 3 && !tapActive ? 1 : lv) - c * (scene === 3 && !tapActive ? 0.92 : lv - 0.08);
             rot = -4 * c;
-            if (c >= 1) state = "sleep";
+            if (c >= 1) { state = "sleep"; tapActive = false; }
           }
-          const msg = lines[scene], n = Math.min(msg.length, Math.floor(act / 34));
+          const msg = tapActive ? TAP_MSG : lines[scene];
+          const n = Math.min(msg.length, Math.floor(act / 34));
           const tx = msg.slice(0, n);
           if (tx !== typed) { typed = tx; bub.textContent = tx || " "; }
           const show = act < windDownStart || scene === 2;
           bub.style.opacity = show && state !== "sleep" ? "1" : "0";
           bub.style.transform = show ? "none" : "translateY(6px)";
+          bub.style.cursor = tapActive ? "pointer" : "default";
         }
       }
       if (reduce) { lv = state === "sleep" ? 0.08 : 1; ty = 0; rot = 0; }
