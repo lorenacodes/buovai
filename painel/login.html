@@ -33,10 +33,12 @@
           <label for="password">Senha</label>
           <input id="password" type="password" placeholder="Sua senha" required autocomplete="current-password" />
         </div>
+        <p class="login-card__hint" id="login-otp-hint" hidden>Vamos te enviar um link por e-mail. É por esse link que você faz o primeiro acesso: ele leva direto para a tela de definir sua senha. Se você já tem senha, também pode usá-lo pra entrar.</p>
+
         <button type="submit" class="btn btn-block" id="login-submit">Entrar</button>
       </form>
 
-      <button type="button" class="login-card__link" id="login-toggle-otp">Prefere entrar por link de acesso (e-mail)?</button>
+      <button type="button" class="login-card__link" id="login-toggle-otp">Primeiro acesso ou esqueceu a senha? Entre por link de e-mail</button>
 
       <div class="status-msg" id="login-status" role="status"></div>
     </div>
@@ -54,19 +56,22 @@
       var statusEl = document.getElementById("login-status");
       var passwordField = document.getElementById("password");
       var toggleBtn = document.getElementById("login-toggle-otp");
+      var otpHint = document.getElementById("login-otp-hint");
       var otpMode = false;
 
       function applyMode() {
         if (otpMode) {
           passwordField.closest(".field").hidden = true;
           passwordField.required = false;
-          submitBtn.textContent = "Enviar link de acesso";
-          toggleBtn.textContent = "Prefere entrar com e-mail e senha?";
+          otpHint.hidden = false;
+          submitBtn.textContent = "Enviar link por e-mail";
+          toggleBtn.textContent = "Já tem senha? Entrar com e-mail e senha";
         } else {
           passwordField.closest(".field").hidden = false;
           passwordField.required = true;
+          otpHint.hidden = true;
           submitBtn.textContent = "Entrar";
-          toggleBtn.textContent = "Prefere entrar por link de acesso (e-mail)?";
+          toggleBtn.textContent = "Primeiro acesso ou esqueceu a senha? Entre por link de e-mail";
         }
       }
 
@@ -114,14 +119,14 @@
           });
 
           submitBtn.disabled = false;
-          submitBtn.textContent = "Enviar link de acesso";
+          submitBtn.textContent = "Enviar link por e-mail";
 
           if (error) {
             showStatus("Não foi possível enviar o link agora. Tente de novo em instantes.", "error");
             return;
           }
 
-          showStatus("Link enviado! Confira sua caixa de entrada (e o spam) e clique para acessar o painel.", "ok");
+          showStatus("Link enviado! Abra seu e-mail (olhe também o spam) e clique nele — se for seu primeiro acesso, você vai cair direto na tela de definir senha.", "ok");
           form.reset();
           return;
         }

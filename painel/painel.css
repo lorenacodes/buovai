@@ -122,6 +122,16 @@ h1, h2, h3, h4 { font-family: var(--font-body); font-weight: 700; letter-spacing
   border-color: var(--accent-strong);
 }
 
+.login-card__hint {
+  margin-top: 1rem;
+  padding: 0.8em 1em;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--ink-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
