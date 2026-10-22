@@ -343,7 +343,7 @@
     // ---- Tocar no robô acorda ele na hora, com uma fala própria e um
     // convite pro WhatsApp (pedido da Lorena) ----
     const WA_LINK = "https://wa.me/5579998289485";
-    const TAP_MSG = "Olá! Você me acordou 😄 Quer falar no nosso WhatsApp?";
+    const TAP_MSG = "Olá! Você me acordou. Quer falar no nosso WhatsApp?";
     let tapActive = false;
     box.addEventListener("click", (e) => {
       if (e.target === bub && tapActive) {
