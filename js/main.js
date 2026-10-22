@@ -79,6 +79,7 @@
     const errEl = document.getElementById("loginErr");
     const submitBtn = document.getElementById("loginSubmitBtn");
     const magicBtn = document.getElementById("loginMagicBtn");
+    const googleBtn = document.getElementById("loginGoogleBtn");
 
     let role = "client";
 
@@ -158,6 +159,16 @@
         return;
       }
       await goToPanel();
+    });
+
+    googleBtn.addEventListener("click", async () => {
+      googleBtn.disabled = true;
+      const redirectTo = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/painel/portal.html");
+      const { error } = await window.buovaiClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
+      if (error) {
+        googleBtn.disabled = false;
+        showErr("Login com Google ainda não está disponível. Use e-mail e senha, ou o link de acesso.");
+      }
     });
 
     magicBtn.addEventListener("click", async () => {

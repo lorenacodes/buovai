@@ -122,6 +122,25 @@ h1, h2, h3, h4 { font-family: var(--font-body); font-weight: 700; letter-spacing
   border-color: var(--accent-strong);
 }
 
+.login-card__divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.login-card__divider::before,
+.login-card__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-hairline);
+}
+
 .login-card__hint {
   margin-top: 1rem;
   padding: 0.8em 1em;
