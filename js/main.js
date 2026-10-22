@@ -59,9 +59,9 @@
   // original. Autenticação real (Supabase Auth) embutida no próprio
   // modal — mesma lógica de painel/login.html (signInWithPassword/
   // signInWithOtp + rpc is_admin), mas sem navegar para nenhuma outra
-  // página até o login funcionar. O link "demonstração" abre
-  // painel/demo.html?role=... (porte do "Buov Portal v2.dc.html"
-  // enviado), que não precisa de login real. ----
+  // página até o login funcionar. Cliente autenticado vai para
+  // painel/portal.html (porte real, com banco de dados, do "Buov
+  // Portal v2.dc.html" enviado). ----
   const loginModal = document.getElementById("loginModal");
   const portalBtn = document.getElementById("portalBtn");
   if (loginModal && portalBtn && window.buovaiClient) {
@@ -78,7 +78,6 @@
     const passEl = document.getElementById("loginPass");
     const errEl = document.getElementById("loginErr");
     const submitBtn = document.getElementById("loginSubmitBtn");
-    const demoLink = document.getElementById("loginDemoLink");
     const magicBtn = document.getElementById("loginMagicBtn");
 
     let role = "client";
@@ -91,7 +90,6 @@
       clientBtn.style.color = isAdmin ? "#0e0f0b" : "#fffceb";
       adminBtn.style.background = isAdmin ? "#0e0f0b" : "transparent";
       adminBtn.style.color = isAdmin ? "#fffceb" : "#0e0f0b";
-      demoLink.href = "painel/demo.html?role=" + (isAdmin ? "admin" : "client");
     }
 
     function showForm() {
@@ -139,7 +137,7 @@
 
     async function goToPanel() {
       const { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
-      window.location.href = "painel/" + (isAdmin ? "leads.html" : "index.html");
+      window.location.href = "painel/" + (isAdmin ? "leads.html" : "portal.html");
     }
 
     formEl.addEventListener("submit", async (e) => {
@@ -171,7 +169,7 @@
       }
       clearErr();
       magicBtn.disabled = true;
-      const redirectTo = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/painel/index.html");
+      const redirectTo = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/painel/portal.html");
       const { error } = await window.buovaiClient.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
       magicBtn.disabled = false;
       if (error) {

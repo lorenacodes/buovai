@@ -94,7 +94,7 @@
       window.buovaiClient.auth.getSession().then(async function (res) {
         if (!res.data.session) return;
         var { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
-        window.location.href = isAdmin ? "leads.html" : "index.html";
+        window.location.href = isAdmin ? "leads.html" : "portal.html";
       });
 
       form.addEventListener("submit", async function (e) {
@@ -107,7 +107,7 @@
         if (otpMode) {
           submitBtn.textContent = "Enviando...";
 
-          var redirectTo = window.location.origin + window.location.pathname.replace(/login\.html$/, "index.html");
+          var redirectTo = window.location.origin + window.location.pathname.replace(/login\.html$/, "portal.html");
 
           var { error } = await window.buovaiClient.auth.signInWithOtp({
             email: email,
@@ -144,7 +144,7 @@
         }
 
         var { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
-        window.location.href = isAdmin ? "leads.html" : "index.html";
+        window.location.href = isAdmin ? "leads.html" : "portal.html";
       });
     })();
   </script>
