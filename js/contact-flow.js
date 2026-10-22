@@ -117,6 +117,14 @@
   // bot, igual ao padrão de busca por palavra-chave já usado no
   // assistente de ajuda do painel) ----
   const JOKE_RE = /sou (a )?sua m[aã]e|sou (o )?seu pai|eu te amo|^brincadeira|\bkkk+\b|\bhaha+\b|\brsrs+\b|\bte amo\b/i;
+  const GREETING_RE = /^(oi+|ol[aá]+|e[ai]+|opa+|al[oô]+|hey+|hello+)[.!? ]*$/i;
+  const LAUGH_RE = /^(kkk+k*|k[ks]+k*|haha+h?a*|rsrs*|ha+|he+he+|lol+)[.!? ]*$/i;
+  function looksLikeName(v) {
+    if (GREETING_RE.test(v) || LAUGH_RE.test(v) || JOKE_RE.test(v)) return false;
+    if (/^(.)\1{2,}$/i.test(v.replace(/\s/g, ""))) return false; // "kkkkk", "aaaaa"
+    if (v.length >= 3 && !/[aeiouáéíóúâêôãõ]/i.test(v)) return false; // sem vogal nenhuma
+    return true;
+  }
   const JOKE_REPLY = "Boa tentativa. Agora me conta de verdade: qual é o problema que você quer resolver?";
   const MSG_REACTIONS = [
     [/travad|travou|parou de funcionar|n[aã]o funciona|quebrou|\bbug\b|deu erro/i, "Isso parece estar travando a operação agora. Vou priorizar sua resposta."],
@@ -206,11 +214,11 @@
     const v = (chatInput.value || "").trim();
     if (!q || !v || botTyping) return;
 
-    if (q.key === "fName" && /^(oi+|ol[aá]+|e[ai]+|opa+|al[oô]+|hey+|hello+)[.!? ]*$/i.test(v)) {
+    if (q.key === "fName" && !looksLikeName(v)) {
       chatLog.push({ me: true, text: v });
       addBubble({ me: true, text: v });
       chatInput.value = "";
-      botSay("Isso parece uma saudação, não um nome. Qual é o seu nome, por favor?");
+      botSay("Isso não parece um nome. Qual é o seu nome, por favor?");
       return;
     }
     if (q.key === "fEmail" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) {
