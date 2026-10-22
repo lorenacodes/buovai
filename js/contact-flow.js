@@ -206,6 +206,13 @@
     const v = (chatInput.value || "").trim();
     if (!q || !v || botTyping) return;
 
+    if (q.key === "fName" && /^(oi+|ol[aá]+|e[ai]+|opa+|al[oô]+|hey+|hello+)[.!? ]*$/i.test(v)) {
+      chatLog.push({ me: true, text: v });
+      addBubble({ me: true, text: v });
+      chatInput.value = "";
+      botSay("Haha, oi! Mas essa é a sua saudação — qual é o seu nome mesmo?");
+      return;
+    }
     if (q.key === "fEmail" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) {
       chatLog.push({ me: true, text: v });
       addBubble({ me: true, text: v });
