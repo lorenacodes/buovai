@@ -197,6 +197,60 @@ h1, h2, h3, h4 { font-family: var(--font-body); font-weight: 700; letter-spacing
 
 .btn-sm { padding: 0.55em 1.1em; font-size: 0.8rem; }
 
+/* ---- Medidor de força de senha ---- */
+.pw-meter { margin-top: 0.9rem; }
+
+.pw-meter__track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.pw-meter__fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.pw-meter__label {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.pw-reqs {
+  margin: 0.7rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.pw-reqs li {
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--ink-muted);
+  padding-left: 1.3em;
+  position: relative;
+}
+
+.pw-reqs li::before {
+  content: "○";
+  position: absolute;
+  left: 0;
+}
+
+.pw-reqs li.is-met {
+  color: var(--accent-strong);
+}
+
+.pw-reqs li.is-met::before {
+  content: "●";
+}
+
 .status-msg {
   margin-top: 1.25rem;
   padding: 0.85em 1em;

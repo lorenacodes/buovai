@@ -169,7 +169,7 @@
       }
       clearErr();
       magicBtn.disabled = true;
-      const redirectTo = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/painel/portal.html");
+      const redirectTo = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/painel/set-password.html");
       const { error } = await window.buovaiClient.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
       magicBtn.disabled = false;
       if (error) {

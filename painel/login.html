@@ -107,7 +107,7 @@
         if (otpMode) {
           submitBtn.textContent = "Enviando...";
 
-          var redirectTo = window.location.origin + window.location.pathname.replace(/login\.html$/, "portal.html");
+          var redirectTo = window.location.origin + window.location.pathname.replace(/login\.html$/, "set-password.html");
 
           var { error } = await window.buovaiClient.auth.signInWithOtp({
             email: email,
