@@ -112,6 +112,26 @@
     { key: "fPhone", foc: "phone", ph: "(00) 0 0000-0000", type: "tel" },
     { key: "fEmail", foc: "email", ph: "seu@email.com (opcional)", type: "email", optional: true },
   ];
+  // ---- Reações do assistente ao que o cliente escreve (sem IA: casa
+  // palavras-chave na descrição do problema e ajusta a próxima fala do
+  // bot, igual ao padrão de busca por palavra-chave já usado no
+  // assistente de ajuda do painel) ----
+  const JOKE_RE = /sou (a )?sua m[aã]e|sou (o )?seu pai|eu te amo|^brincadeira|\bkkk+\b|\bhaha+\b|\brsrs+\b|\bte amo\b/i;
+  const JOKE_REPLY = "haha, boa! 😄 Mas me conta de verdade — qual é o problema que você quer resolver?";
+  const MSG_REACTIONS = [
+    [/travad|travou|parou de funcionar|n[aã]o funciona|quebrou|\bbug\b|deu erro/i, "Isso parece estar travando a operação agora — vou priorizar sua resposta."],
+    [/planilha|excel|google sheets/i, "Migrar de planilha pra um sistema de verdade é uma das coisas que mais resolvo."],
+    [/car[oa]|or[çc]amento|quanto custa|pre[çc]o|valor/i, "Sem problema, a gente conversa sobre valores já na primeira resposta, sem compromisso."],
+    [/urgente|urg[eê]ncia|pra ontem|o quanto antes/i, "Entendido, vou tratar isso com prioridade."],
+    [/integra[çc][ãa]o|\bapi\b|conversar(em)? entre si|sistemas? conversando/i, "Legal, conectar sistemas que hoje não se falam é algo que resolvo bastante."],
+    [/whatsapp/i, "Entendi — dá pra automatizar bastante coisa que hoje passa só pelo WhatsApp."],
+    [/duplicad[oa]|digitar duas vezes|retrabalho/i, "Essa duplicação de trabalho é exatamente o tipo de coisa que um sistema sob medida elimina."],
+  ];
+  function reactionFor(text) {
+    const hit = MSG_REACTIONS.find(([re]) => re.test(text));
+    return hit ? hit[1] : "Entendi.";
+  }
+
   let chatStep = 0;
   let botTyping = false;
   let chatLog = [{ me: false, text: "Olá. Eu recebo os novos projetos da Lorena. Para começar, qual é o seu nome?" }];
@@ -200,6 +220,13 @@
       botSay("Faltou algum número. Pode conferir com o DDD?");
       return;
     }
+    if (q.key === "msg" && JOKE_RE.test(v)) {
+      chatLog.push({ me: true, text: v });
+      addBubble({ me: true, text: v });
+      chatInput.value = "";
+      botSay(JOKE_REPLY);
+      return;
+    }
 
     chatLog.push({ me: true, text: v });
     addBubble({ me: true, text: v });
@@ -211,7 +238,7 @@
     renderChatInput();
 
     if (chatStep === 1) botSay("Prazer, " + first + ". Como essa tarefa é feita hoje, e onde ela trava? Pode escrever do seu jeito.");
-    else if (chatStep === 2) botSay("Entendi. Qual telefone ou WhatsApp a Lorena pode usar para falar com você? Com DDD, por favor.");
+    else if (chatStep === 2) botSay(reactionFor(v) + " Qual telefone ou WhatsApp a Lorena pode usar para falar com você? Com DDD, por favor.");
     else if (chatStep === 3) botSay("Quer deixar um e-mail também? É opcional.");
     else botSay("Pronto. Montei o resumo do seu pedido ao lado. Posso enviar?");
   });
