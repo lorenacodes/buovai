@@ -38,7 +38,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var MODS = ["Projetos", "Clientes", "Comercial", "Financeiro", "Configurações"];
   var addM = function (iso, n) { var p = iso.split("-").map(Number), y = p[0], m = p[1], d = p[2]; var x = new Date(y, m - 1 + n, d); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); };
   var mkParc = function (valor, n, first, paid) { return Array.from({ length: n }, function (_, i) { return { n: i + 1, valor: Math.round(valor / n * 100) / 100, venc: addM(first, i), pago: i < paid }; }); };
-  var mkTasks = function (steps, done) { return steps.map(function (t, i) { return { t: t, done: i < done, at: i < done ? "2026-10-0" + (i + 1) : null }; }); };
+  var mkTasks = function (steps, done) { return steps.map(function (t, i) { return { t: t, done: i < done, at: i < done ? "2026-10-0" + (i + 1) : null, items: [] }; }); };
+  var withItems = function (tasks, idx, items) { tasks[idx].items = items.map(function (x) { return { t: x[0], done: !!x[1] }; }); return tasks; };
 
   function seed() {
     var templates = BASE_TPL.map(function (x, i) { return { id: "t" + (i + 1), nome: x[0], etapas: x[1] }; });
@@ -53,7 +54,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         { id: "c3", nome: "Camila Rocha", pj: false, contato: "Camila Rocha", email: "camila@ateliersol.com", tel: "(21) 98123-4455", doc: "123.456.789-00" }
       ],
       projects: [
-        { id: "p1", code: "BV-001", clientId: "c1", nome: "Portal de agendamento e prontuário", tplId: "t1", tipo: "Sistema sob medida", status: "Em andamento", prazo: "2027-01-30", valor: 18000, parcelas: mkParc(18000, 6, "2026-08-10", 2), tasks: mkTasks(st("t1"), 3), docs: [{ nome: "Escopo do projeto", tipo: "PDF", data: "2026-07-28", cli: true }, { nome: "Protótipo das telas v2", tipo: "LINK", data: "2026-09-15", cli: true }, { nome: "Ata da reunião de diagnóstico", tipo: "DOC", data: "2026-08-02", cli: false }], hist: [{ at: "2026-10-03 14:10", who: "Lorena", text: 'concluiu "Aprovação do protótipo"' }, { at: "2026-07-25 09:00", who: "Lorena", text: "criou o projeto" }] },
+        { id: "p1", code: "BV-001", clientId: "c1", nome: "Portal de agendamento e prontuário", tplId: "t1", tipo: "Sistema sob medida", status: "Em andamento", prazo: "2027-01-30", valor: 18000, parcelas: mkParc(18000, 6, "2026-08-10", 2), tasks: withItems(mkTasks(st("t1"), 3), 3, [["Levantar módulos do sistema", 1], ["Definir arquitetura das telas", 1], ["Validar fluxo de agendamento com a clínica", 0]]), docs: [{ nome: "Escopo do projeto", tipo: "PDF", data: "2026-07-28", cli: true }, { nome: "Protótipo das telas v2", tipo: "LINK", data: "2026-09-15", cli: true }, { nome: "Ata da reunião de diagnóstico", tipo: "DOC", data: "2026-08-02", cli: false }], hist: [{ at: "2026-10-03 14:10", who: "Lorena", text: 'concluiu "Aprovação do protótipo"' }, { at: "2026-07-25 09:00", who: "Lorena", text: "criou o projeto" }] },
         { id: "p2", code: "BV-002", clientId: "c2", nome: "Migração do ERP antigo", tplId: "t2", tipo: "Migração de sistema", status: "Em andamento", prazo: "2027-03-15", valor: 24000, parcelas: mkParc(24000, 8, "2026-09-05", 2), tasks: mkTasks(st("t2"), 2), docs: [{ nome: "Mapeamento de campos", tipo: "XLSX", data: "2026-09-20", cli: true }, { nome: "Diagrama do banco paralelo", tipo: "PDF", data: "2026-10-02", cli: false }], hist: [{ at: "2026-10-02 11:30", who: "Lorena", text: 'concluiu "Preparar banco de dados paralelo"' }, { at: "2026-08-30 10:00", who: "Lorena", text: "criou o projeto" }] },
         { id: "p3", code: "BV-003", clientId: "c3", nome: "Site institucional e identidade visual", tplId: "t3", tipo: "Site institucional", status: "Aguardando cliente", prazo: "2026-11-20", valor: 4800, parcelas: mkParc(4800, 2, "2026-10-01", 1), tasks: mkTasks(st("t3"), 3), docs: [{ nome: "Manual da marca", tipo: "PDF", data: "2026-10-10", cli: true }], hist: [{ at: "2026-10-10 16:00", who: "Lorena", text: "enviou os textos para aprovação" }] }
       ],
@@ -117,7 +118,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var S = {
     data: d0, theme: theme0, role: role0, view: role0 === "admin" ? "inicio" : "andamento",
     sel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", tplSel: "t1",
-    newStep: "", modal: null, f: {}, mErr: false, newTask: "", newDoc: "", newDocTipo: "PDF",
+    newStep: "", modal: null, f: {}, mErr: false, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "",
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
     w: window.innerWidth
@@ -201,7 +202,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var tplOf = function (id) { return D.templates.filter(function (t) { return t.id === id; })[0]; };
     var pct = function (p) { return p.tasks.length ? Math.round(p.tasks.filter(function (t) { return t.done; }).length / p.tasks.length * 100) : 0; };
     var nextTask = function (p) { var t = p.tasks.filter(function (t) { return !t.done; })[0]; return t ? t.t : "Concluído"; };
-    var parcCh = function (q) { return q.pago ? ["Paga", CH.ok] : q.venc < T ? ["Atrasada", CH.bad] : ["Em aberto", CH.warn]; };
+    var parcCh = function (q) { return q.pago ? ["Paga", CH.ok] : q.avisado ? ["Aguardando confirmação", CH.neu] : q.venc < T ? ["Atrasada", CH.bad] : ["Em aberto", CH.warn]; };
     var qn = norm(S.q);
     var match = function () { if (!qn) return true; for (var i = 0; i < arguments.length; i++) if (norm(arguments[i]).indexOf(qn) >= 0) return true; return false; };
     var filt = function (label, count) { return { label: label, count: String(count), bd: S.tf === label ? "var(--accTxt)" : "var(--line2)", bg: S.tf === label ? "var(--accSoft)" : "transparent", fg: S.tf === label ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { setState({ tf: label }); }) }; };
@@ -212,7 +213,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     D.projects.forEach(function (p) { p.parcelas.forEach(function (q) { all.push({ q: q, p: p }); }); });
     var recebido = all.filter(function (x) { return x.q.pago; }).reduce(function (a, x) { return a + x.q.valor; }, 0);
     var aReceber = all.filter(function (x) { return !x.q.pago; }).reduce(function (a, x) { return a + x.q.valor; }, 0);
-    var atras = all.filter(function (x) { return !x.q.pago && x.q.venc < T; });
+    var atras = all.filter(function (x) { return !x.q.pago && !x.q.avisado && x.q.venc < T; });
+    var aguardConf = all.filter(function (x) { return !x.q.pago && x.q.avisado; });
     var in30 = all.filter(function (x) { return !x.q.pago && x.q.venc >= T && daysBetween(T, x.q.venc) <= 30; });
     var meetRow = function (m) {
       var dd = new Date(m.data + "T12:00");
@@ -253,6 +255,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           { label: "Em negociação", val: moneyK(D.leads.filter(function (l) { return l.etapa < 3; }).reduce(function (a, l) { return a + (l.valor || 0); }, 0)), sub: leadsOpen + " contatos no funil", color: "var(--ink)" }
         ];
         var alerts = [];
+        aguardConf.forEach(function (x) { var q = x.q, p = x.p; alerts.push({ dot: "var(--accTxt)", title: "Cliente avisou que pagou · " + cli(p.clientId).nome, sub: money(q.valor) + " · parcela " + q.n + " · confirmar recebimento", cta: "Confirmar", h: reg(function () { go("projetos", { sel: p.id, ptab: "fin" }); }) }); });
         atras.forEach(function (x) { var q = x.q, p = x.p; alerts.push({ dot: "var(--badFg)", title: "Parcela atrasada · " + cli(p.clientId).nome, sub: money(q.valor) + " · venceu " + dt(q.venc), cta: "Cobrar", h: reg(function () { go("projetos", { sel: p.id, ptab: "fin" }); }) }); });
         D.proposals.filter(function (p) { return p.status === "Aguardando"; }).forEach(function (p) { var dd = daysBetween(p.data, T); alerts.push({ dot: "var(--warnFg)", title: "Proposta sem resposta · " + cli(p.clientId).nome, sub: p.titulo + " · enviada há " + dd + (dd === 1 ? " dia" : " dias"), cta: "Ver", h: reg(function () { go("propostas"); }) }); });
         D.projects.filter(function (p) { return p.status === "Aguardando cliente"; }).forEach(function (p) { alerts.push({ dot: "var(--warnFg)", title: "Aguardando o cliente · " + p.code, sub: p.nome + " · " + nextTask(p), cta: "Abrir", h: reg(function () { go("projetos", { sel: p.id }); }) }); });
@@ -286,17 +289,49 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         out.pTabs = [["tarefas", "Etapas"], ["docs", "Documentação · " + sel.docs.length], ["fin", "Parcelas"], ["hist", "Histórico"]].map(function (x) { var k = x[0], label = x[1]; return { label: label, bd: S.ptab === k ? "var(--accTxt)" : "transparent", fg: S.ptab === k ? "var(--ink)" : "var(--mute)", h: reg(function () { setState({ ptab: k }); }) }; });
         out.statusOpts = ["Em andamento", "Aguardando cliente", "Concluído"].map(function (s) { return { label: s, bd: sel.status === s ? "var(--accTxt)" : "var(--line2)", bg: sel.status === s ? "var(--accSoft)" : "transparent", fg: sel.status === s ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { save(function (d) { d.projects.filter(function (x) { return x.id === sel.id; })[0].status = s; log(d, sel.id, 'mudou o status para "' + s + '"'); }); }) }; });
         out.pt_tarefas = S.ptab === "tarefas"; out.pt_docs = S.ptab === "docs"; out.pt_fin = S.ptab === "fin"; out.pt_hist = S.ptab === "hist";
+        var newItemDrafts = S.newItem || {};
         out.tasks = sel.tasks.map(function (t, i) {
-          return { t: t.t, num: String(i + 1).padStart(2, "0"), mark: t.done ? "✓" : "", boxBg: t.done ? "var(--btnBg)" : "transparent", bd: t.done ? "var(--btnBg)" : "var(--line2)", color: t.done ? "var(--mute)" : "var(--ink)", deco: "none", when: t.done && t.at ? "concluída " + dt(t.at) : "", h: reg(function () { save(function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; x.done = !x.done; x.at = x.done ? T : null; log(d, sel.id, (x.done ? "concluiu" : "reabriu") + ' "' + x.t + '"'); }); }) };
+          var items = t.items || [];
+          var itemsOut = items.map(function (it, j) {
+            return {
+              t: it.t, done: it.done,
+              mark: it.done ? "✓" : "", boxBg: it.done ? "var(--btnBg)" : "transparent", bd: it.done ? "var(--btnBg)" : "var(--line2)", color: it.done ? "var(--mute)" : "var(--ink2)", deco: it.done ? "line-through" : "none",
+              toggleH: reg(function () { save(function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i].items[j]; x.done = !x.done; log(d, sel.id, (x.done ? "concluiu" : "reabriu") + ' a tarefa "' + x.t + '" em "' + t.t + '"'); }); }),
+              delH: reg(function () { save(function (d) { var tk = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; var removed = tk.items[j]; tk.items.splice(j, 1); log(d, sel.id, 'removeu a tarefa "' + removed.t + '" de "' + t.t + '"'); }); })
+            };
+          });
+          var addItem = function () {
+            var v = (newItemDrafts[i] || "").trim(); if (!v) return;
+            save(function (d) { var tk = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; tk.items = tk.items || []; tk.items.push({ t: v, done: false }); log(d, sel.id, 'adicionou a tarefa "' + v + '" em "' + t.t + '"'); });
+            var nd = Object.assign({}, S.newItem); nd[i] = ""; S.newItem = nd; render();
+          };
+          return {
+            t: t.t, num: String(i + 1).padStart(2, "0"), mark: t.done ? "✓" : "", boxBg: t.done ? "var(--btnBg)" : "transparent", bd: t.done ? "var(--btnBg)" : "var(--line2)", color: t.done ? "var(--mute)" : "var(--ink)", deco: "none", when: t.done && t.at ? "concluída " + dt(t.at) : "", h: reg(function () { save(function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; x.done = !x.done; x.at = x.done ? T : null; log(d, sel.id, (x.done ? "concluiu" : "reabriu") + ' "' + x.t + '"'); }); }),
+            items: itemsOut, doneCount: items.filter(function (it) { return it.done; }).length, totalCount: items.length,
+            newItem: newItemDrafts[i] || "", newItemCh: reg(function (e) { var nd = Object.assign({}, S.newItem); nd[i] = e.target.value; S.newItem = nd; render(); }), newItemKey: reg(function (e) { if (e.key === "Enter") addItem(); }), addItem: reg(addItem)
+          };
         });
-        var addTask = function () { var t = S.newTask.trim(); if (!t) return; save(function (d) { d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks.push({ t: t, done: false, at: null }); log(d, sel.id, 'adicionou a etapa "' + t + '"'); }); S.newTask = ""; render(); };
+        var addTask = function () { var t = S.newTask.trim(); if (!t) return; save(function (d) { d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks.push({ t: t, done: false, at: null, items: [] }); log(d, sel.id, 'adicionou a etapa "' + t + '"'); }); S.newTask = ""; render(); };
         out.newTask = S.newTask; out.newTaskCh = reg(function (e) { setState({ newTask: e.target.value }); }); out.newTaskKey = reg(function (e) { if (e.key === "Enter") addTask(); }); out.addTask = reg(addTask);
         out.saveAsTpl = reg(function () { save(function (d) { d.templates.push({ id: "t" + Date.now(), nome: sel.tipo + " (variação " + sel.code + ")", etapas: sel.tasks.map(function (t) { return t.t; }) }); }, "Modelo salvo em Configuração"); });
         out.docs = sel.docs.map(function (d, i) { return { nome: d.nome, tipo: d.tipo, data: dt(d.data), vis: d.cli ? "Visível ao cliente" : "Interno", visFg: d.cli ? "var(--accTxt)" : "var(--mute)", h: reg(function () { save(function (dd) { var x = dd.projects.filter(function (p) { return p.id === sel.id; })[0].docs[i]; x.cli = !x.cli; }); }) }; });
         out.docTipos = ["PDF", "DOC", "XLSX", "LINK", "IMAGEM", "SQL"];
         out.newDoc = S.newDoc; out.newDocCh = reg(function (e) { setState({ newDoc: e.target.value }); }); out.newDocTipo = S.newDocTipo; out.newDocTipoCh = reg(function (e) { setState({ newDocTipo: e.target.value }); });
         out.addDoc = reg(function () { var n = S.newDoc.trim(); if (!n) return; save(function (d) { d.projects.filter(function (p) { return p.id === sel.id; })[0].docs.unshift({ nome: n, tipo: S.newDocTipo, data: T, cli: false }); log(d, sel.id, 'anexou "' + n + '"'); }, "Documento anexado como interno"); S.newDoc = ""; render(); });
-        out.parcelas = sel.parcelas.map(function (q, i) { var r = parcCh(q), chip = r[0], c = r[1]; return { n: q.n + "/" + sel.parcelas.length, valor: money(q.valor), venc: dt(q.venc), chip: chip, chipBg: c[0], chipFg: c[1], btn: q.pago ? "Desfazer" : "Marcar como paga", h: reg(function () { save(function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].parcelas[i]; x.pago = !x.pago; log(d, sel.id, (x.pago ? "registrou o pagamento da" : "desfez o pagamento da") + " parcela " + x.n); }); }) }; });
+        out.parcelas = sel.parcelas.map(function (q, i) {
+          var r = parcCh(q), chip = r[0], c = r[1];
+          var btn = q.pago ? "Desfazer" : q.avisado ? "Confirmar recebimento" : "Marcar como paga";
+          return {
+            n: q.n + "/" + sel.parcelas.length, valor: money(q.valor), venc: dt(q.venc), chip: chip, chipBg: c[0], chipFg: c[1], btn: btn, awaiting: !q.pago && !!q.avisado,
+            h: reg(function () {
+              save(function (d) {
+                var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].parcelas[i];
+                x.pago = !x.pago; if (x.pago) x.avisado = false;
+                log(d, sel.id, (x.pago ? "confirmou o recebimento da" : "desfez o pagamento da") + " parcela " + x.n);
+              });
+            })
+          };
+        });
         out.hist = (sel.hist || []).map(function (h) { return { at: dt(h.at) + " " + h.at.slice(11), who: h.who, text: h.text }; });
       }
       if (V === "clientes") {
@@ -348,7 +383,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           { label: "Contratado", val: money(D.projects.reduce(function (a, p) { return a + p.valor; }, 0)), sub: D.projects.length + " projetos", color: "var(--ink)" },
           { label: "Recebido", val: money(recebido), sub: all.filter(function (x) { return x.q.pago; }).length + " parcelas", color: "var(--accTxt)" },
           { label: "A receber", val: money(aReceber), sub: all.filter(function (x) { return !x.q.pago; }).length + " parcelas", color: "var(--ink)" },
-          { label: "Atrasado", val: money(atras.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: atras.length + " parcelas", color: atras.length ? "var(--badFg)" : "var(--ink)" }
+          { label: "Atrasado", val: money(atras.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: atras.length + " parcelas", color: atras.length ? "var(--badFg)" : "var(--ink)" },
+          { label: "Aguardando confirmação", val: money(aguardConf.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: aguardConf.length + " parcelas", color: aguardConf.length ? "var(--accTxt)" : "var(--ink)" }
         ];
         var rows2 = D.projects.filter(function (p) { return match(p.nome, p.code, cli(p.clientId).nome); }).map(function (p) {
           var pg2 = p.parcelas.filter(function (q) { return q.pago; }), pv = pg2.reduce(function (a, q) { return a + q.valor; }, 0);
@@ -421,7 +457,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         cps.forEach(function (x) {
           x.parcelas.forEach(function (q, i) {
             var r = parcCh(q), chip = r[0], c = r[1];
-            out.cParc.push({ n: q.n + "/" + x.parcelas.length, valor: money(q.valor), venc: dt(q.venc), chip: chip, chipBg: c[0], chipFg: c[1], canPay: !q.pago, paid: q.pago, h: reg(function () { save(function (d) { d.projects.filter(function (y) { return y.id === x.id; })[0].parcelas[i].pago = true; log(d, x.id, "pagou a parcela " + q.n); }, "Pagamento registrado. Obrigado!"); }) });
+            out.cParc.push({
+              n: q.n + "/" + x.parcelas.length, valor: money(q.valor), venc: dt(q.venc), chip: chip, chipBg: c[0], chipFg: c[1],
+              canPay: !q.pago && !q.avisado, paid: q.pago, awaiting: !q.pago && !!q.avisado,
+              h: reg(function () { save(function (d) { d.projects.filter(function (y) { return y.id === x.id; })[0].parcelas[i].pago = true; log(d, x.id, "pagou a parcela " + q.n + " com Pix"); }, "Pagamento registrado. Obrigado!"); }),
+              avisoH: reg(function () { save(function (d) { d.projects.filter(function (y) { return y.id === x.id; })[0].parcelas[i].avisado = true; log(d, x.id, "avisou que pagou a parcela " + q.n + " (boleto)"); }, "Avisamos a Lorena. Ela confirma o recebimento em breve."); })
+            });
           });
         });
       }
@@ -633,7 +674,22 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var body = "";
     if (V.pt_tarefas) {
       var tasks = V.tasks.map(function (t) {
-        return '<div style="display:grid;grid-template-columns:30px 22px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--mute);font-variant-numeric:tabular-nums">' + t.num + '</span><button ' + h(t.h) + ' aria-label="Concluir etapa" style="width:18px;height:18px;display:grid;place-items:center;border:1px solid ' + t.bd + ";background:" + t.boxBg + ';color:var(--btnFg);font-size:11px;cursor:pointer;padding:0">' + t.mark + '</button><span style="font-size:14px;color:' + t.color + ";text-decoration:" + t.deco + '">' + esc(t.t) + '</span><span style="font-size:11px;color:var(--mute)">' + esc(t.when) + "</span></div>";
+        var items = t.items.map(function (it) {
+          return '<div style="display:grid;grid-template-columns:18px minmax(0,1fr) 22px;gap:10px;align-items:center;padding:7px 0"><button ' + h(it.toggleH) + ' aria-label="Concluir tarefa" style="width:16px;height:16px;display:grid;place-items:center;border:1px solid ' + it.bd + ";background:" + it.boxBg + ';color:var(--btnFg);font-size:10px;cursor:pointer;padding:0">' + it.mark + '</button><span style="font-size:13px;color:' + it.color + ";text-decoration:" + it.deco + '">' + esc(it.t) + '</span><button ' + h(it.delH) + ' aria-label="Remover tarefa" style="border:0;background:none;color:var(--mute);font-size:14px;cursor:pointer;padding:0;line-height:1">×</button></div>';
+        }).join("");
+        var itemsBlock = '<div style="grid-column:2 / span 3;padding:4px 0 10px;display:flex;flex-direction:column">'
+          + (items || '<span style="font-size:12px;color:var(--mute);padding:6px 0">Nenhuma tarefa ainda nesta etapa.</span>')
+          + '<div style="display:flex;gap:6px;padding-top:6px;flex-wrap:wrap">'
+          + '<input value="' + esc(t.newItem) + '" data-ch="' + t.newItemCh + '" data-kh="' + t.newItemKey + '" placeholder="Tarefa desta etapa" style="flex:1 1 200px;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:8px 10px;font:inherit;font-size:12.5px;outline:none">'
+          + '<button ' + h(t.addItem) + ' style="padding:8px 12px;border:1px solid var(--line2);background:none;color:var(--ink2);font-family:\'Lexend Exa\',sans-serif;font-size:10.5px;cursor:pointer">Adicionar tarefa</button>'
+          + "</div></div>";
+        return '<div style="display:grid;grid-template-columns:30px 22px minmax(0,1fr) auto;gap:12px;padding:12px 0;border-top:1px solid var(--line)">'
+          + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--mute);font-variant-numeric:tabular-nums;padding-top:2px">' + t.num + '</span>'
+          + '<button ' + h(t.h) + ' aria-label="Concluir etapa" style="width:18px;height:18px;display:grid;place-items:center;border:1px solid ' + t.bd + ";background:" + t.boxBg + ';color:var(--btnFg);font-size:11px;cursor:pointer;padding:0">' + t.mark + '</button>'
+          + '<span style="font-size:14px;color:' + t.color + ";text-decoration:" + t.deco + '">' + esc(t.t) + (t.totalCount ? ' <span style="font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums">(' + t.doneCount + "/" + t.totalCount + ")</span>" : "") + '</span>'
+          + '<span style="font-size:11px;color:var(--mute)">' + esc(t.when) + "</span>"
+          + itemsBlock
+          + "</div>";
       }).join("");
       body = '<div style="display:flex;flex-direction:column">' + tasks
         + '<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap">'
@@ -766,7 +822,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<div style="padding:18px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:20px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:' + s.color + '">' + esc(s.val) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(s.sub) + "</span></div>";
     }).join("") + "</div>";
     var rows = V.cParc.map(function (q) {
-      var action = q.canPay ? '<button ' + h(q.h) + ' style="justify-self:end;padding:8px 13px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:12px;font-weight:600;cursor:pointer">Pagar com Pix</button>' : '<span style="justify-self:end;font-size:12px;color:var(--mute)">Comprovante ↓</span>';
+      var action = q.canPay
+        ? '<span style="justify-self:end;display:flex;gap:6px;flex-wrap:wrap"><button ' + h(q.h) + ' style="padding:8px 13px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:12px;font-weight:600;cursor:pointer">Pagar com Pix</button><button ' + h(q.avisoH) + ' style="padding:8px 13px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer;white-space:nowrap">Já paguei por boleto</button></span>'
+        : q.awaiting ? '<span style="justify-self:end;font-size:12px;color:var(--mute)">Avisamos a Lorena</span>'
+        : '<span style="justify-self:end;font-size:12px;color:var(--mute)">Comprovante ↓</span>';
       return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;font-variant-numeric:tabular-nums">Parcela ' + q.n + '</span><span style="font-size:14px;font-variant-numeric:tabular-nums">' + esc(q.valor) + '</span><span style="font-size:12px;color:var(--mute)">vence ' + esc(q.venc) + '</span><span><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + q.chipBg + ";color:" + q.chipFg + '">' + esc(q.chip) + "</span></span>" + action + "</div>";
     }).join("");
     return kpis + '<div style="display:flex;flex-direction:column">' + rows + "</div>";
