@@ -117,14 +117,14 @@
   // bot, igual ao padrão de busca por palavra-chave já usado no
   // assistente de ajuda do painel) ----
   const JOKE_RE = /sou (a )?sua m[aã]e|sou (o )?seu pai|eu te amo|^brincadeira|\bkkk+\b|\bhaha+\b|\brsrs+\b|\bte amo\b/i;
-  const JOKE_REPLY = "haha, boa! 😄 Mas me conta de verdade — qual é o problema que você quer resolver?";
+  const JOKE_REPLY = "Boa tentativa. Agora me conta de verdade: qual é o problema que você quer resolver?";
   const MSG_REACTIONS = [
-    [/travad|travou|parou de funcionar|n[aã]o funciona|quebrou|\bbug\b|deu erro/i, "Isso parece estar travando a operação agora — vou priorizar sua resposta."],
+    [/travad|travou|parou de funcionar|n[aã]o funciona|quebrou|\bbug\b|deu erro/i, "Isso parece estar travando a operação agora. Vou priorizar sua resposta."],
     [/planilha|excel|google sheets/i, "Migrar de planilha pra um sistema de verdade é uma das coisas que mais resolvo."],
     [/car[oa]|or[çc]amento|quanto custa|pre[çc]o|valor/i, "Sem problema, a gente conversa sobre valores já na primeira resposta, sem compromisso."],
     [/urgente|urg[eê]ncia|pra ontem|o quanto antes/i, "Entendido, vou tratar isso com prioridade."],
     [/integra[çc][ãa]o|\bapi\b|conversar(em)? entre si|sistemas? conversando/i, "Legal, conectar sistemas que hoje não se falam é algo que resolvo bastante."],
-    [/whatsapp/i, "Entendi — dá pra automatizar bastante coisa que hoje passa só pelo WhatsApp."],
+    [/whatsapp/i, "Entendi. Dá pra automatizar bastante coisa que hoje passa só pelo WhatsApp."],
     [/duplicad[oa]|digitar duas vezes|retrabalho/i, "Essa duplicação de trabalho é exatamente o tipo de coisa que um sistema sob medida elimina."],
   ];
   function reactionFor(text) {
@@ -210,7 +210,7 @@
       chatLog.push({ me: true, text: v });
       addBubble({ me: true, text: v });
       chatInput.value = "";
-      botSay("Haha, oi! Mas essa é a sua saudação — qual é o seu nome mesmo?");
+      botSay("Isso parece uma saudação, não um nome. Qual é o seu nome, por favor?");
       return;
     }
     if (q.key === "fEmail" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) {
