@@ -73,7 +73,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var S = {
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
     sel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", tplSel: null,
-    newStep: "", modal: null, f: {}, mErr: false, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
+    newStep: "", modal: null, f: {}, mErr: false, wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "",
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
     w: window.innerWidth
@@ -134,7 +134,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function openModal(modal, f) {
-    setState({ modal: modal, f: f || {}, mErr: false, cmdOpen: false });
+    setState({ modal: modal, f: f || {}, mErr: false, cmdOpen: false, wStep: 1 });
   }
 
   function setTheme(t) {
@@ -171,7 +171,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // ---- carrega tudo do Supabase (substitui o seed fictício) ----
   async function loadAll(role, email) {
     var isAdmin = role === "admin";
-    var D = { templates: [], users: [], perms: {}, clients: [], projects: [], leads: [], proposals: [], meetings: [], messages: [], tickets: [] };
+    var D = { templates: [], users: [], perms: {}, clients: [], projects: [], leads: [], proposals: [], meetings: [], messages: [], tickets: [], prospects: [] };
 
     var tplRes = await sb().from("project_templates").select("*").order("created_at");
     D.templates = (tplRes.data || []).map(function (t) { return { id: t.id, nome: t.nome, etapas: t.etapas || [] }; });
@@ -185,9 +185,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("proposals").select("*").order("data", { ascending: false }),
         sb().from("calendar_events").select("*").order("data"),
         sb().from("support_tickets").select("*").order("numero"),
-        sb().from("client_projects").select("*").order("created_at", { ascending: false })
+        sb().from("client_projects").select("*").order("created_at", { ascending: false }),
+        sb().from("prospects").select("*").order("quando", { ascending: true })
       ]);
-      var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7];
+      var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8];
+      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, contato: z.contato || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo" }; });
 
       D.users = (teamRes.data || []).map(function (u) { return { id: u.id, nome: u.nome, email: u.email, papel: u.papel, ativo: u.ativo }; });
       if (!D.users.length) D.users = [{ id: "me", nome: email, email: email, papel: "Administrador", ativo: true }];
@@ -290,7 +292,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var item = function (k, label, count) { return { label: label, count: count ? String(count) : "", hasCount: !!count, bd: V === k ? "var(--accTxt)" : "transparent", bg: V === k ? "var(--accSoft)" : "transparent", fg: V === k ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { go(k, { filter: null }); }) }; };
     var groups = admin ? [
       ["Operação", [item("inicio", "Visão geral"), item("projetos", "Projetos", D.projects.filter(function (p) { return p.status !== "Concluído"; }).length), item("clientes", "Clientes", D.clients.length), item("agenda", "Agenda", upcoming.length)]],
-      ["Comercial", [item("funil", "Funil", leadsOpen), item("propostas", "Propostas e contratos")]],
+      ["Comercial", [item("funil", "Funil", leadsOpen), item("prospeccao", "Prospecção", D.prospects.filter(function (z) { return z.status !== "Convertido" && z.status !== "Sem interesse"; }).length), item("propostas", "Propostas e contratos")]],
       ["Financeiro", [item("financeiro", "Recebimentos", atras.length || "")]],
       ["Configuração", [item("modelos", "Modelos de projeto"), item("equipe", "Equipe e permissões")]]
     ] : [["Seu projeto", [item("andamento", "Andamento"), item("documentos", "Documentos e entregas"), item("aprovacoes", "Propostas e contratos", pendProps), item("cobrancas", "Cobranças"), item("mensagens", "Mensagens"), item("suporte", "Suporte")]]];
@@ -323,7 +325,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         out.ativos = D.projects.filter(function (p) { return p.status !== "Concluído"; }).map(projRow);
         out.miniCols = narrow ? "minmax(0,1fr)" : "70px minmax(0,2fr) minmax(0,1.4fr) 160px";
         out.goAgenda = reg(function () { go("agenda"); }); out.goProjetos = reg(function () { go("projetos"); });
-        actions = [btnS("Novo cliente", function () { openModal("cliente", { pj: "PJ" }); }), btnP("Novo projeto", function () { openModal("projeto", { clientId: D.clients[0].id, tplId: D.templates[0].id, parcelas: "1", venc: T }); })];
+        actions = [btnP("Cadastrar cliente e projeto", function () { openModal("clienteProjeto", { cPj: "PJ", pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })];
       }
       if (V === "projetos" && !sel) {
         title = "Projetos"; hasToolbar = true; qPh = "Buscar por nome, cliente ou código"; hasViewToggle = true;
@@ -429,7 +431,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "clientes") {
         title = "Clientes"; hasToolbar = true; qPh = "Buscar por nome, documento ou e-mail";
-        actions = [btnP("Cadastrar cliente", function () { openModal("cliente", { pj: "PJ" }); })];
+        actions = [btnP("Cadastrar cliente e projeto", function () { openModal("clienteProjeto", { cPj: "PJ", pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })];
         var baseC = D.clients.filter(function (c) { return match(c.nome, c.doc, c.email, c.contato, c.tel); });
         tFilters = [filt("Todos", baseC.length), filt("Empresas", baseC.filter(function (c) { return c.pj; }).length), filt("Pessoas físicas", baseC.filter(function (c) { return !c.pj; }).length)];
         var listC = baseC.filter(function (c) { return S.tf === "Todos" || (S.tf === "Empresas" ? c.pj : !c.pj); }); emptyList = !listC.length;
@@ -455,9 +457,25 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
                 canPrev: i > 0, canNext: i < 3, nextLabel: i < 3 ? ETAPAS[i + 1] + " →" : "", canConvert: i === 3 && !isCli, converted: i === 3 && isCli,
                 prevH: reg(function () { save(function (d) { d.leads.filter(function (x) { return x.id === l.id; })[0].etapa--; }, null, function (d) { var ld = d.leads.filter(function (x) { return x.id === l.id; })[0]; return sb().from("leads").update({ stage: LEAD_ETAPA[ld.etapa] }).eq("id", l.id); }); }),
                 nextH: reg(function () { save(function (d) { d.leads.filter(function (x) { return x.id === l.id; })[0].etapa++; }, null, function (d) { var ld = d.leads.filter(function (x) { return x.id === l.id; })[0]; return sb().from("leads").update({ stage: LEAD_ETAPA[ld.etapa] }).eq("id", l.id); }); }),
-                convertH: reg(function () { openModal("cliente", { nome: l.nome, pj: "PJ" }); })
+                convertH: reg(function () { openModal("clienteProjeto", { cPj: "PJ", cNome: l.nome, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
               };
             })
+          };
+        });
+      }
+      if (V === "prospeccao") {
+        title = "Prospecção"; sub = "Pessoas e empresas que você está tentando conquistar como cliente, antes de virarem contato no funil.";
+        actions = [btnP("Nova prospecção", function () { openModal("prospeccao", { acao: "Ligar", status: "Novo" }); })];
+        var baseZ = D.prospects.filter(function (z) { return match(z.nome, z.contato, z.estrategia, z.dor); });
+        tFilters = ["Todos", "Novo", "Contatado", "Respondeu", "Sem interesse", "Convertido"].map(function (k) { return filt(k, k === "Todos" ? baseZ.length : baseZ.filter(function (z) { return z.status === k; }).length); });
+        var listZ = baseZ.filter(function (z) { return S.tf === "Todos" || z.status === S.tf; }); emptyList = !listZ.length;
+        out.prospeccao = listZ.slice().sort(function (a, b) { return (a.quando || "9999").localeCompare(b.quando || "9999"); }).map(function (z) {
+          var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[z.status] || CH.neu;
+          return {
+            nome: z.nome, contato: z.contato || "sem contato", acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data", estrategia: z.estrategia || "", dor: z.dor || "",
+            status: z.status, chipBg: c[0], chipFg: c[1], canConvert: z.status !== "Convertido",
+            h: reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); }),
+            convertH: reg(function () { openModal("clienteProjeto", { cPj: "PJ", cNome: z.nome, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
           };
         });
       }
@@ -603,8 +621,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     // busca global
     var cq = norm(S.cmdQ);
     var acts = [
-      { kind: "Ação", label: "Novo projeto", sub: "Escolher modelo, valor e parcelas", h: reg(function () { openModal("projeto", { clientId: D.clients[0].id, tplId: D.templates[0].id, parcelas: "1", venc: T }); }) },
-      { kind: "Ação", label: "Cadastrar cliente", sub: "Empresa ou pessoa física", h: reg(function () { openModal("cliente", { pj: "PJ" }); }) },
+      { kind: "Ação", label: "Novo projeto", sub: "Para um cliente já cadastrado", h: reg(function () { openModal("projeto", { clientId: D.clients[0].id, tplId: D.templates[0].id, parcelas: "1", venc: T }); }) },
+      { kind: "Ação", label: "Cadastrar cliente e projeto", sub: "Empresa ou pessoa física, em 2 passos", h: reg(function () { openModal("clienteProjeto", { cPj: "PJ", pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); }) },
+      { kind: "Ação", label: "Nova prospecção", sub: "Registrar alguém que você quer conquistar", h: reg(function () { openModal("prospeccao", { acao: "Ligar", status: "Novo" }); }) },
       { kind: "Ação", label: "Nova proposta", sub: "Enviar ao portal do cliente", h: reg(function () { openModal("proposta", { clientId: D.clients[0].id, tipo: "Proposta" }); }) },
       { kind: "Ação", label: light ? "Usar tema escuro" : "Usar tema claro", sub: "Aparência do painel", h: reg(function () { setTheme(light ? "dark" : "light"); setState({ cmdOpen: false }); }) }
     ];
@@ -710,8 +729,50 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         remote: function (d) {
           var tk = d.tickets[d.tickets.length - 1];
           return sb().from("support_tickets").insert({ numero: tk.num, project_id: (D.projects[0] || {}).id || null, titulo: tk.titulo, descricao: F.desc || null, status: "Aberto" }).select().single().then(function (res) { if (res.error) throw res.error; tk.id = res.data.id; });
+        } },
+      prospeccao: { t: F.id ? "Editar prospecção" : "Nova prospecção", b: F.id ? "Salvar alterações" : "Registrar prospecção", fields: [
+          inp("Nome ou empresa *", "nome", "Quem você quer conquistar"),
+          inp("Contato (telefone, Instagram, e-mail)", "contato", ""),
+          sl("Próxima ação", "acao", [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais" }, { v: "Reunião", l: "Agendar reunião" }]),
+          inp("Quando", "quando", "", "datetime-local"),
+          area("Estratégia", "estrategia", "Como abordar, o que oferecer"),
+          area("Dor percebida", "dor", "Qual problema essa pessoa ou empresa parece ter"),
+          sl("Status", "status", [{ v: "Novo", l: "Novo" }, { v: "Contatado", l: "Contatado" }, { v: "Respondeu", l: "Respondeu" }, { v: "Sem interesse", l: "Sem interesse" }, { v: "Convertido", l: "Convertido em cliente" }])
+        ], req: ["nome"],
+        go: function (d) {
+          if (F.id) { var z = d.prospects.filter(function (x) { return x.id === F.id; })[0]; if (z) Object.assign(z, { nome: F.nome, contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" }); }
+          else d.prospects.unshift({ id: "z" + Date.now(), nome: F.nome, contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" });
+        }, toast: F.id ? "Prospecção atualizada" : "Prospecção registrada",
+        remote: function (d) {
+          var payload = { nome: F.nome, contato: F.contato || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
+          if (F.id) return sb().from("prospects").update(payload).eq("id", F.id);
+          return sb().from("prospects").insert(payload).select().single().then(function (res) { if (res.error) throw res.error; d.prospects[0].id = res.data.id; });
         } }
     };
+
+    // ---- wizard "cliente + projeto" (cadastro combinado, em 2 passos) ----
+    var wizSteps = [
+      { title: "Dados do cliente", b: "Continuar →", req: ["cNome", "cTel"], fields: [
+          sl("Tipo", "cPj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
+          inp("Nome ou razão social *", "cNome", ""),
+          inp("Responsável pelo contato", "cContato", "Quem fala com você"),
+          inp("Telefone *", "cTel", "(11) 90000-0000", "tel"),
+          inp("E-mail", "cEmail", "nome@empresa.com.br", "email"),
+          inp(F.cPj === "PF" ? "CPF" : "CNPJ", "cDoc", "")
+        ] },
+      { title: "Dados do projeto", b: "Criar cliente e projeto", req: ["pNome", "pValor"], fields: [
+          inp("Nome do projeto *", "pNome", "Ex.: Site institucional"),
+          sl("Modelo de projeto", "tplId", D.templates.map(function (t) { return { v: t.id, l: t.nome }; })),
+          inp("Valor cobrado (R$) *", "pValor", "0,00", "number"),
+          inp("Parcelas", "pParcelas", "1", "number"),
+          inp("1º vencimento", "pVenc", "", "date"),
+          inp("Entrega prevista", "pPrazo", "", "date")
+        ] }
+    ];
+    if (M === "clienteProjeto") {
+      var wStepN = Math.min(Math.max(S.wStep || 1, 1), wizSteps.length), wStepDef = wizSteps[wStepN - 1];
+      MODALS.clienteProjeto = { t: "Novo cliente e projeto", sub: "Passo " + wStepN + " de " + wizSteps.length + " · " + wStepDef.title, b: wStepDef.b, fields: wStepDef.fields, req: wStepDef.req };
+    }
     var md = M ? MODALS[M] : null;
     var tplP = M === "projeto" ? (tplOf(F.tplId) || D.templates[0]) : null;
 
@@ -725,18 +786,52 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       logoutH: reg(function () { sb().auth.signOut(); }),
       navGroups: navGroups, title: title, kicker: kicker, sub: sub, hasSub: !!sub, actions: actions, kpis: kpis, hasToolbar: hasToolbar, qPh: qPh, tFilters: tFilters, emptyList: emptyList, hasViewToggle: hasViewToggle,
       q: S.q, qChH: reg(function (e) { setState({ q: e.target.value }); }),
-      v_inicio: admin && V === "inicio", v_clientes: admin && V === "clientes", v_funil: admin && V === "funil", v_propostas: V === "propostas" || V === "aprovacoes", v_financeiro: admin && V === "financeiro", v_agenda: admin && V === "agenda", v_modelos: admin && V === "modelos", v_equipe: admin && V === "equipe",
+      v_inicio: admin && V === "inicio", v_clientes: admin && V === "clientes", v_funil: admin && V === "funil", v_prospeccao: admin && V === "prospeccao", v_propostas: V === "propostas" || V === "aprovacoes", v_financeiro: admin && V === "financeiro", v_agenda: admin && V === "agenda", v_modelos: admin && V === "modelos", v_equipe: admin && V === "equipe",
       v_andamento: !admin && V === "andamento", v_documentos: !admin && V === "documentos", v_cobrancas: !admin && V === "cobrancas", v_mensagens: !admin && V === "mensagens", v_suporte: !admin && V === "suporte",
       openCmdH: reg(function () { setState({ cmdOpen: true, cmdQ: "" }); focusCmd(); }), cmdOpen: S.cmdOpen, cmdQ: S.cmdQ, cmdChH: reg(function (e) { setState({ cmdQ: e.target.value }); }), cmdRes: cmdRes, cmdEmpty: !cmdRes.length,
       cmdKeyH: reg(function (e) { if (e.key === "Enter" && cmdRes[0]) H[cmdRes[0].h](); }), closeCmdBgH: reg(function (e) { if (e.target === e.currentTarget) setState({ cmdOpen: false }); }),
       showBot: !admin, helpOpen: !admin && S.helpOpen, helpBtnLabel: S.helpOpen ? "Fechar ajuda" : "Precisa de ajuda?", toggleHelpH: reg(function () { S.helpOpen = !S.helpOpen; render(); scrollHelp(); }),
       helpLog: helpLog, helpSugg: sugg.map(function (k) { return { q: HELP[k].q, h: reg(function () { ask(k); }) }; }), helpDraft: S.helpDraft, helpChH: reg(function (e) { setState({ helpDraft: e.target.value }); }), helpKeyH: reg(function (e) { if (e.key === "Enter") helpSend(); }), helpSendH: reg(helpSend),
-      modalOpen: !!md, mTitle: md ? md.t : "", mSubmitLabel: md ? md.b : "", mFields: md ? md.fields : [], mErr: S.mErr,
+      modalOpen: !!md, mTitle: md ? md.t : "", mSub: md ? (md.sub || "") : "", hasMSub: !!(md && md.sub), mSubmitLabel: md ? md.b : "", mFields: md ? md.fields : [], mErr: S.mErr,
       hasTplPreview: !!tplP, tplPreview: tplP ? tplP.etapas.map(function (t, i) { return String(i + 1).padStart(2, "0") + "  " + t; }) : [],
-      closeModalH: reg(function () { setState({ modal: null }); }), closeModalBgH: reg(function (e) { if (e.target === e.currentTarget) setState({ modal: null }); }),
+      wShowBack: M === "clienteProjeto" && (S.wStep || 1) > 1,
+      wBackH: reg(function () { setState({ wStep: Math.max(1, (S.wStep || 1) - 1), mErr: false }); }),
+      closeModalH: reg(function () { setState({ modal: null, wStep: 1 }); }), closeModalBgH: reg(function (e) { if (e.target === e.currentTarget) setState({ modal: null, wStep: 1 }); }),
       mSubmitH: reg(function () {
         if (!md) return;
         if (md.req.some(function (k) { return !String(F[k] || "").trim(); })) { setState({ mErr: true }); return; }
+        if (M === "clienteProjeto" && (S.wStep || 1) < wizSteps.length) { setState({ wStep: (S.wStep || 1) + 1, mErr: false }); return; }
+        if (M === "clienteProjeto") {
+          save(function (d) {
+            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
+            var newC = d.clients[d.clients.length - 1];
+            var v = Number(String(F.pValor).replace(",", ".")) || 0, n = Math.max(1, parseInt(F.pParcelas) || 1);
+            var t = D.templates.filter(function (x) { return x.id === F.tplId; })[0] || D.templates[0];
+            var nums = d.projects.map(function (p) { var mm = /BV-(\d+)/.exec(p.code || ""); return mm ? parseInt(mm[1]) : 0; });
+            var code = "BV-" + String((nums.length ? Math.max.apply(null, nums) : 0) + 1).padStart(3, "0");
+            d.projects.unshift({ id: "p" + Date.now(), code: code, clientId: newC.id, nome: F.pNome, tplId: t ? t.id : "", tipo: t ? t.nome : "", status: "Em andamento", prazo: F.pPrazo || "", valor: v, parcelas: mkParc(v, n, F.pVenc || T, 0), tasks: mkTasks(t ? t.etapas : [], 0), docs: [], hist: [{ at: nowStr(), who: "Lorena", text: 'criou o projeto a partir do modelo "' + (t ? t.nome : "") + '"' }] });
+          }, "Cliente e projeto criados", function (d) {
+            var c = d.clients[d.clients.length - 1], p = d.projects[0];
+            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
+              if (res.error) throw res.error;
+              c.id = res.data.id; p.clientId = c.id;
+              return sb().from("client_projects").insert({
+                client_id: c.id, client_email: c.email || "", client_name: c.nome, project_title: p.nome,
+                status: ST_DB[p.status] || "em_andamento", code: p.code, tipo: p.tipo, prazo: p.prazo || null, budget_value: p.valor, template_id: p.tplId
+              }).select().single();
+            }).then(function (res2) {
+              if (res2.error) throw res2.error;
+              p.id = res2.data.id;
+              return Promise.all([
+                p.tasks.length ? sb().from("project_stages").insert(p.tasks.map(function (tk, i) { return { project_id: p.id, title: tk.t, status: tk.done ? "concluido" : "pendente", order_index: i, checklist: [] }; })).select().then(function (r) { if (r.error) throw r.error; r.data.forEach(function (row, i) { p.tasks[i].id = row.id; }); }) : null,
+                p.parcelas.length ? sb().from("project_installments").insert(p.parcelas.map(function (q) { return { project_id: p.id, numero: q.n, valor: q.valor, vencimento: q.venc, pago: q.pago }; })).select().then(function (r) { if (r.error) throw r.error; r.data.forEach(function (row, i) { p.parcelas[i].id = row.id; }); }) : null
+              ]);
+            });
+          });
+          S.modal = null; S.f = {}; S.wStep = 1; render();
+          go("projetos");
+          return;
+        }
         var after = md.after;
         save(md.go, md.toast, md.remote);
         S.modal = null; S.f = {}; render();
@@ -750,7 +845,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   function h(id) { return 'data-h="' + id + '"'; }
 
   function buildAside(V) {
-    var logoSrc = V.isDark ? "../assets/img/logo-wordmark-dark.svg" : "../assets/img/logo-wordmark-light.svg";
+    var logoSrc = V.isDark ? "../assets/img/logo-wordmark-light.svg" : "../assets/img/logo-wordmark-dark.svg";
     var search = V.wideSide ? '<button ' + h(V.openCmdH) + ' style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line2);background:var(--field);color:var(--mute);font:inherit;font-size:13px;cursor:pointer;text-align:left">Buscar ou criar…<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;padding:2px 6px;border:1px solid var(--line2)">Ctrl K</span></button>' : "";
     var groups = V.navGroups.map(function (g) {
       var label = g.showLabel ? '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:0 12px 8px">' + esc(g.label) + "</span>" : "";
@@ -913,6 +1008,19 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     }).join("") + "</div>";
   }
 
+  function buildProspeccao(V) {
+    var rows = V.prospeccao.map(function (z) {
+      return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:start;padding:15px 0;border-top:1px solid var(--line)">'
+        + '<button ' + h(z.h) + ' style="text-align:left;border:0;background:none;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.contato) + "</span></button>"
+        + '<span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(z.acao) + '</span><span style="color:var(--mute)">' + esc(z.quando) + "</span></span>"
+        + '<span style="font-size:12px;color:var(--ink2);line-height:1.45">' + esc(z.estrategia) + "</span>"
+        + '<span style="font-size:12px;color:var(--mute);line-height:1.45">' + esc(z.dor) + "</span>"
+        + '<span style="display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap"><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span>" + (z.canConvert ? '<button ' + h(z.convertH) + ' style="padding:7px 10px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:11px;font-weight:600;cursor:pointer">Converter em cliente</button>' : "") + "</span>"
+        + "</div>";
+    }).join("");
+    return '<div style="display:flex;flex-direction:column">' + rows + (V.emptyList ? '<span style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhuma prospecção ainda. Comece registrando quem você quer conquistar.</span>' : "") + "</div>";
+  }
+
   function buildPropostas(V) {
     var rows = V.propostas.map(function (p) {
       var ans = p.canAnswer ? '<button ' + h(p.approveH) + ' style="padding:7px 12px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:12px;font-weight:600;cursor:pointer">Aprovar</button><button ' + h(p.refuseH) + ' style="padding:7px 12px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer">Recusar</button>' : "";
@@ -1035,6 +1143,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     else if (V.v_cobrancas) body = buildCobrancas(V);
     else if (V.v_mensagens) body = buildMensagens(V);
     else if (V.v_suporte) body = buildSuporte(V);
+    else if (V.v_prospeccao) body = buildProspeccao(V);
     return '<main style="min-width:0;padding:clamp(22px,3.4vw,44px) clamp(16px,3.6vw,52px) 120px;display:flex;flex-direction:column;gap:28px">' + buildHeader(V) + buildToolbar(V) + body + "</main>";
   }
 
@@ -1082,11 +1191,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     }).join("");
     var tplPrev = V.hasTplPreview ? '<div style="display:flex;flex-direction:column;gap:6px;padding:14px;border:1px dashed var(--line2)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">Etapas que serão criadas</span>' + V.tplPreview.map(function (t) { return '<span style="font-size:13px;color:var(--ink2)">' + esc(t) + "</span>"; }).join("") + "</div>" : "";
     var err = V.mErr ? '<span style="font-size:13px;color:var(--badFg)">Preencha os campos marcados com *.</span>' : "";
+    var sub = V.hasMSub ? '<span style="font-size:12px;color:var(--mute)">' + esc(V.mSub) + "</span>" : "";
+    var btns = (V.wShowBack ? '<button ' + h(V.wBackH) + ' style="padding:14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer">← Voltar</button>' : "")
+      + '<button ' + h(V.mSubmitH) + ' style="flex:1;padding:14px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer">' + esc(V.mSubmitLabel) + "</button>";
     return '<div data-h="' + V.closeModalBgH + '" style="position:fixed;inset:0;z-index:50;background:var(--overlay);backdrop-filter:blur(4px);display:flex;overflow-y:auto;padding:20px">'
       + '<div style="margin:auto;width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line2);padding:clamp(22px,4vw,34px);display:flex;flex-direction:column;gap:18px">'
-      + '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:18px;letter-spacing:-.04em">' + esc(V.mTitle) + '</span><button ' + h(V.closeModalH) + ' aria-label="Fechar" style="border:0;background:none;color:var(--ink);font-size:22px;cursor:pointer;line-height:1">×</button></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><span style="display:flex;flex-direction:column;gap:4px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:18px;letter-spacing:-.04em">' + esc(V.mTitle) + "</span>" + sub + '</span><button ' + h(V.closeModalH) + ' aria-label="Fechar" style="border:0;background:none;color:var(--ink);font-size:22px;cursor:pointer;line-height:1">×</button></div>'
       + fields + tplPrev + err
-      + '<button ' + h(V.mSubmitH) + ' style="padding:14px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer">' + esc(V.mSubmitLabel) + "</button>"
+      + '<div style="display:flex;gap:10px">' + btns + "</div>"
       + "</div></div>";
   }
 
