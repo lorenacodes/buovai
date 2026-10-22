@@ -136,8 +136,7 @@
     });
 
     async function goToPanel() {
-      const { data: isAdmin } = await window.buovaiClient.rpc("is_admin");
-      window.location.href = "painel/" + (isAdmin ? "leads.html" : "portal.html");
+      window.location.href = "painel/portal.html";
     }
 
     formEl.addEventListener("submit", async (e) => {
