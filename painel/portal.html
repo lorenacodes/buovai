@@ -171,7 +171,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // ---- carrega tudo do Supabase (substitui o seed fictício) ----
   async function loadAll(role, email) {
     var isAdmin = role === "admin";
-    var D = { templates: [], users: [], perms: {}, clients: [], projects: [], leads: [], proposals: [], meetings: [], messages: [], tickets: [], prospects: [] };
+    var D = { templates: [], users: [], perms: {}, clients: [], projects: [], leads: [], proposals: [], meetings: [], messages: [], tickets: [], prospects: [], admins: [] };
 
     var tplRes = await sb().from("project_templates").select("*").order("created_at");
     D.templates = (tplRes.data || []).map(function (t) { return { id: t.id, nome: t.nome, etapas: t.etapas || [] }; });
@@ -186,10 +186,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("calendar_events").select("*").order("data"),
         sb().from("support_tickets").select("*").order("numero"),
         sb().from("client_projects").select("*").order("created_at", { ascending: false }),
-        sb().from("prospects").select("*").order("quando", { ascending: true })
+        sb().from("prospects").select("*").order("quando", { ascending: true }),
+        sb().from("admins").select("id,name,email,avatar_url")
       ]);
-      var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8];
+      var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9];
       D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, contato: z.contato || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo" }; });
+      D.admins = (adminsRes.data || []).map(function (a) { return { id: a.id, name: a.name, email: (a.email || "").toLowerCase(), avatarUrl: a.avatar_url || "" }; });
 
       D.users = (teamRes.data || []).map(function (u) { return { id: u.id, nome: u.nome, email: u.email, papel: u.papel, ativo: u.ativo }; });
       if (!D.users.length) D.users = [{ id: "me", nome: email, email: email, papel: "Administrador", ativo: true }];
@@ -257,6 +259,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // ---- computa valores de exibição (equivalente a renderVals) ----
   function computeVals() {
     var D = S.data, admin = S.role === "admin", T = new Date().toISOString().slice(0, 10), narrow = S.w < 760, light = S.theme === "light";
+    var adminMe = admin ? (D.admins || []).filter(function (a) { return a.email === (S.email || "").toLowerCase(); })[0] : null;
     var cli = function (id) { return D.clients.filter(function (c) { return c.id === id; })[0] || { nome: "..." }; };
     var tplOf = function (id) { return D.templates.filter(function (t) { return t.id === id; })[0]; };
     var pct = function (p) { return p.tasks.length ? Math.round(p.tasks.filter(function (t) { return t.done; }).length / p.tasks.length * 100) : 0; };
@@ -543,7 +546,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       if (V === "equipe") {
         title = "Equipe e permissões";
         actions = [btnP("Convidar pessoa", function () { openModal("usuario", { papel: "Desenvolvimento" }); })];
-        out.users = D.users.map(function (u) { return { nome: u.nome, email: u.email, papel: u.papel, st: u.ativo ? "ativo" : "convite enviado", ini: u.nome.split(" ").map(function (x) { return x[0]; }).slice(0, 2).join("").toUpperCase() }; });
+        out.users = D.users.map(function (u) {
+          var acc = (D.admins || []).filter(function (a) { return a.email === (u.email || "").toLowerCase(); })[0];
+          var st = u.papel === "Administrador" ? (acc ? "acesso de admin liberado" : "aguardando liberação no banco") : (u.ativo ? "ativo" : "convite enviado");
+          return { nome: u.nome, email: u.email, papel: u.papel, st: st, avatarUrl: acc ? acc.avatarUrl : "", ini: u.nome.split(" ").map(function (x) { return x[0]; }).slice(0, 2).join("").toUpperCase() };
+        });
         out.roles = ROLES;
         out.permRows = MODS.map(function (m) {
           return {
@@ -784,6 +791,34 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       thDarkBg: light ? "transparent" : "var(--btnBg)", thDarkFg: light ? "var(--ink)" : "var(--btnFg)", thLightBg: light ? "var(--btnBg)" : "transparent", thLightFg: light ? "var(--btnFg)" : "var(--ink)",
       setDarkH: reg(function () { setTheme("dark"); }), setLightH: reg(function () { setTheme("light"); }),
       logoutH: reg(function () { sb().auth.signOut(); }),
+      meName: admin ? ((adminMe && adminMe.name) || S.email || "") : "",
+      meAvatarUrl: admin ? ((adminMe && adminMe.avatarUrl) || "") : "",
+      meInitials: admin ? (((adminMe && adminMe.name) || S.email || "?").trim().charAt(0).toUpperCase()) : "",
+      avatarClickH: reg(function () { var el = document.getElementById("avatarFileInput"); if (el) el.click(); }),
+      avatarUploadH: reg(function (e) {
+        var file = e.target.files && e.target.files[0];
+        if (!file || !S.uid) return;
+        var ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+        var path = S.uid + "/avatar." + ext;
+        sb().storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" }).then(function (res) {
+          if (res.error) throw res.error;
+          var pub = sb().storage.from("avatars").getPublicUrl(path);
+          var url = pub.data.publicUrl + "?t=" + Date.now();
+          return sb().from("admins").update({ avatar_url: url }).eq("id", S.uid).then(function (r2) {
+            if (r2.error) throw r2.error;
+            var me = (S.data.admins || []).filter(function (a) { return a.id === S.uid; })[0];
+            if (me) me.avatarUrl = url;
+            S.toast = "Foto de perfil atualizada";
+            clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
+            render();
+          });
+        }).catch(function (err) {
+          console.error("[Buovai] Falha ao enviar avatar:", err);
+          S.toast = "Não foi possível enviar a foto agora.";
+          clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
+          render();
+        });
+      }),
       navGroups: navGroups, title: title, kicker: kicker, sub: sub, hasSub: !!sub, actions: actions, kpis: kpis, hasToolbar: hasToolbar, qPh: qPh, tFilters: tFilters, emptyList: emptyList, hasViewToggle: hasViewToggle,
       q: S.q, qChH: reg(function (e) { setState({ q: e.target.value }); }),
       v_inicio: admin && V === "inicio", v_clientes: admin && V === "clientes", v_funil: admin && V === "funil", v_prospeccao: admin && V === "prospeccao", v_propostas: V === "propostas" || V === "aprovacoes", v_financeiro: admin && V === "financeiro", v_agenda: admin && V === "agenda", v_modelos: admin && V === "modelos", v_equipe: admin && V === "equipe",
@@ -861,6 +896,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + "</div>"
       + '<nav style="display:flex;flex-direction:' + V.asideDir + ";gap:" + V.navGap + ";flex:" + V.navFlex + '">' + groups + "</nav>"
       + '<div style="display:flex;flex-direction:' + V.footDir + ";gap:10px;flex:none;padding-top:" + V.footPad + ";border-top:" + V.footBorder + ";align-items:" + V.footAlign + '">'
+      + (V.admin ? ('<div style="display:flex;align-items:center;gap:9px;padding:2px 2px 2px 0">'
+          + '<button ' + h(V.avatarClickH) + ' aria-label="Alterar foto de perfil" style="width:32px;height:32px;flex:none;border-radius:50%;overflow:hidden;border:1px solid var(--line2);background:var(--accSoft);color:var(--accTxt);display:flex;align-items:center;justify-content:center;font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;padding:0">'
+          + (V.meAvatarUrl ? '<img src="' + esc(V.meAvatarUrl) + '" alt="" style="width:100%;height:100%;object-fit:cover">' : esc(V.meInitials))
+          + '</button>'
+          + '<span style="font-size:12px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(V.meName) + '</span>'
+          + '<input type="file" accept="image/*" id="avatarFileInput" data-fileh="' + V.avatarUploadH + '" style="display:none">'
+        + '</div>') : "")
       + '<div style="display:flex;border:1px solid var(--line2);font-family:\'Lexend Exa\',sans-serif;font-size:11px">'
       + '<button ' + h(V.setDarkH) + ' style="flex:1;padding:8px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thDarkBg + ";color:" + V.thDarkFg + '">Escuro</button>'
       + '<button ' + h(V.setLightH) + ' style="flex:1;padding:8px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thLightBg + ";color:" + V.thLightFg + '">Claro</button>'
@@ -1067,7 +1109,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   function buildEquipe(V) {
     var users = '<div style="display:flex;flex-direction:column">' + V.users.map(function (u) {
-      return '<div style="display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="width:32px;height:32px;display:grid;place-items:center;background:var(--accSoft);color:var(--accTxt);font-family:\'Lexend Exa\',sans-serif;font-size:11px">' + esc(u.ini) + '</span><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(u.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(u.email) + " · " + esc(u.st) + '</span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;padding:5px 9px;border:1px solid var(--line2)">' + esc(u.papel) + "</span></div>";
+      var avatar = u.avatarUrl ? '<img src="' + esc(u.avatarUrl) + '" alt="" style="width:100%;height:100%;object-fit:cover">' : esc(u.ini);
+      return '<div style="display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="width:32px;height:32px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--accSoft);color:var(--accTxt);font-family:\'Lexend Exa\',sans-serif;font-size:11px">' + avatar + '</span><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(u.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(u.email) + " · " + esc(u.st) + '</span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;padding:5px 9px;border:1px solid var(--line2)">' + esc(u.papel) + "</span></div>";
     }).join("") + "</div>";
     var permHead = '<div style="display:grid;grid-template-columns:minmax(140px,1.4fr) repeat(4,minmax(90px,1fr));gap:10px;padding:10px 0;font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)"><span>Módulo</span>' + V.roles.map(function (r) { return '<span style="text-align:center">' + esc(r) + "</span>"; }).join("") + "</div>";
     var permRows = V.permRows.map(function (row) {
@@ -1232,6 +1275,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (fn) fn(e);
       });
     });
+    app.querySelectorAll("[data-fileh]").forEach(function (el) {
+      el.addEventListener("change", function (e) {
+        var fn = H[el.getAttribute("data-fileh")];
+        if (fn) fn(e);
+      });
+    });
   }
 
   window.addEventListener("resize", function () { S.w = window.innerWidth; render(); });
@@ -1247,11 +1296,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var sessRes = await sb().auth.getSession();
     if (!sessRes.data.session) { window.location.href = "login.html"; return; }
     var email = sessRes.data.session.user.email;
+    var uid = sessRes.data.session.user.id;
     var adminRes = await sb().rpc("is_admin");
     var role = adminRes.data ? "admin" : "client";
     try {
       var D = await loadAll(role, email);
-      S.role = role; S.email = email; S.data = D; S.view = role === "admin" ? "inicio" : "andamento";
+      S.role = role; S.email = email; S.uid = uid; S.data = D; S.view = role === "admin" ? "inicio" : "andamento";
       document.body.dataset.theme = S.theme;
       render();
     } catch (err) {
