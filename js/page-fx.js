@@ -147,7 +147,11 @@
 
     const cfg = [
       ["Ponto de partida", "Todo bom sistema começa por entender a rotina.", 0],
-      ["Casos reais", "Telas reais, com os dados do cliente protegidos.", 0],
+      // Aqui o robô não aponta pro título da seção, e sim pro quadro do
+      // primeiro case (o mockup da tela), como se estivesse apresentando
+      // a captura em si (pedido da Lorena). Busca de novo a cada frame,
+      // pois o mockup só existe depois do fetch assíncrono do portfólio.
+      ["Casos reais", "Telas reais, com os dados do cliente protegidos.", 0, "#caso [data-case-frame]"],
       ["Serviços", "Não precisa saber o termo técnico para começar.", 0],
       ["Como trabalho", "Cada etapa validada com você antes da próxima.", 1],
       ["Portal do cliente", "Você acompanha o andamento sem precisar pedir.", 0],
@@ -156,9 +160,9 @@
       ["Contato", "Descreva como é hoje. O caminho vem na resposta.", 1],
     ];
     const secs = cfg
-      .map(([lab, msg, dark]) => {
+      .map(([lab, msg, dark, targetSel]) => {
         const el = document.querySelector('[data-screen-label="' + lab + '"]');
-        return el ? { el: el, msg: msg, dark: dark, h2: el.querySelector("h2") } : null;
+        return el ? { el: el, msg: msg, dark: dark, h2: el.querySelector("h2"), targetSel: targetSel || null, skipLabel: !!targetSel } : null;
       })
       .filter(Boolean);
 
@@ -220,9 +224,10 @@
       const pl = document.documentElement.hasAttribute("data-planilha");
       if (pl !== st.pl) { st.pl = pl; st.t0 = now; st.blink = now + 100; }
       const s = secs[st.active];
+      const target = s ? (s.targetSel && document.querySelector(s.targetSel)) || s.h2 : null;
       let tx = W - S - (mob ? 16 : 36), ty = mob ? H - S - 90 : H * 0.45;
-      if (s && s.h2 && !mob) {
-        const r = s.h2.getBoundingClientRect();
+      if (target && !mob) {
+        const r = target.getBoundingClientRect();
         ty = Math.max(90, Math.min(H - S - 40, r.top + r.height / 2 - S / 2));
       }
       if (!visible) ty = -S * 2;
@@ -235,11 +240,11 @@
       const sw = Math.max(-40, Math.min(40, -st.vy * 2.2 - st.sv * 0.8));
       aL.style.transform = "rotate(" + sw.toFixed(1) + "deg)";
       aR.style.transform = "rotate(" + (sw * 0.8).toFixed(1) + "deg)";
-      const building = !st.pl && s && s.h2 && now - st.t0 < 2600;
+      const building = !st.pl && target && now - st.t0 < 2600;
       let lx = st.mx, ly = st.my;
       const cx = st.x + S / 2, cy = st.y + S * 0.62;
       if (building) {
-        const r = s.h2.getBoundingClientRect();
+        const r = target.getBoundingClientRect();
         lx = r.left; ly = r.top + r.height / 2;
       }
       const dx = lx - cx, dy = ly - cy, d = Math.hypot(dx, dy) || 1, rch = Math.min(1, d / 200);
@@ -265,9 +270,9 @@
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
-      if (visible && !st.pl && s && s.h2) {
-        const t = now - st.t0, r = s.h2.getBoundingClientRect(), pad = 18;
-        const x0 = r.left - pad, y0 = r.top - pad, x1 = r.left + Math.min(r.width, s.h2.scrollWidth) + pad, y1 = r.bottom + pad;
+      if (visible && !st.pl && target) {
+        const t = now - st.t0, r = target.getBoundingClientRect(), pad = 18;
+        const x0 = r.left - pad, y0 = r.top - pad, x1 = r.left + Math.min(r.width, target.scrollWidth) + pad, y1 = r.bottom + pad;
         const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = 1 - cl((t - 2000) / 600);
         if (fade > 0) {
           ctx.lineWidth = 1;
@@ -290,7 +295,7 @@
           });
           ctx.stroke();
           const lp = io(cl((t - 900) / 900));
-          if (lp > 0) {
+          if (lp > 0 && !s.skipLabel) {
             ctx.strokeStyle = "rgba(" + col + "," + 0.35 * fade + ")";
             ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(x0, y1 + 8); ctx.lineTo(x0 + (x1 - x0) * lp, y1 + 8); ctx.stroke();
