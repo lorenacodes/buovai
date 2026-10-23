@@ -244,7 +244,7 @@
       const sw = Math.max(-40, Math.min(40, -st.vy * 2.2 - st.sv * 0.8));
       aL.style.transform = "rotate(" + sw.toFixed(1) + "deg)";
       aR.style.transform = "rotate(" + (sw * 0.8).toFixed(1) + "deg)";
-      const building = !st.pl && target && now - st.t0 < 2600;
+      const building = !st.pl && target && (s.skipLabel || now - st.t0 < 2600);
       let lx = st.mx, ly = st.my;
       const cx = st.x + S / 2, cy = st.y + S * 0.62;
       if (building) {
@@ -277,11 +277,15 @@
       if (visible && !st.pl && target) {
         const t = now - st.t0, r = target.getBoundingClientRect(), pad = 18;
         const x0 = r.left - pad, y0 = r.top - pad, x1 = r.left + Math.min(r.width, target.scrollWidth) + pad, y1 = r.bottom + pad;
-        const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = 1 - cl((t - 2000) / 600);
+        const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = s.skipLabel ? 1 : 1 - cl((t - 2000) / 600);
         if (fade > 0) {
           ctx.lineWidth = 1;
           const ex = x1, ey = r.top + r.height / 2, bx = cx + (ex - cx) * bp, by = cy + (ey - cy) * bp;
-          const bfade = 1 - cl((t - 900) / 500);
+          // No case de "apontar pro quadro", a linha da cabeça até o quadro
+          // fica firme enquanto a seção estiver ativa, em vez de sumir
+          // depois de ~1.4s — é pra parecer o professor apontando mesmo,
+          // não um flash (pedido da Lorena).
+          const bfade = s.skipLabel ? 1 : 1 - cl((t - 900) / 500);
           if (bfade > 0) {
             ctx.strokeStyle = "rgba(" + col + "," + 0.6 * bfade + ")";
             ctx.setLineDash([3, 5]);
