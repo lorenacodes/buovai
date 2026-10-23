@@ -112,7 +112,7 @@
       diffTitle: "//o diferencial",
       diffParas: [
         "Migrado de planilhas e ferramentas soltas para uma base única, sem depender de no-code. Cada módulo evolui isolado, com testes automatizados cobrindo o banco e a camada de JavaScript, sem precisar reescrever o resto do sistema conforme a operação cresce.",
-        "Do orçamento com cálculo automático de imposto interestadual ao acompanhamento da frota de entrega no mapa, a mesma plataforma cobre comercial, engenharia, produção, logística e RH, com acesso restrito por convite.",
+        "O orçamento sai em dois modos: estimativa rápida para responder o cliente na hora, ou cálculo detalhado por material, com geração automática da proposta comercial e do imposto interestadual. Do orçamento ao acompanhamento da frota de entrega no mapa, a mesma plataforma cobre comercial, engenharia, produção, logística e RH, com acesso restrito por convite.",
       ],
     },
   };
