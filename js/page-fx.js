@@ -155,8 +155,8 @@
       // pois os mockups só existem depois do fetch assíncrono do
       // portfólio.
       ["Casos reais", null, 0, [
-        { sel: '[data-case-title="Sistema de Gestão de Obras"] [data-case-frame]', msg: "Antes: a rota da frota saía no olho, sem cálculo nenhum." },
-        { sel: '[data-case-title="Portal do Cliente"] [data-case-frame]', msg: "Antes: pastas soltas no Drive, telefone tocando atrás de boleto." },
+        { sel: '[data-case-title="Sistema de Gestão de Obras"] [data-case-frame]', msg: "A rota de entrega era decidida no olho. Hoje o sistema calcula o trajeto sozinho." },
+        { sel: '[data-case-title="Portal do Cliente"] [data-case-frame]', msg: "Os documentos viviam espalhados em pastas do Drive, com o telefone tocando atrás de boleto." },
       ]],
       ["Serviços", "Não precisa saber o termo técnico para começar.", 0],
       ["Como trabalho", "Cada etapa validada com você antes da próxima.", 1],
@@ -317,39 +317,25 @@
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
-      if (visible && !st.pl && target) {
+      // No modo "apontar pro quadro" (cases), nenhuma versão do traço
+      // (régua, seta, extensão do corpo) convenceu — tirado por completo.
+      // O robô ainda se posiciona perto do quadro e fala sobre ele, só
+      // sem nenhum desenho de linha/colchete (pedido da Lorena).
+      if (visible && !st.pl && target && !s.skipLabel) {
         const t = now - st.t0, r = target.getBoundingClientRect(), pad = 18;
         const x0 = r.left - pad, y0 = r.top - pad, x1 = r.left + Math.min(r.width, target.scrollWidth) + pad, y1 = r.bottom + pad;
-        const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = s.skipLabel ? 1 : 1 - cl((t - 2000) / 600);
+        const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = 1 - cl((t - 2000) / 600);
         if (fade > 0) {
           ctx.lineWidth = 1;
-          // A linha sempre mirava a borda direita do quadro (x1), mesmo
-          // quando o robô fica do lado esquerdo — cruzava a tela inteira
-          // por cima do print em vez de apontar a partir do lado onde ele
-          // está. Mira a borda mais perto do robô.
-          const ex = cx < (x0 + x1) / 2 ? x0 : x1;
-          const ey = r.top + r.height / 2, bx = cx + (ex - cx) * bp, by = cy + (ey - cy) * bp;
-          const bfade = s.skipLabel ? 1 : 1 - cl((t - 900) / 500);
+          const ex = x1, ey = r.top + r.height / 2, bx = cx + (ex - cx) * bp, by = cy + (ey - cy) * bp;
+          const bfade = 1 - cl((t - 900) / 500);
           if (bfade > 0) {
-            if (s.skipLabel) {
-              // Nem seta, nem régua: um traço sólido e grosso, preto,
-              // igual ao das antenas do próprio robô — pra parecer que o
-              // traço sai do corpo dele, não que é uma anotação separada
-              // apontando por fora (pedido da Lorena).
-              ctx.strokeStyle = "rgba(14,15,11," + (0.92 * bfade) + ")";
-              ctx.fillStyle = "rgba(14,15,11," + bfade + ")";
-              ctx.lineWidth = 3.5;
-              ctx.lineCap = "round";
-              ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
-              ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill();
-            } else {
-              ctx.strokeStyle = "rgba(" + col + "," + 0.6 * bfade + ")";
-              ctx.setLineDash([3, 5]);
-              ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
-              ctx.setLineDash([]);
-              ctx.fillStyle = "rgba(" + col + "," + bfade + ")";
-              ctx.fillRect(bx - 2, by - 2, 4, 4);
-            }
+            ctx.strokeStyle = "rgba(" + col + "," + 0.6 * bfade + ")";
+            ctx.setLineDash([3, 5]);
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = "rgba(" + col + "," + bfade + ")";
+            ctx.fillRect(bx - 2, by - 2, 4, 4);
           }
           const cp = io(cl((t - 500) / 700)), L = 22 * cp;
           ctx.strokeStyle = "rgba(" + col + "," + 0.9 * fade + ")";
@@ -360,7 +346,7 @@
           });
           ctx.stroke();
           const lp = io(cl((t - 900) / 900));
-          if (lp > 0 && !s.skipLabel) {
+          if (lp > 0) {
             ctx.strokeStyle = "rgba(" + col + "," + 0.35 * fade + ")";
             ctx.lineWidth = 1;
             ctx.beginPath(); ctx.moveTo(x0, y1 + 8); ctx.lineTo(x0 + (x1 - x0) * lp, y1 + 8); ctx.stroke();
