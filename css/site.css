@@ -108,13 +108,13 @@ button {
   position: absolute;
   inset: -30%;
   z-index: -1;
-  background: radial-gradient(circle at 30% 20%, rgba(222, 250, 154, .55) 0%, rgba(148, 171, 134, .24) 35%, rgba(239, 238, 219, 0) 66%);
-  animation: caseGlowDrift 16s ease-in-out infinite;
+  background: radial-gradient(circle at 30% 20%, rgba(222, 250, 154, .7) 0%, rgba(148, 171, 134, .32) 35%, rgba(239, 238, 219, 0) 66%);
+  animation: caseGlowDrift 8s ease-in-out infinite;
 }
 
 @keyframes caseGlowDrift {
-  0%, 100% { transform: translate(-3%, -3%) scale(1); }
-  50% { transform: translate(4%, 5%) scale(1.18); }
+  0%, 100% { transform: translate(-10%, -8%) scale(1); }
+  50% { transform: translate(14%, 16%) scale(1.35); }
 }
 
 /* ---- Entrada rápida (robô + nome) ao abrir o site pela primeira vez ---- */

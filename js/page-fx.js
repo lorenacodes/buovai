@@ -240,8 +240,8 @@
         // Encosta no lado do quadro que sobra espaço na tela, pra não ficar
         // espremido contra a borda quando o quadro está na coluna direita.
         if (s.targetSel) {
-          const rightSide = r.right + S + 28 < W;
-          tx = rightSide ? Math.min(W - S - 20, r.right + 28) : Math.max(20, r.left - S - 28);
+          const rightSide = r.right + S + 64 < W;
+          tx = rightSide ? Math.min(W - S - 20, r.right + 64) : Math.max(20, r.left - S - 64);
         }
       }
       if (!visible) ty = -S * 2;
@@ -278,8 +278,13 @@
         const txt = n > 0 ? msg.slice(0, n) : "";
         if (txt !== st.txt) { st.txt = txt; bub.textContent = txt || " "; }
         const bw = bub.offsetWidth;
+        // No modo "apontar pro quadro" a fala vai embaixo do robô, não do
+        // lado — do lado ela ficava bem em cima da linha/régua e escondia
+        // o traço (pedido da Lorena: dá pra ver que ele está apontando).
         bub.style.transform = mob
           ? "translate(" + (st.x + S - bw).toFixed(1) + "px," + (st.y - 40).toFixed(1) + "px)"
+          : s.skipLabel
+          ? "translate(" + (st.x + S / 2 - bw / 2).toFixed(1) + "px," + (st.y + S + 14).toFixed(1) + "px)"
           : "translate(" + (st.x - bw - 14).toFixed(1) + "px," + (st.y + S * 0.3).toFixed(1) + "px)";
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -290,19 +295,36 @@
         const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = s.skipLabel ? 1 : 1 - cl((t - 2000) / 600);
         if (fade > 0) {
           ctx.lineWidth = 1;
-          const ex = x1, ey = r.top + r.height / 2, bx = cx + (ex - cx) * bp, by = cy + (ey - cy) * bp;
-          // No case de "apontar pro quadro", a linha da cabeça até o quadro
-          // fica firme enquanto a seção estiver ativa, em vez de sumir
-          // depois de ~1.4s — é pra parecer o professor apontando mesmo,
-          // não um flash (pedido da Lorena).
+          // A linha sempre mirava a borda direita do quadro (x1), mesmo
+          // quando o robô fica do lado esquerdo — cruzava a tela inteira
+          // por cima do print em vez de apontar a partir do lado onde ele
+          // está. Mira a borda mais perto do robô.
+          const ex = cx < (x0 + x1) / 2 ? x0 : x1;
+          const ey = r.top + r.height / 2, bx = cx + (ex - cx) * bp, by = cy + (ey - cy) * bp;
           const bfade = s.skipLabel ? 1 : 1 - cl((t - 900) / 500);
           if (bfade > 0) {
-            ctx.strokeStyle = "rgba(" + col + "," + 0.6 * bfade + ")";
-            ctx.setLineDash([3, 5]);
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle = "rgba(" + col + "," + bfade + ")";
-            ctx.fillRect(bx - 2, by - 2, 4, 4);
+            if (s.skipLabel) {
+              // Régua, não cutucada: traço sólido e grosso, com uma
+              // marcação perpendicular em cada ponta, pra ficar óbvio que
+              // o robô está apontando pro quadro (pedido da Lorena).
+              ctx.strokeStyle = "rgba(" + col + "," + (0.85 * bfade) + ")";
+              ctx.lineWidth = 2;
+              ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
+              const ang = Math.atan2(by - cy, bx - cx), perp = ang + Math.PI / 2, tick = 7;
+              [[cx, cy], [bx, by]].forEach(([px, py]) => {
+                ctx.beginPath();
+                ctx.moveTo(px + Math.cos(perp) * tick, py + Math.sin(perp) * tick);
+                ctx.lineTo(px - Math.cos(perp) * tick, py - Math.sin(perp) * tick);
+                ctx.stroke();
+              });
+            } else {
+              ctx.strokeStyle = "rgba(" + col + "," + 0.6 * bfade + ")";
+              ctx.setLineDash([3, 5]);
+              ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
+              ctx.setLineDash([]);
+              ctx.fillStyle = "rgba(" + col + "," + bfade + ")";
+              ctx.fillRect(bx - 2, by - 2, 4, 4);
+            }
           }
           const cp = io(cl((t - 500) / 700)), L = 22 * cp;
           ctx.strokeStyle = "rgba(" + col + "," + 0.9 * fade + ")";
