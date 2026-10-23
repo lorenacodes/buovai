@@ -108,12 +108,12 @@
       shots: MILA_SHOTS,
       urlLabel: "sistema · painel administrativo",
       heading: 'Um sistema de gestão só para uma construtora, <span style="color:#457528">com 13 módulos interligados.</span>',
-      intro: "Venda, obra, frota, manutenção e RH, tudo num só lugar, sincronizado em tempo real entre os usuários. Abra o caso para ver as telas, com os dados da empresa borrados.",
+      intro: "Venda, obra, frota, manutenção e RH, tudo num só lugar, sincronizado em tempo real entre os usuários. Sustenta o registro de mais de 1.500 obras e permite gerenciar com eficácia as obras futuras. Abra o caso para ver as telas, com os dados da empresa borrados.",
       diffTitle: "//o diferencial",
       diffParas: [
         "Migrado de planilhas e ferramentas soltas para uma base única, sem depender de no-code. Cada módulo evolui isolado, com testes automatizados cobrindo o banco e a camada de JavaScript, sem precisar reescrever o resto do sistema conforme a operação cresce.",
-        "O orçamento sai em dois modos: estimativa rápida para responder o cliente na hora, ou cálculo detalhado por material, com geração automática da proposta comercial e do imposto interestadual. Na logística, a rota da frota é calculada automaticamente, com estimativa de entrega por trecho, visando o menor retrabalho possível no planejamento.",
-        "A mesma plataforma cobre comercial, engenharia, produção, logística e RH, com acesso restrito por convite.",
+        "O orçamento sai em dois modos: estimativa rápida para responder o cliente na hora, ou cálculo detalhado por material, com geração automática da proposta comercial e do imposto interestadual. Isso acelerou a parte comercial e facilitou o orçamento. Na logística, a rota da frota é calculada automaticamente, com estimativa de entrega por trecho, visando o menor retrabalho possível no planejamento.",
+        "A mesma plataforma cobre comercial, engenharia, produção, logística, estoque e RH, tudo integrado, com acesso restrito por convite.",
       ],
     },
   };
