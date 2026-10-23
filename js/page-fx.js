@@ -304,19 +304,25 @@
           const bfade = s.skipLabel ? 1 : 1 - cl((t - 900) / 500);
           if (bfade > 0) {
             if (s.skipLabel) {
-              // Régua, não cutucada: traço sólido e grosso, com uma
-              // marcação perpendicular em cada ponta, pra ficar óbvio que
-              // o robô está apontando pro quadro (pedido da Lorena).
-              ctx.strokeStyle = "rgba(" + col + "," + (0.85 * bfade) + ")";
-              ctx.lineWidth = 2;
+              // A régua com marcação nas pontas não lia como "apontando"
+              // pra quem via — o gesto universal de apontar é uma seta.
+              // Traço sólido e grosso terminando numa ponta de flecha bem
+              // visível encostando no quadro (pedido da Lorena).
+              const ang = Math.atan2(by - cy, bx - cx);
+              const tipX = bx + Math.cos(ang) * 10, tipY = by + Math.sin(ang) * 10;
+              ctx.strokeStyle = "rgba(" + col + "," + (0.9 * bfade) + ")";
+              ctx.fillStyle = "rgba(" + col + "," + (0.9 * bfade) + ")";
+              ctx.lineWidth = 2.5;
+              ctx.lineCap = "round";
               ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
-              const ang = Math.atan2(by - cy, bx - cx), perp = ang + Math.PI / 2, tick = 7;
-              [[cx, cy], [bx, by]].forEach(([px, py]) => {
-                ctx.beginPath();
-                ctx.moveTo(px + Math.cos(perp) * tick, py + Math.sin(perp) * tick);
-                ctx.lineTo(px - Math.cos(perp) * tick, py - Math.sin(perp) * tick);
-                ctx.stroke();
-              });
+              ctx.lineCap = "butt";
+              const headLen = 16, headW = 0.46;
+              ctx.beginPath();
+              ctx.moveTo(tipX, tipY);
+              ctx.lineTo(tipX - Math.cos(ang - headW) * headLen, tipY - Math.sin(ang - headW) * headLen);
+              ctx.lineTo(tipX - Math.cos(ang + headW) * headLen, tipY - Math.sin(ang + headW) * headLen);
+              ctx.closePath();
+              ctx.fill();
             } else {
               ctx.strokeStyle = "rgba(" + col + "," + 0.6 * bfade + ")";
               ctx.setLineDash([3, 5]);
