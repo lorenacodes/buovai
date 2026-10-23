@@ -149,14 +149,17 @@
       ["Ponto de partida", "Todo bom sistema começa por entender a rotina.", 0],
       // Aqui o robô não aponta pro título da seção, e sim revezando entre
       // os quadros dos dois cases (o mockup da tela), como se estivesse
-      // apresentando cada captura — com uma fala curta e concreta sobre o
-      // problema real de cada cliente, sem repetir o que o próprio texto
-      // do card já diz (pedido da Lorena). Busca de novo a cada frame,
-      // pois os mockups só existem depois do fetch assíncrono do
-      // portfólio.
+      // apresentando cada captura — com falas curtas e concretas sobre
+      // problemas reais de cada cliente, sem repetir o que o próprio
+      // texto do card já diz (pedido da Lorena). Duas falas por case,
+      // intercaladas, pra dar variedade sem ficar preso só numa. Busca
+      // de novo a cada frame, pois os mockups só existem depois do fetch
+      // assíncrono do portfólio.
       ["Casos reais", null, 0, [
         { sel: '[data-case-title="Sistema de Gestão de Obras"] [data-case-frame]', msg: "A rota de entrega era decidida no olho. Hoje o sistema calcula o trajeto sozinho." },
         { sel: '[data-case-title="Portal do Cliente"] [data-case-frame]', msg: "Os documentos viviam espalhados em pastas do Drive, com o telefone tocando atrás de boleto." },
+        { sel: '[data-case-title="Sistema de Gestão de Obras"] [data-case-frame]', msg: "O orçamento levava horas pra fechar. Agora sai em minutos, com a proposta já pronta." },
+        { sel: '[data-case-title="Portal do Cliente"] [data-case-frame]', msg: "Cada cliente só enxerga os próprios documentos. Isso é garantido pelo banco, não só pela tela." },
       ]],
       ["Serviços", "Não precisa saber o termo técnico para começar.", 0],
       ["Como trabalho", "Cada etapa validada com você antes da próxima.", 1],

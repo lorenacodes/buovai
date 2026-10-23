@@ -102,12 +102,17 @@ button {
 /* Fundo do cartão com vida própria: o mesmo verde-claro do canto, só que
    derivando bem devagar em vez de parado, sem virar um painel escuro
    (pedido explícito da Lorena: nada de fundo escuro, só movimento). Fica
-   atrás do conteúdo (z-index negativo) e fora do fluxo do subgrid, então
-   não baguncha o alinhamento das 4 linhas do cartão. */
+   fora do fluxo do subgrid (position:absolute), então não baguncha o
+   alinhamento das 4 linhas do cartão. z-index:-1 parecia a escolha óbvia
+   pra ficar "atrás do conteúdo", mas dentro desse cartão (display:grid)
+   isso de fato escondia o gradiente por completo — testado pixel a pixel,
+   nada aparecia. z-index:1 funciona e o texto continua legível por cima
+   (confirmado visualmente), então fica assim mesmo sem ser o valor que
+   soa mais "correto" no papel. */
 .case-card__glow {
   position: absolute;
   inset: 0;
-  z-index: -1;
+  z-index: 1;
   background: radial-gradient(circle at 100% 0%, rgba(222, 250, 154, .75) 0%, rgba(148, 171, 134, .34) 38%, rgba(239, 238, 219, 0) 72%);
   transform-origin: 100% 0%;
   animation: caseGlowDrift 8s ease-in-out infinite;
