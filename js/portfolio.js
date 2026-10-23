@@ -107,8 +107,8 @@
     "Sistema de Gestão de Obras": {
       shots: MILA_SHOTS,
       urlLabel: "sistema · painel administrativo",
-      heading: 'Um sistema de gestão só para uma construtora, <span style="color:#457528">com 13 módulos interligados.</span>',
-      intro: "Venda, obra, frota, manutenção e RH, tudo num só lugar, sincronizado em tempo real entre os usuários. Sustenta o registro de mais de 1.500 obras e permite gerenciar com eficácia as obras futuras. Abra o caso para ver as telas, com os dados da empresa borrados.",
+      heading: 'Da planilha para um sistema que já sustenta <span style="color:#457528">mais de 1.500 obras.</span>',
+      intro: "13 módulos interligados, de venda a pós-obra, sincronizados em tempo real: orçamento, frota, estoque, produção e RH num só lugar. O orçamento ficou mais rápido, a logística errou menos, e a empresa passou a gerenciar as obras futuras com o histórico de todas as anteriores na mão. Abra o caso para ver as telas, com os dados da empresa borrados.",
       diffTitle: "//o diferencial",
       diffParas: [
         "Migrado de planilhas e ferramentas soltas para uma base única, sem depender de no-code. Cada módulo evolui isolado, com testes automatizados cobrindo o banco e a camada de JavaScript, sem precisar reescrever o resto do sistema conforme a operação cresce.",
@@ -165,8 +165,8 @@
               <button type="button" class="case-link" data-open-case="${project.id}" style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#0e0f0b;border-bottom:1px solid #0e0f0b;width:max-content;padding-bottom:4px;white-space:nowrap;background:none;border-left:0;border-right:0;border-top:0;cursor:pointer;padding-left:0;padding-right:0">Abrir o caso completo ↗</button>
             </div>
           </div>
-          <div data-case-mockup="${project.id}" style="position:relative;overflow:hidden;background:#12140d;padding:clamp(32px,5vw,72px) clamp(20px,4vw,56px);display:flex;flex-direction:column;justify-content:center;gap:22px">
-            <div style="position:relative;background:#1a1f2e;border:1px solid rgba(255,252,235,.18);box-shadow:0 36px 80px rgba(14,15,11,.45);transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
+          <div data-case-mockup="${project.id}" style="position:relative;overflow:hidden;background:#12140d;padding:clamp(24px,3vw,44px) clamp(16px,2.2vw,32px);display:flex;flex-direction:column;justify-content:center;gap:22px">
+            <div style="position:relative;width:100%;background:#1a1f2e;border:1px solid rgba(255,252,235,.18);box-shadow:0 36px 80px rgba(14,15,11,.45);transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
               <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:#0e0f0b;border-bottom:1px solid rgba(255,252,235,.12)">
                 <span style="display:flex;gap:5px"><span style="width:8px;height:8px;background:#3a3d33"></span><span style="width:8px;height:8px;background:#3a3d33"></span><span style="width:8px;height:8px;background:#3a3d33"></span></span>
                 <span data-case-url style="flex:1;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#c9cbb5;padding:4px 10px;background:rgba(255,252,235,.06)">${copy.urlLabel}</span>
@@ -221,7 +221,7 @@
             <button type="button" class="case-link" data-open-case="${project.id}" style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#0e0f0b;border:0;border-bottom:1px solid #0e0f0b;width:max-content;padding-bottom:4px;white-space:nowrap;background:none;cursor:pointer">Abrir o caso completo ↗</button>
           </div>
         </div>
-        <div style="${mediaOrder}position:relative;overflow:hidden;background:#12140d;padding:clamp(32px,5vw,72px) clamp(20px,4vw,56px);display:flex;align-items:center">
+        <div style="${mediaOrder}position:relative;overflow:hidden;background:#12140d;padding:clamp(24px,3vw,44px) clamp(16px,2.2vw,32px);display:flex;align-items:center">
           <div style="position:relative;width:100%;aspect-ratio:16/11;background:#fffceb;box-shadow:0 36px 80px rgba(14,15,11,.45)">${media}</div>
         </div>
       </div>
