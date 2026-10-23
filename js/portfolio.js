@@ -97,24 +97,13 @@
       portalKey: "pc",
       portalUrlLabel: "trilhar · portal do cliente",
       heading: 'Um portal para um escritório de contabilidade, <span style="color:#457528">feito para a rotina dele.</span>',
-      intro: "O administrador publica boletos e documentos, e o cliente acessa o portal para pagar. Abra o caso para ver as telas, com os dados pessoais borrados.",
-      diffTitle: "//o diferencial",
-      diffParas: [
-        "O sistema foi pensado para não depender de manutenções frequentes. Por isso, os próprios administradores do escritório criam as categorias de documentos, definem quem pode enviar cada uma e quais têm valor financeiro, sem precisar de um programador. A base foi pensada para crescer junto com o escritório e receber integrações futuras com sistemas bancários.",
-        "Cada cliente do escritório tem o próprio acesso e vê apenas o que é dele: boletos enviados, pendências e documentos. E o portal é totalmente navegável no celular e em telas menores.",
-      ],
+      intro: "O administrador publica boletos e documentos, e o cliente acessa o portal para pagar. Abra o caso para ver as telas e o detalhamento técnico, com os dados pessoais borrados.",
     },
     "Sistema de Gestão de Obras": {
       shots: MILA_SHOTS,
       urlLabel: "sistema · painel administrativo",
       heading: 'Da planilha para um sistema que já sustenta <span style="color:#457528">mais de 1.500 obras.</span>',
-      intro: "13 módulos interligados, de venda a pós-obra, sincronizados em tempo real: orçamento, frota, estoque, produção e RH num só lugar. O orçamento ficou mais rápido, a logística errou menos, e a empresa passou a gerenciar as obras futuras com o histórico de todas as anteriores na mão. Abra o caso para ver as telas, com os dados da empresa borrados.",
-      diffTitle: "//o diferencial",
-      diffParas: [
-        "Migrado de planilhas e ferramentas soltas para uma base única, sem depender de no-code. Cada módulo evolui isolado, com testes automatizados cobrindo o banco e a camada de JavaScript, sem precisar reescrever o resto do sistema conforme a operação cresce.",
-        "O orçamento sai em dois modos: estimativa rápida para responder o cliente na hora, ou cálculo detalhado por material, com geração automática da proposta comercial e do imposto interestadual. Isso acelerou a parte comercial e facilitou o orçamento. Na logística, a rota da frota é calculada automaticamente, com estimativa de entrega por trecho, visando o menor retrabalho possível no planejamento.",
-        "A mesma plataforma cobre comercial, engenharia, produção, logística, estoque e RH, tudo integrado, com acesso restrito por convite.",
-      ],
+      intro: "13 módulos interligados, de venda a pós-obra, sincronizados em tempo real: orçamento, frota, estoque, produção e RH num só lugar. Abra o caso para ver as telas e o detalhamento técnico, com os dados da empresa borrados.",
     },
   };
 
@@ -141,31 +130,18 @@
 
       const dots = shots.map(
         (s, i) =>
-          `<button type="button" data-case-dot="${s.key}" aria-label="${escapeHtml(s.label)}" style="width:${i === 0 ? "36px" : "14px"};height:4px;padding:0;border:0;background:${i === 0 ? "#1f4905" : "rgba(14,15,11,.22)"};cursor:pointer;transition:width .4s ease,background .4s"></button>`
+          `<button type="button" data-case-dot="${s.key}" aria-label="${escapeHtml(s.label)}" style="width:${i === 0 ? "28px" : "10px"};height:4px;padding:0;border:0;background:${i === 0 ? "#1f4905" : "rgba(14,15,11,.22)"};cursor:pointer;transition:width .4s ease,background .4s"></button>`
       ).join("");
 
-      const diffParas = copy.diffParas
-        .map((p, i) => `<p style="font-size:16px;line-height:1.65;margin:${i === 0 ? "0" : "12px"} 0 0;color:#0e0f0b;text-wrap:pretty">${p}</p>`)
-        .join("");
-
       return `
-        <div data-project-id="${project.id}" data-screen-label="Caso ${index + 1}" style="position:relative;overflow:hidden;background:#efeedb;width:100%;max-width:1376px;margin:0 auto;padding:0 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
-          <div data-glow="1" style="position:relative;overflow:hidden;background:radial-gradient(circle at 100% 0%,rgba(222,250,154,.45) 0%,rgba(148,171,134,.22) 35%,rgba(239,238,219,0) 72%),#efeedb;padding:clamp(40px,5vw,72px) clamp(0px,4vw,64px);display:flex;flex-direction:column;justify-content:center;gap:40px;min-height:560px">
-            <div>
-              <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
-              <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,2.8vw,40px);line-height:1.14;letter-spacing:-.05em;margin:0 0 24px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>
-              <p style="font-size:17px;line-height:1.65;margin:0;color:#0e0f0b;max-width:460px;text-wrap:pretty">${copy.intro}</p>
-              <div style="margin-top:28px;padding-top:20px;border-top:1px solid #0e0f0b;max-width:460px">
-                <div style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#457528;margin-bottom:10px">${copy.diffTitle}</div>
-                ${diffParas}
-              </div>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:20px">
-              <div role="tablist" style="display:flex;flex-wrap:wrap;border:1px solid #0e0f0b;max-width:100%;font-family:'Lexend Exa',sans-serif;font-size:12px">${tabs}</div>
-              <button type="button" class="case-link" data-open-case="${project.id}" style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#0e0f0b;border-bottom:1px solid #0e0f0b;width:max-content;padding-bottom:4px;white-space:nowrap;background:none;border-left:0;border-right:0;border-top:0;cursor:pointer;padding-left:0;padding-right:0">Abrir o caso completo ↗</button>
-            </div>
+        <div data-project-id="${project.id}" data-screen-label="Caso ${index + 1}" data-glow="1" style="position:relative;overflow:hidden;background:radial-gradient(circle at 100% 0%,rgba(222,250,154,.45) 0%,rgba(148,171,134,.2) 32%,rgba(239,238,219,0) 62%),#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:flex;flex-direction:column;gap:24px">
+          <div>
+            <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:18px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
+            <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>
+            <p style="font-size:15.5px;line-height:1.6;margin:0;color:#0e0f0b;text-wrap:pretty">${copy.intro}</p>
           </div>
-          <div data-case-mockup="${project.id}" style="position:relative;overflow:hidden;background:#fffceb;padding:clamp(24px,3vw,44px) clamp(16px,2.2vw,32px);display:flex;flex-direction:column;justify-content:center;gap:22px">
+          <div role="tablist" style="display:flex;flex-wrap:wrap;border:1px solid #0e0f0b;max-width:100%;font-family:'Lexend Exa',sans-serif;font-size:11px">${tabs}</div>
+          <div data-case-mockup="${project.id}" style="position:relative">
             <div style="position:relative;width:100%;background:#fffceb;border:1px solid #0e0f0b;transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
               <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #0e0f0b">
                 <span style="display:flex;gap:5px"><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span></span>
@@ -173,11 +149,12 @@
               </div>
               <div style="position:relative;width:100%;aspect-ratio:1896/937;overflow:hidden;container-type:inline-size">${imgs}</div>
             </div>
-            <div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+            <div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:14px">
               <span data-case-shot-label style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528">//01 ${escapeHtml(shots[0].label)}</span>
               <div style="display:flex;gap:6px">${dots}</div>
             </div>
           </div>
+          <button type="button" class="case-link" data-open-case="${project.id}" style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#0e0f0b;border-bottom:1px solid #0e0f0b;width:max-content;padding-bottom:4px;white-space:nowrap;background:none;border-left:0;border-right:0;border-top:0;cursor:pointer;padding-left:0;padding-right:0">Abrir o caso completo ↗</button>
         </div>
       `;
     }
@@ -446,9 +423,14 @@
       const countEl = document.getElementById("caseCount");
       if (countEl) countEl.textContent = `${String(projects.length).padStart(2, "0")} caso${projects.length > 1 ? "s" : ""}`;
 
-      listEl.innerHTML = projects
-        .map((project, index) => renderCase(project, index) + (index === 0 ? renderTestimonial(index) : ""))
-        .join("");
+      const testimonialIndex = projects.findIndex((p) => p.title === "Portal do Cliente");
+
+      listEl.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));max-width:1376px;margin:0 auto;padding:0 28px;gap:1px;background:#0e0f0b">
+          ${projects.map((project, index) => renderCase(project, index)).join("")}
+        </div>
+        ${testimonialIndex > -1 ? renderTestimonial(testimonialIndex) : ""}
+      `;
       bindCaseEvents();
 
       if (window.buovaiReveal) window.buovaiReveal(listEl.querySelectorAll("[data-screen-label]"));
