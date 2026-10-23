@@ -7,47 +7,69 @@
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="theme-light.css" />
-  <link rel="stylesheet" href="painel.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="../assets/img/logo-mark.svg" />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #d6d6cf; color: #0e0f0b; font-family: 'Open Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #457528; }
+    .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .card { width: 100%; max-width: 440px; background: #fffceb; padding: clamp(28px, 5vw, 44px); display: flex; flex-direction: column; gap: 26px; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand img { height: 30px; width: auto; }
+    .badge { display: inline-flex; align-self: flex-start; padding: 5px 10px; background: #0e0f0b; color: #fffceb; font-family: 'Lexend Exa', sans-serif; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: 'Lexend Exa', sans-serif; font-weight: 400; font-size: 24px; letter-spacing: -.04em; line-height: 1.2; }
+    .sub { margin: 0; font-size: 14px; line-height: 1.6; color: #2b2e24; }
+    form { display: flex; flex-direction: column; gap: 22px; }
+    label { display: flex; flex-direction: column; gap: 8px; font-family: 'Lexend Exa', sans-serif; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #2b2e24; }
+    input { font: inherit; font-size: 16px; padding: 14px 0; border: 0; border-bottom: 1px solid #0e0f0b; background: transparent; color: #0e0f0b; outline: none; }
+    input:focus { border-bottom-color: #457528; }
+    .hint { margin: 0; padding: 12px 14px; background: rgba(14, 15, 11, .05); color: #2b2e24; font-size: 13px; line-height: 1.55; }
+    .btn { font-family: 'Lexend Exa', sans-serif; font-size: 13px; padding: 16px 20px; border: 1px solid #0e0f0b; background: #0e0f0b; color: #fffceb; cursor: pointer; }
+    .btn:hover { background: #1f4905; border-color: #1f4905; }
+    .btn:disabled { opacity: .55; cursor: default; }
+    .btn-ghost { background: transparent; color: #0e0f0b; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-ghost:hover { background: #0e0f0b; color: #fffceb; }
+    .link-btn { border: 0; background: none; padding: 0; font: inherit; font-family: 'Open Sans', sans-serif; font-size: 13px; color: #1f4905; cursor: pointer; text-decoration: underline; text-align: left; }
+    .link-btn:hover { color: #0e0f0b; }
+    .divider { display: flex; align-items: center; gap: 12px; color: #5c5f50; font-family: 'Lexend Exa', sans-serif; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: rgba(14, 15, 11, .15); }
+    .status { display: none; padding: 12px 14px; font-size: 13px; line-height: 1.5; }
+    .status.is-visible { display: block; }
+    .status--ok { background: rgba(69, 117, 40, .1); color: #1f4905; border: 1px solid rgba(69, 117, 40, .25); }
+    .status--error { background: rgba(190, 60, 30, .08); color: #9a2a12; border: 1px solid rgba(190, 60, 30, .22); }
+  </style>
 </head>
 <body>
-  <div class="login-wrap">
-    <div class="login-card">
-      <div class="login-card__brand">
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">
         <img src="../assets/img/logo-mark.svg" alt="" aria-hidden="true" />
-        <span>buov.ai</span>
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:15px">buov.ai</span>
       </div>
-      <span class="login-card__badge" id="login-badge" hidden>Acesso administrativo</span>
-      <h1 id="login-title">Acesso ao painel</h1>
-      <p class="login-card__sub" id="login-sub">Digite seu e-mail e senha cadastrados para acessar o painel.</p>
+      <span class="badge" id="login-badge" hidden>Acesso administrativo</span>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <h1 id="login-title">Acesso ao painel</h1>
+        <p class="sub" id="login-sub">Digite seu e-mail e senha cadastrados para acessar o painel.</p>
+      </div>
 
       <form id="login-form">
-        <div class="field">
-          <label for="email">E-mail</label>
-          <input id="email" type="email" placeholder="voce@empresa.com" required autocomplete="email" />
-        </div>
-        <div class="field">
-          <label for="password">Senha</label>
-          <input id="password" type="password" placeholder="Sua senha" required autocomplete="current-password" />
-        </div>
-        <p class="login-card__hint" id="login-otp-hint" hidden>Vamos te enviar um link por e-mail. É por esse link que você faz o primeiro acesso: ele leva direto para a tela de definir sua senha. Se você já tem senha, também pode usá-lo pra entrar.</p>
-
-        <button type="submit" class="btn btn-block" id="login-submit">Entrar</button>
+        <label>E-mail<input id="email" type="email" placeholder="voce@empresa.com.br" required autocomplete="email" /></label>
+        <label id="password-field">Senha<input id="password" type="password" placeholder="••••••••" required autocomplete="current-password" /></label>
+        <p class="hint" id="login-otp-hint" hidden>Vamos te enviar um link por e-mail. É por esse link que você faz o primeiro acesso: ele leva direto para a tela de definir sua senha. Se você já tem senha, também pode usá-lo pra entrar.</p>
+        <button type="submit" class="btn" id="login-submit">Entrar</button>
       </form>
 
-      <button type="button" class="login-card__link" id="login-toggle-otp">Primeiro acesso ou esqueceu a senha? Entre por link de e-mail</button>
+      <button type="button" class="link-btn" id="login-toggle-otp">Primeiro acesso ou esqueceu a senha? Entre por link de e-mail</button>
 
-      <div class="login-card__divider"><span>ou</span></div>
+      <div class="divider">ou</div>
 
-      <button type="button" class="btn btn-block btn-ghost" id="login-google">
+      <button type="button" class="btn btn-ghost" id="login-google">
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.68-3.87 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
         <span>Entrar com Google</span>
       </button>
 
-      <div class="status-msg" id="login-status" role="status"></div>
+      <div class="status" id="login-status" role="status"></div>
     </div>
   </div>
 
@@ -62,10 +84,37 @@
       var submitBtn = document.getElementById("login-submit");
       var statusEl = document.getElementById("login-status");
       var passwordField = document.getElementById("password");
+      var passwordWrap = document.getElementById("password-field");
       var toggleBtn = document.getElementById("login-toggle-otp");
       var otpHint = document.getElementById("login-otp-hint");
       var googleBtn = document.getElementById("login-google");
       var otpMode = false;
+
+      function showStatus(text, kind) {
+        statusEl.textContent = text;
+        statusEl.className = "status is-visible status--" + kind;
+      }
+
+      function applyMode() {
+        if (otpMode) {
+          passwordWrap.hidden = true;
+          passwordField.required = false;
+          otpHint.hidden = false;
+          submitBtn.textContent = "Enviar link por e-mail";
+          toggleBtn.textContent = "Já tem senha? Entrar com e-mail e senha";
+        } else {
+          passwordWrap.hidden = false;
+          passwordField.required = true;
+          otpHint.hidden = true;
+          submitBtn.textContent = "Entrar";
+          toggleBtn.textContent = "Primeiro acesso ou esqueceu a senha? Entre por link de e-mail";
+        }
+      }
+
+      toggleBtn.addEventListener("click", function () {
+        otpMode = !otpMode;
+        applyMode();
+      });
 
       googleBtn.addEventListener("click", async function () {
         googleBtn.disabled = true;
@@ -80,27 +129,6 @@
         }
       });
 
-      function applyMode() {
-        if (otpMode) {
-          passwordField.closest(".field").hidden = true;
-          passwordField.required = false;
-          otpHint.hidden = false;
-          submitBtn.textContent = "Enviar link por e-mail";
-          toggleBtn.textContent = "Já tem senha? Entrar com e-mail e senha";
-        } else {
-          passwordField.closest(".field").hidden = false;
-          passwordField.required = true;
-          otpHint.hidden = true;
-          submitBtn.textContent = "Entrar";
-          toggleBtn.textContent = "Primeiro acesso ou esqueceu a senha? Entre por link de e-mail";
-        }
-      }
-
-      toggleBtn.addEventListener("click", function () {
-        otpMode = !otpMode;
-        applyMode();
-      });
-
       var isAdminEntry = new URLSearchParams(window.location.search).get("as") === "admin";
       if (isAdminEntry) {
         document.title = "Acesso administrativo | buov.ai";
@@ -111,12 +139,7 @@
 
       applyMode();
 
-      function showStatus(text, kind) {
-        statusEl.textContent = text;
-        statusEl.className = "status-msg is-visible status-msg--" + kind;
-      }
-
-      // Se já tem sessão ativa, manda direto pro painel certo (admin ou cliente).
+      // Se já tem sessão ativa, manda direto pro painel.
       window.buovaiClient.auth.getSession().then(function (res) {
         if (!res.data.session) return;
         window.location.href = "portal.html";
@@ -147,7 +170,7 @@
             return;
           }
 
-          showStatus("Link enviado! Abra seu e-mail (olhe também o spam) e clique nele — se for seu primeiro acesso, você vai cair direto na tela de definir senha.", "ok");
+          showStatus("Link enviado! Abra seu e-mail (olhe também o spam) e clique nele. Se for seu primeiro acesso, você vai cair direto na tela de definir senha.", "ok");
           form.reset();
           return;
         }
