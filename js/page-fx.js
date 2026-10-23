@@ -147,13 +147,17 @@
 
     const cfg = [
       ["Ponto de partida", "Todo bom sistema começa por entender a rotina.", 0],
-      // Aqui o robô não aponta pro título da seção, e sim pro quadro do
-      // case da Trilhar (o mockup da tela), como se estivesse apresentando
-      // a captura em si — com uma fala concreta sobre o problema real
-      // daquele cliente, não genérica (pedido da Lorena). Busca de novo a
-      // cada frame, pois o mockup só existe depois do fetch assíncrono do
+      // Aqui o robô não aponta pro título da seção, e sim revezando entre
+      // os quadros dos dois cases (o mockup da tela), como se estivesse
+      // apresentando cada captura — com uma fala curta e concreta sobre o
+      // problema real de cada cliente, sem repetir o que o próprio texto
+      // do card já diz (pedido da Lorena). Busca de novo a cada frame,
+      // pois os mockups só existem depois do fetch assíncrono do
       // portfólio.
-      ["Casos reais", "Antes: pastas soltas no Drive, telefone tocando atrás de boleto. Agora o cliente entra e resolve sozinho.", 0, '[data-case-title="Portal do Cliente"] [data-case-frame]'],
+      ["Casos reais", null, 0, [
+        { sel: '[data-case-title="Sistema de Gestão de Obras"] [data-case-frame]', msg: "Antes: a rota da frota saía no olho, sem cálculo nenhum." },
+        { sel: '[data-case-title="Portal do Cliente"] [data-case-frame]', msg: "Antes: pastas soltas no Drive, telefone tocando atrás de boleto." },
+      ]],
       ["Serviços", "Não precisa saber o termo técnico para começar.", 0],
       ["Como trabalho", "Cada etapa validada com você antes da próxima.", 1],
       ["Portal do cliente", "Você acompanha o andamento sem precisar pedir.", 0],
@@ -164,7 +168,8 @@
     const secs = cfg
       .map(([lab, msg, dark, targetSel]) => {
         const el = document.querySelector('[data-screen-label="' + lab + '"]');
-        return el ? { el: el, msg: msg, dark: dark, h2: el.querySelector("h2"), targetSel: targetSel || null, skipLabel: !!targetSel } : null;
+        const cases = Array.isArray(targetSel) ? targetSel : null;
+        return el ? { el: el, msg: msg, dark: dark, h2: el.querySelector("h2"), targetSel: cases ? null : targetSel || null, cases: cases, skipLabel: cases ? true : !!targetSel } : null;
       })
       .filter(Boolean);
 
@@ -219,17 +224,34 @@
       });
       const fte = document.querySelector("footer");
       const ftTop = fte ? fte.getBoundingClientRect().top : 1e9;
-      const visible = hb < H * 0.35 && act >= 0 && ftTop > H * 0.75 && secs[act] && secs[act].msg.indexOf("Descreva como") !== 0;
+      const visible = hb < H * 0.35 && act >= 0 && ftTop > H * 0.75 && secs[act] && (secs[act].msg || "").indexOf("Descreva como") !== 0;
       wrap.style.opacity = visible ? 1 : 0;
-      // Quando o robô está apontando pro quadro (targetSel), a fala fica
-      // visível o tempo todo que a seção estiver ativa, igual à linha —
-      // não é um flash, é ele explicando mesmo (pedido da Lorena).
-      bub.style.opacity = visible && (now - st.t0 < 3200 || st.pl || (secs[act] && secs[act].skipLabel)) ? 1 : 0;
-      if (act !== st.active && act >= 0) { st.active = act; st.t0 = now; st.blink = now + 150; }
+      if (act !== st.active && act >= 0) { st.active = act; st.t0 = now; st.blink = now + 150; st.caseIdx = 0; st.caseAt = now; }
       const pl = document.documentElement.hasAttribute("data-planilha");
       if (pl !== st.pl) { st.pl = pl; st.t0 = now; st.blink = now + 100; }
       const s = secs[st.active];
-      const target = s ? (s.targetSel && document.querySelector(s.targetSel)) || s.h2 : null;
+      // Quando tem mais de um case pra apresentar, o robô reveza entre
+      // eles (muda alvo e fala a cada CASE_ROTATE_MS), em vez de ficar
+      // preso só no primeiro (pedido da Lorena: falar dos dois casos).
+      const CASE_ROTATE_MS = 6500;
+      let activeCase = null;
+      if (s && s.cases && s.cases.length) {
+        if (st.caseAt == null) st.caseAt = now;
+        if (now - st.caseAt > CASE_ROTATE_MS) {
+          st.caseAt = now;
+          st.caseIdx = ((st.caseIdx || 0) + 1) % s.cases.length;
+          st.t0 = now;
+          st.txt = "";
+        }
+        activeCase = s.cases[st.caseIdx || 0];
+      }
+      // Quando o robô está apontando pro quadro (targetSel/cases), a fala
+      // fica visível o tempo todo que a seção estiver ativa, igual à
+      // linha — não é um flash, é ele explicando mesmo (pedido da Lorena).
+      bub.style.opacity = visible && (now - st.t0 < 3200 || st.pl || (s && s.skipLabel)) ? 1 : 0;
+      const target = s
+        ? (activeCase && document.querySelector(activeCase.sel)) || (s.targetSel && document.querySelector(s.targetSel)) || s.h2
+        : null;
       let tx = W - S - (mob ? 16 : 36), ty = mob ? H - S - 90 : H * 0.45;
       if (target && !mob) {
         const r = target.getBoundingClientRect();
@@ -239,7 +261,7 @@
         // em vez de ficar fixo na borda direita da tela (pedido da Lorena).
         // Encosta no lado do quadro que sobra espaço na tela, pra não ficar
         // espremido contra a borda quando o quadro está na coluna direita.
-        if (s.targetSel) {
+        if (s.skipLabel) {
           const rightSide = r.right + S + 64 < W;
           tx = rightSide ? Math.min(W - S - 20, r.right + 64) : Math.max(20, r.left - S - 64);
         }
@@ -273,7 +295,7 @@
       }
       lid.setAttribute("transform", "translate(0 300) scale(1 " + Math.max(0.08, lv).toFixed(3) + ") translate(0 -300)");
       if (s) {
-        const msg = st.pl ? "Assim fica na ferramenta pronta. Volte para o sistema." : s.msg;
+        const msg = st.pl ? "Assim fica na ferramenta pronta. Volte para o sistema." : (activeCase ? activeCase.msg : s.msg);
         const n = Math.min(msg.length, Math.floor((now - st.t0 - 200) / 32));
         const txt = n > 0 ? msg.slice(0, n) : "";
         if (txt !== st.txt) { st.txt = txt; bub.textContent = txt || " "; }
@@ -281,11 +303,17 @@
         // No modo "apontar pro quadro" a fala vai embaixo do robô, não do
         // lado — do lado ela ficava bem em cima da linha/régua e escondia
         // o traço (pedido da Lorena: dá pra ver que ele está apontando).
+        // Clampa dentro da largura da tela — perto da borda, um balão
+        // centrado no robô vazava pra fora e cortava o texto (pedido da
+        // Lorena: não quer mais ver a fala cortada).
+        const bubX = s.skipLabel
+          ? Math.min(W - bw - 16, Math.max(16, st.x + S / 2 - bw / 2))
+          : st.x - bw - 14;
         bub.style.transform = mob
           ? "translate(" + (st.x + S - bw).toFixed(1) + "px," + (st.y - 40).toFixed(1) + "px)"
           : s.skipLabel
-          ? "translate(" + (st.x + S / 2 - bw / 2).toFixed(1) + "px," + (st.y + S + 14).toFixed(1) + "px)"
-          : "translate(" + (st.x - bw - 14).toFixed(1) + "px," + (st.y + S * 0.3).toFixed(1) + "px)";
+          ? "translate(" + bubX.toFixed(1) + "px," + (st.y + S + 14).toFixed(1) + "px)"
+          : "translate(" + bubX.toFixed(1) + "px," + (st.y + S * 0.3).toFixed(1) + "px)";
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
@@ -304,25 +332,16 @@
           const bfade = s.skipLabel ? 1 : 1 - cl((t - 900) / 500);
           if (bfade > 0) {
             if (s.skipLabel) {
-              // A régua com marcação nas pontas não lia como "apontando"
-              // pra quem via — o gesto universal de apontar é uma seta.
-              // Traço sólido e grosso terminando numa ponta de flecha bem
-              // visível encostando no quadro (pedido da Lorena).
-              const ang = Math.atan2(by - cy, bx - cx);
-              const tipX = bx + Math.cos(ang) * 10, tipY = by + Math.sin(ang) * 10;
-              ctx.strokeStyle = "rgba(" + col + "," + (0.9 * bfade) + ")";
-              ctx.fillStyle = "rgba(" + col + "," + (0.9 * bfade) + ")";
-              ctx.lineWidth = 2.5;
+              // Nem seta, nem régua: um traço sólido e grosso, preto,
+              // igual ao das antenas do próprio robô — pra parecer que o
+              // traço sai do corpo dele, não que é uma anotação separada
+              // apontando por fora (pedido da Lorena).
+              ctx.strokeStyle = "rgba(14,15,11," + (0.92 * bfade) + ")";
+              ctx.fillStyle = "rgba(14,15,11," + bfade + ")";
+              ctx.lineWidth = 3.5;
               ctx.lineCap = "round";
               ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(bx, by); ctx.stroke();
-              ctx.lineCap = "butt";
-              const headLen = 16, headW = 0.46;
-              ctx.beginPath();
-              ctx.moveTo(tipX, tipY);
-              ctx.lineTo(tipX - Math.cos(ang - headW) * headLen, tipY - Math.sin(ang - headW) * headLen);
-              ctx.lineTo(tipX - Math.cos(ang + headW) * headLen, tipY - Math.sin(ang + headW) * headLen);
-              ctx.closePath();
-              ctx.fill();
+              ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill();
             } else {
               ctx.strokeStyle = "rgba(" + col + "," + 0.6 * bfade + ")";
               ctx.setLineDash([3, 5]);
