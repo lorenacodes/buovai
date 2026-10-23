@@ -150,7 +150,7 @@
 
       return `
         <div data-project-id="${project.id}" data-screen-label="Caso ${index + 1}" style="position:relative;overflow:hidden;background:#efeedb;width:100%;max-width:1376px;margin:0 auto;padding:0 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
-          <div data-glow="1" style="position:relative;overflow:hidden;padding:clamp(40px,5vw,72px) clamp(0px,4vw,64px);display:flex;flex-direction:column;justify-content:center;gap:40px;min-height:560px">
+          <div data-glow="1" style="position:relative;overflow:hidden;background:radial-gradient(circle at 100% 0%,rgba(222,250,154,.45) 0%,rgba(148,171,134,.22) 35%,rgba(239,238,219,0) 72%),#efeedb;padding:clamp(40px,5vw,72px) clamp(0px,4vw,64px);display:flex;flex-direction:column;justify-content:center;gap:40px;min-height:560px">
             <div>
               <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
               <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,2.8vw,40px);line-height:1.14;letter-spacing:-.05em;margin:0 0 24px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>
@@ -165,7 +165,7 @@
               <button type="button" class="case-link" data-open-case="${project.id}" style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#0e0f0b;border-bottom:1px solid #0e0f0b;width:max-content;padding-bottom:4px;white-space:nowrap;background:none;border-left:0;border-right:0;border-top:0;cursor:pointer;padding-left:0;padding-right:0">Abrir o caso completo ↗</button>
             </div>
           </div>
-          <div data-case-mockup="${project.id}" style="position:relative;overflow:hidden;background:radial-gradient(circle at 0% 0%,#3f5204 0%,#94ab86 28%,#1f4905 62%,#defa9a 100%);padding:clamp(32px,5vw,72px) clamp(20px,4vw,56px);display:flex;flex-direction:column;justify-content:center;gap:22px">
+          <div data-case-mockup="${project.id}" style="position:relative;overflow:hidden;background:#12140d;padding:clamp(32px,5vw,72px) clamp(20px,4vw,56px);display:flex;flex-direction:column;justify-content:center;gap:22px">
             <div style="position:relative;background:#1a1f2e;border:1px solid rgba(255,252,235,.18);box-shadow:0 36px 80px rgba(14,15,11,.45);transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
               <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:#0e0f0b;border-bottom:1px solid rgba(255,252,235,.12)">
                 <span style="display:flex;gap:5px"><span style="width:8px;height:8px;background:#3a3d33"></span><span style="width:8px;height:8px;background:#3a3d33"></span><span style="width:8px;height:8px;background:#3a3d33"></span></span>
@@ -210,7 +210,7 @@
 
     return `
       <div data-project-id="${project.id}" data-screen-label="Caso ${index + 1}" style="width:100%;max-width:1376px;margin:0 auto;padding:0 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
-        <div data-glow="1" style="position:relative;overflow:hidden;background:#efeedb;padding:clamp(40px,5vw,72px) clamp(0px,4vw,64px);display:flex;flex-direction:column;justify-content:center;gap:40px;min-height:560px">
+        <div data-glow="1" style="position:relative;overflow:hidden;background:radial-gradient(circle at 100% 0%,rgba(222,250,154,.45) 0%,rgba(148,171,134,.22) 35%,rgba(239,238,219,0) 72%),#efeedb;padding:clamp(40px,5vw,72px) clamp(0px,4vw,64px);display:flex;flex-direction:column;justify-content:center;gap:40px;min-height:560px">
           <div>
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
             <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,2.8vw,40px);line-height:1.14;letter-spacing:-.05em;margin:0 0 24px;color:#0e0f0b;text-wrap:balance">${escapeHtml(project.title)}</h2>
@@ -221,7 +221,7 @@
             <button type="button" class="case-link" data-open-case="${project.id}" style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#0e0f0b;border:0;border-bottom:1px solid #0e0f0b;width:max-content;padding-bottom:4px;white-space:nowrap;background:none;cursor:pointer">Abrir o caso completo ↗</button>
           </div>
         </div>
-        <div style="${mediaOrder}position:relative;overflow:hidden;background:radial-gradient(circle at 100% 0%,#3f5204 0%,#94ab86 28%,#1f4905 62%,#defa9a 100%);padding:clamp(32px,5vw,72px) clamp(20px,4vw,56px);display:flex;align-items:center">
+        <div style="${mediaOrder}position:relative;overflow:hidden;background:#12140d;padding:clamp(32px,5vw,72px) clamp(20px,4vw,56px);display:flex;align-items:center">
           <div style="position:relative;width:100%;aspect-ratio:16/11;background:#fffceb;box-shadow:0 36px 80px rgba(14,15,11,.45)">${media}</div>
         </div>
       </div>
