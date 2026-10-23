@@ -229,6 +229,10 @@
       if (target && !mob) {
         const r = target.getBoundingClientRect();
         ty = Math.max(90, Math.min(H - S - 40, r.top + r.height / 2 - S / 2));
+        // No case de "apontar pro quadro", o robô sai do canto e vai pra
+        // perto do próprio quadro (tipo um professor explicando a tela),
+        // em vez de ficar fixo na borda direita da tela (pedido da Lorena).
+        if (s.targetSel) tx = Math.min(W - S - 20, Math.max(20, r.right + 28));
       }
       if (!visible) ty = -S * 2;
       st.vx += (tx - st.x) * 0.06; st.vy += (ty - st.y) * 0.06;

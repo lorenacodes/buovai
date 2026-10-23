@@ -134,8 +134,8 @@
       ).join("");
 
       return `
-        <div data-project-id="${project.id}" data-screen-label="Caso ${index + 1}" data-glow="1" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;border:1px solid #0e0f0b;background:radial-gradient(circle at 100% 0%,rgba(222,250,154,.45) 0%,rgba(148,171,134,.2) 32%,rgba(239,238,219,0) 62%),#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:flex;flex-direction:column;gap:24px">
-          <div style="min-height:200px">
+        <div data-project-id="${project.id}" data-screen-label="Caso ${index + 1}" data-glow="1" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;border:1px solid #0e0f0b;background:radial-gradient(circle at 100% 0%,rgba(222,250,154,.45) 0%,rgba(148,171,134,.2) 32%,rgba(239,238,219,0) 62%),#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:subgrid;grid-row:span 4;row-gap:24px">
+          <div>
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:18px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
             <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>
             <p style="font-size:15.5px;line-height:1.6;margin:0;color:#0e0f0b;text-wrap:pretty">${copy.intro}</p>
@@ -426,7 +426,7 @@
       const testimonialIndex = projects.findIndex((p) => p.title === "Portal do Cliente");
 
       listEl.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));max-width:1376px;margin:0 auto;padding:0 28px;gap:28px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));grid-template-rows:repeat(4,auto);max-width:1376px;margin:0 auto;padding:0 28px;gap:28px">
           ${projects.map((project, index) => renderCase(project, index)).join("")}
         </div>
         ${testimonialIndex > -1 ? renderTestimonial(testimonialIndex) : ""}
