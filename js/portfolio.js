@@ -141,7 +141,7 @@
 
       const dots = shots.map(
         (s, i) =>
-          `<button type="button" data-case-dot="${s.key}" aria-label="${escapeHtml(s.label)}" style="width:${i === 0 ? "36px" : "14px"};height:4px;padding:0;border:0;background:${i === 0 ? "#defa9a" : "rgba(255,252,235,.35)"};cursor:pointer;transition:width .4s ease,background .4s"></button>`
+          `<button type="button" data-case-dot="${s.key}" aria-label="${escapeHtml(s.label)}" style="width:${i === 0 ? "36px" : "14px"};height:4px;padding:0;border:0;background:${i === 0 ? "#1f4905" : "rgba(14,15,11,.22)"};cursor:pointer;transition:width .4s ease,background .4s"></button>`
       ).join("");
 
       const diffParas = copy.diffParas
@@ -165,22 +165,16 @@
               <button type="button" class="case-link" data-open-case="${project.id}" style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#0e0f0b;border-bottom:1px solid #0e0f0b;width:max-content;padding-bottom:4px;white-space:nowrap;background:none;border-left:0;border-right:0;border-top:0;cursor:pointer;padding-left:0;padding-right:0">Abrir o caso completo ↗</button>
             </div>
           </div>
-          <div data-case-mockup="${project.id}" style="position:relative;overflow:hidden;background:#12140d;padding:clamp(24px,3vw,44px) clamp(16px,2.2vw,32px);display:flex;flex-direction:column;justify-content:center;gap:22px">
-            <div aria-hidden="true" style="position:absolute;inset:-20%;pointer-events:none;opacity:.55;filter:blur(70px)">
-              <div style="position:absolute;left:8%;top:10%;width:46%;height:46%;border-radius:50%;background:radial-gradient(circle,#defa9a 0%,#94ab86 45%,#457528cc 100%);animation:caseBlobA 16s ease-in-out infinite"></div>
-              <div style="position:absolute;right:6%;bottom:8%;width:40%;height:40%;border-radius:50%;background:radial-gradient(circle,#457528 0%,#1f4905cc 60%,transparent 100%);animation:caseBlobB 19s ease-in-out infinite"></div>
-            </div>
-            <div style="position:relative;width:100%;animation:caseFloat 7s ease-in-out infinite">
-              <div style="position:relative;width:100%;background:#1a1f2e;border:1px solid rgba(255,252,235,.18);box-shadow:0 36px 80px rgba(14,15,11,.45);transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
-                <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:#0e0f0b;border-bottom:1px solid rgba(255,252,235,.12)">
-                  <span style="display:flex;gap:5px"><span style="width:8px;height:8px;background:#3a3d33"></span><span style="width:8px;height:8px;background:#3a3d33"></span><span style="width:8px;height:8px;background:#3a3d33"></span></span>
-                  <span data-case-url style="flex:1;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#c9cbb5;padding:4px 10px;background:rgba(255,252,235,.06)">${copy.urlLabel}</span>
-                </div>
-                <div style="position:relative;width:100%;aspect-ratio:1896/937;overflow:hidden;container-type:inline-size">${imgs}</div>
+          <div data-case-mockup="${project.id}" style="position:relative;overflow:hidden;background:#fffceb;padding:clamp(24px,3vw,44px) clamp(16px,2.2vw,32px);display:flex;flex-direction:column;justify-content:center;gap:22px">
+            <div style="position:relative;width:100%;background:#fffceb;border:1px solid #0e0f0b;transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
+              <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #0e0f0b">
+                <span style="display:flex;gap:5px"><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span></span>
+                <span data-case-url style="flex:1;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#457528;padding:4px 10px;background:rgba(69,117,40,.08)">${copy.urlLabel}</span>
               </div>
+              <div style="position:relative;width:100%;aspect-ratio:1896/937;overflow:hidden;container-type:inline-size">${imgs}</div>
             </div>
             <div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
-              <span data-case-shot-label style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#fffceb">//01 ${escapeHtml(shots[0].label)}</span>
+              <span data-case-shot-label style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528">//01 ${escapeHtml(shots[0].label)}</span>
               <div style="display:flex;gap:6px">${dots}</div>
             </div>
           </div>
@@ -227,12 +221,8 @@
             <button type="button" class="case-link" data-open-case="${project.id}" style="font-family:'Lexend Exa',sans-serif;font-size:13px;color:#0e0f0b;border:0;border-bottom:1px solid #0e0f0b;width:max-content;padding-bottom:4px;white-space:nowrap;background:none;cursor:pointer">Abrir o caso completo ↗</button>
           </div>
         </div>
-        <div style="${mediaOrder}position:relative;overflow:hidden;background:#12140d;padding:clamp(24px,3vw,44px) clamp(16px,2.2vw,32px);display:flex;align-items:center">
-          <div aria-hidden="true" style="position:absolute;inset:-20%;pointer-events:none;opacity:.55;filter:blur(70px)">
-            <div style="position:absolute;left:8%;top:10%;width:46%;height:46%;border-radius:50%;background:radial-gradient(circle,#defa9a 0%,#94ab86 45%,#457528cc 100%);animation:caseBlobA 16s ease-in-out infinite"></div>
-            <div style="position:absolute;right:6%;bottom:8%;width:40%;height:40%;border-radius:50%;background:radial-gradient(circle,#457528 0%,#1f4905cc 60%,transparent 100%);animation:caseBlobB 19s ease-in-out infinite"></div>
-          </div>
-          <div style="position:relative;width:100%;aspect-ratio:16/11;background:#fffceb;box-shadow:0 36px 80px rgba(14,15,11,.45);animation:caseFloat 7s ease-in-out infinite">${media}</div>
+        <div style="${mediaOrder}position:relative;overflow:hidden;background:#fffceb;padding:clamp(24px,3vw,44px) clamp(16px,2.2vw,32px);display:flex;align-items:center">
+          <div style="position:relative;width:100%;aspect-ratio:16/11;background:#fffceb;border:1px solid #0e0f0b">${media}</div>
         </div>
       </div>
     `;
@@ -262,7 +252,7 @@
       dots.forEach((d) => {
         const active = d.getAttribute("data-case-dot") === tab;
         d.style.width = active ? "36px" : "14px";
-        d.style.background = active ? "#defa9a" : "rgba(255,252,235,.35)";
+        d.style.background = active ? "#1f4905" : "rgba(14,15,11,.22)";
       });
       tabBtns.forEach((b) => {
         const active = b.getAttribute("data-case-tab") === tab;
@@ -283,7 +273,7 @@
       paused = false;
       tilt = null;
       frame.style.transform = "none";
-      frame.style.boxShadow = "0 36px 80px rgba(14,15,11,.45)";
+      frame.style.boxShadow = "none";
     });
     mockup.addEventListener("mousemove", (e) => {
       const r = mockup.getBoundingClientRect();
@@ -291,7 +281,7 @@
       const y = (e.clientY - r.top) / r.height - 0.5;
       tilt = [x, y];
       frame.style.transform = "perspective(1400px) rotateY(" + (x * 12).toFixed(2) + "deg) rotateX(" + (-y * 8).toFixed(2) + "deg)";
-      frame.style.boxShadow = (-x * 40).toFixed(0) + "px " + (40 - y * 30).toFixed(0) + "px 80px rgba(14,15,11,.5)";
+      frame.style.boxShadow = (-x * 20).toFixed(0) + "px " + (20 - y * 16).toFixed(0) + "px 32px rgba(14,15,11,.18)";
     });
 
     setInterval(() => {

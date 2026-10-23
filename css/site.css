@@ -86,22 +86,6 @@ button {
   50% { transform: translate(-4%, 3%) scale(1.08); }
 }
 
-/* ---- Painel do mockup dos cases do portfólio: blobs "satin" reaproveitados
-   do hero, pra não ficar um fundo liso sem relação com o resto do site, e
-   uma flutuação bem sutil no frame da captura, pra ter vida mesmo parado. */
-@keyframes caseBlobA {
-  0%, 100% { transform: translate(-6%, -4%) scale(1); }
-  50% { transform: translate(4%, 6%) scale(1.15); }
-}
-@keyframes caseBlobB {
-  0%, 100% { transform: translate(5%, 4%) scale(1.1); }
-  50% { transform: translate(-5%, -6%) scale(0.95); }
-}
-@keyframes caseFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
 /* ---- Entrada rápida (robô + nome) ao abrir o site pela primeira vez ---- */
 .site-intro {
   position: fixed;
