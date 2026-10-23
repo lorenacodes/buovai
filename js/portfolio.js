@@ -134,7 +134,7 @@
       ).join("");
 
       return `
-        <div data-project-id="${project.id}" data-screen-label="Caso ${index + 1}" data-glow="1" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;border:1px solid #0e0f0b;background:radial-gradient(circle at 100% 0%,rgba(222,250,154,.45) 0%,rgba(148,171,134,.2) 32%,rgba(239,238,219,0) 62%),#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:subgrid;grid-row:span 4;row-gap:24px">
+        <div data-project-id="${project.id}" data-case-title="${escapeHtml(project.title || "")}" data-screen-label="Caso ${index + 1}" data-glow="1" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;border:1px solid #0e0f0b;background:radial-gradient(circle at 100% 0%,rgba(222,250,154,.45) 0%,rgba(148,171,134,.2) 32%,rgba(239,238,219,0) 62%),#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:subgrid;grid-row:span 4;row-gap:24px">
           <div>
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:18px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
             <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>

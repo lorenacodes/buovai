@@ -148,10 +148,12 @@
     const cfg = [
       ["Ponto de partida", "Todo bom sistema começa por entender a rotina.", 0],
       // Aqui o robô não aponta pro título da seção, e sim pro quadro do
-      // primeiro case (o mockup da tela), como se estivesse apresentando
-      // a captura em si (pedido da Lorena). Busca de novo a cada frame,
-      // pois o mockup só existe depois do fetch assíncrono do portfólio.
-      ["Casos reais", "Telas reais, com os dados do cliente protegidos.", 0, "#caso [data-case-frame]"],
+      // case da Trilhar (o mockup da tela), como se estivesse apresentando
+      // a captura em si — com uma fala concreta sobre o problema real
+      // daquele cliente, não genérica (pedido da Lorena). Busca de novo a
+      // cada frame, pois o mockup só existe depois do fetch assíncrono do
+      // portfólio.
+      ["Casos reais", "Antes: pastas soltas no Drive, telefone tocando atrás de boleto. Agora o cliente entra e resolve sozinho.", 0, '[data-case-title="Portal do Cliente"] [data-case-frame]'],
       ["Serviços", "Não precisa saber o termo técnico para começar.", 0],
       ["Como trabalho", "Cada etapa validada com você antes da próxima.", 1],
       ["Portal do cliente", "Você acompanha o andamento sem precisar pedir.", 0],
@@ -219,7 +221,10 @@
       const ftTop = fte ? fte.getBoundingClientRect().top : 1e9;
       const visible = hb < H * 0.35 && act >= 0 && ftTop > H * 0.75 && secs[act] && secs[act].msg.indexOf("Descreva como") !== 0;
       wrap.style.opacity = visible ? 1 : 0;
-      bub.style.opacity = visible && (now - st.t0 < 3200 || st.pl) ? 1 : 0;
+      // Quando o robô está apontando pro quadro (targetSel), a fala fica
+      // visível o tempo todo que a seção estiver ativa, igual à linha —
+      // não é um flash, é ele explicando mesmo (pedido da Lorena).
+      bub.style.opacity = visible && (now - st.t0 < 3200 || st.pl || (secs[act] && secs[act].skipLabel)) ? 1 : 0;
       if (act !== st.active && act >= 0) { st.active = act; st.t0 = now; st.blink = now + 150; }
       const pl = document.documentElement.hasAttribute("data-planilha");
       if (pl !== st.pl) { st.pl = pl; st.t0 = now; st.blink = now + 100; }
@@ -232,7 +237,12 @@
         // No case de "apontar pro quadro", o robô sai do canto e vai pra
         // perto do próprio quadro (tipo um professor explicando a tela),
         // em vez de ficar fixo na borda direita da tela (pedido da Lorena).
-        if (s.targetSel) tx = Math.min(W - S - 20, Math.max(20, r.right + 28));
+        // Encosta no lado do quadro que sobra espaço na tela, pra não ficar
+        // espremido contra a borda quando o quadro está na coluna direita.
+        if (s.targetSel) {
+          const rightSide = r.right + S + 28 < W;
+          tx = rightSide ? Math.min(W - S - 20, r.right + 28) : Math.max(20, r.left - S - 28);
+        }
       }
       if (!visible) ty = -S * 2;
       st.vx += (tx - st.x) * 0.06; st.vy += (ty - st.y) * 0.06;
