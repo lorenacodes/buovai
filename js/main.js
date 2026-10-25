@@ -82,6 +82,21 @@
     const errEl = document.getElementById("loginErr");
     const submitBtn = document.getElementById("loginSubmitBtn");
     const googleBtn = document.getElementById("loginGoogleBtn");
+    const passToggleBtn = document.getElementById("loginPassToggle");
+
+    // Botão de olho pra ver a senha enquanto digita (pedido da Lorena).
+    if (passToggleBtn) {
+      const openIcon = passToggleBtn.querySelector("[data-eye-open]");
+      const closedIcon = passToggleBtn.querySelector("[data-eye-closed]");
+      passToggleBtn.addEventListener("click", () => {
+        const show = passEl.type === "password";
+        passEl.type = show ? "text" : "password";
+        openIcon.hidden = show;
+        closedIcon.hidden = !show;
+        passToggleBtn.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha");
+        passToggleBtn.setAttribute("aria-pressed", String(show));
+      });
+    }
 
     let role = "client";
     let otpMode = false;
@@ -133,6 +148,7 @@
       showForm();
       clearErr();
       formEl.reset();
+      if (passToggleBtn && passEl.type === "text") passToggleBtn.click();
       loginModal.style.display = "flex";
     }
     function closeModal() {
