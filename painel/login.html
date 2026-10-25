@@ -153,6 +153,27 @@
         submitBtn.disabled = true;
 
         if (otpMode) {
+          submitBtn.textContent = "Verificando...";
+
+          // Só manda o link se esse e-mail já foi liberado por um
+          // administrador — sem isso, qualquer e-mail digitado criava
+          // uma conta nova sozinho.
+          var { data: hasAccess, error: checkError } = await window.buovaiClient.rpc("email_has_access", { p_email: email });
+
+          if (checkError) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Enviar link por e-mail";
+            showStatus("Não foi possível verificar o acesso agora. Tente de novo em instantes.", "error");
+            return;
+          }
+
+          if (!hasAccess) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Enviar link por e-mail";
+            showStatus("Esse e-mail ainda não tem acesso liberado. Peça para quem administra o seu projeto te adicionar.", "error");
+            return;
+          }
+
           submitBtn.textContent = "Enviando...";
 
           var redirectTo = window.location.origin + window.location.pathname.replace(/login\.html$/, "set-password.html");

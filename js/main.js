@@ -76,12 +76,15 @@
     const backBtn = document.getElementById("loginBackBtn");
     const emailEl = document.getElementById("loginEmail");
     const passEl = document.getElementById("loginPass");
+    const passField = document.getElementById("loginPassField");
+    const otpHint = document.getElementById("loginOtpHint");
+    const toggleOtpBtn = document.getElementById("loginToggleOtp");
     const errEl = document.getElementById("loginErr");
     const submitBtn = document.getElementById("loginSubmitBtn");
-    const magicBtn = document.getElementById("loginMagicBtn");
     const googleBtn = document.getElementById("loginGoogleBtn");
 
     let role = "client";
+    let otpMode = false;
 
     function setRole(r) {
       role = r;
@@ -91,6 +94,20 @@
       clientBtn.style.color = isAdmin ? "#0e0f0b" : "#fffceb";
       adminBtn.style.background = isAdmin ? "#0e0f0b" : "transparent";
       adminBtn.style.color = isAdmin ? "#fffceb" : "#0e0f0b";
+    }
+
+    // Alterna entre "entrar com senha" e "primeiro acesso por link de
+    // e-mail" — mesmo padrão já usado em painel/login.html. Resolve a
+    // confusão de ter o campo de senha visível junto do link de acesso
+    // (pedido da Lorena: quem clica em "primeiro acesso" deve só
+    // preencher o e-mail, sem parecer que senha é obrigatória).
+    function setOtpMode(on) {
+      otpMode = on;
+      passField.style.display = on ? "none" : "flex";
+      passEl.required = false;
+      otpHint.style.display = on ? "block" : "none";
+      submitBtn.textContent = on ? "Enviar link por e-mail" : "Entrar";
+      toggleOtpBtn.textContent = on ? "Já tem senha? Entrar com e-mail e senha" : "Primeiro acesso ou esqueceu a senha? Entre por link de e-mail";
     }
 
     function showForm() {
@@ -112,6 +129,7 @@
 
     function openModal() {
       setRole("client");
+      setOtpMode(false);
       showForm();
       clearErr();
       formEl.reset();
@@ -126,6 +144,7 @@
     skipLink.addEventListener("click", closeModal);
     clientBtn.addEventListener("click", () => setRole("client"));
     adminBtn.addEventListener("click", () => setRole("admin"));
+    toggleOtpBtn.addEventListener("click", () => { setOtpMode(!otpMode); clearErr(); });
     backBtn.addEventListener("click", () => { showForm(); clearErr(); });
     emailEl.addEventListener("input", clearErr);
     passEl.addEventListener("input", clearErr);
@@ -143,6 +162,48 @@
     formEl.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = emailEl.value.trim();
+
+      if (otpMode) {
+        if (!email.includes("@")) {
+          showErr("Preencha o e-mail.");
+          return;
+        }
+        clearErr();
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Verificando...";
+
+        // Só manda o link se esse e-mail já foi liberado por um
+        // administrador (tabela clients ou admins) — sem isso, qualquer
+        // e-mail digitado criava uma conta nova sozinho (pedido da
+        // Lorena: mostrar claramente que o acesso precisa já existir).
+        const { data: hasAccess, error: checkError } = await window.buovaiClient.rpc("email_has_access", { p_email: email });
+
+        if (checkError) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Enviar link por e-mail";
+          showErr("Não foi possível verificar o acesso agora. Tente de novo em instantes.");
+          return;
+        }
+
+        if (!hasAccess) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Enviar link por e-mail";
+          showErr("Esse e-mail ainda não tem acesso liberado. Peça para quem administra o seu projeto te adicionar.");
+          return;
+        }
+
+        const redirectTo = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/painel/set-password.html");
+        const { error } = await window.buovaiClient.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Enviar link por e-mail";
+        if (error) {
+          showErr("Não foi possível enviar o link agora. Tente de novo em instantes.");
+          return;
+        }
+        showSent(email);
+        return;
+      }
+
       const pass = passEl.value;
       if (!email || !pass) {
         showErr("Preencha e-mail e senha.");
@@ -169,24 +230,6 @@
         googleBtn.disabled = false;
         showErr("Login com Google ainda não está disponível. Use e-mail e senha, ou o link de acesso.");
       }
-    });
-
-    magicBtn.addEventListener("click", async () => {
-      const email = emailEl.value.trim();
-      if (!email.includes("@")) {
-        showErr("Preencha e-mail e senha.");
-        return;
-      }
-      clearErr();
-      magicBtn.disabled = true;
-      const redirectTo = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, "/painel/set-password.html");
-      const { error } = await window.buovaiClient.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
-      magicBtn.disabled = false;
-      if (error) {
-        showErr("Não foi possível enviar o link agora. Tente de novo em instantes.");
-        return;
-      }
-      showSent(email);
     });
 
     // Se já tem sessão ativa, nem precisa abrir o modal de login —
