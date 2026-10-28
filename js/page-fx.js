@@ -143,7 +143,7 @@
     if (window.innerWidth < 640) return;
 
     const BOT =
-      '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><defs><mask id="buov-guide-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480"><circle cx="170" cy="283" r="172" fill="#fff"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect><path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path><rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect><g class="g-eyes"><g class="g-lid"><circle cx="122" cy="297" r="15" fill="#000"></circle><circle cx="218" cy="297" r="15" fill="#000"></circle></g></g></mask></defs><g class="g-head" style="transform-origin:170px 283px"><g class="g-antL" style="transform-origin:76px 132px"><line x1="76" y1="132" x2="18" y2="38" stroke="#0e0f0b" stroke-width="8" stroke-linecap="round"></line></g><g class="g-antR" style="transform-origin:246px 126px"><line x1="246" y1="126" x2="292" y2="24" stroke="#0e0f0b" stroke-width="8" stroke-linecap="round"></line></g><rect x="-8" y="266" width="14" height="38" rx="7" fill="#0e0f0b"></rect><rect x="334" y="266" width="14" height="38" rx="7" fill="#0e0f0b"></rect><rect x="-10" y="100" width="370" height="370" fill="#0e0f0b" mask="url(#buov-guide-mask)"></rect></g></svg>';
+      '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><defs><mask id="buov-guide-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480"><circle cx="170" cy="283" r="172" fill="#fff"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect><path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path><rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect><g class="g-eyes"><g class="g-lid"><circle cx="122" cy="297" r="15" fill="#000"></circle><circle cx="218" cy="297" r="15" fill="#000"></circle></g></g></mask></defs><g class="g-head" style="transform-origin:170px 283px"><g class="g-antL" style="transform-origin:76px 132px"><line x1="76" y1="132" x2="18" y2="38" stroke="currentColor" stroke-width="8" stroke-linecap="round"></line></g><g class="g-antR" style="transform-origin:246px 126px"><line x1="246" y1="126" x2="292" y2="24" stroke="currentColor" stroke-width="8" stroke-linecap="round"></line></g><rect x="-8" y="266" width="14" height="38" rx="7" fill="currentColor"></rect><rect x="334" y="266" width="14" height="38" rx="7" fill="currentColor"></rect><rect x="-10" y="100" width="370" height="370" fill="currentColor" mask="url(#buov-guide-mask)"></rect></g></svg>';
 
     const cfg = [
       ["Ponto de partida", "Todo bom sistema começa por entender a rotina.", 0],
@@ -304,6 +304,12 @@
         // só estético). Inverte as cores nas seções escuras.
         bub.style.background = s.dark ? "#fffceb" : "#0e0f0b";
         bub.style.color = s.dark ? "#1f4905" : "#defa9a";
+        // O robô em si também era sempre preto (#0e0f0b) — o mesmo bug do
+        // balão, mas no corpo dele: em seções escuras ele se camuflava
+        // inteiro com o fundo e sumia (pedido da Lorena). O SVG agora usa
+        // currentColor nas partes visíveis, então basta trocar a cor do
+        // wrapper conforme a seção.
+        wrap.style.color = s.dark ? "#fffceb" : "#0e0f0b";
         const msg = st.pl ? "Assim fica na ferramenta pronta. Volte para o sistema." : (activeCase ? activeCase.msg : s.msg);
         const n = Math.min(msg.length, Math.floor((now - st.t0 - 200) / 32));
         const txt = n > 0 ? msg.slice(0, n) : "";
