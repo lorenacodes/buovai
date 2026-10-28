@@ -318,11 +318,20 @@
         const bubX = s.skipLabel
           ? Math.min(W - bw - 16, Math.max(16, st.x + S / 2 - bw / 2))
           : st.x - bw - 14;
+        // Nas seções sem "apontar pro quadro" (ex. "Quem faz"), o balão
+        // ficava na altura do robô — que fica centralizado no título — e
+        // acabava em cima do próprio texto do h2. Usa a base do h2 como
+        // referência em vez da posição do robô, pra ficar sempre abaixo
+        // do título (pedido da Lorena: balão estava sobrepondo o título).
+        const h2Rect = !s.skipLabel && s.h2 ? s.h2.getBoundingClientRect() : null;
+        const bubY = s.skipLabel
+          ? st.y + S + 14
+          : h2Rect
+          ? Math.min(H - 60, h2Rect.bottom + 16)
+          : st.y + S + 14;
         bub.style.transform = mob
           ? "translate(" + (st.x + S - bw).toFixed(1) + "px," + (st.y - 40).toFixed(1) + "px)"
-          : s.skipLabel
-          ? "translate(" + bubX.toFixed(1) + "px," + (st.y + S + 14).toFixed(1) + "px)"
-          : "translate(" + bubX.toFixed(1) + "px," + (st.y + S * 0.3).toFixed(1) + "px)";
+          : "translate(" + bubX.toFixed(1) + "px," + bubY.toFixed(1) + "px)";
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
