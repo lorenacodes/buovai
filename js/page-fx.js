@@ -298,6 +298,12 @@
       }
       lid.setAttribute("transform", "translate(0 300) scale(1 " + Math.max(0.08, lv).toFixed(3) + ") translate(0 -300)");
       if (s) {
+        // O balão era sempre fundo preto + texto lima — some em seções que
+        // já são pretas/escuras (ex. "Quem faz"), sobrando só o texto solto
+        // por cima do conteúdo, sem caixa nenhuma por trás (bug real, não
+        // só estético). Inverte as cores nas seções escuras.
+        bub.style.background = s.dark ? "#fffceb" : "#0e0f0b";
+        bub.style.color = s.dark ? "#1f4905" : "#defa9a";
         const msg = st.pl ? "Assim fica na ferramenta pronta. Volte para o sistema." : (activeCase ? activeCase.msg : s.msg);
         const n = Math.min(msg.length, Math.floor((now - st.t0 - 200) / 32));
         const txt = n > 0 ? msg.slice(0, n) : "";
