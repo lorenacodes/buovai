@@ -74,7 +74,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
     sel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
-    msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "",
+    msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false,
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
     w: window.innerWidth
   };
@@ -154,6 +154,21 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       var el = document.getElementById("cmdInput");
       if (el) el.focus();
     }, 60);
+  }
+
+  // Posiciona o menu de conta (foto/tema/sair) perto do avatar que o
+  // abriu. Calculado em JS porque o avatar some em layouts diferentes
+  // (barra lateral no desktop, barra de cima no mobile) — não dá pra
+  // cravar a posição só em CSS.
+  function positionUserMenu() {
+    setTimeout(function () {
+      var btn = document.getElementById("avatarBtn"), pop = document.getElementById("userMenuPopover");
+      if (!btn || !pop) return;
+      var r = btn.getBoundingClientRect(), popH = pop.offsetHeight, popW = pop.offsetWidth;
+      var openUp = r.bottom + popH + 12 > window.innerHeight && r.top - popH - 12 > 0;
+      pop.style.left = Math.max(8, Math.min(window.innerWidth - popW - 8, r.left)) + "px";
+      pop.style.top = (openUp ? r.top - popH - 8 : r.bottom + 8) + "px";
+    }, 0);
   }
 
   function ask(key, text) {
@@ -789,12 +804,19 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       navFlex: narrow ? "0 0 auto" : "1", navGap: narrow ? "4px" : "22px", wideSide: !narrow && admin, footDir: narrow ? "row" : "column", footPad: narrow ? "0" : "16px", footBorder: narrow ? "0" : "1px solid var(--line)", footAlign: narrow ? "center" : "stretch",
       isDark: !light, isLight: light,
       thDarkBg: light ? "transparent" : "var(--btnBg)", thDarkFg: light ? "var(--ink)" : "var(--btnFg)", thLightBg: light ? "var(--btnBg)" : "transparent", thLightFg: light ? "var(--btnFg)" : "var(--ink)",
-      setDarkH: reg(function () { setTheme("dark"); }), setLightH: reg(function () { setTheme("light"); }),
+      setDarkH: reg(function () { setTheme("dark"); setState({ userMenuOpen: false }); }), setLightH: reg(function () { setTheme("light"); setState({ userMenuOpen: false }); }),
       logoutH: reg(function () { sb().auth.signOut(); }),
-      meName: admin ? ((adminMe && adminMe.name) || S.email || "") : "",
-      meAvatarUrl: admin ? ((adminMe && adminMe.avatarUrl) || "") : "",
-      meInitials: admin ? (((adminMe && adminMe.name) || S.email || "?").trim().charAt(0).toUpperCase()) : "",
-      avatarClickH: reg(function () { var el = document.getElementById("avatarFileInput"); if (el) el.click(); }),
+      meName: admin ? ((adminMe && adminMe.name) || S.email || "") : ((myProj0 && myProj0.clienteNome) || S.email || ""),
+      meAvatarUrl: admin ? ((adminMe && adminMe.avatarUrl) || "") : (S.clientAvatarUrl || ""),
+      meInitials: (admin ? ((adminMe && adminMe.name) || S.email || "?") : ((myProj0 && myProj0.clienteNome) || S.email || "?")).trim().charAt(0).toUpperCase(),
+      userMenuOpen: S.userMenuOpen,
+      avatarClickH: reg(function () {
+        var opening = !S.userMenuOpen;
+        setState({ userMenuOpen: opening });
+        if (opening) positionUserMenu();
+      }),
+      closeUserMenuH: reg(function () { setState({ userMenuOpen: false }); }),
+      changePhotoH: reg(function () { setState({ userMenuOpen: false }); var el = document.getElementById("avatarFileInput"); if (el) el.click(); }),
       avatarUploadH: reg(function (e) {
         var file = e.target.files && e.target.files[0];
         if (!file || !S.uid) return;
@@ -804,11 +826,23 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           if (res.error) throw res.error;
           var pub = sb().storage.from("avatars").getPublicUrl(path);
           var url = pub.data.publicUrl + "?t=" + Date.now();
-          return sb().from("admins").update({ avatar_url: url }).eq("id", S.uid).then(function (r2) {
-            if (r2.error) throw r2.error;
-            var me = (S.data.admins || []).filter(function (a) { return a.id === S.uid; })[0];
-            if (me) me.avatarUrl = url;
+          // Admin: a foto fica em admins.avatar_url, pra aparecer também
+          // na lista de "Equipe e permissões". Cliente: ninguém mais
+          // precisa ver essa foto, então basta no metadata da própria
+          // conta (sem precisar de tabela/coluna nova).
+          var save = admin
+            ? sb().from("admins").update({ avatar_url: url }).eq("id", S.uid).then(function (r2) {
+                if (r2.error) throw r2.error;
+                var me = (S.data.admins || []).filter(function (a) { return a.id === S.uid; })[0];
+                if (me) me.avatarUrl = url;
+              })
+            : sb().auth.updateUser({ data: { avatar_url: url } }).then(function (r2) {
+                if (r2.error) throw r2.error;
+                S.clientAvatarUrl = url;
+              });
+          return save.then(function () {
             S.toast = "Foto de perfil atualizada";
+            S.userMenuOpen = false;
             clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
             render();
           });
@@ -896,20 +930,31 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + "</div>"
       + '<nav style="display:flex;flex-direction:' + V.asideDir + ";gap:" + V.navGap + ";flex:" + V.navFlex + '">' + groups + "</nav>"
       + '<div style="display:flex;flex-direction:' + V.footDir + ";gap:10px;flex:none;padding-top:" + V.footPad + ";border-top:" + V.footBorder + ";align-items:" + V.footAlign + '">'
-      + (V.admin ? ('<div style="display:flex;align-items:center;gap:9px;padding:2px 2px 2px 0">'
-          + '<button ' + h(V.avatarClickH) + ' aria-label="Alterar foto de perfil" style="width:32px;height:32px;flex:none;border-radius:50%;overflow:hidden;border:1px solid var(--line2);background:var(--accSoft);color:var(--accTxt);display:flex;align-items:center;justify-content:center;font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;padding:0">'
+      + '<button id="avatarBtn" ' + h(V.avatarClickH) + ' aria-label="Menu da conta" aria-haspopup="true" aria-expanded="' + (V.userMenuOpen ? "true" : "false") + '" style="display:flex;align-items:center;gap:9px;padding:2px 6px 2px 2px;border:0;background:none;cursor:pointer;font:inherit;text-align:left;max-width:100%">'
+          + '<span style="width:32px;height:32px;flex:none;border-radius:50%;overflow:hidden;border:1px solid var(--line2);background:var(--accSoft);color:var(--accTxt);display:flex;align-items:center;justify-content:center;font-family:\'Lexend Exa\',sans-serif;font-size:12px">'
           + (V.meAvatarUrl ? '<img src="' + esc(V.meAvatarUrl) + '" alt="" style="width:100%;height:100%;object-fit:cover">' : esc(V.meInitials))
-          + '</button>'
+          + '</span>'
           + '<span style="font-size:12px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(V.meName) + '</span>'
-          + '<input type="file" accept="image/*" id="avatarFileInput" data-fileh="' + V.avatarUploadH + '" style="display:none">'
-        + '</div>') : "")
-      + '<div style="display:flex;border:1px solid var(--line2);font-family:\'Lexend Exa\',sans-serif;font-size:11px">'
-      + '<button ' + h(V.setDarkH) + ' style="flex:1;padding:8px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thDarkBg + ";color:" + V.thDarkFg + '">Escuro</button>'
-      + '<button ' + h(V.setLightH) + ' style="flex:1;padding:8px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thLightBg + ";color:" + V.thLightFg + '">Claro</button>'
-      + "</div>"
-      + '<button ' + h(V.logoutH) + ' style="padding:9px 12px;border:1px solid var(--line2);background:transparent;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer;white-space:nowrap;text-align:left">Sair</button>'
+        + '</button>'
+      + '<input type="file" accept="image/*" id="avatarFileInput" data-fileh="' + V.avatarUploadH + '" style="display:none">'
       + '<a href="index.html" style="font-size:12px;color:var(--mute);white-space:nowrap;padding:0 2px">← Voltar ao site</a>'
       + "</div></aside>";
+  }
+
+  // Foto, tema e Sair ficavam sempre visíveis no rodapé do menu — a Lorena
+  // pediu pra só aparecer quando a pessoa clica no próprio ícone/avatar,
+  // igual um menu de conta comum. Vale pra admin e pra cliente.
+  function buildUserMenu(V) {
+    if (!V.userMenuOpen) return "";
+    return '<div data-h="' + V.closeUserMenuH + '" style="position:fixed;inset:0;z-index:56"></div>'
+      + '<div id="userMenuPopover" style="position:fixed;z-index:57;min-width:190px;background:var(--panel);border:1px solid var(--line2);box-shadow:0 20px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden">'
+      + '<button ' + h(V.changePhotoH) + ' style="padding:11px 14px;border:0;background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-align:left">Alterar foto</button>'
+      + '<div style="display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-family:\'Lexend Exa\',sans-serif;font-size:11px">'
+      + '<button ' + h(V.setDarkH) + ' style="flex:1;padding:9px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thDarkBg + ";color:" + V.thDarkFg + '">Escuro</button>'
+      + '<button ' + h(V.setLightH) + ' style="flex:1;padding:9px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thLightBg + ";color:" + V.thLightFg + '">Claro</button>'
+      + "</div>"
+      + '<button ' + h(V.logoutH) + ' style="padding:11px 14px;border:0;background:none;color:var(--badFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-align:left">Sair</button>'
+      + "</div>";
   }
 
   function barRow(p, cols) {
@@ -1254,7 +1299,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     H = {}; HID = 0;
     var V = computeVals();
     document.body.dataset.theme = S.theme;
-    app.innerHTML = '<div style="min-height:100vh;display:grid;grid-template-columns:' + V.shellCols + ';background:var(--bg)">' + buildAside(V) + buildMain(V) + "</div>" + buildBot(V) + buildCmd(V) + buildModal(V) + buildToast(V);
+    app.innerHTML = '<div style="min-height:100vh;display:grid;grid-template-columns:' + V.shellCols + ';background:var(--bg)">' + buildAside(V) + buildMain(V) + "</div>" + buildBot(V) + buildCmd(V) + buildModal(V) + buildToast(V) + buildUserMenu(V);
 
     app.querySelectorAll("[data-h]").forEach(function (el) {
       el.addEventListener("click", function (e) {
@@ -1289,7 +1334,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       e.preventDefault();
       S.cmdOpen = true; S.cmdQ = ""; render(); focusCmd();
     }
-    if (e.key === "Escape") { S.cmdOpen = false; S.modal = null; S.helpOpen = false; render(); }
+    if (e.key === "Escape") { S.cmdOpen = false; S.modal = null; S.helpOpen = false; S.userMenuOpen = false; render(); }
   });
 
   async function boot() {
@@ -1302,6 +1347,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     try {
       var D = await loadAll(role, email);
       S.role = role; S.email = email; S.uid = uid; S.data = D; S.view = role === "admin" ? "inicio" : "andamento";
+      // Admin tem foto guardada em admins.avatar_url (visível pra equipe
+      // toda em "Equipe e permissões"). Cliente não aparece pra mais
+      // ninguém, então a própria foto fica só no metadata da conta.
+      S.clientAvatarUrl = (sessRes.data.session.user.user_metadata || {}).avatar_url || "";
       document.body.dataset.theme = S.theme;
       render();
     } catch (err) {
