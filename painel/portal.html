@@ -947,13 +947,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   function buildUserMenu(V) {
     if (!V.userMenuOpen) return "";
     return '<div data-h="' + V.closeUserMenuH + '" style="position:fixed;inset:0;z-index:56"></div>'
-      + '<div id="userMenuPopover" style="position:fixed;z-index:57;min-width:190px;background:var(--panel);border:1px solid var(--line2);box-shadow:0 20px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden">'
-      + '<button ' + h(V.changePhotoH) + ' style="padding:11px 14px;border:0;background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-align:left">Alterar foto</button>'
-      + '<div style="display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-family:\'Lexend Exa\',sans-serif;font-size:11px">'
-      + '<button ' + h(V.setDarkH) + ' style="flex:1;padding:9px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thDarkBg + ";color:" + V.thDarkFg + '">Escuro</button>'
-      + '<button ' + h(V.setLightH) + ' style="flex:1;padding:9px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thLightBg + ";color:" + V.thLightFg + '">Claro</button>'
+      + '<div id="userMenuPopover" style="position:fixed;z-index:57;min-width:260px;background:var(--panel);border:1px solid var(--line2);box-shadow:0 20px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden">'
+      + '<button ' + h(V.changePhotoH) + ' style="padding:16px 18px;border:0;background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:14px;cursor:pointer;text-align:left">Alterar foto</button>'
+      + '<div style="display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-family:\'Lexend Exa\',sans-serif;font-size:13px">'
+      + '<button ' + h(V.setDarkH) + ' style="flex:1;padding:14px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thDarkBg + ";color:" + V.thDarkFg + '">Escuro</button>'
+      + '<button ' + h(V.setLightH) + ' style="flex:1;padding:14px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thLightBg + ";color:" + V.thLightFg + '">Claro</button>'
       + "</div>"
-      + '<button ' + h(V.logoutH) + ' style="padding:11px 14px;border:0;background:none;color:var(--badFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-align:left">Sair</button>'
+      + '<button ' + h(V.logoutH) + ' style="padding:16px 18px;border:0;background:none;color:var(--badFg);font-family:\'Lexend Exa\',sans-serif;font-size:14px;cursor:pointer;text-align:left">Sair</button>'
       + "</div>";
   }
 
