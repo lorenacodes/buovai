@@ -30,6 +30,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var TKEY = "buov-portal-theme";
   var ROLES = ["Administrador", "Comercial", "Desenvolvimento", "Financeiro"];
+  // Cargo da pessoa de contato e setor do cliente: listas fixas (pedido
+  // da Lorena, pra não ficar texto livre) com "Outro" como válvula de
+  // escape pro que não se encaixa.
+  var CARGOS = ["Dono(a) / Proprietário(a)", "Sócio(a)", "Fundador(a)", "Diretor(a)", "Diretor(a) Financeiro(a)", "Diretor(a) Comercial", "Gerente", "Gerente Administrativo(a)", "Coordenador(a)", "Administrador(a)", "Contador(a)", "Advogado(a)", "Engenheiro(a)", "Arquiteto(a)", "Médico(a)", "Dentista", "Assistente Administrativo(a)", "Secretário(a)", "Outro"];
+  var SETORES = ["Contabilidade", "Engenharia / Construção civil", "Advocacia / Jurídico", "Saúde / Clínica médica", "Odontologia", "Arquitetura", "Comércio / Varejo", "Indústria", "Tecnologia / TI", "Educação", "Alimentação / Restaurante", "Beleza e estética", "Imobiliário", "Transporte e logística", "Serviços financeiros", "Agronegócio", "Outro"];
+  var optList = function (arr) { return [{ v: "", l: "Selecione…" }].concat(arr.map(function (x) { return { v: x, l: x }; })); };
   var MODS = ["Projetos", "Clientes", "Comercial", "Financeiro", "Configurações"];
   var addM = function (iso, n) { var p = iso.split("-").map(Number), y = p[0], m = p[1], d = p[2]; var x = new Date(y, m - 1 + n, d); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); };
   var mkParc = function (valor, n, first, paid) { return Array.from({ length: n }, function (_, i) { return { n: i + 1, valor: Math.round(valor / n * 100) / 100, venc: addM(first, i), pago: i < paid }; }); };
@@ -215,7 +221,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       if (!D.users.length) D.users = [{ id: "me", nome: email, email: email, papel: "Administrador", ativo: true }];
       ROLES.forEach(function (r) { D.perms[r] = []; });
       (permRes.data || []).forEach(function (p) { if (p.allowed) D.perms[p.papel] = (D.perms[p.papel] || []).concat([p.modulo]); });
-      D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", cargo: c.cargo_contato || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "" }; });
+      D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", cargo: c.cargo_contato || "", setor: c.setor || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "" }; });
       D.leads = (leadsRes.data || []).map(function (l) { return { id: l.id, nome: l.company_name, interesse: l.opportunities || l.description || "", origem: l.source || "", valor: Number(l.budget_value) || 0, etapa: LEAD_IDX[l.stage] != null ? LEAD_IDX[l.stage] : 0 }; });
       D.proposals = (proposalsRes.data || []).map(function (p) { return { id: p.id, clientId: p.client_email, clienteNome: p.client_name, titulo: p.titulo, tipo: p.tipo, valor: Number(p.valor) || 0, status: p.status, data: p.data }; });
       D.meetings = (meetingsRes.data || []).map(function (m) { return { id: m.id, titulo: m.titulo, data: m.data, hora: (m.hora || "").slice(0, 5), cliente: m.cliente_nome || "" }; });
@@ -698,16 +704,17 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       cliente: { t: "Cadastrar cliente", b: "Salvar cliente", fields: [
           sl("Tipo", "pj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
           inp("Nome ou razão social *", "nome", ""),
+          sl("Setor", "setor", optList(SETORES)),
           inp("Responsável pelo contato", "contato", "Quem fala com você"),
-          inp("Cargo do responsável", "cargo", "Ex.: Diretora financeira"),
+          sl("Cargo do responsável", "cargo", optList(CARGOS)),
           inp("Telefone *", "tel", "(11) 90000-0000", "tel", "tel"),
           inp("E-mail", "email", "nome@empresa.com.br", "email"),
           inp(F.pj === "PF" ? "CPF" : "CNPJ *", "doc", "", "text", F.pj === "PF" ? "cpf" : "cnpj")
         ], req: F.pj === "PF" ? ["nome", "tel"] : ["nome", "tel", "doc"],
-        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", cargo: F.cargo || "", email: F.email || "", tel: F.tel, doc: F.doc || "" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
+        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", cargo: F.cargo || "", setor: F.setor || "", email: F.email || "", tel: F.tel, doc: F.doc || "" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
         remote: function (d) {
           var c = d.clients[d.clients.length - 1];
-          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
+          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
         } },
       projeto: { t: "Novo projeto", b: "Criar projeto", fields: [inp("Nome do projeto *", "nome", "Ex.: Migração do sistema financeiro"), sl("Cliente", "clientId", cliOpts), sl("Modelo de projeto", "tplId", D.templates.map(function (t) { return { v: t.id, l: t.nome }; })), inp("Valor cobrado (R$) *", "valor", "0,00", "number"), inp("Parcelas", "parcelas", "1", "number"), inp("1º vencimento", "venc", "", "date"), inp("Entrega prevista", "prazo", "", "date")], req: ["nome", "valor"],
         go: function (d) {
@@ -789,8 +796,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       { title: "Dados do cliente", b: "Continuar →", req: F.cPj === "PF" ? ["cNome", "cTel"] : ["cNome", "cTel", "cDoc"], fields: [
           sl("Tipo", "cPj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
           inp("Nome ou razão social *", "cNome", ""),
+          sl("Setor", "cSetor", optList(SETORES)),
           inp("Responsável pelo contato", "cContato", "Quem fala com você"),
-          inp("Cargo do responsável", "cCargo", "Ex.: Diretora financeira"),
+          sl("Cargo do responsável", "cCargo", optList(CARGOS)),
           inp("Telefone *", "cTel", "(11) 90000-0000", "tel", "tel"),
           inp("E-mail", "cEmail", "nome@empresa.com.br", "email"),
           inp(F.cPj === "PF" ? "CPF" : "CNPJ *", "cDoc", "", "text", F.cPj === "PF" ? "cpf" : "cnpj")
@@ -913,7 +921,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (M === "clienteProjeto" && (S.wStep || 1) < wizSteps.length) { setState({ wStep: (S.wStep || 1) + 1, mErr: false }); return; }
         if (M === "clienteProjeto") {
           save(function (d) {
-            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
+            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", setor: F.cSetor || "", email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
             var newC = d.clients[d.clients.length - 1];
             var v = Number(String(F.pValor).replace(",", ".")) || 0, n = Math.max(1, parseInt(F.pParcelas) || 1);
             var t = D.templates.filter(function (x) { return x.id === F.tplId; })[0] || D.templates[0];
@@ -922,7 +930,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             d.projects.unshift({ id: "p" + Date.now(), code: code, clientId: newC.id, nome: F.pNome, tplId: t ? t.id : "", tipo: t ? t.nome : "", status: "Em andamento", prazo: F.pPrazo || "", valor: v, parcelas: mkParc(v, n, F.pVenc || T, 0), tasks: mkTasks(t ? t.etapas : [], 0), docs: [], hist: [{ at: nowStr(), who: "Lorena", text: 'criou o projeto a partir do modelo "' + (t ? t.nome : "") + '"' }] });
           }, "Cliente e projeto criados", function (d) {
             var c = d.clients[d.clients.length - 1], p = d.projects[0];
-            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
+            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
               if (res.error) throw res.error;
               c.id = res.data.id; p.clientId = c.id;
               return sb().from("client_projects").insert({
