@@ -142,6 +142,29 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     });
   }
 
+  // Exclusão é definitiva (apaga etapas, parcelas, documentos e
+  // mensagens do projeto junto, via cascade no banco) — por isso pede
+  // confirmação explícita antes de mandar pro Supabase.
+  function deleteProject(p) {
+    if (!window.confirm('Excluir "' + p.nome + '" (' + p.code + ')? Etapas, parcelas, documentos e mensagens desse projeto são apagados junto. Essa ação não pode ser desfeita.')) return;
+    Promise.resolve(sb().from("client_projects").delete().eq("id", p.id)).then(function (res) {
+      if (res.error) throw res.error;
+      Promise.resolve(sb().from("activity_log").delete().eq("entity_type", "project").eq("entity_id", p.id)).then(function () {}, function () {});
+      S.data.projects = S.data.projects.filter(function (x) { return x.id !== p.id; });
+      S.sel = null;
+      S.toast = "Projeto excluído";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
+      render();
+    }).catch(function (err) {
+      console.error("[Buovai] Falha ao excluir projeto:", err);
+      S.toast = "Não foi possível excluir agora. Tente de novo.";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
+      render();
+    });
+  }
+
   function log(d, pid, text) {
     var p = d.projects.filter(function (x) { return x.id === pid; })[0];
     if (p) { p.hist = p.hist || []; p.hist.unshift({ at: nowStr(), who: S.role === "admin" ? "Lorena" : "Cliente", text: text }); }
@@ -296,6 +319,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var fc = function (k, maskKey) { return reg(function (e) { S.f = Object.assign({}, S.f, {}); S.f[k] = maskKey ? MASKS[maskKey](e.target.value) : e.target.value; S.mErr = false; render(); }); };
     var btnP = function (label, onClick) { return { label: label, h: reg(onClick), bg: "var(--btnBg)", fg: "var(--btnFg)", bd: "var(--btnBg)" }; };
     var btnS = function (label, onClick) { return { label: label, h: reg(onClick), bg: "transparent", fg: "var(--ink)", bd: "var(--line2)" }; };
+    var btnDanger = function (label, onClick) { return { label: label, h: reg(onClick), bg: "transparent", fg: "var(--badFg)", bd: "var(--badFg)" }; };
     var all = [];
     D.projects.forEach(function (p) { p.parcelas.forEach(function (q) { all.push({ q: q, p: p }); }); });
     var recebido = all.filter(function (x) { return x.q.pago; }).reduce(function (a, x) { return a + x.q.valor; }, 0);
@@ -371,7 +395,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "projetos" && sel) {
         title = sel.nome; kicker = sel.code + " · " + cli(sel.clientId).nome; out.v_projDet = true;
-        actions = [btnS("← Projetos", function () { setState({ sel: null }); })];
+        actions = [btnS("← Projetos", function () { setState({ sel: null }); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
         var pg = sel.parcelas.filter(function (q) { return q.pago; });
         out.pdInfo = [{ l: "Modelo", v: sel.tipo }, { l: "Valor", v: money(sel.valor) }, { l: "Parcelas pagas", v: pg.length + " de " + sel.parcelas.length }, { l: "Entrega", v: dt(sel.prazo) }, { l: "Progresso", v: pct(sel) + "%" }];
         out.pTabs = [["tarefas", "Etapas"], ["docs", "Documentação · " + sel.docs.length], ["fin", "Parcelas"], ["hist", "Histórico"]].map(function (x) { var k = x[0], label = x[1]; return { label: label, bd: S.ptab === k ? "var(--accTxt)" : "transparent", fg: S.ptab === k ? "var(--ink)" : "var(--mute)", h: reg(function () { setState({ ptab: k }); }) }; });
