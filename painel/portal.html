@@ -57,6 +57,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var dt = function (iso) { return iso ? iso.slice(0, 10).split("-").reverse().join("/") : "sem data"; };
   var nowStr = function () { var n = new Date(); return n.toISOString().slice(0, 10) + " " + String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0"); };
   var daysBetween = function (a, b) { return Math.round((new Date(b + "T12:00") - new Date(a + "T12:00")) / 864e5); };
+  // Logo embutida (base64) pro PDF de boas-vindas do cliente — não
+  // pode depender de carregar um arquivo externo numa aba recém-aberta.
+  var BUOVAI_LOGO_DATA_URI = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgMjAwIDEwMCIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMDAiPgo8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMjUsLTE1KSI+CjxkZWZzPgo8cGF0aCBpZD0iZm9udF84XzI5IiBkPSJNLjMzMjAwMDc0IC41MTMwMDA1Qy4zNzgwMDA5IC41MTMwMDA1IC40MTg0OTc3IC41MDIxNjY3NyAuNDUzNDkxMiAuNDgwNDk5MjggLjQ4ODQ5NDg4IC40NTg4MzE4IC41MTU5OTYzIC40Mjg0OTczIC41MzU5OTU1IC4zODk0OTU4NiAuNTU1OTk0NyAuMzUwNDk0MzkgLjU2NTk5NDI5IC4zMDQzMzE0NiAuNTY1OTk0MjkgLjI1MTAwNzA5IC41NjU5OTQyOSAuMTk3MDAxMTUgLjU1NTk5NDcgLjE1MDE2MTc1IC41MzU5OTU1IC4xMTA0ODg4OSAuNTE1OTk2MyAuMDcwODI2MjEgLjQ4ODQ5NDg4IC4wNDAzMjg5OCAuNDUzNDkxMiAuMDE4OTk3MTkzIC40MTg0OTc3LS4wMDIzMzQ1OTQ4IC4zNzgwMDA5LS4wMTMwMDA0ODggLjMzMjAwMDc0LS4wMTMwMDA0ODggLjI4NTMyOTItLjAxMzAwMDQ4OCAuMjQ3NjYwMzMtLjAwMjY3MDI4OCAuMjE4OTk0MTQgLjAxNzk5MDExMyAuMTkwMzI3OTYgLjAzODY2MDY4OCAuMTY4NjY1NTggLjA2NTk5OTM1IC4xNTQwMDY5NiAuMTAwMDA2MVYwSC4wNTk5OTc1NlYuNjk5OTk2OTdILjE1MTk5MjhMLjE1Mjk5OTg4IC4zOTkwMDIwOUMuMTY2OTk3MjcgLjQzMzY3MDA1IC4xODg0OTY5IC40NjEzMzQyNCAuMjE3NDk4NzggLjQ4MTk5NDY0IC4yNDY1MDA2NiAuNTAyNjY1MiAuMjg0NjY3OTggLjUxMzAwMDUgLjMzMjAwMDc0IC41MTMwMDA1TS4zMDkwMDU3NSAuMDg1OTk4NTM4Qy4zNTU2NjcxIC4wODU5OTg1MzggLjM5NDE2NTA1IC4wOTg4MzExOCAuNDI0NDk5NSAuMTI0NDk2NDYgLjQ1NDgzMzk5IC4xNTAxNjE3NSAuNDcwMDAxMjMgLjE5MTk5NjI2IC40NzAwMDEyMyAuMjUgLjQ3MDAwMTIzIC4zMDEzMzA1OCAuNDU0ODMzOTkgLjM0MTgyNzQgLjQyNDQ5OTUgLjM3MTQ5MDQ5IC4zOTQxNjUwNSAuNDAxMTYzNzQgLjM1NTY2NzEgLjQxNjAwMDM4IC4zMDkwMDU3NSAuNDE2MDAwMzggLjI2MjMzNDIgLjQxNjAwMDM4IC4yMjUzMzE2MiAuNDAxNDk5NDMgLjE5Nzk5ODA1IC4zNzI0OTc1NyAuMTcwNjY0NDggLjM0MzQ5NTcgLjE1NTY2NTA5IC4zMDYzMzAzNiAuMTUyOTk5ODggLjI2MTAwMTZWLjIzNTk5MjQzQy4xNTU2NjUwOSAuMTg1OTk0NDYgLjE3MDY2NDQ4IC4xNDg0OTM0NiAuMTk3OTk4MDUgLjEyMzQ4OTM4IC4yMjUzMzE2MiAuMDk4NDk1NDggLjI2MjMzNDIgLjA4NTk5ODUzOCAuMzA5MDA1NzUgLjA4NTk5ODUzOFoiLz4KPHBhdGggaWQ9ImZvbnRfOF80OCIgZD0iTS41MDcwMDM4IC41VjBILjQxNjAwMDM4Vi4xMTE5OTk1MUMuNDAxMzMxNTggLjA3MTMyOTc1IC4zNzc5OTU4MyAuMDQwMzI4OTggLjM0NTk5MzA1IC4wMTg5OTcxOTMgLjMxNDAwMDQ3LS4wMDIzMzQ1OTQ4IC4yODEwMDA3Ny0uMDEzMDAwNDg4IC4yNDY5OTQwMi0uMDEzMDAwNDg4IC4yMDQzMzA0NS0uMDEzMDAwNDg4IC4xNjg5OTYxNy0uMDA1ODMzOTQ0IC4xNDA5OTEyMSAuMDA4NDk5MTQ1OSAuMTEyOTk2NDIgLjAyMjgzMjIzNiAuMDkyMDAwMzMgLjA0NzY2MzM3MyAuMDc4MDAyOTMgLjA4Mjk5MjU1IC4wNjQwMDU1MyAuMTE4MzMxOTEgLjA1NzAwNjgzNyAuMTY2NjY2NjcgLjA1NzAwNjgzNyAuMjI3OTk2ODNWLjVILjE1Mjk5OTg4Vi4yMjc5OTY4M0MuMTUyOTk5ODggLjE3MTk5NzA3IC4xNjMzMzAwOCAuMTMyMzI5MyAuMTgzOTkwNDggLjEwODk5MzUzIC4yMDQ2NjEwNiAuMDg1NjY3OTMgLjIzMjk5NjYzIC4wNzQwMDUxMyAuMjY4OTk3MiAuMDc0MDA1MTMgLjMxNjMyOTk3IC4wNzMzMzM3NCAuMzUyNDkzMyAuMDg2ODMyNjggLjM3NzQ4NzE5IC4xMTQ1MDE5NSAuNDAyNDkxMjUgLjE0MjE3MTIyIC40MTQ5OTMzIC4xODAwMDI4NiAuNDE0OTkzMyAuMjI3OTk2ODNWLjVILjUwNzAwMzhaIi8+CjxwYXRoIGlkPSJmb250XzhfNDIiIGQ9Ik0uMzE1OTk0MjctLjAxMzAwMDQ4OEMuMjc3OTk5ODktLjAxMzAwMDQ4OCAuMjQzMDAxMy0uMDA1ODMzOTQ0IC4yMTA5OTg1NCAuMDA4NDk5MTQ1OSAuMTc4OTk1NzggLjAyMjgzMjIzNiAuMTUxMzI2NDkgLjA0MjQ5NTcyOSAuMTI3OTkwNzMgLjA2NzQ4OTYyNyAuMTA0NjY1MTIgLjA5MjQ5MzY5IC4wODY2NjQ4MyAuMTIwODI5MjYgLjA3Mzk4OTg3IC4xNTI0OTYzNCAuMDYxMzI1MDc1IC4xODQxNjM0IC4wNTQ5OTI2NzcgLjIxNzAwMDMyIC4wNTQ5OTI2NzcgLjI1MTAwNzA5IC4wNTQ5OTI2NzcgLjI4NDMzMjI5IC4wNjEzMjUwNzUgLjMxNjY2MDU2IC4wNzM5ODk4NyAuMzQ3OTkxOTUgLjA4NjY2NDgzIC4zNzkzMzM1IC4xMDQ2NjUxMiAuNDA3MzMzMzggLjEyNzk5MDczIC40MzE5OTE1OSAuMTUxMzI2NDkgLjQ1NjY1OTk1IC4xNzg5OTU3OCAuNDc2MzI4NTMgLjIxMDk5ODU0IC40OTA5OTczIC4yNDMwMDEzIC41MDU2NjYxIC4yNzc5OTk4OSAuNTEzMDAwNSAuMzE1OTk0MjcgLjUxMzAwMDUgLjM1Mzk5ODggLjUxMzAwMDUgLjM4ODgzNDY0IC41MDU2NjYxIC40MjA1MDE3IC40OTA5OTczIC40NTIxNjg4IC40NzYzMjg1MyAuNDc5NTAyMzYgLjQ1NjY1OTk1IC41MDI1MDI0NyAuNDMxOTkxNTkgLjUyNTUwMjUgLjQwNzMzMzM4IC41NDMzMzQ5OSAuMzc5MzMzNSAuNTU1OTk5NzggLjM0Nzk5MTk1IC41Njg2NjQ1OCAuMzE2NjYwNTYgLjU3NDk5Njk3IC4yODQzMzIyOSAuNTc0OTk2OTcgLjI1MTAwNzA5IC41NzQ5OTY5NyAuMjE3MDAwMzIgLjU2ODY2NDU4IC4xODQxNjM0IC41NTU5OTk3OCAuMTUyNDk2MzQgLjU0MzMzNDk5IC4xMjA4MjkyNiAuNTI1NTAyNSAuMDkyNDkzNjkgLjUwMjUwMjQ3IC4wNjc0ODk2MjcgLjQ3OTUwMjM2IC4wNDI0OTU3MjkgLjQ1MjE2ODggLjAyMjgzMjIzNiAuNDIwNTAxNyAuMDA4NDk5MTQ1OSAuMzg4ODM0NjQtLjAwNTgzMzk0NCAuMzUzOTk4OC0uMDEzMDAwNDg4IC4zMTU5OTQyNy0uMDEzMDAwNDg4TS4zMTUwMDI0NSAuMDgyMDAwNzNDLjQyNDMzNjc3IC4wODIwMDA3MyAuNDc5MDAzOSAuMTM4MDAwNDkgLjQ3OTAwMzkgLjI1IC40NzkwMDM5IC4yOTg2NjUzOCAuNDY1NDk5ODkgLjMzODgzMTU4IC40Mzg0OTE4MyAuMzcwNDk4NjcgLjQxMTQ5Mzk0IC40MDIxNjU3NSAuMzcwMzMwOCAuNDE3OTk5MjggLjMxNTAwMjQ1IC40MTc5OTkyOCAuMjYxNjY3ODkgLjQxNzk5OTI4IC4yMjA5OTgxMyAuNDAyMTY1NzUgLjE5Mjk5MzE3IC4zNzA0OTg2NyAuMTY0OTk4MzcgLjMzODgzMTU4IC4xNTEwMDA5OCAuMjk4NjY1MzggLjE1MTAwMDk4IC4yNSAuMTUxMDAwOTggLjE5NTMzMjg0IC4xNjQ5OTgzNyAuMTUzNjY2MTkgLjE5Mjk5MzE3IC4xMjUgLjIyMDk5ODEzIC4wOTYzMzM4MjcgLjI2MTY2Nzg5IC4wODIwMDA3MyAuMzE1MDAyNDUgLjA4MjAwMDczWiIvPgo8cGF0aCBpZD0iZm9udF84XzQ5IiBkPSJNLjI0MDk5NzMyIDAgLjA1Nzk5ODY1OSAuNUguMTU0MDA2OTZMLjMwMjk5Mzc4IC4wNzQwMDUxMyAuNDUxMDA0MDQgLjVILjU0ODAwNDE4TC4zNjUwMDU1IDBILjI0MDk5NzMyWiIvPgo8cGF0aCBpZD0iZm9udF84XzE0MiIgZD0iTS4wNzQ5OTY5NSAuMTMwMDA0ODlILjIwNTAwMTgzVjBILjA3NDk5Njk1Vi4xMzAwMDQ4OVoiLz4KPHBhdGggaWQ9ImZvbnRfOF8yOCIgZD0iTS40NzAwMDEyMyAuNUguNTYxMDA0NjZWMEguNDY4MDAyMzNWLjEwMjk5NjgyOUMuNDU0MDA0OSAuMDY4MzI4ODYgLjQzMjUwNTI5IC4wNDAzMjg5OCAuNDAzNTAzNDMgLjAxODk5NzE5MyAuMzc0NTAxNTctLjAwMjMzNDU5NDggLjMzNjMzNDI0LS4wMTMwMDA0ODggLjI4OTAwMTQ3LS4wMTMwMDA0ODggLjI0NTAwNTMtLjAxMzAwMDQ4OCAuMjA1MzM3NTMtLjAwMjMzNDU5NDggLjE2OTk5ODE3IC4wMTg5OTcxOTMgLjEzNDY2ODk5IC4wNDAzMjg5OCAuMTA2NjY5MTA5IC4wNzA4MjYyMSAuMDg1OTk4NTM4IC4xMTA0ODg4OSAuMDY1MzI3OTY4IC4xNTAxNjE3NSAuMDU0OTkyNjc3IC4xOTcwMDExNSAuMDU0OTkyNjc3IC4yNTEwMDcwOSAuMDU0OTkyNjc3IC4zMDQzMzE0NiAuMDY1MzI3OTY4IC4zNTA0OTQzOSAuMDg1OTk4NTM4IC4zODk0OTU4NiAuMTA2NjY5MTA5IC40Mjg0OTczIC4xMzQ2Njg5OSAuNDU4ODMxOCAuMTY5OTk4MTcgLjQ4MDQ5OTI4IC4yMDUzMzc1MyAuNTAyMTY2NzcgLjI0NTAwNTMgLjUxMzAwMDUgLjI4OTAwMTQ3IC41MTMwMDA1IC4zMzc2NjY4NSAuNTEzMDAwNSAuMzc2MzMyNiAuNTAxOTk4OSAuNDA0OTk4NzkgLjQ3OTk5NTc0IC40MzM2NjQ5NiAuNDU4MDAyNzMgLjQ1NTMzMjQ0IC40MjkzMzY1NiAuNDcwMDAxMjMgLjM5Mzk5NzJWLjVNLjMxMTk5NjQ3IC4wODI5OTI1NUMuMzYwNjYxODQgLjA4Mjk5MjU1IC4zOTg4MjkxNCAuMDk2OTk1MDMgLjQyNjQ5ODQgLjEyNSAuNDU0MTY3NyAuMTUzMDA0OTYgLjQ2ODMzMjkzIC4xOTQwMDUzMyAuNDY4OTk0MTUgLjI0ODAwMTFWLjI1Qy40Njg5OTQxNSAuMjk4MDA0MTYgLjQ1NTE1OTUzIC4zMzgxNzAzOSAuNDI3NDkwMjQgLjM3MDQ5ODY3IC4zOTk4MzExNiAuNDAyODM3MTQgLjM2MTMzMzIzIC40MTkwMDYzNiAuMzExOTk2NDcgLjQxOTAwNjM2IC4yNjUzMzUwOSAuNDE5MDA2MzYgLjIyNjY2OTMxIC40MDM4MzkxIC4xOTU5OTkxNSAuMzczNTA0NjUgLjE2NTMyODk4IC4zNDMxNzAxOCAuMTQ5OTkzOSAuMzAyMDAxOTYgLjE0OTk5MzkgLjI1IC4xNDk5OTM5IC4xOTEzMzUwNCAuMTY1MzI4OTggLjE0ODgzNDIzIC4xOTU5OTkxNSAuMTIyNDk3NTYgLjIyNjY2OTMxIC4wOTYxNjA4OSAuMjY1MzM1MDkgLjA4Mjk5MjU1IC4zMTE5OTY0NyAuMDgyOTkyNTVaIi8+CjxwYXRoIGlkPSJmb250XzlfMjA5MCIgZD0iTS4xNzMwMDQxNSAwSC4wODUwMDY3MTdWLjUzNTk5NTVILjE3MzAwNDE1VjBaIi8+CjxwYXRoIGlkPSJmb250XzhfMTU1IiBkPSJNLjI2ODAwNTM4IC45OTAwMDU1SC4zNzYwMDcwOUwuMTY3OTk5MjctLjE5OTk5Njk1SC4wNTk5OTc1NkwuMjY4MDA1MzggLjk5MDAwNTVaIi8+CjwvZGVmcz4KPHVzZSB4bGluazpocmVmPSIjZm9udF84XzI5IiB0cmFuc2Zvcm09Im1hdHJpeCg2MC4zNzMyNzMsMCwwLC02MC4zNzMyNzMsMzMuOSw5MS43MTUzKSIgZmlsbD0iIzAxMGMxZCIvPgo8dXNlIHhsaW5rOmhyZWY9IiNmb250XzhfNDgiIHRyYW5zZm9ybT0ibWF0cml4KDYwLjM3MzI3MywwLDAsLTYwLjM3MzI3Myw2NS4zNTIxOTksOTEuNzE1MykiIGZpbGw9IiMwMTBjMWQiLz4KPHVzZSB4bGluazpocmVmPSIjZm9udF84XzQyIiB0cmFuc2Zvcm09Im1hdHJpeCg2MC4zNzMyNzMsMCwwLC02MC4zNzMyNzMsOTMuNTQ0MzY4LDkxLjcxNTMpIiBmaWxsPSIjMDEwYzFkIi8+Cjx1c2UgeGxpbms6aHJlZj0iI2ZvbnRfOF80OSIgdHJhbnNmb3JtPSJtYXRyaXgoNjAuMzczMjczLDAsMCwtNjAuMzczMjczLDEyNS41Mzk4OTcsOTEuNzE1MykiIGZpbGw9IiMwMTBjMWQiLz4KPHVzZSB4bGluazpocmVmPSIjZm9udF84XzE0MiIgdHJhbnNmb3JtPSJtYXRyaXgoNjAuMzczMjczLDAsMCwtNjAuMzczMjczLDE1Ni4wMzI4NCw5MS43MTUzKSIgZmlsbD0iIzAxMGMxZCIvPgo8dXNlIHhsaW5rOmhyZWY9IiNmb250XzhfMjgiIHRyYW5zZm9ybT0ibWF0cml4KDYwLjM3MzI3MywwLDAsLTYwLjM3MzI3MywxNjUuOTkyOTUsOTEuNzE1MykiIGZpbGw9IiMwMTBjMWQiLz4KPHVzZSB4bGluazpocmVmPSIjZm9udF85XzIwOTAiIHRyYW5zZm9ybT0ibWF0cml4KDYwLjM3MzI3MywwLDAsLTYwLjM3MzI3MywxOTcuNDQ1MTYsOTEuNzE1MykiIGZpbGw9IiMwMTBjMWQiLz4KPHVzZSB4bGluazpocmVmPSIjZm9udF84XzE1NSIgdHJhbnNmb3JtPSJtYXRyaXgoMTEuMDY0NTg5OSwyLjYxNDYzNiwyLjYxNDYzNiwtMTEuMDY0NTg5OSwxMTcuNjQ2OSw2My40NzU2NDgpIiBmaWxsPSIjMDEwYzFkIi8+Cjx1c2UgeGxpbms6aHJlZj0iI2ZvbnRfOF8xNTUiIHRyYW5zZm9ybT0ibWF0cml4KDguNzQ5OTkzLC04LjMxNDg1MiwtOC4zMTQ4NTIsLTguNzQ5OTkzLDEwNC43NjkyNjgsNjYuMDkzNzMpIiBmaWxsPSIjMDEwYzFkIi8+CjxwYXRoIHRyYW5zZm9ybT0ibWF0cml4KDEuMzcxODkyNiwwLDAsMS4zODEzNDYyLDk1Ljg3MTY0LDU4LjkxMDE2NSkiIGQ9Ik03Ljc0NDE0MDggMi45OTYwOTM4QzcuNjE4NjcxIDIuOTk3ODA4IDcuNTAxMDM4NyAzLjAyOTA0MDkgNy4zOTEyNDM2IDMuMDg5NzkyNiA3LjI4MTQ0OCAzLjE1MDU0MzggNy4xOTI0OTggMy4yMzM2MTU5IDcuMTI0Mzk1IDMuMzM5MDA5IDcuMDU2MjkxOCAzLjQ0NDQwMjMgNy4wMTcxMDM5IDMuNTU5NjI5IDcuMDA2ODMgMy42ODQ2ODk4IDYuOTk2NTU3IDMuODA5NzUwNiA3LjAxNjQxNiAzLjkyOTgyOCA3LjA2NjQwNjQgNC4wNDQ5MjJMNy45OTgwNDcgNi4yNjE3MTg5QzUuMTgyNzMxIDYuOTg4NzI4IDIuOTczMjk1MyA5LjIwNjI0MSAyLjI1NTg1OTQgMTIuMDI1MzkxIC45OTEyOTg3NiAxMi4xNDk4MDQgMCAxMy4yMDI2NjMgMCAxNC41IDAgMTUuODgxIDEuMTE5IDE3IDIuNSAxN0gyLjU4Nzg5MDdDMy43NzU0NzM0IDE5LjkzMDIwMyA2LjY0Mzk3NDUgMjIgMTAgMjJIMTRDMTcuMzU2MDI2IDIyIDIwLjIyNDUyOCAxOS45MzAyMDMgMjEuNDEyMTEgMTdIMjEuNUMyMi44ODEgMTcgMjQgMTUuODgxIDI0IDE0LjUgMjQgMTMuMjAyNjYzIDIzLjAwODcwMiAxMi4xNDk4MDQgMjEuNzQ0MTQgMTIuMDI1MzkxIDIxLjAyNzg3MyA5LjIxMDgzIDE4LjgyNDQwNCA2Ljk5NjMwNTcgMTYuMDE1NjI1IDYuMjY1NjI1TDE2LjkzNzUgNC4wNDI5Njg5QzE2Ljk4ODA0MyAzLjkyNTc0MyAxNy4wMDczOTkgMy44MDM1NzYzIDE2Ljk5NTU2OCAzLjY3NjQ2OCAxNi45ODM3MzUgMy41NDkzNTk2IDE2Ljk0MjE2MiAzLjQzMjg2NDUgMTYuODcwODUyIDMuMzI2OTgyMyAxNi43OTk1MzggMy4yMjExIDE2LjcwNzIxMyAzLjEzODc4OCAxNi41OTM4NzMgMy4wODAwNDU4IDE2LjQ4MDUzMiAzLjAyMTMwMzUgMTYuMzYwMDQ5IDIuOTkzMzE5NiAxNi4yMzI0MjIgMi45OTYwOTM4IDE2LjA4MTg3IDIuOTk5MDA5NCAxNS45NDQ2MzcgMy4wNDMyNDk0IDE1LjgyMDcyOSAzLjEyODgxMzggMTUuNjk2ODIgMy4yMTQzNzggMTUuNjA2ODM3IDMuMzI3MDM5IDE1LjU1MDc4MSAzLjQ2Njc5NjlMMTQuNDkwMjM0IDYuMDI1MzkwOEMxNC4zMjcyOTcgNi4wMTU0OTEgMTQuMTY1NDI1IDYgMTQgNkgxMEM5LjgzOTg2NyA2IDkuNjgzMTk3IDYuMDE0MTU3IDkuNTI1MzkxIDYuMDIzNDM3N0w4LjQ0OTIxOSAzLjQ2NDg0MzhDOC4zOTEyNDggMy4zMjE1MjMgOC4yOTc4ODkgMy4yMDcwNjY0IDguMTY5MTQzIDMuMTIxNDczNiA4LjA0MDM5NyAzLjAzNTg4MDYgNy44OTg3MyAyLjk5NDA4NzUgNy43NDQxNDA4IDIuOTk2MDkzOFpNMTAgNy41SDE0QzE3LjU4NCA3LjUgMjAuNSAxMC40MTYgMjAuNSAxNCAyMC41IDE3LjU4NCAxNy41ODQgMjAuNSAxNCAyMC41SDEwQzYuNDE2IDIwLjUgMy41IDE3LjU4NCAzLjUgMTQgMy41IDEwLjQxNiA2LjQxNiA3LjUgMTAgNy41Wk0xMCAxMEM3Ljc5NCAxMCA2IDExLjc5NCA2IDE0IDYgMTYuMjA2IDcuNzk0IDE4IDEwIDE4SDE0QzE2LjIwNiAxOCAxOCAxNi4yMDYgMTggMTQgMTggMTEuNzk0IDE2LjIwNiAxMCAxNCAxMEgxMFpNOSAxM0M5LjU1MiAxMyAxMCAxMy40NDggMTAgMTQgMTAgMTQuNTUyIDkuNTUyIDE1IDkgMTUgOC40NDggMTUgOCAxNC41NTIgOCAxNCA4IDEzLjQ0OCA4LjQ0OCAxMyA5IDEzWk0xNSAxM0MxNS41NTIgMTMgMTYgMTMuNDQ4IDE2IDE0IDE2IDE0LjU1MiAxNS41NTIgMTUgMTUgMTUgMTQuNDQ4IDE1IDE0IDE0LjU1MiAxNCAxNCAxNCAxMy40NDggMTQuNDQ4IDEzIDE1IDEzWiIgZmlsbD0iIzAxMGMxZCIvPgo8cGF0aCB0cmFuc2Zvcm09Im1hdHJpeCguMDI5NzgwMzIzLDAsMCwuMDI5NzgwMzIzLDE5Ny42OTEzOCw0Mi4yNzc1MikiIGQ9Ik01MzkuMTU4NyAyNTcuNTMxNUMzMDEuMjA2IDI3NC4yMTc4IDI4Ny4wNDYzIDI4Ny43NDQ3IDI2OS41NzkzOSA1MTUuMDYzIDI1Mi4xMTI0IDI4Ny43NDQ3IDIzNy45NTI3IDI3NC4yMTc4IDAgMjU3LjUzMTUgMjM3Ljk1MjcgMjQwLjg0NTIgMjUyLjExMjQgMjI3LjMxODMgMjY5LjU3OTMgMCAyODcuMDQ2MiAyMjcuMzE4MyAzMDEuMjA1OSAyNDAuODQ1MiA1MzkuMTU4NiAyNTcuNTMxNUg1MzkuMTU4N1oiIGZpbGw9IiM0NTc1MjgiLz4KPC9nPgo8L3N2Zz4=";
   var CH = { ok: ["var(--okBg)", "var(--okFg)"], warn: ["var(--warnBg)", "var(--warnFg)"], bad: ["var(--badBg)", "var(--badFg)"], neu: ["var(--neuBg)", "var(--neuFg)"] };
   var statusCh = function (s) { return ({ "Em andamento": CH.ok, "Aguardando cliente": CH.warn, "Concluído": CH.neu, "Aprovada": CH.ok, "Aguardando": CH.warn, "Recusada": CH.bad, "Aberto": CH.warn, "Resolvido": CH.neu })[s] || CH.neu; };
   var norm = function (s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); };
@@ -100,6 +103,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     sel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
+    accessBusy: false, accessResult: null,
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
     w: window.innerWidth
   };
@@ -164,6 +168,67 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
       render();
     });
+  }
+
+  // Senha temporária de primeiro acesso: forte o bastante pra proteger
+  // a conta até o cliente trocar (o set-password.html exige isso no
+  // primeiro login), mas sem caracteres ambíguos (0/O, 1/l/I) pra não
+  // dar erro de digitação ao copiar do PDF pro campo de senha.
+  function genTempPassword() {
+    var UP = "ABCDEFGHJKLMNPQRSTUVWXYZ", LO = "abcdefghjkmnpqrstuvwxyz", NUM = "23456789", SYM = "!@#$%&*";
+    var ALL = UP + LO + NUM + SYM;
+    var randInt = function (max) { var a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % max; };
+    var pick = function (set) { return set.charAt(randInt(set.length)); };
+    var pw = [pick(UP), pick(LO), pick(NUM), pick(SYM)];
+    for (var i = 0; i < 8; i++) pw.push(pick(ALL));
+    for (var j = pw.length - 1; j > 0; j--) { var k = randInt(j + 1); var t = pw[j]; pw[j] = pw[k]; pw[k] = t; }
+    return pw.join("");
+  }
+
+  // Abre o "kit de boas-vindas" (e-mail + senha temporária, com a
+  // identidade da buov.ai) numa aba nova e já chama a impressão —
+  // pensado pra Lorena salvar como PDF ou imprimir na hora, pra
+  // entregar junto com o início do projeto (pedido dela). A logo vai
+  // embutida como data URI (não como <img src="…svg">): a aba abre sem
+  // depender de mais nenhum carregamento de rede, então a logo nunca
+  // falta por timing ou por a aba nova não enxergar o servidor local.
+  function openWelcomePdf(acc) {
+    var loginUrl = location.origin + location.pathname.replace(/portal\.html$/, "login.html");
+    var html = "<!doctype html><html lang=\"pt-BR\"><head><meta charset=\"utf-8\">"
+      + "<title>Boas-vindas · " + esc(acc.clientName) + "</title>"
+      + "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link href=\"https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap\" rel=\"stylesheet\">"
+      + "<style>"
+      + "*{box-sizing:border-box}body{margin:0;background:#fffceb;color:#0e0f0b;font-family:'Open Sans',sans-serif;-webkit-font-smoothing:antialiased}"
+      + ".page{max-width:640px;margin:0 auto;padding:56px 48px}"
+      + ".logo{height:34px;width:auto;display:block;margin-bottom:48px}"
+      + "h1{font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:28px;letter-spacing:-.04em;margin:0 0 18px}"
+      + "p{font-size:15px;line-height:1.7;margin:0 0 18px;color:#2b2e24}"
+      + ".box{border:1px solid #0e0f0b;padding:24px 26px;margin:28px 0;display:flex;flex-direction:column;gap:16px}"
+      + ".row{display:flex;flex-direction:column;gap:4px}"
+      + ".lbl{font-family:'Lexend Exa',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#5c5f50}"
+      + ".val{font-family:'Lexend Exa',sans-serif;font-size:18px;letter-spacing:-.01em;word-break:break-all}"
+      + ".note{background:rgba(69,117,40,.08);border:1px solid rgba(69,117,40,.25);padding:16px 18px;font-size:13.5px;line-height:1.6;color:#1f4905;margin:0 0 28px}"
+      + ".link{font-size:14px;margin:0 0 40px}"
+      + ".footer{border-top:1px solid rgba(14,15,11,.15);padding-top:18px;font-size:12px;color:#5c5f50;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}"
+      + "@media print{.page{padding:36px 8px}}"
+      + "</style></head><body><div class=\"page\">"
+      + "<img class=\"logo\" src=\"" + BUOVAI_LOGO_DATA_URI + "\" alt=\"buov.ai\">"
+      + "<h1>Bem-vindo(a), " + esc(acc.clientName) + "!</h1>"
+      + "<p>Esse é o seu acesso ao portal do cliente da buov.ai. Por ali você acompanha cada etapa do seu projeto, baixa documentos, aprova propostas e fala direto comigo quando precisar.</p>"
+      + "<div class=\"box\">"
+      + "<div class=\"row\"><span class=\"lbl\">E-mail de acesso</span><span class=\"val\">" + esc(acc.email) + "</span></div>"
+      + "<div class=\"row\"><span class=\"lbl\">Senha temporária</span><span class=\"val\">" + esc(acc.password) + "</span></div>"
+      + "</div>"
+      + "<p class=\"note\">Essa senha é só para o seu primeiro acesso. Assim que você entrar, o sistema vai pedir que você crie uma senha nova, só sua — a partir daí, só você sabe qual é.</p>"
+      + "<p class=\"link\">Acesse em: <strong>" + esc(loginUrl) + "</strong></p>"
+      + "<div class=\"footer\"><span>buov.ai · Lorena Cardoso</span><span>Dúvidas? Fale pelo WhatsApp (79) 9 9828-9485</span></div>"
+      + "</div></body></html>";
+    var blobUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+    var w = window.open(blobUrl, "_blank");
+    if (!w) { S.toast = "O navegador bloqueou a aba nova — permita pop-ups pra esse site e tente de novo."; render(); return; }
+    var printed = false;
+    var doPrint = function () { if (printed) return; printed = true; try { w.print(); } catch (e) {} setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 10000); };
+    setTimeout(doPrint, 600);
   }
 
   function log(d, pid, text) {
@@ -264,7 +329,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         return {
           id: p.id, code: p.code || "", clientId: p.client_id || "", clienteNome: p.client_name, nome: p.project_title,
           tplId: p.template_id || "", tipo: p.tipo || "", status: ST_UI[p.status] || p.status, prazo: p.prazo || "", valor: Number(p.budget_value) || 0,
-          parcelas: (instRes.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, avisado: q.avisado }; }),
+          parcelas: (instRes.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [] }; }),
           docs: (delivRes.data || []).filter(function (d) { return d.project_id === p.id; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: d.visible_to_client }; }),
           hist: (histRes.data || []).filter(function (hh) { return hh.entity_id === p.id; }).map(function (hh) { return { at: hh.created_at, who: hh.actor_label, text: hh.detail }; })
@@ -287,7 +352,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         return {
           id: p.id, code: p.code || "", clientId: p.client_id || "c", clienteNome: p.client_name, nome: p.project_title,
           tplId: p.template_id || "", tipo: p.tipo || "", status: ST_UI[p.status] || p.status, prazo: p.prazo || "", valor: Number(p.budget_value) || 0,
-          parcelas: (instRes2.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, avisado: q.avisado }; }),
+          parcelas: (instRes2.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes2.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [] }; }),
           docs: (delivRes2.data || []).filter(function (d) { return d.project_id === p.id && d.visible_to_client; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: true }; }),
           hist: []
@@ -324,6 +389,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var all = [];
     D.projects.forEach(function (p) { p.parcelas.forEach(function (q) { all.push({ q: q, p: p }); }); });
     var recebido = all.filter(function (x) { return x.q.pago; }).reduce(function (a, x) { return a + x.q.valor; }, 0);
+    var mesAtual = T.slice(0, 7);
+    var recebidoMes = all.filter(function (x) { return x.q.pago && (x.q.pagoAt || "").slice(0, 7) === mesAtual; }).reduce(function (a, x) { return a + x.q.valor; }, 0);
     var aReceber = all.filter(function (x) { return !x.q.pago; }).reduce(function (a, x) { return a + x.q.valor; }, 0);
     var atras = all.filter(function (x) { return !x.q.pago && !x.q.avisado && x.q.venc < T; });
     var aguardConf = all.filter(function (x) { return !x.q.pago && x.q.avisado; });
@@ -365,6 +432,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           { label: "Projetos ativos", val: String(D.projects.filter(function (p) { return p.status !== "Concluído"; }).length), sub: D.clients.length + " clientes", color: "var(--ink)" },
           { label: "Entra em 30 dias", val: money(in30.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: in30.length + " parcelas", color: "var(--ink)" },
           { label: "Recebido", val: money(recebido), sub: "total dos projetos", color: "var(--accTxt)" },
+          { label: "Recebido este mês", val: money(recebidoMes), sub: MES[new Date(T + "T12:00").getMonth()], color: "var(--accTxt)" },
           { label: "Em negociação", val: moneyK(D.leads.filter(function (l) { return l.etapa < 3; }).reduce(function (a, l) { return a + (l.valor || 0); }, 0)), sub: leadsOpen + " contatos no funil", color: "var(--ink)" }
         ];
         var alerts = [];
@@ -399,6 +467,43 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         actions = [btnS("← Projetos", function () { setState({ sel: null }); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
         var pg = sel.parcelas.filter(function (q) { return q.pago; });
         out.pdInfo = [{ l: "Modelo", v: sel.tipo }, { l: "Valor", v: money(sel.valor) }, { l: "Parcelas pagas", v: pg.length + " de " + sel.parcelas.length }, { l: "Entrega", v: dt(sel.prazo) }, { l: "Progresso", v: pct(sel) + "%" }];
+        // Acesso do cliente ao portal: e-mail (o mesmo que libera o link
+        // mágico em email_has_access) + opção de gerar senha temporária
+        // direto, sem depender do cliente ter acesso ao próprio e-mail
+        // na hora (pedido da Lorena: quer entregar usuário/senha prontos
+        // junto com o cliente, tipo um "kit de boas-vindas" impresso).
+        var accCli = cli(sel.clientId);
+        out.accessEmail = accCli.email || "";
+        out.accessBusy = !!S.accessBusy;
+        out.accessResult = S.accessResult && S.accessResult.projectId === sel.id ? S.accessResult : null;
+        out.genAccessH = reg(function () {
+          if (!accCli.email) { S.toast = "Esse cliente não tem e-mail cadastrado — adicione o e-mail no cadastro do cliente primeiro."; clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3600); render(); return; }
+          var pw = genTempPassword();
+          S.accessBusy = true; render();
+          Promise.resolve(sb().functions.invoke("admin-create-client-access", { body: { email: accCli.email, password: pw } })).then(function (res) {
+            S.accessBusy = false;
+            var fnErr = res.error || (res.data && res.data.error);
+            if (fnErr) {
+              console.error("[Buovai] Falha ao gerar acesso do cliente:", fnErr);
+              S.toast = "Não foi possível gerar o acesso agora.";
+              clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
+            } else {
+              S.accessResult = { projectId: sel.id, email: accCli.email, password: pw, clientName: accCli.nome };
+              S.toast = "Acesso gerado";
+              clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
+            }
+            render();
+          }).catch(function (err) {
+            S.accessBusy = false;
+            console.error("[Buovai] Falha ao gerar acesso do cliente:", err);
+            S.toast = "Não foi possível gerar o acesso agora.";
+            clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
+            render();
+          });
+        });
+        out.printWelcomeH = reg(function () {
+          if (S.accessResult) openWelcomePdf(S.accessResult);
+        });
         out.pTabs = [["tarefas", "Etapas"], ["docs", "Documentação · " + sel.docs.length], ["fin", "Parcelas"], ["hist", "Histórico"]].map(function (x) { var k = x[0], label = x[1]; return { label: label, bd: S.ptab === k ? "var(--accTxt)" : "transparent", fg: S.ptab === k ? "var(--ink)" : "var(--mute)", h: reg(function () { setState({ ptab: k }); }) }; });
         out.statusOpts = ["Em andamento", "Aguardando cliente", "Concluído"].map(function (s) { return { label: s, bd: sel.status === s ? "var(--accTxt)" : "var(--line2)", bg: sel.status === s ? "var(--accSoft)" : "transparent", fg: sel.status === s ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { save(function (d) { d.projects.filter(function (x) { return x.id === sel.id; })[0].status = s; log(d, sel.id, 'mudou o status para "' + s + '"'); }, null, function () { return sb().from("client_projects").update({ status: ST_DB[s] || "em_andamento" }).eq("id", sel.id).then(function () { return logRemote(sel.id, 'mudou o status para "' + s + '"'); }); }); }) }; });
         out.pt_tarefas = S.ptab === "tarefas"; out.pt_docs = S.ptab === "docs"; out.pt_fin = S.ptab === "fin"; out.pt_hist = S.ptab === "hist";
@@ -1124,6 +1229,18 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var info = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.pdInfo.map(function (i) {
       return '<div style="padding:14px 16px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(i.l) + '</span><span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">' + esc(i.v) + "</span></div>";
     }).join("") + "</div>";
+    var access = '<div style="display:flex;flex-direction:column;gap:14px;padding:16px;border:1px solid var(--line);border-top:0">'
+      + '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">'
+      + '<div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Acesso do cliente ao portal</span><span style="font-size:14px">' + (V.accessEmail ? esc(V.accessEmail) : "Sem e-mail cadastrado nesse cliente") + "</span></div>"
+      + '<button ' + h(V.genAccessH) + ' style="padding:10px 14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer" ' + (V.accessBusy ? "disabled" : "") + '>' + (V.accessBusy ? "Gerando…" : "Gerar senha temporária") + "</button>"
+      + "</div>"
+      + (V.accessResult
+        ? ('<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:14px 16px;background:var(--accSoft)">'
+            + '<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;color:var(--mute)">Senha temporária gerada</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:16px;color:var(--accTxt)">' + esc(V.accessResult.password) + "</span></div>"
+            + '<button ' + h(V.printWelcomeH) + ' style="padding:10px 14px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">Imprimir PDF de boas-vindas</button>'
+          + "</div>")
+        : "")
+      + "</div>";
     var tabs = '<div style="display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--line);font-family:\'Lexend Exa\',sans-serif;font-size:12px">' + V.pTabs.map(function (t) { return '<button ' + h(t.h) + ' style="padding:11px 14px;border:0;border-bottom:2px solid ' + t.bd + ';cursor:pointer;font:inherit;background:none;color:' + t.fg + ';margin-bottom:-1px">' + esc(t.label) + "</button>"; }).join("") + "</div>";
     var statusOpts = '<div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12px;color:var(--mute)">' + V.statusOpts.map(function (o) { return '<button ' + h(o.h) + ' style="padding:7px 10px;font-size:12px;cursor:pointer;border:1px solid ' + o.bd + ";background:" + o.bg + ";color:" + o.fg + '">' + esc(o.label) + "</button>"; }).join("") + "</div>";
     var head = '<div style="display:flex;flex-wrap:wrap;gap:14px 24px;justify-content:space-between;align-items:center">' + tabs + statusOpts + "</div>";
@@ -1173,7 +1290,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         return '<div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;padding:12px 0;border-top:1px solid var(--line);font-size:13px"><span style="color:var(--mute);font-variant-numeric:tabular-nums">' + esc(hh.at) + '</span><span><strong style="font-weight:600">' + esc(hh.who) + "</strong> " + esc(hh.text) + "</span></div>";
       }).join("") + "</div>";
     }
-    return info + head + body;
+    return info + access + head + body;
   }
 
   function buildClientes(V) {
@@ -1482,6 +1599,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   async function boot() {
     var sessRes = await sb().auth.getSession();
     if (!sessRes.data.session) { window.location.href = "login.html"; return; }
+    // Cliente com senha temporária (gerada pela Lorena pro "kit de
+    // boas-vindas") é obrigado a trocar antes de ver qualquer coisa do
+    // portal — a flag é limpa só quando ele de fato salva a senha nova
+    // em set-password.html.
+    if ((sessRes.data.session.user.user_metadata || {}).must_change_password) { window.location.href = "set-password.html"; return; }
     var email = sessRes.data.session.user.email;
     var uid = sessRes.data.session.user.id;
     var adminRes = await sb().rpc("is_admin");
