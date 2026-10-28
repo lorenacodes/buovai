@@ -35,6 +35,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // escape pro que não se encaixa.
   var CARGOS = ["Dono(a) / Proprietário(a)", "Sócio(a)", "Fundador(a)", "Diretor(a)", "Diretor(a) Financeiro(a)", "Diretor(a) Comercial", "Gerente", "Gerente Administrativo(a)", "Coordenador(a)", "Administrador(a)", "Contador(a)", "Advogado(a)", "Engenheiro(a)", "Arquiteto(a)", "Médico(a)", "Dentista", "Assistente Administrativo(a)", "Secretário(a)", "Outro"];
   var SETORES = ["Contabilidade", "Engenharia / Construção civil", "Advocacia / Jurídico", "Saúde / Clínica médica", "Odontologia", "Arquitetura", "Comércio / Varejo", "Indústria", "Tecnologia / TI", "Educação", "Alimentação / Restaurante", "Beleza e estética", "Imobiliário", "Transporte e logística", "Serviços financeiros", "Agronegócio", "Outro"];
+  var ASSUNTOS_REUNIAO = ["Diagnóstico inicial", "Validação do protótipo", "Alinhamento de escopo", "Apresentação de proposta", "Fechamento de contrato", "Acompanhamento do projeto", "Treinamento do sistema", "Suporte / dúvidas", "Outro"];
   var optList = function (arr) { return [{ v: "", l: "Selecione…" }].concat(arr.map(function (x) { return { v: x, l: x }; })); };
   var MODS = ["Projetos", "Clientes", "Comercial", "Financeiro", "Configurações"];
   var addM = function (iso, n) { var p = iso.split("-").map(Number), y = p[0], m = p[1], d = p[2]; var x = new Date(y, m - 1 + n, d); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); };
@@ -721,6 +722,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
     // modal genérico
     var M = S.modal, F = S.f, cliOpts = D.clients.map(function (c) { return { v: c.id, l: c.nome }; });
+    var cliNameOpts = optList(D.clients.map(function (c) { return c.nome; }));
     var inp = function (label, key, ph, type, maskKey) { return { label: label, isInput: true, isSelect: false, isArea: false, type: type || "text", ph: ph || "", value: F[key] || "", chH: fc(key, maskKey), key: key, mask: !!maskKey }; };
     var sl = function (label, key, options) { return { label: label, isInput: false, isSelect: true, isArea: false, value: F[key] || "", chH: fc(key), options: options, key: key }; };
     var area = function (label, key, ph) { return { label: label, isInput: false, isSelect: false, isArea: true, ph: ph, value: F[key] || "", chH: fc(key), key: key }; };
@@ -777,7 +779,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var l = d.leads[d.leads.length - 1];
           return sb().from("leads").insert({ company_name: l.nome, opportunities: l.interesse, budget_value: l.valor, source: l.origem, stage: "possiveis_leads" }).select().single().then(function (res) { if (res.error) throw res.error; l.id = res.data.id; });
         } },
-      reuniao: { t: "Agendar reunião", b: "Agendar", fields: [inp("Assunto *", "titulo", "Ex.: Validação do protótipo"), inp("Com quem", "cliente", "Cliente ou contato"), inp("Data *", "data", "", "date"), inp("Horário", "hora", "", "time")], req: ["titulo", "data"],
+      reuniao: { t: "Agendar reunião", b: "Agendar", fields: [sl("Assunto *", "titulo", optList(ASSUNTOS_REUNIAO)), sl("Com quem", "cliente", cliNameOpts), inp("Data *", "data", "", "date"), inp("Horário", "hora", "", "time")], req: ["titulo", "data"],
         go: function (d) { d.meetings.push({ id: "m" + Date.now(), titulo: F.titulo, cliente: F.cliente || "", data: F.data, hora: F.hora || "" }); }, toast: "Reunião agendada",
         remote: function (d) {
           var m = d.meetings[d.meetings.length - 1];
