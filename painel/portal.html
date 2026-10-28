@@ -55,6 +55,24 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var norm = function (s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); };
   var esc = function (s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; };
 
+  // ---- máscaras de digitação (telefone, CPF, CNPJ) ----
+  var maskPhoneBR = function (v) {
+    var d = String(v || "").replace(/\D/g, "").slice(0, 11);
+    if (d.length <= 2) return d.replace(/^(\d*)/, "($1");
+    if (d.length <= 6) return d.replace(/^(\d{2})(\d*)/, "($1) $2");
+    if (d.length <= 10) return d.replace(/^(\d{2})(\d{4})(\d*)/, "($1) $2-$3");
+    return d.replace(/^(\d{2})(\d{5})(\d*)/, "($1) $2-$3");
+  };
+  var maskCNPJ = function (v) {
+    var d = String(v || "").replace(/\D/g, "").slice(0, 14);
+    return d.replace(/^(\d{2})(\d)/, "$1.$2").replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3").replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4").replace(/(\d{4})(\d)/, "$1-$2");
+  };
+  var maskCPF = function (v) {
+    var d = String(v || "").replace(/\D/g, "").slice(0, 11);
+    return d.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  };
+  var MASKS = { tel: maskPhoneBR, cnpj: maskCNPJ, cpf: maskCPF };
+
   var HELP = {
     andamento: { q: "O que mostra esta tela?", a: 'Aqui você acompanha o seu projeto etapa por etapa. A etapa marcada como "Em andamento" é a que está sendo feita agora. Quando a Lorena conclui uma etapa, ela aparece aqui na hora, sem você precisar perguntar.' },
     documentos: { q: "Onde ficam os meus arquivos?", a: 'Em Documentos e entregas ficam o escopo, os protótipos, os manuais e tudo o que foi entregue. Clique em "Baixar" ao lado do arquivo. Só aparecem documentos do seu projeto.', go: "documentos", goLabel: "Abrir documentos" },
@@ -74,7 +92,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
     sel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
-    msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false,
+    msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
     w: window.innerWidth
   };
@@ -156,21 +174,6 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     }, 60);
   }
 
-  // Posiciona o menu de conta (foto/tema/sair) perto do avatar que o
-  // abriu. Calculado em JS porque o avatar some em layouts diferentes
-  // (barra lateral no desktop, barra de cima no mobile) — não dá pra
-  // cravar a posição só em CSS.
-  function positionUserMenu() {
-    setTimeout(function () {
-      var btn = document.getElementById("avatarBtn"), pop = document.getElementById("userMenuPopover");
-      if (!btn || !pop) return;
-      var r = btn.getBoundingClientRect(), popH = pop.offsetHeight, popW = pop.offsetWidth;
-      var openUp = r.bottom + popH + 12 > window.innerHeight && r.top - popH - 12 > 0;
-      pop.style.left = Math.max(8, Math.min(window.innerWidth - popW - 8, r.left)) + "px";
-      pop.style.top = (openUp ? r.top - popH - 8 : r.bottom + 8) + "px";
-    }, 0);
-  }
-
   function ask(key, text) {
     var h = HELP[key];
     var me = { me: true, text: text || (h ? h.q : "") };
@@ -212,7 +215,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       if (!D.users.length) D.users = [{ id: "me", nome: email, email: email, papel: "Administrador", ativo: true }];
       ROLES.forEach(function (r) { D.perms[r] = []; });
       (permRes.data || []).forEach(function (p) { if (p.allowed) D.perms[p.papel] = (D.perms[p.papel] || []).concat([p.modulo]); });
-      D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "" }; });
+      D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", cargo: c.cargo_contato || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "" }; });
       D.leads = (leadsRes.data || []).map(function (l) { return { id: l.id, nome: l.company_name, interesse: l.opportunities || l.description || "", origem: l.source || "", valor: Number(l.budget_value) || 0, etapa: LEAD_IDX[l.stage] != null ? LEAD_IDX[l.stage] : 0 }; });
       D.proposals = (proposalsRes.data || []).map(function (p) { return { id: p.id, clientId: p.client_email, clienteNome: p.client_name, titulo: p.titulo, tipo: p.tipo, valor: Number(p.valor) || 0, status: p.status, data: p.data }; });
       D.meetings = (meetingsRes.data || []).map(function (m) { return { id: m.id, titulo: m.titulo, data: m.data, hora: (m.hora || "").slice(0, 5), cliente: m.cliente_nome || "" }; });
@@ -275,6 +278,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   function computeVals() {
     var D = S.data, admin = S.role === "admin", T = new Date().toISOString().slice(0, 10), narrow = S.w < 760, light = S.theme === "light";
     var adminMe = admin ? (D.admins || []).filter(function (a) { return a.email === (S.email || "").toLowerCase(); })[0] : null;
+    var meTeam = admin ? (D.users || []).filter(function (u) { return (u.email || "").toLowerCase() === (S.email || "").toLowerCase(); })[0] : null;
     var cli = function (id) { return D.clients.filter(function (c) { return c.id === id; })[0] || { nome: "..." }; };
     var tplOf = function (id) { return D.templates.filter(function (t) { return t.id === id; })[0]; };
     var pct = function (p) { return p.tasks.length ? Math.round(p.tasks.filter(function (t) { return t.done; }).length / p.tasks.length * 100) : 0; };
@@ -283,7 +287,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var qn = norm(S.q);
     var match = function () { if (!qn) return true; for (var i = 0; i < arguments.length; i++) if (norm(arguments[i]).indexOf(qn) >= 0) return true; return false; };
     var filt = function (label, count) { return { label: label, count: String(count), bd: S.tf === label ? "var(--accTxt)" : "var(--line2)", bg: S.tf === label ? "var(--accSoft)" : "transparent", fg: S.tf === label ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { setState({ tf: label }); }) }; };
-    var fc = function (k) { return reg(function (e) { S.f = Object.assign({}, S.f, {}); S.f[k] = e.target.value; S.mErr = false; render(); }); };
+    var fc = function (k, maskKey) { return reg(function (e) { S.f = Object.assign({}, S.f, {}); S.f[k] = maskKey ? MASKS[maskKey](e.target.value) : e.target.value; S.mErr = false; render(); }); };
     var btnP = function (label, onClick) { return { label: label, h: reg(onClick), bg: "var(--btnBg)", fg: "var(--btnFg)", bd: "var(--btnBg)" }; };
     var btnS = function (label, onClick) { return { label: label, h: reg(onClick), bg: "transparent", fg: "var(--ink)", bd: "var(--line2)" }; };
     var all = [];
@@ -445,7 +449,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             })
           };
         });
-        out.hist = (sel.hist || []).map(function (h) { return { at: dt(h.at) + " " + h.at.slice(11), who: h.who, text: h.text }; });
+        out.hist = (sel.hist || []).map(function (h) { return { at: dt(h.at) + " " + h.at.slice(11, 16), who: h.who, text: h.text }; });
       }
       if (V === "clientes") {
         title = "Clientes"; hasToolbar = true; qPh = "Buscar por nome, documento ou e-mail";
@@ -610,7 +614,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "mensagens") {
         title = "Mensagens";
-        out.msgs = D.messages.map(function (m) { return { text: m.text, who: m.from === "admin" ? "Lorena · buov.ai" : "Você", at: dt(m.at) + " " + m.at.slice(11), align: m.from === "admin" ? "flex-start" : "flex-end", bg: m.from === "admin" ? "var(--bubble)" : "var(--btnBg)", fg: m.from === "admin" ? "var(--ink)" : "var(--btnFg)" }; });
+        out.msgs = D.messages.map(function (m) { return { text: m.text, who: m.from === "admin" ? "Lorena · buov.ai" : "Você", at: dt(m.at) + " " + m.at.slice(11, 16), align: m.from === "admin" ? "flex-start" : "flex-end", bg: m.from === "admin" ? "var(--bubble)" : "var(--btnBg)", fg: m.from === "admin" ? "var(--ink)" : "var(--btnFg)" }; });
         var send = function () {
           var t = S.msgDraft.trim(); if (!t) return;
           save(function (d) { d.messages.push({ from: "client", text: t, at: nowStr() }); }, null, function (d) {
@@ -687,15 +691,23 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
     // modal genérico
     var M = S.modal, F = S.f, cliOpts = D.clients.map(function (c) { return { v: c.id, l: c.nome }; });
-    var inp = function (label, key, ph, type) { return { label: label, isInput: true, isSelect: false, isArea: false, type: type || "text", ph: ph || "", value: F[key] || "", chH: fc(key) }; };
-    var sl = function (label, key, options) { return { label: label, isInput: false, isSelect: true, isArea: false, value: F[key] || "", chH: fc(key), options: options }; };
-    var area = function (label, key, ph) { return { label: label, isInput: false, isSelect: false, isArea: true, ph: ph, value: F[key] || "", chH: fc(key) }; };
+    var inp = function (label, key, ph, type, maskKey) { return { label: label, isInput: true, isSelect: false, isArea: false, type: type || "text", ph: ph || "", value: F[key] || "", chH: fc(key, maskKey), key: key, mask: !!maskKey }; };
+    var sl = function (label, key, options) { return { label: label, isInput: false, isSelect: true, isArea: false, value: F[key] || "", chH: fc(key), options: options, key: key }; };
+    var area = function (label, key, ph) { return { label: label, isInput: false, isSelect: false, isArea: true, ph: ph, value: F[key] || "", chH: fc(key), key: key }; };
     var MODALS = {
-      cliente: { t: "Cadastrar cliente", b: "Salvar cliente", fields: [sl("Tipo", "pj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]), inp("Nome ou razão social *", "nome", ""), inp("Responsável pelo contato", "contato", "Quem fala com você"), inp("Telefone *", "tel", "(11) 90000-0000", "tel"), inp("E-mail", "email", "nome@empresa.com.br", "email"), inp(F.pj === "PF" ? "CPF" : "CNPJ", "doc", "")], req: ["nome", "tel"],
-        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", email: F.email || "", tel: F.tel, doc: F.doc || "" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
+      cliente: { t: "Cadastrar cliente", b: "Salvar cliente", fields: [
+          sl("Tipo", "pj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
+          inp("Nome ou razão social *", "nome", ""),
+          inp("Responsável pelo contato", "contato", "Quem fala com você"),
+          inp("Cargo do responsável", "cargo", "Ex.: Diretora financeira"),
+          inp("Telefone *", "tel", "(11) 90000-0000", "tel", "tel"),
+          inp("E-mail", "email", "nome@empresa.com.br", "email"),
+          inp(F.pj === "PF" ? "CPF" : "CNPJ *", "doc", "", "text", F.pj === "PF" ? "cpf" : "cnpj")
+        ], req: F.pj === "PF" ? ["nome", "tel"] : ["nome", "tel", "doc"],
+        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", cargo: F.cargo || "", email: F.email || "", tel: F.tel, doc: F.doc || "" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
         remote: function (d) {
           var c = d.clients[d.clients.length - 1];
-          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
+          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
         } },
       projeto: { t: "Novo projeto", b: "Criar projeto", fields: [inp("Nome do projeto *", "nome", "Ex.: Migração do sistema financeiro"), sl("Cliente", "clientId", cliOpts), sl("Modelo de projeto", "tplId", D.templates.map(function (t) { return { v: t.id, l: t.nome }; })), inp("Valor cobrado (R$) *", "valor", "0,00", "number"), inp("Parcelas", "parcelas", "1", "number"), inp("1º vencimento", "venc", "", "date"), inp("Entrega prevista", "prazo", "", "date")], req: ["nome", "valor"],
         go: function (d) {
@@ -774,13 +786,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
     // ---- wizard "cliente + projeto" (cadastro combinado, em 2 passos) ----
     var wizSteps = [
-      { title: "Dados do cliente", b: "Continuar →", req: ["cNome", "cTel"], fields: [
+      { title: "Dados do cliente", b: "Continuar →", req: F.cPj === "PF" ? ["cNome", "cTel"] : ["cNome", "cTel", "cDoc"], fields: [
           sl("Tipo", "cPj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
           inp("Nome ou razão social *", "cNome", ""),
           inp("Responsável pelo contato", "cContato", "Quem fala com você"),
-          inp("Telefone *", "cTel", "(11) 90000-0000", "tel"),
+          inp("Cargo do responsável", "cCargo", "Ex.: Diretora financeira"),
+          inp("Telefone *", "cTel", "(11) 90000-0000", "tel", "tel"),
           inp("E-mail", "cEmail", "nome@empresa.com.br", "email"),
-          inp(F.cPj === "PF" ? "CPF" : "CNPJ", "cDoc", "")
+          inp(F.cPj === "PF" ? "CPF" : "CNPJ *", "cDoc", "", "text", F.cPj === "PF" ? "cpf" : "cnpj")
         ] },
       { title: "Dados do projeto", b: "Criar cliente e projeto", req: ["pNome", "pValor"], fields: [
           inp("Nome do projeto *", "pNome", "Ex.: Site institucional"),
@@ -803,20 +816,49 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       shellCols: narrow ? "minmax(0,1fr)" : "252px minmax(0,1fr)", asideDir: narrow ? "row" : "column", asideGap: narrow ? "14px" : "26px", asidePad: narrow ? "10px 14px" : "22px 12px", asideH: narrow ? "auto" : "100vh", asideOv: narrow ? "auto" : "hidden", asideOvY: narrow ? "hidden" : "auto", asideAlign: narrow ? "center" : "stretch",
       navFlex: narrow ? "0 0 auto" : "1", navGap: narrow ? "4px" : "22px", wideSide: !narrow && admin, footDir: narrow ? "row" : "column", footPad: narrow ? "0" : "16px", footBorder: narrow ? "0" : "1px solid var(--line)", footAlign: narrow ? "center" : "stretch",
       isDark: !light, isLight: light,
-      thDarkBg: light ? "transparent" : "var(--btnBg)", thDarkFg: light ? "var(--ink)" : "var(--btnFg)", thLightBg: light ? "var(--btnBg)" : "transparent", thLightFg: light ? "var(--btnFg)" : "var(--ink)",
-      setDarkH: reg(function () { setTheme("dark"); setState({ userMenuOpen: false }); }), setLightH: reg(function () { setTheme("light"); setState({ userMenuOpen: false }); }),
+      toggleThemeH: reg(function () { setTheme(light ? "dark" : "light"); }),
       logoutH: reg(function () { sb().auth.signOut(); }),
       meName: admin ? ((adminMe && adminMe.name) || S.email || "") : ((myProj0 && myProj0.clienteNome) || S.email || ""),
       meAvatarUrl: admin ? ((adminMe && adminMe.avatarUrl) || "") : (S.clientAvatarUrl || ""),
       meInitials: (admin ? ((adminMe && adminMe.name) || S.email || "?") : ((myProj0 && myProj0.clienteNome) || S.email || "?")).trim().charAt(0).toUpperCase(),
+      meRole: admin ? ((meTeam && meTeam.papel) || "Administrador") : "Portal do cliente",
       userMenuOpen: S.userMenuOpen,
       avatarClickH: reg(function () {
         var opening = !S.userMenuOpen;
-        setState({ userMenuOpen: opening });
-        if (opening) positionUserMenu();
+        setState({ userMenuOpen: opening, profileNameDraft: opening ? (admin ? ((adminMe && adminMe.name) || "") : "") : S.profileNameDraft });
       }),
       closeUserMenuH: reg(function () { setState({ userMenuOpen: false }); }),
-      changePhotoH: reg(function () { setState({ userMenuOpen: false }); var el = document.getElementById("avatarFileInput"); if (el) el.click(); }),
+      changePhotoH: reg(function () { var el = document.getElementById("avatarFileInput"); if (el) el.click(); }),
+      profileNameDraft: S.profileNameDraft || "",
+      profileNameChH: reg(function (e) { setState({ profileNameDraft: e.target.value }); }),
+      saveProfileNameH: reg(function () {
+        var name = (S.profileNameDraft || "").trim();
+        if (!name || !S.uid) return;
+        sb().from("admins").update({ name: name }).eq("id", S.uid).then(function (r) {
+          if (r.error) {
+            console.error("[Buovai] Falha ao salvar nome:", r.error);
+            S.toast = "Não foi possível salvar agora.";
+          } else {
+            var me = (S.data.admins || []).filter(function (a) { return a.id === S.uid; })[0];
+            if (me) me.name = name;
+            S.toast = "Nome atualizado";
+          }
+          clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
+          render();
+        });
+      }),
+      // Troca de senha de dentro do portal reaproveita o fluxo de
+      // primeiro acesso: manda um link por e-mail que leva direto pra
+      // tela de definir senha nova (não existe formulário de "senha
+      // atual + nova senha" no portal).
+      resetPasswordH: reg(function () {
+        var redirectTo = location.origin + location.pathname.replace(/portal\.html$/, "set-password.html");
+        sb().auth.resetPasswordForEmail(S.email, { redirectTo: redirectTo }).then(function (r) {
+          S.toast = r.error ? "Não foi possível enviar o link agora." : "Enviamos um link para o seu e-mail trocar a senha.";
+          clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
+          render();
+        });
+      }),
       avatarUploadH: reg(function (e) {
         var file = e.target.files && e.target.files[0];
         if (!file || !S.uid) return;
@@ -842,7 +884,6 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
               });
           return save.then(function () {
             S.toast = "Foto de perfil atualizada";
-            S.userMenuOpen = false;
             clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
             render();
           });
@@ -872,7 +913,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (M === "clienteProjeto" && (S.wStep || 1) < wizSteps.length) { setState({ wStep: (S.wStep || 1) + 1, mErr: false }); return; }
         if (M === "clienteProjeto") {
           save(function (d) {
-            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
+            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
             var newC = d.clients[d.clients.length - 1];
             var v = Number(String(F.pValor).replace(",", ".")) || 0, n = Math.max(1, parseInt(F.pParcelas) || 1);
             var t = D.templates.filter(function (x) { return x.id === F.tplId; })[0] || D.templates[0];
@@ -881,7 +922,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             d.projects.unshift({ id: "p" + Date.now(), code: code, clientId: newC.id, nome: F.pNome, tplId: t ? t.id : "", tipo: t ? t.nome : "", status: "Em andamento", prazo: F.pPrazo || "", valor: v, parcelas: mkParc(v, n, F.pVenc || T, 0), tasks: mkTasks(t ? t.etapas : [], 0), docs: [], hist: [{ at: nowStr(), who: "Lorena", text: 'criou o projeto a partir do modelo "' + (t ? t.nome : "") + '"' }] });
           }, "Cliente e projeto criados", function (d) {
             var c = d.clients[d.clients.length - 1], p = d.projects[0];
-            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
+            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
               if (res.error) throw res.error;
               c.id = res.data.id; p.clientId = c.id;
               return sb().from("client_projects").insert({
@@ -925,7 +966,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     }).join("");
     return '<aside style="background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:' + V.asideDir + ";gap:" + V.asideGap + ";padding:" + V.asidePad + ';position:sticky;top:34px;height:' + V.asideH + ";z-index:5;overflow-x:" + V.asideOv + ";overflow-y:" + V.asideOvY + ';scrollbar-width:none;align-items:' + V.asideAlign + '">'
       + '<div style="display:flex;flex-direction:column;gap:14px;flex:none">'
-      + '<a href="index.html" style="line-height:0;padding:0 6px"><img src="' + logoSrc + '" alt="buov.ai" style="height:24px;width:auto"></a>'
+      + '<a href="index.html" style="line-height:0;padding:0 6px"><img src="' + logoSrc + '" alt="buov.ai" style="height:34px;width:auto"></a>'
       + search
       + "</div>"
       + '<nav style="display:flex;flex-direction:' + V.asideDir + ";gap:" + V.navGap + ";flex:" + V.navFlex + '">' + groups + "</nav>"
@@ -941,20 +982,47 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + "</div></aside>";
   }
 
-  // Foto, tema e Sair ficavam sempre visíveis no rodapé do menu — a Lorena
-  // pediu pra só aparecer quando a pessoa clica no próprio ícone/avatar,
-  // igual um menu de conta comum. Vale pra admin e pra cliente.
+  var CAMERA_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"></path><circle cx="12" cy="13" r="4"></circle></svg>';
+
+  // Era um menuzinho perto do avatar — a Lorena mandou referência de um
+  // painel lateral de "Meu perfil" (foto grande com botão de câmera,
+  // nome editável, toggle de tema) e pediu pra ficar assim. Mantém só o
+  // que existe de verdade no nosso sistema hoje: sem Departamento/Cargo/
+  // cor do sistema (não tem esses dados), mas com troca de senha (manda
+  // link por e-mail, reaproveitando a tela de primeiro acesso).
   function buildUserMenu(V) {
     if (!V.userMenuOpen) return "";
-    return '<div data-h="' + V.closeUserMenuH + '" style="position:fixed;inset:0;z-index:56"></div>'
-      + '<div id="userMenuPopover" style="position:fixed;z-index:57;min-width:260px;background:var(--panel);border:1px solid var(--line2);box-shadow:0 20px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden">'
-      + '<button ' + h(V.changePhotoH) + ' style="padding:16px 18px;border:0;background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:14px;cursor:pointer;text-align:left">Alterar foto</button>'
-      + '<div style="display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-family:\'Lexend Exa\',sans-serif;font-size:13px">'
-      + '<button ' + h(V.setDarkH) + ' style="flex:1;padding:14px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thDarkBg + ";color:" + V.thDarkFg + '">Escuro</button>'
-      + '<button ' + h(V.setLightH) + ' style="flex:1;padding:14px 10px;border:0;cursor:pointer;font:inherit;background:' + V.thLightBg + ";color:" + V.thLightFg + '">Claro</button>'
+    var avatarInner = V.meAvatarUrl
+      ? '<img src="' + esc(V.meAvatarUrl) + '" alt="" style="width:100%;height:100%;object-fit:cover">'
+      : '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:30px">' + esc(V.meInitials) + "</span>";
+    var nameBlock = V.admin
+      ? ('<label style="display:flex;flex-direction:column;gap:7px;width:100%"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">Nome</span><input value="' + esc(V.profileNameDraft) + '" data-ch="' + V.profileNameChH + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%"></label>'
+        + '<button ' + h(V.saveProfileNameH) + ' style="align-self:flex-start;padding:10px 18px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Salvar nome</button>')
+      : "";
+    return '<div data-h="' + V.closeUserMenuH + '" style="position:fixed;inset:0;z-index:56;background:var(--overlay);backdrop-filter:blur(2px)"></div>'
+      + '<div style="position:fixed;top:0;right:0;bottom:0;z-index:57;width:min(360px,100vw);background:var(--panel);border-left:1px solid var(--line2);box-shadow:-20px 0 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow-y:auto">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--line);flex:none">'
+        + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Meu perfil</span>'
+        + '<button ' + h(V.closeUserMenuH) + ' aria-label="Fechar" style="border:0;background:none;color:var(--ink);font-size:24px;cursor:pointer;line-height:1">×</button>'
       + "</div>"
-      + '<button ' + h(V.logoutH) + ' style="padding:16px 18px;border:0;background:none;color:var(--badFg);font-family:\'Lexend Exa\',sans-serif;font-size:14px;cursor:pointer;text-align:left">Sair</button>'
-      + "</div>";
+      + '<div style="display:flex;flex-direction:column;gap:26px;padding:28px 22px">'
+        + '<div style="display:flex;flex-direction:column;align-items:center;gap:12px">'
+          + '<div style="position:relative;width:104px;height:104px">'
+            + '<div style="width:104px;height:104px;border-radius:50%;overflow:hidden;background:var(--accSoft);color:var(--accTxt);display:flex;align-items:center;justify-content:center;border:1px solid var(--line2)">' + avatarInner + "</div>"
+            + '<button ' + h(V.changePhotoH) + ' aria-label="Alterar foto" style="position:absolute;right:-2px;bottom:-2px;width:34px;height:34px;border-radius:50%;border:2px solid var(--panel);background:var(--btnBg);color:var(--btnFg);display:flex;align-items:center;justify-content:center;cursor:pointer">' + CAMERA_ICON + "</button>"
+          + "</div>"
+          + '<div style="display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:18px">' + esc(V.meName) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(V.meRole) + "</span></div>"
+        + "</div>"
+        + nameBlock
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:22px;border-top:1px solid var(--line)">'
+          + '<span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px">' + (V.isLight ? "Tema claro" : "Tema escuro") + '</span><span style="font-size:11px;color:var(--mute)">Alterna entre escuro e claro</span></span>'
+          + '<button role="switch" aria-checked="' + (V.isLight ? "true" : "false") + '" ' + h(V.toggleThemeH) + ' style="width:46px;height:26px;border-radius:999px;border:1px solid var(--line2);background:' + (V.isLight ? "var(--btnBg)" : "var(--field)") + ';position:relative;cursor:pointer;padding:0;flex:none">'
+            + '<span style="position:absolute;top:2px;left:' + (V.isLight ? "22px" : "2px") + ';width:20px;height:20px;border-radius:50%;background:' + (V.isLight ? "var(--btnFg)" : "var(--mute)") + ';transition:left .18s"></span>'
+          + "</button>"
+        + "</div>"
+        + '<button ' + h(V.resetPasswordH) + ' style="padding:14px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer;text-align:left">Trocar senha</button>'
+        + '<button ' + h(V.logoutH) + ' style="padding:14px 16px;border:1px solid var(--badFg);background:none;color:var(--badFg);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer;text-align:left">Sair da conta</button>'
+      + "</div></div>";
   }
 
   function barRow(p, cols) {
@@ -1272,10 +1340,16 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     if (!V.modalOpen) return "";
     var fields = V.mFields.map(function (f) {
       var inner;
-      if (f.isInput) inner = '<input type="' + f.type + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" placeholder="' + esc(f.ph) + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%">';
-      else if (f.isSelect) inner = '<select data-ch="' + f.chH + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px;font:inherit;font-size:14px;width:100%">' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === f.value ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("") + "</select>";
-      else inner = '<textarea data-ch="' + f.chH + '" placeholder="' + esc(f.ph) + '" rows="4" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%;resize:vertical">' + esc(f.value) + "</textarea>";
-      return '<label style="display:flex;flex-direction:column;gap:7px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">' + esc(f.label) + "</span>" + inner + "</label>";
+      var maskAttr = f.mask ? ' data-mask="1"' : "";
+      if (f.isInput) inner = '<input type="' + f.type + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" data-field="' + esc(f.key || "") + '"' + maskAttr + ' placeholder="' + esc(f.ph) + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%">';
+      else if (f.isSelect) inner = '<select data-ch="' + f.chH + '" data-field="' + esc(f.key || "") + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px;font:inherit;font-size:14px;width:100%">' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === f.value ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("") + "</select>";
+      else inner = '<textarea data-ch="' + f.chH + '" data-field="' + esc(f.key || "") + '" placeholder="' + esc(f.ph) + '" rows="4" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%;resize:vertical">' + esc(f.value) + "</textarea>";
+      // Label termina em " *" pros campos obrigatórios (convenção já usada
+      // em todo o código) — pinta só o asterisco de vermelho em vez de
+      // deixar no mesmo cinza do resto do texto (pedido da Lorena).
+      var labelText = f.label, reqMark = "";
+      if (/\*\s*$/.test(labelText)) { labelText = labelText.replace(/\*\s*$/, "").trim(); reqMark = ' <span style="color:var(--badFg)">*</span>'; }
+      return '<label style="display:flex;flex-direction:column;gap:7px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">' + esc(labelText) + reqMark + "</span>" + inner + "</label>";
     }).join("");
     var tplPrev = V.hasTplPreview ? '<div style="display:flex;flex-direction:column;gap:6px;padding:14px;border:1px dashed var(--line2)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">Etapas que serão criadas</span>' + V.tplPreview.map(function (t) { return '<span style="font-size:13px;color:var(--ink2)">' + esc(t) + "</span>"; }).join("") + "</div>" : "";
     var err = V.mErr ? '<span style="font-size:13px;color:var(--badFg)">Preencha os campos marcados com *.</span>' : "";
@@ -1296,10 +1370,44 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function render() {
+    // Antes disso, a página inteira era remontada (innerHTML) a cada
+    // tecla digitada, o que derruba o foco do campo — sobrava só a
+    // primeira letra digitada em qualquer input/textarea/select do
+    // painel (bug real, achado pela Lorena no campo de telefone, mas
+    // valia pra tudo). Guarda o campo focado antes de remontar, pelo
+    // atributo estável data-field (campos de modal) ou data-ch (demais
+    // inputs), e devolve o foco e a posição do cursor depois.
+    var active = document.activeElement;
+    var keep = null;
+    if (active && app.contains(active) && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.tagName === "SELECT")) {
+      keep = {
+        field: active.getAttribute("data-field"),
+        ch: active.getAttribute("data-ch"),
+        // Campo com máscara muda de tamanho a cada tecla (ex.: "11" vira
+        // "(11) "), então a posição antiga do cursor não serve — fica
+        // sempre no fim, que é onde quem está digitando normalmente quer.
+        mask: active.hasAttribute("data-mask"),
+        selStart: "selectionStart" in active ? active.selectionStart : null,
+        selEnd: "selectionEnd" in active ? active.selectionEnd : null
+      };
+    }
+
     H = {}; HID = 0;
     var V = computeVals();
     document.body.dataset.theme = S.theme;
     app.innerHTML = '<div style="min-height:100vh;display:grid;grid-template-columns:' + V.shellCols + ';background:var(--bg)">' + buildAside(V) + buildMain(V) + "</div>" + buildBot(V) + buildCmd(V) + buildModal(V) + buildToast(V) + buildUserMenu(V);
+
+    if (keep) {
+      var back = (keep.field && app.querySelector('[data-field="' + keep.field + '"]')) || (keep.ch && app.querySelector('[data-ch="' + keep.ch + '"]'));
+      if (back) {
+        back.focus();
+        if (keep.mask && typeof back.setSelectionRange === "function") {
+          try { back.setSelectionRange(back.value.length, back.value.length); } catch (e) {}
+        } else if (keep.selStart != null && typeof back.setSelectionRange === "function") {
+          try { back.setSelectionRange(keep.selStart, keep.selEnd); } catch (e) {}
+        }
+      }
+    }
 
     app.querySelectorAll("[data-h]").forEach(function (el) {
       el.addEventListener("click", function (e) {
