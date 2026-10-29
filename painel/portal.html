@@ -116,8 +116,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var S = {
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
-    sel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", tplSel: null,
-    newStep: "", modal: null, f: {}, mErr: false, wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
+    sel: null, zsel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", tplSel: null,
+    newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     accessBusy: false, accessResult: null,
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
@@ -257,13 +257,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function go(view, extra) {
-    Object.assign(S, { view: view, sel: null, modal: null, q: "", tf: "Todos", cmdOpen: false }, extra || {});
+    Object.assign(S, { view: view, sel: null, zsel: null, modal: null, q: "", tf: "Todos", cmdOpen: false }, extra || {});
     render();
     try { window.scrollTo({ top: 0 }); } catch (e) {}
   }
 
   function openModal(modal, f) {
-    setState({ modal: modal, f: f || {}, mErr: false, cmdOpen: false, wStep: 1 });
+    setState({ modal: modal, f: f || {}, mErr: false, mErrMsg: "", cmdOpen: false, wStep: 1 });
   }
 
   function setTheme(t) {
@@ -638,21 +638,49 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         });
       }
       if (V === "prospeccao") {
-        title = "Prospecção"; sub = "Pessoas e empresas que você está tentando conquistar como cliente, antes de virarem contato no funil.";
-        actions = [btnP("Nova prospecção", function () { openModal("prospeccao", { acao: "Ligar", status: "Novo", estado: "SE" }); })];
-        var baseZ = D.prospects.filter(function (z) { return match(z.nome, z.contato, z.estrategia, z.dor); });
-        tFilters = ["Todos", "Novo", "Contatado", "Respondeu", "Sem interesse", "Convertido"].map(function (k) { return filt(k, k === "Todos" ? baseZ.length : baseZ.filter(function (z) { return z.status === k; }).length); });
-        var listZ = baseZ.filter(function (z) { return S.tf === "Todos" || z.status === S.tf; }); emptyList = !listZ.length;
-        out.prospeccao = listZ.slice().sort(function (a, b) { return (a.quando || "9999").localeCompare(b.quando || "9999"); }).map(function (z) {
-          var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[z.status] || CH.neu;
-          return {
-            nome: z.nome, setor: z.setor || "", local: [z.cidade, z.estado].filter(Boolean).join(" / "), contato: z.contato || "sem contato", acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data", estrategia: z.estrategia || "", dor: z.dor || "",
-            status: z.status, chipBg: c[0], chipFg: c[1], canConvert: z.status !== "Convertido",
-            waUrl: z.meio === "telefone" ? waUrl(z.contato, z.nome) : "",
-            h: reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, setor: z.setor, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); }),
-            convertH: reg(function () { openModal("clienteProjeto", { fromProspectId: z.id, cPj: "PJ", cNome: z.nome, cSetor: z.setor, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
-          };
-        });
+        var zsel = S.zsel ? D.prospects.filter(function (z) { return z.id === S.zsel; })[0] : null;
+        var editProspectH = function (z) {
+          return reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, setor: z.setor, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); });
+        };
+        var convertProspectH = function (z) {
+          return reg(function () { openModal("clienteProjeto", { fromProspectId: z.id, cPj: "PJ", cNome: z.nome, cSetor: z.setor, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); });
+        };
+        if (!zsel) {
+          title = "Prospecção"; sub = "Pessoas e empresas que você está tentando conquistar como cliente, antes de virarem contato no funil."; out.v_zList = true;
+          actions = [btnP("Nova prospecção", function () { openModal("prospeccao", { acao: "Ligar", status: "Novo", estado: "SE" }); })];
+          var baseZ = D.prospects.filter(function (z) { return match(z.nome, z.contato, z.estrategia, z.dor); });
+          tFilters = ["Todos", "Novo", "Contatado", "Respondeu", "Sem interesse", "Convertido"].map(function (k) { return filt(k, k === "Todos" ? baseZ.length : baseZ.filter(function (z) { return z.status === k; }).length); });
+          var listZ = baseZ.filter(function (z) { return S.tf === "Todos" || z.status === S.tf; }); emptyList = !listZ.length;
+          out.prospeccao = listZ.slice().sort(function (a, b) { return (a.quando || "9999").localeCompare(b.quando || "9999"); }).map(function (z) {
+            var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[z.status] || CH.neu;
+            return {
+              id: z.id, nome: z.nome, setor: z.setor || "sem área", local: [z.cidade, z.estado].filter(Boolean).join(" / ") || "sem local",
+              acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data",
+              status: z.status, chipBg: c[0], chipFg: c[1],
+              h: reg(function () { setState({ zsel: z.id }); })
+            };
+          });
+        } else {
+          // "Ficha" da prospecção — a Lorena não queria mais um modal em
+          // cima da lista pro detalhe, queria entrar de verdade na
+          // informação, página própria, igual já é o detalhe de projeto.
+          var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[zsel.status] || CH.neu;
+          title = zsel.nome; kicker = [zsel.setor, [zsel.cidade, zsel.estado].filter(Boolean).join(" / ")].filter(Boolean).join(" · ") || "Prospecção"; out.v_zFicha = true;
+          actions = [btnS("← Prospecção", function () { setState({ zsel: null }); }), btnS("Editar", editProspectH(zsel))];
+          out.zInfo = [
+            { l: "Status", v: zsel.status },
+            { l: "Meio de contato", v: (MEIOS_CONTATO.filter(function (m) { return m.v === zsel.meio; })[0] || {}).l || "não informado" },
+            { l: "Contato", v: zsel.contato || "sem contato" },
+            { l: "Próxima ação", v: zsel.acao || "não definida" },
+            { l: "Quando", v: zsel.quando ? (dt(zsel.quando) + " " + zsel.quando.slice(11, 16)) : "sem data" }
+          ];
+          out.zChipBg = c[0]; out.zChipFg = c[1]; out.zStatus = zsel.status;
+          out.zEstrategia = zsel.estrategia || "Nada registrado ainda.";
+          out.zDor = zsel.dor || "Nada registrado ainda.";
+          out.zWaUrl = zsel.meio === "telefone" ? waUrl(zsel.contato, zsel.nome) : "";
+          out.zCanConvert = zsel.status !== "Convertido";
+          out.zConvertH = convertProspectH(zsel);
+        }
       }
       if (V === "propostas") {
         title = "Propostas e contratos"; hasToolbar = true; qPh = "Buscar por título ou cliente";
@@ -1063,14 +1091,24 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       cmdKeyH: reg(function (e) { if (e.key === "Enter" && cmdRes[0]) H[cmdRes[0].h](); }), closeCmdBgH: reg(function (e) { if (e.target === e.currentTarget) setState({ cmdOpen: false }); }),
       showBot: !admin, helpOpen: !admin && S.helpOpen, helpBtnLabel: S.helpOpen ? "Fechar ajuda" : "Precisa de ajuda?", toggleHelpH: reg(function () { S.helpOpen = !S.helpOpen; render(); scrollHelp(); }),
       helpLog: helpLog, helpSugg: sugg.map(function (k) { return { q: HELP[k].q, h: reg(function () { ask(k); }) }; }), helpDraft: S.helpDraft, helpChH: reg(function (e) { setState({ helpDraft: e.target.value }); }), helpKeyH: reg(function (e) { if (e.key === "Enter") helpSend(); }), helpSendH: reg(helpSend),
-      modalOpen: !!md, mTitle: md ? md.t : "", mSub: md ? (md.sub || "") : "", hasMSub: !!(md && md.sub), mSubmitLabel: md ? md.b : "", mFields: md ? md.fields : [], mErr: S.mErr,
+      modalOpen: !!md, mTitle: md ? md.t : "", mSub: md ? (md.sub || "") : "", hasMSub: !!(md && md.sub), mSubmitLabel: md ? md.b : "", mFields: md ? md.fields : [], mErr: S.mErr, mErrMsg: S.mErrMsg,
       hasTplPreview: !!tplP, tplPreview: tplP ? tplP.etapas.map(function (t, i) { return String(i + 1).padStart(2, "0") + "  " + t; }) : [],
       wShowBack: M === "clienteProjeto" && (S.wStep || 1) > 1,
       wBackH: reg(function () { setState({ wStep: Math.max(1, (S.wStep || 1) - 1), mErr: false }); }),
       closeModalH: reg(function () { setState({ modal: null, wStep: 1 }); }), closeModalBgH: reg(function (e) { if (e.target === e.currentTarget) setState({ modal: null, wStep: 1 }); }),
       mSubmitH: reg(function () {
         if (!md) return;
-        if (md.req.some(function (k) { return !String(F[k] || "").trim(); })) { setState({ mErr: true }); return; }
+        if (md.req.some(function (k) { return !String(F[k] || "").trim(); })) { setState({ mErr: true, mErrMsg: "" }); return; }
+        if (M === "prospeccao" && F.contato) {
+          // Mesmo número de telefone em duas prospecções diferentes é
+          // quase sempre a mesma empresa cadastrada duas vezes (pedido
+          // da Lorena: evitar isso antes de salvar, não depois).
+          var digitsNew = String(F.contato).replace(/\D/g, "");
+          if (digitsNew) {
+            var dupZ = D.prospects.filter(function (z) { return z.id !== F.id && String(z.contato || "").replace(/\D/g, "") === digitsNew; })[0];
+            if (dupZ) { setState({ mErr: true, mErrMsg: 'Já existe uma prospecção com esse contato: "' + dupZ.nome + '".' }); return; }
+          }
+        }
         if (M === "clienteProjeto" && (S.wStep || 1) < wizSteps.length) { setState({ wStep: (S.wStep || 1) + 1, mErr: false }); return; }
         if (M === "clienteProjeto") {
           var fromProspectId = F.fromProspectId;
@@ -1344,16 +1382,32 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function buildProspeccao(V) {
+    if (V.v_zFicha) return buildZFicha(V);
     var rows = V.prospeccao.map(function (z) {
-      return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:start;padding:15px 0;border-top:1px solid var(--line)">'
-        + '<button ' + h(z.h) + ' style="text-align:left;border:0;background:none;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + (z.setor ? ' <span style="font-weight:400;color:var(--mute)">· ' + esc(z.setor) + "</span>" : "") + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.contato) + (z.local ? " · " + esc(z.local) : "") + "</span></button>"
+      return '<button ' + h(z.h) + ' style="width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:center;padding:15px 0">'
+        + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.setor) + " · " + esc(z.local) + "</span></span>"
         + '<span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(z.acao) + '</span><span style="color:var(--mute)">' + esc(z.quando) + "</span></span>"
-        + '<span style="font-size:12px;color:var(--ink2);line-height:1.45">' + esc(z.estrategia) + "</span>"
-        + '<span style="font-size:12px;color:var(--mute);line-height:1.45">' + esc(z.dor) + "</span>"
-        + '<span style="display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap"><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span>" + (z.waUrl ? '<a href="' + esc(z.waUrl) + '" target="_blank" rel="noopener" style="padding:7px 10px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:11px;font-weight:600;cursor:pointer;text-decoration:none">Chamar no WhatsApp</a>' : "") + (z.canConvert ? '<button ' + h(z.convertH) + ' style="padding:7px 10px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:11px;font-weight:600;cursor:pointer">Converter em cliente</button>' : "") + "</span>"
-        + "</div>";
+        + '<span style="justify-self:end"><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span></span>"
+        + "</button>";
     }).join("");
     return '<div style="display:flex;flex-direction:column">' + rows + (V.emptyList ? '<span style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhuma prospecção ainda. Comece registrando quem você quer conquistar.</span>' : "") + "</div>";
+  }
+
+  // "Ficha" da prospecção: página própria de detalhe, no mesmo espírito
+  // do detalhe de projeto — a Lorena não queria mais ver isso como um
+  // modal flutuando por cima da lista.
+  function buildZFicha(V) {
+    var info = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.zInfo.map(function (i) {
+      return '<div style="padding:14px 16px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(i.l) + '</span><span style="font-size:14px;font-weight:600">' + esc(i.v) + "</span></div>";
+    }).join("") + "</div>";
+    var actions = '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+      + (V.zWaUrl ? '<a href="' + esc(V.zWaUrl) + '" target="_blank" rel="noopener" style="padding:11px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-decoration:none">Chamar no WhatsApp</a>' : "")
+      + (V.zCanConvert ? '<button ' + h(V.zConvertH) + ' style="padding:11px 16px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Converter em cliente</button>' : "")
+      + "</div>";
+    var block = function (label, text) {
+      return '<div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(label) + '</span><p style="margin:0;font-size:14px;line-height:1.7;color:var(--ink2)">' + esc(text) + "</p></div>";
+    };
+    return '<div style="display:flex;flex-direction:column;gap:24px">' + info + actions + block("Estratégia", V.zEstrategia) + block("Dor percebida", V.zDor) + "</div>";
   }
 
   function buildPropostas(V) {
@@ -1532,7 +1586,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<label style="display:flex;flex-direction:column;gap:7px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">' + esc(labelText) + reqMark + "</span>" + inner + "</label>";
     }).join("");
     var tplPrev = V.hasTplPreview ? '<div style="display:flex;flex-direction:column;gap:6px;padding:14px;border:1px dashed var(--line2)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">Etapas que serão criadas</span>' + V.tplPreview.map(function (t) { return '<span style="font-size:13px;color:var(--ink2)">' + esc(t) + "</span>"; }).join("") + "</div>" : "";
-    var err = V.mErr ? '<span style="font-size:13px;color:var(--badFg)">Preencha os campos marcados com *.</span>' : "";
+    var err = V.mErr ? '<span style="font-size:13px;color:var(--badFg)">' + esc(V.mErrMsg || "Preencha os campos marcados com *.") + "</span>" : "";
     var sub = V.hasMSub ? '<span style="font-size:12px;color:var(--mute)">' + esc(V.mSub) + "</span>" : "";
     var btns = (V.wShowBack ? '<button ' + h(V.wBackH) + ' style="padding:14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer">← Voltar</button>' : "")
       + '<button ' + h(V.mSubmitH) + ' style="flex:1;padding:14px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer">' + esc(V.mSubmitLabel) + "</button>";
