@@ -50,8 +50,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     if (!digits) return "";
     if (digits.length <= 11) digits = "55" + digits;
     var lowerFirst = function (s) { return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; };
-    var observacao = dor ? "Conheci o trabalho de vocês e notei que " + lowerFirst(dor.trim()).replace(/\.?\s*$/, ".") + " " : "Conheci o trabalho de vocês e acredito que a presença digital de vocês pode ficar ainda mais forte. ";
-    var msg = "Olá" + (nome ? ", " + nome : "") + "! Me chamo Lorena, fundadora da buov.ai. " + observacao + "Tenho ajudado negócios como o seu a ter um site com agendamento online e uma presença digital mais completa. Se fizer sentido pra vocês, fico à disposição para uma conversa rápida — por ligação ou numa reunião, sem compromisso.";
+    // Tira parênteses do nome (ex.: "Clínica X (Odontologia)") pra soar
+    // como uma saudação de verdade, não o nome de cadastro completo.
+    var nomeLimpo = (nome || "").replace(/\s*\([^)]*\)/g, "").trim();
+    var observacao = dor ? "só reparei que " + lowerFirst(dor.trim()).replace(/\.?\s*$/, ".") + " " : "e achei que a presença digital de vocês pode ficar ainda mais forte. ";
+    var msg = "Oi" + (nomeLimpo ? ", " + nomeLimpo : "") + "! Tudo bem? Aqui é a Lorena, da buov.ai. Vi o trabalho de vocês e achei bem bacana, " + observacao + "Ajudo negócios como o seu a terem um site com agendamento online, bem mais prático que ficar só no WhatsApp. Se fizer sentido pra vocês, adoraria bater um papo rápido, por ligação ou numa reunião, sem compromisso :)";
     return "https://wa.me/" + digits + "?text=" + encodeURIComponent(msg);
   };
   var ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
