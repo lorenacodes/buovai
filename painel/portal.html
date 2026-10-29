@@ -126,7 +126,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var S = {
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
-    sel: null, zsel: null, zEdit: false, zForm: {}, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
+    sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     accessBusy: false, accessResult: null,
@@ -336,7 +336,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       if (!D.users.length) D.users = [{ id: "me", nome: email, email: email, papel: "Administrador", ativo: true }];
       ROLES.forEach(function (r) { D.perms[r] = []; });
       (permRes.data || []).forEach(function (p) { if (p.allowed) D.perms[p.papel] = (D.perms[p.papel] || []).concat([p.modulo]); });
-      D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", cargo: c.cargo_contato || "", setor: c.setor || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "" }; });
+      D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", cargo: c.cargo_contato || "", setor: c.setor || "", origem: c.origem || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "" }; });
       D.leads = (leadsRes.data || []).map(function (l) { return { id: l.id, nome: l.company_name, interesse: l.opportunities || l.description || "", origem: l.source || "", valor: Number(l.budget_value) || 0, etapa: LEAD_IDX[l.stage] != null ? LEAD_IDX[l.stage] : 0 }; });
       D.proposals = (proposalsRes.data || []).map(function (p) { return { id: p.id, clientId: p.client_email, clienteNome: p.client_name, titulo: p.titulo, tipo: p.tipo, valor: Number(p.valor) || 0, status: p.status, data: p.data }; });
       D.meetings = (meetingsRes.data || []).map(function (m) { return { id: m.id, titulo: m.titulo, data: m.data, hora: (m.hora || "").slice(0, 5), cliente: m.cliente_nome || "" }; });
@@ -641,7 +641,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
                 canPrev: i > 0, canNext: i < 3, nextLabel: i < 3 ? ETAPAS[i + 1] + " →" : "", canConvert: i === 3 && !isCli, converted: i === 3 && isCli,
                 prevH: reg(function () { save(function (d) { d.leads.filter(function (x) { return x.id === l.id; })[0].etapa--; }, null, function (d) { var ld = d.leads.filter(function (x) { return x.id === l.id; })[0]; return sb().from("leads").update({ stage: LEAD_ETAPA[ld.etapa] }).eq("id", l.id); }); }),
                 nextH: reg(function () { save(function (d) { d.leads.filter(function (x) { return x.id === l.id; })[0].etapa++; }, null, function (d) { var ld = d.leads.filter(function (x) { return x.id === l.id; })[0]; return sb().from("leads").update({ stage: LEAD_ETAPA[ld.etapa] }).eq("id", l.id); }); }),
-                convertH: reg(function () { openModal("clienteProjeto", { cPj: "PJ", cNome: l.nome, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
+                convertH: reg(function () { openModal("clienteProjeto", { cPj: "PJ", cNome: l.nome, cOrigem: l.origem, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
               };
             })
           };
@@ -651,6 +651,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var zsel = S.zsel ? D.prospects.filter(function (z) { return z.id === S.zsel; })[0] : null;
         var PRIO_ORDER = { Alta: 0, "Média": 1, Baixa: 2 };
         var prioOf = function (z) { return PRIO_ORDER[z.prioridade] !== undefined ? PRIO_ORDER[z.prioridade] : 3; };
+        var seedZForm = function (z) { return { nome: z.nome, prioridade: z.prioridade, setor: z.setor, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, site: z.site, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }; };
         // Prazo de 10 dias, a partir do cadastro, pra fazer o primeiro
         // contato. Depois de contatada, o prazo deixa de valer.
         var CONTACT_DEADLINE_DAYS = 10;
@@ -664,7 +665,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           return { label: "faltam " + restam + "d pro prazo", overdue: false };
         };
         var convertProspectH = function (z) {
-          return reg(function () { openModal("clienteProjeto", { fromProspectId: z.id, cPj: "PJ", cNome: z.nome, cSetor: z.setor, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); });
+          return reg(function () { openModal("clienteProjeto", { fromProspectId: z.id, cPj: "PJ", cNome: z.nome, cSetor: z.setor, cContato: z.contato, cOrigem: "Prospecção", pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); });
         };
         if (!zsel) {
           title = "Prospecção"; sub = "Pessoas e empresas que você está tentando conquistar como cliente, antes de virarem contato no funil."; out.v_zList = true;
@@ -706,16 +707,15 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
               prazoLabel: prazo.label, prazoOverdue: prazo.overdue,
               status: z.status, chipBg: c[0], chipFg: c[1],
               prioridade: z.prioridade || "", hasPrio: !!pc, prioBg: pc ? pc[0] : "", prioFg: pc ? pc[1] : "",
-              h: reg(function () { setState({ zsel: z.id, zEdit: false }); })
+              h: reg(function () { setState({ zsel: z.id, zForm: seedZForm(z) }); })
             };
           });
         } else {
           // "Ficha" da prospecção — a Lorena não queria mais um modal em
-          // cima da lista pro detalhe, queria entrar de verdade na
-          // informação, página própria, igual já é o detalhe de projeto.
-          // E também não queria precisar clicar em "Editar" pra editar —
-          // por isso a ficha vira um formulário inline quando S.zEdit=true,
-          // em vez de abrir o modal de novo.
+          // cima da lista pro detalhe, nem precisar clicar em "Editar"
+          // pra editar: os campos já vêm editáveis na própria ficha,
+          // salvando sozinhos ao sair do campo (texto) ou na hora
+          // (selects), sem botão de salvar nem modo de edição separado.
           var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[zsel.status] || CH.neu;
           var pc2 = CH[PRIO_CH[zsel.prioridade]] || null;
           title = zsel.nome; kicker = [zsel.setor, [zsel.cidade, zsel.estado].filter(Boolean).join(" / ")].filter(Boolean).join(" · ") || "Prospecção"; out.v_zFicha = true;
@@ -724,75 +724,66 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           out.zWaUrl = zsel.meio === "telefone" ? waUrl(zsel.contato, zsel.nome, zsel.dor) : "";
           out.zCanConvert = zsel.status !== "Convertido";
           out.zConvertH = convertProspectH(zsel);
-          if (S.zEdit) {
-            var zf = S.zForm || {};
-            var zfH = function (key) { return reg(function (e) { setState(function (s) { var f = Object.assign({}, s.zForm); f[key] = e.target.value; return { zForm: f }; }); }); };
-            out.zEditing = true;
-            actions = [btnS("← Prospecção", function () { setState({ zsel: null, zEdit: false }); })];
-            out.zEditFields = [
-              { l: "Nome ou empresa", key: "nome", kind: "input", type: "text", value: zf.nome || "" },
-              { l: "Prioridade", key: "prioridade", kind: "select", value: zf.prioridade || "", options: [{ v: "", l: "Selecione…" }].concat(PRIORIDADES) },
-              { l: "Área de atuação", key: "setor", kind: "select", value: zf.setor || "", options: optList(SETORES) },
-              { l: "Estado", key: "estado", kind: "select", value: zf.estado || "", options: optList(ESTADOS_BR) },
-              { l: "Cidade", key: "cidade", kind: "select", value: zf.cidade || "", options: optList(CIDADES_SE) },
-              { l: "Meio de contato", key: "meio", kind: "select", value: zf.meio || "", options: MEIOS_CONTATO },
-              { l: "Contato", key: "contato", kind: "input", type: "text", value: zf.contato || "" },
-              { l: "Link do site", key: "site", kind: "input", type: "text", value: zf.site || "" },
-              { l: "Próxima ação", key: "acao", kind: "select", value: zf.acao || "", options: [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais" }, { v: "Reunião", l: "Agendar reunião" }] },
-              { l: "Quando", key: "quando", kind: "input", type: "datetime-local", value: zf.quando || "" },
-              { l: "Status", key: "status", kind: "select", value: zf.status || "", options: [{ v: "Novo", l: "Novo" }, { v: "Contatado", l: "Contatado" }, { v: "Respondeu", l: "Respondeu" }, { v: "Sem interesse", l: "Sem interesse" }, { v: "Convertido", l: "Convertido em cliente" }] }
-            ].map(function (f) { return Object.assign({}, f, { chH: zfH(f.key) }); });
-            out.zEstrategiaField = { key: "estrategia", value: zf.estrategia || "", chH: zfH("estrategia") };
-            out.zDorField = { key: "dor", value: zf.dor || "", chH: zfH("dor") };
-            out.zSaveH = reg(function () {
-              var F = S.zForm || {};
-              if (!(F.nome || "").trim()) { setState({ toast: "Preencha o nome." }); return; }
+          out.zContatado = !!zsel.contatado;
+          out.zReuniao = !!zsel.reuniaoAgendada;
+          var prazoZ = prazoInfo(zsel);
+          out.zPrazoLabel = prazoZ.label; out.zPrazoOverdue = prazoZ.overdue;
+          var toggleFlag = function (field, remoteField) {
+            return reg(function () {
               save(function (d) {
                 var z = d.prospects.filter(function (x) { return x.id === zsel.id; })[0];
-                if (z) Object.assign(z, { nome: F.nome, prioridade: F.prioridade || "", setor: F.setor || "", estado: F.estado || "", cidade: F.cidade || "", meio: F.meio || "", contato: F.contato || "", site: F.site || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" });
-              }, "Prospecção atualizada", function () {
-                var payload = { nome: F.nome, prioridade: F.prioridade || null, setor: F.setor || null, estado: F.estado || null, cidade: F.cidade || null, meio_contato: F.meio || null, contato: F.contato || null, site: F.site || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
+                if (z) z[field] = !z[field];
+              }, null, function (d) {
+                var z = d.prospects.filter(function (x) { return x.id === zsel.id; })[0];
+                var payload = {}; payload[remoteField] = z[field];
                 return sb().from("prospects").update(payload).eq("id", zsel.id);
               });
-              setState({ zEdit: false });
             });
-            out.zCancelH = reg(function () { setState({ zEdit: false }); });
-          } else {
-            out.zEditing = false;
-            actions = [btnS("← Prospecção", function () { setState({ zsel: null }); }), btnS("Editar", function () {
-              setState({ zEdit: true, zForm: { nome: zsel.nome, prioridade: zsel.prioridade, setor: zsel.setor, estado: zsel.estado, cidade: zsel.cidade, meio: zsel.meio, contato: zsel.contato, site: zsel.site, acao: zsel.acao, quando: zsel.quando ? zsel.quando.slice(0, 16) : "", estrategia: zsel.estrategia, dor: zsel.dor, status: zsel.status } });
-            })];
-            out.zInfo = [
-              { l: "Prioridade", v: zsel.prioridade || "não definida" },
-              { l: "Status", v: zsel.status },
-              { l: "Meio de contato", v: (MEIOS_CONTATO.filter(function (m) { return m.v === zsel.meio; })[0] || {}).l || "não informado" },
-              { l: "Contato", v: zsel.contato || "sem contato" },
-              { l: "Próxima ação", v: zsel.acao || "não definida" },
-              { l: "Quando", v: zsel.quando ? (dt(zsel.quando) + " " + zsel.quando.slice(11, 16)) : "sem data" },
-              { l: "Cadastrado em", v: zsel.criadoEm ? dt(zsel.criadoEm) : "não informado" }
-            ];
-            out.zSite = zsel.site || "";
-            out.zEstrategia = zsel.estrategia || "Nada registrado ainda.";
-            out.zDor = zsel.dor || "Nada registrado ainda.";
-            out.zContatado = !!zsel.contatado;
-            out.zReuniao = !!zsel.reuniaoAgendada;
-            var prazoZ = prazoInfo(zsel);
-            out.zPrazoLabel = prazoZ.label; out.zPrazoOverdue = prazoZ.overdue;
-            var toggleFlag = function (field, remoteField) {
-              return reg(function () {
-                save(function (d) {
-                  var z = d.prospects.filter(function (x) { return x.id === zsel.id; })[0];
-                  if (z) z[field] = !z[field];
-                }, null, function (d) {
-                  var z = d.prospects.filter(function (x) { return x.id === zsel.id; })[0];
-                  var payload = {}; payload[remoteField] = z[field];
-                  return sb().from("prospects").update(payload).eq("id", zsel.id);
-                });
-              });
-            };
-            out.zContatadoH = toggleFlag("contatado", "contatado");
-            out.zReuniaoH = toggleFlag("reuniaoAgendada", "reuniao_agendada");
-          }
+          };
+          out.zContatadoH = toggleFlag("contatado", "contatado");
+          out.zReuniaoH = toggleFlag("reuniaoAgendada", "reuniao_agendada");
+          actions = [btnS("← Prospecção", function () { setState({ zsel: null }); })];
+
+          var zf = S.zForm || {};
+          var commitZForm = function () {
+            var F = S.zForm || {};
+            if (!(F.nome || "").trim()) return;
+            save(function (d) {
+              var z = d.prospects.filter(function (x) { return x.id === zsel.id; })[0];
+              if (z) Object.assign(z, { nome: F.nome, prioridade: F.prioridade || "", setor: F.setor || "", estado: F.estado || "", cidade: F.cidade || "", meio: F.meio || "", contato: F.contato || "", site: F.site || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" });
+            }, null, function (d) {
+              var payload = { nome: F.nome, prioridade: F.prioridade || null, setor: F.setor || null, estado: F.estado || null, cidade: F.cidade || null, meio_contato: F.meio || null, contato: F.contato || null, site: F.site || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
+              return sb().from("prospects").update(payload).eq("id", zsel.id);
+            });
+          };
+          var zCommitH = reg(commitZForm);
+          var zfH = function (key, autosave) {
+            return reg(function (e) {
+              setState(function (s) { var f = Object.assign({}, s.zForm); f[key] = e.target.value; return { zForm: f }; });
+              if (autosave) commitZForm();
+            });
+          };
+          out.zEditFields = [
+            { l: "Nome ou empresa", key: "nome", kind: "input", type: "text", value: zf.nome || "" },
+            { l: "Prioridade", key: "prioridade", kind: "select", value: zf.prioridade || "", options: [{ v: "", l: "Selecione…" }].concat(PRIORIDADES) },
+            { l: "Área de atuação", key: "setor", kind: "select", value: zf.setor || "", options: optList(SETORES) },
+            { l: "Estado", key: "estado", kind: "select", value: zf.estado || "", options: optList(ESTADOS_BR) },
+            { l: "Cidade", key: "cidade", kind: "select", value: zf.cidade || "", options: optList(CIDADES_SE) },
+            { l: "Meio de contato", key: "meio", kind: "select", value: zf.meio || "", options: MEIOS_CONTATO },
+            { l: "Contato", key: "contato", kind: "input", type: "text", value: zf.contato || "" },
+            { l: "Link do site", key: "site", kind: "input", type: "text", value: zf.site || "" },
+            { l: "Próxima ação", key: "acao", kind: "select", value: zf.acao || "", options: [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais" }, { v: "Reunião", l: "Agendar reunião" }] },
+            { l: "Quando", key: "quando", kind: "input", type: "datetime-local", value: zf.quando || "" },
+            { l: "Status", key: "status", kind: "select", value: zf.status || "", options: [{ v: "Novo", l: "Novo" }, { v: "Contatado", l: "Contatado" }, { v: "Respondeu", l: "Respondeu" }, { v: "Sem interesse", l: "Sem interesse" }, { v: "Convertido", l: "Convertido em cliente" }] },
+            { l: "Cadastrado em", key: "criadoEm", kind: "readonly", value: zsel.criadoEm ? dt(zsel.criadoEm) : "não informado" }
+          ].map(function (f) {
+            if (f.kind === "readonly") return f;
+            if (f.kind === "select") return Object.assign({}, f, { chH: zfH(f.key, true) });
+            return Object.assign({}, f, { chH: zfH(f.key, false), blurH: zCommitH });
+          });
+          out.zSiteUrl = zf.site || "";
+          out.zEstrategiaField = { key: "estrategia", value: zf.estrategia || "", chH: zfH("estrategia", false), blurH: zCommitH };
+          out.zDorField = { key: "dor", value: zf.dor || "", chH: zfH("dor", false), blurH: zCommitH };
         }
       }
       if (V === "propostas") {
@@ -1023,16 +1014,17 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           sl("Tipo", "pj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
           inp("Nome ou razão social *", "nome", ""),
           sl("Setor", "setor", optList(SETORES)),
+          sl("Origem", "origem", optList(["Site", "Assistente", "WhatsApp", "Indicação", "Prospecção", "Outro"])),
           inp("Responsável pelo contato", "contato", "Quem fala com você"),
           sl("Cargo do responsável", "cargo", optList(CARGOS)),
           inp("Telefone *", "tel", "(11) 90000-0000", "tel", "tel"),
           inp("E-mail", "email", "nome@empresa.com.br", "email"),
           inp(F.pj === "PF" ? "CPF" : "CNPJ *", "doc", "", "text", F.pj === "PF" ? "cpf" : "cnpj")
         ], req: F.pj === "PF" ? ["nome", "tel"] : ["nome", "tel", "doc"],
-        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", cargo: F.cargo || "", setor: F.setor || "", email: F.email || "", tel: F.tel, doc: F.doc || "" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
+        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", cargo: F.cargo || "", setor: F.setor || "", origem: F.origem || "", email: F.email || "", tel: F.tel, doc: F.doc || "" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
         remote: function (d) {
           var c = d.clients[d.clients.length - 1];
-          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
+          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, origem: c.origem || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
         } },
       projeto: { t: "Novo projeto", b: "Criar projeto", fields: [inp("Nome do projeto *", "nome", "Ex.: Migração do sistema financeiro"), sl("Cliente", "clientId", cliOpts), sl("Modelo de projeto", "tplId", D.templates.map(function (t) { return { v: t.id, l: t.nome }; })), inp("Valor cobrado (R$) *", "valor", "0,00", "number"), inp("Parcelas", "parcelas", "1", "number"), inp("1º vencimento", "venc", "", "date"), inp("Entrega prevista", "prazo", "", "date")], req: ["nome", "valor"],
         go: function (d) {
@@ -1122,6 +1114,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           sl("Tipo", "cPj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
           inp("Nome ou razão social *", "cNome", ""),
           sl("Setor", "cSetor", optList(SETORES)),
+          sl("Origem", "cOrigem", optList(["Site", "Assistente", "WhatsApp", "Indicação", "Prospecção", "Outro"])),
           inp("Responsável pelo contato", "cContato", "Quem fala com você"),
           sl("Cargo do responsável", "cCargo", optList(CARGOS)),
           inp("Telefone *", "cTel", "(11) 90000-0000", "tel", "tel"),
@@ -1257,7 +1250,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (M === "clienteProjeto") {
           var fromProspectId = F.fromProspectId;
           save(function (d) {
-            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", setor: F.cSetor || "", email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
+            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", setor: F.cSetor || "", origem: F.cOrigem || (fromProspectId ? "Prospecção" : ""), email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
             var newC = d.clients[d.clients.length - 1];
             var v = Number(String(F.pValor).replace(",", ".")) || 0, n = Math.max(1, parseInt(F.pParcelas) || 1);
             var t = D.templates.filter(function (x) { return x.id === F.tplId; })[0] || D.templates[0];
@@ -1271,7 +1264,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             if (fromProspectId) { var zp = d.prospects.filter(function (x) { return x.id === fromProspectId; })[0]; if (zp) zp.status = "Convertido"; }
           }, "Cliente e projeto criados", function (d) {
             var c = d.clients[d.clients.length - 1], p = d.projects[0];
-            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
+            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, origem: c.origem || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
               if (res.error) throw res.error;
               c.id = res.data.id; p.clientId = c.id;
               return sb().from("client_projects").insert({
@@ -1314,7 +1307,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }).join("");
       return '<div style="display:flex;flex-direction:' + V.asideDir + ';gap:1px">' + label + items + "</div>";
     }).join("");
-    return '<aside style="background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:' + V.asideDir + ";gap:" + V.asideGap + ";padding:" + V.asidePad + ';position:sticky;top:34px;height:' + V.asideH + ";z-index:5;overflow-x:" + V.asideOv + ";overflow-y:" + V.asideOvY + ';scrollbar-width:none;align-items:' + V.asideAlign + '">'
+    return '<aside style="background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:' + V.asideDir + ";gap:" + V.asideGap + ";padding:" + V.asidePad + ';position:sticky;top:0;height:' + V.asideH + ";z-index:5;overflow-x:" + V.asideOv + ";overflow-y:" + V.asideOvY + ';scrollbar-width:none;align-items:' + V.asideAlign + '">'
       + '<div style="display:flex;flex-direction:column;gap:14px;flex:none">'
       + '<a href="index.html" style="line-height:0;padding:0 6px"><img src="' + logoSrc + '" alt="buov.ai" style="height:34px;width:auto"></a>'
       + search
@@ -1551,13 +1544,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // do detalhe de projeto — a Lorena não queria mais ver isso como um
   // modal flutuando por cima da lista.
   function buildZFicha(V) {
-    if (V.zEditing) return buildZFichaEdit(V);
-    var info = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.zInfo.map(function (i) {
-      var isPrio = i.l === "Prioridade" && V.zHasPrio;
-      var val = isPrio
-        ? '<span style="display:inline-block;font-size:11px;font-weight:600;padding:4px 8px;background:' + V.zPrioBg + ";color:" + V.zPrioFg + '">' + esc(V.zPrioridade) + "</span>"
-        : '<span style="font-size:14px;font-weight:600">' + esc(i.v) + "</span>";
-      return '<div style="padding:14px 16px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(i.l) + "</span>" + val + "</div>";
+    var fields = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.zEditFields.map(function (f) {
+      var label = '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(f.l) + "</span>";
+      var inner;
+      if (f.kind === "readonly") inner = '<span style="font-size:14px;font-weight:600">' + esc(f.value) + "</span>";
+      else if (f.kind === "select") inner = '<select data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" style="background:transparent;border:0;border-bottom:1px solid transparent;color:var(--ink);padding:0;font:inherit;font-size:14px;font-weight:600;width:100%;cursor:pointer">' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === f.value ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("") + "</select>";
+      else inner = '<input type="' + f.type + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" data-blurh="' + f.blurH + '" data-field="' + esc(f.key) + '" style="background:transparent;border:0;color:var(--ink);padding:0;font:inherit;font-size:14px;font-weight:600;width:100%">';
+      return '<label style="padding:14px 16px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);cursor:text">' + label + inner + "</label>";
     }).join("") + "</div>";
     var flagChip = function (on, label, onLabel, hid) {
       return '<button ' + h(hid) + ' style="padding:8px 14px;border:1px solid ' + (on ? "var(--accTxt)" : "var(--line2)") + ';background:' + (on ? "var(--accSoft)" : "none") + ";color:" + (on ? "var(--accTxt)" : "var(--ink)") + ';font-family:\'Lexend Exa\',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">' + (on ? "✓ " : "") + esc(on ? onLabel : label) + "</button>";
@@ -1569,31 +1562,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + "</div>";
     var actions = '<div style="display:flex;gap:8px;flex-wrap:wrap">'
       + (V.zWaUrl ? '<a href="' + esc(V.zWaUrl) + '" target="_blank" rel="noopener" style="padding:11px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-decoration:none">Chamar no WhatsApp</a>' : "")
-      + (V.zSite ? '<a href="' + esc(V.zSite) + '" target="_blank" rel="noopener" style="padding:11px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-decoration:none">Ver site</a>' : "")
+      + (V.zSiteUrl ? '<a href="' + esc(V.zSiteUrl) + '" target="_blank" rel="noopener" style="padding:11px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-decoration:none">Ver site</a>' : "")
       + (V.zCanConvert ? '<button ' + h(V.zConvertH) + ' style="padding:11px 16px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Converter em cliente</button>' : "")
       + "</div>";
-    var block = function (label, text) {
-      return '<div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(label) + '</span><p style="margin:0;font-size:14px;line-height:1.7;color:var(--ink2)">' + esc(text) + "</p></div>";
-    };
-    return '<div style="display:flex;flex-direction:column;gap:24px">' + info + flags + actions + block("Estratégia", V.zEstrategia) + block("Dor percebida", V.zDor) + "</div>";
-  }
-
-  // Ficha em modo de edição: os campos ficam editáveis direto na página,
-  // sem precisar abrir o modal — a Lorena queria editar "de verdade",
-  // sem esse passo extra.
-  function buildZFichaEdit(V) {
-    var fields = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 16px">' + V.zEditFields.map(function (f) {
-      var label = '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(f.l) + "</span>";
-      var inner;
-      if (f.kind === "select") inner = '<select data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 11px;font:inherit;font-size:13.5px;width:100%">' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === f.value ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("") + "</select>";
-      else inner = '<input type="' + f.type + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 11px;font:inherit;font-size:13.5px;width:100%">';
-      return '<label style="display:flex;flex-direction:column;gap:6px">' + label + inner + "</label>";
-    }).join("") + "</div>";
     var area = function (label, f) {
-      return '<label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(label) + '</span><textarea data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" rows="4" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:13.5px;outline:none;width:100%;resize:vertical">' + esc(f.value) + "</textarea></label>";
+      return '<label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(label) + '</span><textarea data-ch="' + f.chH + '" data-blurh="' + f.blurH + '" data-field="' + esc(f.key) + '" rows="4" placeholder="Nada registrado ainda." style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%;resize:vertical">' + esc(f.value) + "</textarea></label>";
     };
-    var actions = '<div style="display:flex;gap:8px"><button ' + h(V.zSaveH) + ' style="padding:11px 18px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Salvar alterações</button><button ' + h(V.zCancelH) + ' style="padding:11px 18px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Cancelar</button></div>';
-    return '<div style="display:flex;flex-direction:column;gap:20px">' + fields + area("Estratégia", V.zEstrategiaField) + area("Dor percebida", V.zDorField) + actions + "</div>";
+    return '<div style="display:flex;flex-direction:column;gap:24px">' + fields + flags + actions + area("Estratégia", V.zEstrategiaField) + area("Dor percebida", V.zDorField) + "</div>";
   }
 
   function buildPropostas(V) {
@@ -1868,6 +1843,15 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     app.querySelectorAll("[data-kh]").forEach(function (el) {
       el.addEventListener("keydown", function (e) {
         var fn = H[el.getAttribute("data-kh")];
+        if (fn) fn(e);
+      });
+    });
+    // Salva sozinho ao sair do campo de texto (sem precisar de botão
+    // "Salvar" nem de um modo de edição separado — ex.: ficha da
+    // prospecção).
+    app.querySelectorAll("[data-blurh]").forEach(function (el) {
+      el.addEventListener("blur", function (e) {
+        var fn = H[el.getAttribute("data-blurh")];
         if (fn) fn(e);
       });
     });
