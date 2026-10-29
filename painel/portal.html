@@ -657,6 +657,23 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (!zsel) {
           title = "Prospecção"; sub = "Pessoas e empresas que você está tentando conquistar como cliente, antes de virarem contato no funil."; out.v_zList = true;
           actions = [btnP("Nova prospecção", function () { openModal("prospeccao", { acao: "Ligar", status: "Novo", estado: "SE" }); })];
+          // Meta semanal: pelo menos 30 prospecções cadastradas por
+          // semana, independente do setor. Semana começa na segunda.
+          var nowD = new Date(); var dow = nowD.getDay(); var diffMon = dow === 0 ? 6 : dow - 1;
+          var monday = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() - diffMon, 0, 0, 0, 0);
+          var weekCount = D.prospects.filter(function (z) { return z.criadoEm && new Date(z.criadoEm) >= monday; }).length;
+          // Taxa de aceitação: de quem já foi contatado, quantos
+          // responderam ou converteram. Acima de 30%, a meta semanal
+          // dobra — sinal de que vale a pena prospectar mais rápido.
+          var contactedZ = D.prospects.filter(function (z) { return z.contatado || (z.status && z.status !== "Novo"); });
+          var acceptedZ = D.prospects.filter(function (z) { return z.status === "Respondeu" || z.status === "Convertido"; });
+          var acceptRate = contactedZ.length ? acceptedZ.length / contactedZ.length : 0;
+          var ACCEPT_THRESHOLD = 0.3;
+          var baseGoal = 30;
+          var weekGoal = acceptRate >= ACCEPT_THRESHOLD ? baseGoal * 2 : baseGoal;
+          out.zWeekCount = weekCount; out.zWeekGoal = weekGoal; out.zWeekPct = Math.min(100, Math.round(weekCount / weekGoal * 100)); out.zWeekDone = weekCount >= weekGoal;
+          out.zAcceptRate = Math.round(acceptRate * 100); out.zAcceptBoosted = acceptRate >= ACCEPT_THRESHOLD; out.zAcceptThreshold = Math.round(ACCEPT_THRESHOLD * 100);
+          out.zContactedCount = contactedZ.length;
           var baseZ = D.prospects.filter(function (z) { return match(z.nome, z.contato, z.estrategia, z.dor); });
           tFilters = ["Todos", "Novo", "Contatado", "Respondeu", "Sem interesse", "Convertido"].map(function (k) { return filt(k, k === "Todos" ? baseZ.length : baseZ.filter(function (z) { return z.status === k; }).length); });
           var listZ = baseZ.filter(function (z) { return S.tf === "Todos" || z.status === S.tf; }); emptyList = !listZ.length;
@@ -1494,6 +1511,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   function buildProspeccao(V) {
     if (V.v_zFicha) return buildZFicha(V);
+    var goal = '<div style="padding:14px 16px;border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'
+      + '<span style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Meta da semana' + (V.zAcceptBoosted ? " (dobrada)" : "") + '</span><span style="font-size:13px;font-weight:600;color:' + (V.zWeekDone ? "var(--accTxt)" : "var(--ink)") + '">' + V.zWeekCount + " de " + V.zWeekGoal + "</span></span>"
+      + '<span style="height:5px;background:var(--barBg)"><span style="display:block;height:100%;width:' + V.zWeekPct + '%;background:var(--bar)"></span></span>'
+      + '<span style="font-size:11.5px;color:var(--mute)">Taxa de aceitação (respondeu ou converteu de quem foi contatado): ' + V.zAcceptRate + '% de ' + V.zContactedCount + ' contatados. Acima de ' + V.zAcceptThreshold + '%, a meta dobra.</span>'
+      + "</div>";
     var rows = V.prospeccao.map(function (z) {
       return '<button ' + h(z.h) + ' style="width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:center;padding:15px 0">'
         + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + (z.hasSite ? ' <span title="Tem site" style="font-size:10px;font-weight:600;color:var(--mute);border:1px solid var(--line2);padding:1px 5px;vertical-align:middle">site</span>' : "") + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.setor) + " · " + esc(z.local) + "</span></span>"
@@ -1502,7 +1524,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         + '<span style="justify-self:end;display:flex;gap:6px">' + (z.hasPrio ? '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.prioBg + ";color:" + z.prioFg + '">' + esc(z.prioridade) + "</span>" : "") + '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span></span>"
         + "</button>";
     }).join("");
-    return '<div style="display:flex;flex-direction:column">' + rows + (V.emptyList ? '<span style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhuma prospecção ainda. Comece registrando quem você quer conquistar.</span>' : "") + "</div>";
+    return '<div style="display:flex;flex-direction:column">' + goal + rows + (V.emptyList ? '<span style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhuma prospecção ainda. Comece registrando quem você quer conquistar.</span>' : "") + "</div>";
   }
 
   // "Ficha" da prospecção: página própria de detalhe, no mesmo espírito
