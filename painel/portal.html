@@ -651,6 +651,18 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var zsel = S.zsel ? D.prospects.filter(function (z) { return z.id === S.zsel; })[0] : null;
         var PRIO_ORDER = { Alta: 0, "Média": 1, Baixa: 2 };
         var prioOf = function (z) { return PRIO_ORDER[z.prioridade] !== undefined ? PRIO_ORDER[z.prioridade] : 3; };
+        // Prazo de 7 dias, a partir do cadastro, pra fazer o primeiro
+        // contato. Depois de contatada, o prazo deixa de valer.
+        var CONTACT_DEADLINE_DAYS = 7;
+        var prazoInfo = function (z) {
+          if (!z.criadoEm) return { label: "", overdue: false };
+          if (z.contatado) return { label: "", overdue: false };
+          var diasPassados = Math.floor((Date.now() - new Date(z.criadoEm).getTime()) / 86400000);
+          var restam = CONTACT_DEADLINE_DAYS - diasPassados;
+          if (restam < 0) return { label: "prazo vencido há " + (-restam) + "d", overdue: true };
+          if (restam === 0) return { label: "prazo vence hoje", overdue: false, urgent: true };
+          return { label: "faltam " + restam + "d pro prazo", overdue: false };
+        };
         var convertProspectH = function (z) {
           return reg(function () { openModal("clienteProjeto", { fromProspectId: z.id, cPj: "PJ", cNome: z.nome, cSetor: z.setor, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); });
         };
@@ -663,17 +675,21 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var monday = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate() - diffMon, 0, 0, 0, 0);
           var weekCount = D.prospects.filter(function (z) { return z.criadoEm && new Date(z.criadoEm) >= monday; }).length;
           // Taxa de aceitação: de quem já foi contatado, quantos
-          // responderam ou converteram. Acima de 30%, a meta semanal
-          // dobra — sinal de que vale a pena prospectar mais rápido.
+          // responderam ou converteram. Abaixo do mínimo, a meta semanal
+          // dobra — se a abordagem está rendendo pouco, compensa com
+          // mais volume. Só aplica com uma amostra mínima de
+          // contatados, senão a % oscila demais e dobra a meta à toa.
           var contactedZ = D.prospects.filter(function (z) { return z.contatado || (z.status && z.status !== "Novo"); });
           var acceptedZ = D.prospects.filter(function (z) { return z.status === "Respondeu" || z.status === "Convertido"; });
           var acceptRate = contactedZ.length ? acceptedZ.length / contactedZ.length : 0;
-          var ACCEPT_THRESHOLD = 0.3;
+          var ACCEPT_MIN = 0.15; var MIN_SAMPLE = 10;
           var baseGoal = 30;
-          var weekGoal = acceptRate >= ACCEPT_THRESHOLD ? baseGoal * 2 : baseGoal;
+          var hasSample = contactedZ.length >= MIN_SAMPLE;
+          var lowAcceptance = hasSample && acceptRate < ACCEPT_MIN;
+          var weekGoal = lowAcceptance ? baseGoal * 2 : baseGoal;
           out.zWeekCount = weekCount; out.zWeekGoal = weekGoal; out.zWeekPct = Math.min(100, Math.round(weekCount / weekGoal * 100)); out.zWeekDone = weekCount >= weekGoal;
-          out.zAcceptRate = Math.round(acceptRate * 100); out.zAcceptBoosted = acceptRate >= ACCEPT_THRESHOLD; out.zAcceptThreshold = Math.round(ACCEPT_THRESHOLD * 100);
-          out.zContactedCount = contactedZ.length;
+          out.zAcceptRate = Math.round(acceptRate * 100); out.zAcceptBoosted = lowAcceptance; out.zAcceptThreshold = Math.round(ACCEPT_MIN * 100);
+          out.zContactedCount = contactedZ.length; out.zHasSample = hasSample; out.zMinSample = MIN_SAMPLE;
           var baseZ = D.prospects.filter(function (z) { return match(z.nome, z.contato, z.estrategia, z.dor); });
           tFilters = ["Todos", "Novo", "Contatado", "Respondeu", "Sem interesse", "Convertido"].map(function (k) { return filt(k, k === "Todos" ? baseZ.length : baseZ.filter(function (z) { return z.status === k; }).length); });
           var listZ = baseZ.filter(function (z) { return S.tf === "Todos" || z.status === S.tf; }); emptyList = !listZ.length;
@@ -682,10 +698,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           out.prospeccao = listZ.slice().sort(function (a, b) { var pd = prioOf(a) - prioOf(b); return pd !== 0 ? pd : (a.quando || "9999").localeCompare(b.quando || "9999"); }).map(function (z) {
             var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[z.status] || CH.neu;
             var pc = CH[PRIO_CH[z.prioridade]] || null;
+            var prazo = prazoInfo(z);
             return {
               id: z.id, nome: z.nome, setor: z.setor || "sem área", local: [z.cidade, z.estado].filter(Boolean).join(" / ") || "sem local",
               acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data",
               criadoEm: z.criadoEm ? dt(z.criadoEm) : "", hasSite: !!z.site,
+              prazoLabel: prazo.label, prazoOverdue: prazo.overdue,
               status: z.status, chipBg: c[0], chipFg: c[1],
               prioridade: z.prioridade || "", hasPrio: !!pc, prioBg: pc ? pc[0] : "", prioFg: pc ? pc[1] : "",
               h: reg(function () { setState({ zsel: z.id, zEdit: false }); })
@@ -758,6 +776,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             out.zDor = zsel.dor || "Nada registrado ainda.";
             out.zContatado = !!zsel.contatado;
             out.zReuniao = !!zsel.reuniaoAgendada;
+            var prazoZ = prazoInfo(zsel);
+            out.zPrazoLabel = prazoZ.label; out.zPrazoOverdue = prazoZ.overdue;
             var toggleFlag = function (field, remoteField) {
               return reg(function () {
                 save(function (d) {
@@ -1514,13 +1534,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var goal = '<div style="padding:14px 16px;border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'
       + '<span style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Meta da semana' + (V.zAcceptBoosted ? " (dobrada)" : "") + '</span><span style="font-size:13px;font-weight:600;color:' + (V.zWeekDone ? "var(--accTxt)" : "var(--ink)") + '">' + V.zWeekCount + " de " + V.zWeekGoal + "</span></span>"
       + '<span style="height:5px;background:var(--barBg)"><span style="display:block;height:100%;width:' + V.zWeekPct + '%;background:var(--bar)"></span></span>'
-      + '<span style="font-size:11.5px;color:var(--mute)">Taxa de aceitação (respondeu ou converteu de quem foi contatado): ' + V.zAcceptRate + '% de ' + V.zContactedCount + ' contatados. Acima de ' + V.zAcceptThreshold + '%, a meta dobra.</span>'
+      + '<span style="font-size:11.5px;color:var(--mute)">Taxa de aceitação (respondeu ou converteu de quem foi contatado): ' + V.zAcceptRate + '% de ' + V.zContactedCount + ' contatados' + (V.zHasSample ? "" : " (ainda abaixo da amostra mínima de " + V.zMinSample + " pra valer pra meta)") + '. Abaixo de ' + V.zAcceptThreshold + '%, a meta dobra.</span>'
       + "</div>";
     var rows = V.prospeccao.map(function (z) {
       return '<button ' + h(z.h) + ' style="width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:center;padding:15px 0">'
         + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + (z.hasSite ? ' <span title="Tem site" style="font-size:10px;font-weight:600;color:var(--mute);border:1px solid var(--line2);padding:1px 5px;vertical-align:middle">site</span>' : "") + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.setor) + " · " + esc(z.local) + "</span></span>"
         + '<span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(z.acao) + '</span><span style="color:var(--mute)">' + esc(z.quando) + "</span></span>"
-        + '<span style="display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)"><span>cadastrada em</span><span>' + esc(z.criadoEm || "—") + "</span></span>"
+        + '<span style="display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)"><span>cadastrada em</span><span>' + esc(z.criadoEm || "—") + "</span>" + (z.prazoLabel ? '<span style="color:' + (z.prazoOverdue ? "var(--badFg)" : "var(--mute)") + '">' + esc(z.prazoLabel) + "</span>" : "") + "</span>"
         + '<span style="justify-self:end;display:flex;gap:6px">' + (z.hasPrio ? '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.prioBg + ";color:" + z.prioFg + '">' + esc(z.prioridade) + "</span>" : "") + '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span></span>"
         + "</button>";
     }).join("");
@@ -1542,9 +1562,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var flagChip = function (on, label, onLabel, hid) {
       return '<button ' + h(hid) + ' style="padding:8px 14px;border:1px solid ' + (on ? "var(--accTxt)" : "var(--line2)") + ';background:' + (on ? "var(--accSoft)" : "none") + ";color:" + (on ? "var(--accTxt)" : "var(--ink)") + ';font-family:\'Lexend Exa\',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">' + (on ? "✓ " : "") + esc(on ? onLabel : label) + "</button>";
     };
-    var flags = '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+    var flags = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
       + flagChip(V.zContatado, "Marcar como contatado", "Já entrei em contato", V.zContatadoH)
       + flagChip(V.zReuniao, "Marcar reunião/ligação agendada", "Reunião/ligação agendada", V.zReuniaoH)
+      + (V.zPrazoLabel ? '<span style="font-size:11.5px;color:' + (V.zPrazoOverdue ? "var(--badFg)" : "var(--mute)") + '">' + esc(V.zPrazoLabel) + "</span>" : "")
       + "</div>";
     var actions = '<div style="display:flex;gap:8px;flex-wrap:wrap">'
       + (V.zWaUrl ? '<a href="' + esc(V.zWaUrl) + '" target="_blank" rel="noopener" style="padding:11px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-decoration:none">Chamar no WhatsApp</a>' : "")
