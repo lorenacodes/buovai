@@ -54,7 +54,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     // como uma saudação de verdade, não o nome de cadastro completo.
     var nomeLimpo = (nome || "").replace(/\s*\([^)]*\)/g, "").trim();
     var observacao = dor ? "só reparei que " + lowerFirst(dor.trim()).replace(/\.?\s*$/, ".") + " " : "e achei que a presença digital de vocês pode ficar ainda mais forte. ";
-    var msg = "Oi" + (nomeLimpo ? ", " + nomeLimpo : "") + "! Tudo bem? Aqui é a Lorena, da buov.ai. Vi o trabalho de vocês e achei bem bacana, " + observacao + "Ajudo negócios como o seu a terem um site com agendamento online, bem mais prático que ficar só no WhatsApp. Se fizer sentido pra vocês, adoraria bater um papo rápido, por ligação ou numa reunião, sem compromisso :)";
+    var msg = "Oi" + (nomeLimpo ? ", " + nomeLimpo : "") + "! Tudo bem? Aqui é a Lorena, da buov.ai. Vi o trabalho de vocês e achei bem bacana, " + observacao + "Ajudo negócios como o seu a terem um site com agendamento online, bem mais prático que ficar só no WhatsApp. Se fizer sentido pra vocês, adoraria bater um papo rápido, por ligação ou numa reunião, sem compromisso.";
     return "https://wa.me/" + digits + "?text=" + encodeURIComponent(msg);
   };
   var ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
@@ -1496,7 +1496,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     if (V.v_zFicha) return buildZFicha(V);
     var rows = V.prospeccao.map(function (z) {
       return '<button ' + h(z.h) + ' style="width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:center;padding:15px 0">'
-        + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + (z.hasSite ? ' <span title="Tem site" style="font-size:11px;color:var(--mute)">🔗</span>' : "") + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.setor) + " · " + esc(z.local) + "</span></span>"
+        + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + (z.hasSite ? ' <span title="Tem site" style="font-size:10px;font-weight:600;color:var(--mute);border:1px solid var(--line2);padding:1px 5px;vertical-align:middle">site</span>' : "") + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.setor) + " · " + esc(z.local) + "</span></span>"
         + '<span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(z.acao) + '</span><span style="color:var(--mute)">' + esc(z.quando) + "</span></span>"
         + '<span style="display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)"><span>cadastrada em</span><span>' + esc(z.criadoEm || "—") + "</span></span>"
         + '<span style="justify-self:end;display:flex;gap:6px">' + (z.hasPrio ? '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.prioBg + ";color:" + z.prioFg + '">' + esc(z.prioridade) + "</span>" : "") + '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span></span>"
