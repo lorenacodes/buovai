@@ -1551,13 +1551,16 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // do detalhe de projeto — a Lorena não queria mais ver isso como um
   // modal flutuando por cima da lista.
   function buildZFicha(V) {
-    var fields = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.zEditFields.map(function (f) {
-      var label = '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(f.l) + "</span>";
+    // Cada campo vira uma linha (rótulo à esquerda, valor com espaço de
+    // verdade à direita) — a Lorena achou que espremer tudo lado a lado
+    // em colunas estreitas cortava texto e não parecia uma ficha real.
+    var fields = '<div style="display:flex;flex-direction:column;border-top:1px solid var(--line)">' + V.zEditFields.map(function (f) {
+      var label = '<span style="width:170px;flex:none;font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(f.l) + "</span>";
       var inner;
-      if (f.kind === "readonly") inner = '<span style="font-size:14px;font-weight:600">' + esc(f.value) + "</span>";
-      else if (f.kind === "select") inner = '<select data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" style="background:transparent;border:0;border-bottom:1px solid transparent;color:var(--ink);padding:0;font:inherit;font-size:14px;font-weight:600;width:100%;cursor:pointer">' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === f.value ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("") + "</select>";
-      else inner = '<input type="' + f.type + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" data-blurh="' + f.blurH + '" data-field="' + esc(f.key) + '" style="background:transparent;border:0;color:var(--ink);padding:0;font:inherit;font-size:14px;font-weight:600;width:100%">';
-      return '<label style="padding:14px 16px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);cursor:text">' + label + inner + "</label>";
+      if (f.kind === "readonly") inner = '<span style="font-size:14.5px;font-weight:600">' + esc(f.value) + "</span>";
+      else if (f.kind === "select") inner = '<select data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" style="background:transparent;border:0;color:var(--ink);padding:0;font:inherit;font-size:14.5px;font-weight:600;width:100%;max-width:420px;cursor:pointer">' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === f.value ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("") + "</select>";
+      else inner = '<input type="' + f.type + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" data-blurh="' + f.blurH + '" data-field="' + esc(f.key) + '" style="background:transparent;border:0;color:var(--ink);padding:0;font:inherit;font-size:14.5px;font-weight:600;width:100%;max-width:420px">';
+      return '<label style="padding:13px 4px;display:flex;align-items:center;gap:18px;border-bottom:1px solid var(--line);cursor:text">' + label + inner + "</label>";
     }).join("") + "</div>";
     var flagChip = function (on, label, onLabel, hid) {
       return '<button ' + h(hid) + ' style="padding:8px 14px;border:1px solid ' + (on ? "var(--accTxt)" : "var(--line2)") + ';background:' + (on ? "var(--accSoft)" : "none") + ";color:" + (on ? "var(--accTxt)" : "var(--ink)") + ';font-family:\'Lexend Exa\',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">' + (on ? "✓ " : "") + esc(on ? onLabel : label) + "</button>";
