@@ -116,7 +116,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var S = {
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
-    sel: null, zsel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", tplSel: null,
+    sel: null, zsel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     accessBusy: false, accessResult: null,
@@ -712,7 +712,36 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           return { cliente: cli(p.clientId).nome, code: p.code, projeto: p.nome, total: money(p.valor), txt: pg2.length + " de " + p.parcelas.length + " parcelas pagas", aberto: money(p.valor - pv), barW: Math.round(pv / (p.valor || 1) * 100) + "%", chip: st, chipBg: c[0], chipFg: c[1], h: reg(function () { go("projetos", { sel: p.id, ptab: "fin" }); }) };
         });
       }
-      if (V === "agenda") { title = "Agenda"; actions = [btnP("Agendar reunião", function () { openModal("reuniao", { data: T, hora: "10:00" }); })]; out.agenda = upcoming.map(meetRow); }
+      if (V === "agenda") {
+        title = "Agenda"; actions = [btnP("Agendar reunião", function () { openModal("reuniao", { data: T, hora: "10:00" }); })];
+        out.agenda = upcoming.map(meetRow);
+        hasViewToggle = true;
+        out.viewModes = [["lista", "Lista"], ["calendario", "Calendário"]].map(function (x) { var k = x[0], l = x[1]; return { label: l, bg: (S.agMode || "lista") === k ? "var(--btnBg)" : "transparent", fg: (S.agMode || "lista") === k ? "var(--btnFg)" : "var(--ink)", h: reg(function () { setState({ agMode: k }); }) }; });
+        out.v_agList = (S.agMode || "lista") === "lista"; out.v_agCal = (S.agMode || "lista") === "calendario";
+        if (out.v_agCal) {
+          var monthStr = S.agMonth || T.slice(0, 7);
+          var monthParts = monthStr.split("-"), cy = parseInt(monthParts[0], 10), cm = parseInt(monthParts[1], 10);
+          var firstWeekday = new Date(cy, cm - 1, 1).getDay();
+          var daysInMonth = new Date(cy, cm, 0).getDate();
+          var byDay = {};
+          D.meetings.forEach(function (m) { if (m.data.slice(0, 7) === monthStr) { var dnum = parseInt(m.data.slice(8, 10), 10); (byDay[dnum] = byDay[dnum] || []).push(m); } });
+          var cells = [];
+          for (var ci = 0; ci < firstWeekday; ci++) cells.push({ blank: true });
+          for (var dnum2 = 1; dnum2 <= daysInMonth; dnum2++) {
+            var dateStr = cy + "-" + String(cm).padStart(2, "0") + "-" + String(dnum2).padStart(2, "0");
+            var dayItems = (byDay[dnum2] || []).slice().sort(function (a, b) { return a.hora.localeCompare(b.hora); });
+            cells.push({
+              blank: false, d: dnum2, isToday: dateStr === T,
+              items: dayItems.map(function (m) { return { titulo: m.titulo, hora: (m.hora || "").slice(0, 5) }; })
+            });
+          }
+          out.calTitle = MESES_LONG[cm - 1] + " de " + cy;
+          out.calPrevH = reg(function () { var pm = cm - 1 < 1 ? 12 : cm - 1, py = cm - 1 < 1 ? cy - 1 : cy; setState({ agMonth: py + "-" + String(pm).padStart(2, "0") }); });
+          out.calNextH = reg(function () { var nm = cm + 1 > 12 ? 1 : cm + 1, ny = cm + 1 > 12 ? cy + 1 : cy; setState({ agMonth: ny + "-" + String(nm).padStart(2, "0") }); });
+          out.calTodayH = reg(function () { setState({ agMonth: T.slice(0, 7) }); });
+          out.calCells = cells;
+        }
+      }
       if (V === "modelos") {
         title = "Modelos de projeto";
         actions = [btnS("Novo modelo", function () {
@@ -1247,11 +1276,15 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function buildToolbar(V) {
-    if (!V.hasToolbar) return "";
-    var filters = V.tFilters.map(function (t) { return '<button ' + h(t.h) + ' style="padding:8px 11px;border:1px solid ' + t.bd + ";background:" + t.bg + ";color:" + t.fg + ';font-size:12px;cursor:pointer;white-space:nowrap">' + esc(t.label) + ' <span style="font-variant-numeric:tabular-nums;opacity:.7">' + esc(t.count) + "</span></button>"; }).join("");
+    // O toggle de visualização (ex.: Agenda Lista/Calendário) pode
+    // aparecer sozinho, sem busca nem filtros — por isso não depende
+    // de hasToolbar pra existir.
+    if (!V.hasToolbar && !V.hasViewToggle) return "";
+    var filters = V.hasToolbar ? V.tFilters.map(function (t) { return '<button ' + h(t.h) + ' style="padding:8px 11px;border:1px solid ' + t.bd + ";background:" + t.bg + ";color:" + t.fg + ';font-size:12px;cursor:pointer;white-space:nowrap">' + esc(t.label) + ' <span style="font-variant-numeric:tabular-nums;opacity:.7">' + esc(t.count) + "</span></button>"; }).join("") : "";
+    var search = V.hasToolbar ? '<input value="' + esc(V.q) + '" data-ch="' + V.qChH + '" placeholder="' + esc(V.qPh) + '" style="flex:1 1 220px;max-width:360px;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 12px;font:inherit;font-size:13px;outline:none">' : "";
     var vt = V.hasViewToggle ? '<div style="display:flex;margin-left:auto;border:1px solid var(--line2);font-family:\'Lexend Exa\',sans-serif;font-size:11px">' + V.viewModes.map(function (m) { return '<button ' + h(m.h) + ' style="padding:8px 12px;border:0;cursor:pointer;font:inherit;background:' + m.bg + ";color:" + m.fg + '">' + esc(m.label) + "</button>"; }).join("") + "</div>" : "";
     return '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">'
-      + '<input value="' + esc(V.q) + '" data-ch="' + V.qChH + '" placeholder="' + esc(V.qPh) + '" style="flex:1 1 220px;max-width:360px;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 12px;font:inherit;font-size:13px;outline:none">'
+      + search
       + '<div style="display:flex;flex-wrap:wrap;gap:4px">' + filters + "</div>" + vt + "</div>";
   }
 
@@ -1429,9 +1462,32 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function buildAgenda(V) {
+    if (V.v_agCal) return buildAgCal(V);
+    if (!V.agenda.length) return '<div style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhum compromisso agendado.</div>';
     return '<div style="display:flex;flex-direction:column">' + V.agenda.map(function (m) {
       return '<div style="display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;font-variant-numeric:tabular-nums">' + m.dia + " " + m.mes + '</span><span style="font-size:11px;color:var(--mute)">' + esc(m.semana) + " · " + esc(m.hora) + '</span></span><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(m.titulo) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(m.cliente) + '</span></span><button ' + h(m.h) + ' style="border:0;background:none;color:var(--mute);font-size:12px;cursor:pointer">Remover</button></div>';
     }).join("") + "</div>";
+  }
+
+  var DIAS_SEMANA_CURTO = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+
+  function buildAgCal(V) {
+    var nav = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px">'
+      + '<button ' + h(V.calPrevH) + ' aria-label="Mês anterior" style="width:32px;height:32px;border:1px solid var(--line2);background:none;color:var(--ink);cursor:pointer">←</button>'
+      + '<span style="display:flex;align-items:center;gap:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:15px">' + esc(V.calTitle) + '</span><button ' + h(V.calTodayH) + ' style="padding:6px 10px;border:1px solid var(--line2);background:none;color:var(--mute);font-size:11px;cursor:pointer">Hoje</button></span>'
+      + '<button ' + h(V.calNextH) + ' aria-label="Próximo mês" style="width:32px;height:32px;border:1px solid var(--line2);background:none;color:var(--ink);cursor:pointer">→</button>'
+      + "</div>";
+    var head = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line)">' + DIAS_SEMANA_CURTO.map(function (d) {
+      return '<div style="background:var(--panel);padding:8px;text-align:center;font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">' + d + "</div>";
+    }).join("") + "</div>";
+    var grid = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)">' + V.calCells.map(function (c) {
+      if (c.blank) return '<div style="background:var(--bg);min-height:92px"></div>';
+      var items = c.items.map(function (it) {
+        return '<span style="display:block;font-size:10.5px;padding:2px 4px;background:var(--accSoft);color:var(--accTxt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(it.hora ? it.hora + " " + it.titulo : it.titulo) + "</span>";
+      }).join("");
+      return '<div style="background:var(--bg);min-height:92px;padding:6px;display:flex;flex-direction:column;gap:3px' + (c.isToday ? ";box-shadow:inset 0 0 0 1px var(--accTxt)" : "") + '"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:' + (c.isToday ? "var(--accTxt)" : "var(--mute)") + '">' + c.d + "</span>" + items + "</div>";
+    }).join("") + "</div>";
+    return nav + head + grid;
   }
 
   function buildModelos(V) {
