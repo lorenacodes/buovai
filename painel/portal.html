@@ -360,7 +360,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       D.projects = projRows.map(function (p) {
         return {
           id: p.id, code: p.code || "", clientId: p.client_id || "", clienteNome: p.client_name, nome: p.project_title,
-          tplId: p.template_id || "", tipo: p.tipo || "", status: ST_UI[p.status] || p.status, prazo: p.prazo || "", valor: Number(p.budget_value) || 0,
+          tplId: p.template_id || "", tipo: p.tipo || "", status: ST_UI[p.status] || p.status, prazo: p.prazo || "", valor: Number(p.budget_value) || 0, criadoEm: p.created_at || "",
           parcelas: (instRes.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [] }; }),
           docs: (delivRes.data || []).filter(function (d) { return d.project_id === p.id; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: d.visible_to_client }; }),
@@ -474,6 +474,21 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         D.projects.filter(function (p) { return p.status === "Aguardando cliente"; }).forEach(function (p) { alerts.push({ dot: "var(--warnFg)", title: "Aguardando o cliente · " + p.code, sub: p.nome + " · " + nextTask(p), cta: "Abrir", h: reg(function () { go("projetos", { sel: p.id }); }) }); });
         D.leads.filter(function (l) { return l.etapa === 0; }).forEach(function (l) { alerts.push({ dot: "var(--accTxt)", title: "Novo contato · " + l.nome, sub: l.interesse + " · via " + l.origem, cta: "Responder", h: reg(function () { go("funil"); }) }); });
         out.alerts = alerts.slice(0, 6); out.noAlerts = !alerts.length; out.alertCount = String(alerts.length);
+        // Evolução mensal: contratos fechados (projetos criados) e
+        // dinheiro recebido, últimos 6 meses — dois gráficos de barra
+        // separados (escalas diferentes, nunca eixo duplo).
+        var monthKeys = [];
+        for (var mi = 5; mi >= 0; mi--) {
+          var md2 = new Date(T + "T12:00"); md2.setMonth(md2.getMonth() - mi);
+          monthKeys.push({ key: md2.getFullYear() + "-" + String(md2.getMonth() + 1).padStart(2, "0"), label: MES[md2.getMonth()] });
+        }
+        var contratosPorMes = {}, recebidoPorMes = {};
+        D.projects.forEach(function (p) { if (p.criadoEm) { var k = p.criadoEm.slice(0, 7); contratosPorMes[k] = (contratosPorMes[k] || 0) + 1; } });
+        D.projects.forEach(function (p) { p.parcelas.forEach(function (q) { if (q.pago) { var k = (q.pagoAt || q.venc || "").slice(0, 7); if (k) recebidoPorMes[k] = (recebidoPorMes[k] || 0) + q.valor; } }); });
+        var maxContratos = Math.max(1, Math.max.apply(null, monthKeys.map(function (m) { return contratosPorMes[m.key] || 0; })));
+        var maxRecebido = Math.max(1, Math.max.apply(null, monthKeys.map(function (m) { return recebidoPorMes[m.key] || 0; })));
+        out.chartContratos = monthKeys.map(function (m) { var v = contratosPorMes[m.key] || 0; return { label: m.label, val: v, valLabel: String(v), pct: Math.round(v / maxContratos * 100) }; });
+        out.chartRecebido = monthKeys.map(function (m) { var v = recebidoPorMes[m.key] || 0; return { label: m.label, val: v, valLabel: v ? moneyK(v) : "R$ 0", pct: Math.round(v / maxRecebido * 100) }; });
         out.agendaNext = upcoming.slice(0, 4).map(meetRow);
         out.ativos = D.projects.filter(function (p) { return p.status !== "Concluído"; }).map(projRow);
         out.miniCols = narrow ? "minmax(0,1fr)" : "70px minmax(0,2fr) minmax(0,1.4fr) 160px";
@@ -1428,7 +1443,24 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + '<div style="display:flex;flex-wrap:wrap;gap:4px">' + filters + "</div>" + vt + "</div>";
   }
 
+  // Gráfico de barras simples (um eixo, uma série — sem legenda, o
+  // título já nomeia) pra evolução mensal na Visão geral.
+  function buildMiniBarChart(title, data) {
+    var bars = data.map(function (m) {
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0">'
+        + '<span style="font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink2);white-space:nowrap">' + esc(m.valLabel) + "</span>"
+        + '<div style="width:100%;height:96px;display:flex;align-items:flex-end"><div style="width:100%;height:' + Math.max(m.pct, 2) + '%;background:var(--bar);border-radius:4px 4px 0 0;min-height:2px"></div></div>'
+        + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.04em;color:var(--mute)">' + esc(m.label) + "</span>"
+        + "</div>";
+    }).join("");
+    return '<section style="display:flex;flex-direction:column;gap:14px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">' + esc(title) + '</span><div style="display:flex;align-items:flex-end;gap:10px;padding:4px 4px 0;border-bottom:1px solid var(--line)">' + bars + "</div></section>";
+  }
+
   function buildInicio(V) {
+    var charts = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:36px 48px;margin-bottom:8px">'
+      + buildMiniBarChart("Contratos fechados por mês", V.chartContratos)
+      + buildMiniBarChart("Recebido por mês", V.chartRecebido)
+      + "</div>";
     var kpis = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.kpis.map(function (s) {
       return '<div style="padding:18px 18px 20px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:' + s.color + '">' + esc(s.val) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(s.sub) + "</span></div>";
     }).join("") + "</div>";
@@ -1442,6 +1474,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<button ' + h(p.h) + ' style="display:grid;grid-template-columns:' + V.miniCols + ';gap:8px 18px;align-items:center;padding:14px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);text-align:left;font:inherit;cursor:pointer"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--mute)">' + esc(p.code) + '</span><span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:14px;font-weight:600">' + esc(p.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(p.cliente) + '</span></span><span style="font-size:12px;color:var(--ink2)">' + esc(p.next) + "</span>" + barRow(p, true) + "</button>";
     }).join("");
     return kpis
+      + '<div style="margin-top:32px">' + charts + "</div>"
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:36px 48px">'
       + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Precisa de atenção</span><span style="font-size:12px;color:var(--mute)">' + V.alertCount + "</span></div>" + alerts + "</section>"
       + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Próximos compromissos</span><button ' + h(V.goAgenda) + ' style="border:0;background:none;color:var(--accTxt);font-size:12px;cursor:pointer;padding:0">Agenda →</button></div>' + agenda + "</section>"
