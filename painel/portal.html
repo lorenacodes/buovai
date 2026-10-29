@@ -45,11 +45,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // Monta o link direto do WhatsApp (wa.me) com mensagem já pronta, a
   // partir do número cadastrado — assume DDI 55 quando a pessoa só
   // digitou o número local (com DDD), que é o caso mais comum aqui.
-  var waUrl = function (contato, nome) {
+  var waUrl = function (contato, nome, dor) {
     var digits = String(contato || "").replace(/\D/g, "");
     if (!digits) return "";
     if (digits.length <= 11) digits = "55" + digits;
-    var msg = "Olá" + (nome ? ", " + nome : "") + "! Aqui é a Lorena, da buov.ai 👋 Vi o trabalho de vocês e acho que posso ajudar a facilitar o dia a dia com um sistema sob medida. Posso te mostrar rapidinho?";
+    var lowerFirst = function (s) { return s ? s.charAt(0).toLowerCase() + s.slice(1) : s; };
+    var observacao = dor ? "Conheci o trabalho de vocês e notei que " + lowerFirst(dor.trim()).replace(/\.?\s*$/, ".") + " " : "Conheci o trabalho de vocês e acredito que a presença digital de vocês pode ficar ainda mais forte. ";
+    var msg = "Olá" + (nome ? ", " + nome : "") + "! Me chamo Lorena, fundadora da buov.ai. " + observacao + "Tenho ajudado negócios como o seu a ter um site com agendamento online e uma presença digital mais completa. Se fizer sentido pra vocês, fico à disposição para uma conversa rápida — por ligação ou numa reunião, sem compromisso.";
     return "https://wa.me/" + digits + "?text=" + encodeURIComponent(msg);
   };
   var ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
@@ -121,7 +123,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var S = {
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
-    sel: null, zsel: null, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
+    sel: null, zsel: null, zEdit: false, zForm: {}, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     accessBusy: false, accessResult: null,
@@ -324,7 +326,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("admins").select("id,name,email,avatar_url")
       ]);
       var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9];
-      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, prioridade: z.prioridade || "", setor: z.setor || "", estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", site: z.site || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo", criadoEm: z.created_at || "" }; });
+      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, prioridade: z.prioridade || "", setor: z.setor || "", estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", site: z.site || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo", criadoEm: z.created_at || "", contatado: !!z.contatado, reuniaoAgendada: !!z.reuniao_agendada }; });
       D.admins = (adminsRes.data || []).map(function (a) { return { id: a.id, name: a.name, email: (a.email || "").toLowerCase(), avatarUrl: a.avatar_url || "" }; });
 
       D.users = (teamRes.data || []).map(function (u) { return { id: u.id, nome: u.nome, email: u.email, papel: u.papel, ativo: u.ativo }; });
@@ -646,9 +648,6 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var zsel = S.zsel ? D.prospects.filter(function (z) { return z.id === S.zsel; })[0] : null;
         var PRIO_ORDER = { Alta: 0, "Média": 1, Baixa: 2 };
         var prioOf = function (z) { return PRIO_ORDER[z.prioridade] !== undefined ? PRIO_ORDER[z.prioridade] : 3; };
-        var editProspectH = function (z) {
-          return reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, prioridade: z.prioridade, setor: z.setor, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, site: z.site, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); });
-        };
         var convertProspectH = function (z) {
           return reg(function () { openModal("clienteProjeto", { fromProspectId: z.id, cPj: "PJ", cNome: z.nome, cSetor: z.setor, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); });
         };
@@ -669,34 +668,91 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
               criadoEm: z.criadoEm ? dt(z.criadoEm) : "", hasSite: !!z.site,
               status: z.status, chipBg: c[0], chipFg: c[1],
               prioridade: z.prioridade || "", hasPrio: !!pc, prioBg: pc ? pc[0] : "", prioFg: pc ? pc[1] : "",
-              h: reg(function () { setState({ zsel: z.id }); })
+              h: reg(function () { setState({ zsel: z.id, zEdit: false }); })
             };
           });
         } else {
           // "Ficha" da prospecção — a Lorena não queria mais um modal em
           // cima da lista pro detalhe, queria entrar de verdade na
           // informação, página própria, igual já é o detalhe de projeto.
+          // E também não queria precisar clicar em "Editar" pra editar —
+          // por isso a ficha vira um formulário inline quando S.zEdit=true,
+          // em vez de abrir o modal de novo.
           var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[zsel.status] || CH.neu;
           var pc2 = CH[PRIO_CH[zsel.prioridade]] || null;
           title = zsel.nome; kicker = [zsel.setor, [zsel.cidade, zsel.estado].filter(Boolean).join(" / ")].filter(Boolean).join(" · ") || "Prospecção"; out.v_zFicha = true;
-          actions = [btnS("← Prospecção", function () { setState({ zsel: null }); }), btnS("Editar", editProspectH(zsel))];
-          out.zInfo = [
-            { l: "Prioridade", v: zsel.prioridade || "não definida" },
-            { l: "Status", v: zsel.status },
-            { l: "Meio de contato", v: (MEIOS_CONTATO.filter(function (m) { return m.v === zsel.meio; })[0] || {}).l || "não informado" },
-            { l: "Contato", v: zsel.contato || "sem contato" },
-            { l: "Próxima ação", v: zsel.acao || "não definida" },
-            { l: "Quando", v: zsel.quando ? (dt(zsel.quando) + " " + zsel.quando.slice(11, 16)) : "sem data" },
-            { l: "Cadastrado em", v: zsel.criadoEm ? dt(zsel.criadoEm) : "não informado" }
-          ];
-          out.zSite = zsel.site || "";
           out.zChipBg = c[0]; out.zChipFg = c[1]; out.zStatus = zsel.status;
           out.zHasPrio = !!pc2; out.zPrioBg = pc2 ? pc2[0] : ""; out.zPrioFg = pc2 ? pc2[1] : ""; out.zPrioridade = zsel.prioridade || "";
-          out.zEstrategia = zsel.estrategia || "Nada registrado ainda.";
-          out.zDor = zsel.dor || "Nada registrado ainda.";
-          out.zWaUrl = zsel.meio === "telefone" ? waUrl(zsel.contato, zsel.nome) : "";
+          out.zWaUrl = zsel.meio === "telefone" ? waUrl(zsel.contato, zsel.nome, zsel.dor) : "";
           out.zCanConvert = zsel.status !== "Convertido";
           out.zConvertH = convertProspectH(zsel);
+          if (S.zEdit) {
+            var zf = S.zForm || {};
+            var zfH = function (key) { return reg(function (e) { setState(function (s) { var f = Object.assign({}, s.zForm); f[key] = e.target.value; return { zForm: f }; }); }); };
+            out.zEditing = true;
+            actions = [btnS("← Prospecção", function () { setState({ zsel: null, zEdit: false }); })];
+            out.zEditFields = [
+              { l: "Nome ou empresa", key: "nome", kind: "input", type: "text", value: zf.nome || "" },
+              { l: "Prioridade", key: "prioridade", kind: "select", value: zf.prioridade || "", options: [{ v: "", l: "Selecione…" }].concat(PRIORIDADES) },
+              { l: "Área de atuação", key: "setor", kind: "select", value: zf.setor || "", options: optList(SETORES) },
+              { l: "Estado", key: "estado", kind: "select", value: zf.estado || "", options: optList(ESTADOS_BR) },
+              { l: "Cidade", key: "cidade", kind: "select", value: zf.cidade || "", options: optList(CIDADES_SE) },
+              { l: "Meio de contato", key: "meio", kind: "select", value: zf.meio || "", options: MEIOS_CONTATO },
+              { l: "Contato", key: "contato", kind: "input", type: "text", value: zf.contato || "" },
+              { l: "Link do site", key: "site", kind: "input", type: "text", value: zf.site || "" },
+              { l: "Próxima ação", key: "acao", kind: "select", value: zf.acao || "", options: [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais" }, { v: "Reunião", l: "Agendar reunião" }] },
+              { l: "Quando", key: "quando", kind: "input", type: "datetime-local", value: zf.quando || "" },
+              { l: "Status", key: "status", kind: "select", value: zf.status || "", options: [{ v: "Novo", l: "Novo" }, { v: "Contatado", l: "Contatado" }, { v: "Respondeu", l: "Respondeu" }, { v: "Sem interesse", l: "Sem interesse" }, { v: "Convertido", l: "Convertido em cliente" }] }
+            ].map(function (f) { return Object.assign({}, f, { chH: zfH(f.key) }); });
+            out.zEstrategiaField = { key: "estrategia", value: zf.estrategia || "", chH: zfH("estrategia") };
+            out.zDorField = { key: "dor", value: zf.dor || "", chH: zfH("dor") };
+            out.zSaveH = reg(function () {
+              var F = S.zForm || {};
+              if (!(F.nome || "").trim()) { setState({ toast: "Preencha o nome." }); return; }
+              save(function (d) {
+                var z = d.prospects.filter(function (x) { return x.id === zsel.id; })[0];
+                if (z) Object.assign(z, { nome: F.nome, prioridade: F.prioridade || "", setor: F.setor || "", estado: F.estado || "", cidade: F.cidade || "", meio: F.meio || "", contato: F.contato || "", site: F.site || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" });
+              }, "Prospecção atualizada", function () {
+                var payload = { nome: F.nome, prioridade: F.prioridade || null, setor: F.setor || null, estado: F.estado || null, cidade: F.cidade || null, meio_contato: F.meio || null, contato: F.contato || null, site: F.site || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
+                return sb().from("prospects").update(payload).eq("id", zsel.id);
+              });
+              setState({ zEdit: false });
+            });
+            out.zCancelH = reg(function () { setState({ zEdit: false }); });
+          } else {
+            out.zEditing = false;
+            actions = [btnS("← Prospecção", function () { setState({ zsel: null }); }), btnS("Editar", function () {
+              setState({ zEdit: true, zForm: { nome: zsel.nome, prioridade: zsel.prioridade, setor: zsel.setor, estado: zsel.estado, cidade: zsel.cidade, meio: zsel.meio, contato: zsel.contato, site: zsel.site, acao: zsel.acao, quando: zsel.quando ? zsel.quando.slice(0, 16) : "", estrategia: zsel.estrategia, dor: zsel.dor, status: zsel.status } });
+            })];
+            out.zInfo = [
+              { l: "Prioridade", v: zsel.prioridade || "não definida" },
+              { l: "Status", v: zsel.status },
+              { l: "Meio de contato", v: (MEIOS_CONTATO.filter(function (m) { return m.v === zsel.meio; })[0] || {}).l || "não informado" },
+              { l: "Contato", v: zsel.contato || "sem contato" },
+              { l: "Próxima ação", v: zsel.acao || "não definida" },
+              { l: "Quando", v: zsel.quando ? (dt(zsel.quando) + " " + zsel.quando.slice(11, 16)) : "sem data" },
+              { l: "Cadastrado em", v: zsel.criadoEm ? dt(zsel.criadoEm) : "não informado" }
+            ];
+            out.zSite = zsel.site || "";
+            out.zEstrategia = zsel.estrategia || "Nada registrado ainda.";
+            out.zDor = zsel.dor || "Nada registrado ainda.";
+            out.zContatado = !!zsel.contatado;
+            out.zReuniao = !!zsel.reuniaoAgendada;
+            var toggleFlag = function (field, remoteField) {
+              return reg(function () {
+                save(function (d) {
+                  var z = d.prospects.filter(function (x) { return x.id === zsel.id; })[0];
+                  if (z) z[field] = !z[field];
+                }, null, function (d) {
+                  var z = d.prospects.filter(function (x) { return x.id === zsel.id; })[0];
+                  var payload = {}; payload[remoteField] = z[field];
+                  return sb().from("prospects").update(payload).eq("id", zsel.id);
+                });
+              });
+            };
+            out.zContatadoH = toggleFlag("contatado", "contatado");
+            out.zReuniaoH = toggleFlag("reuniaoAgendada", "reuniao_agendada");
+          }
         }
       }
       if (V === "propostas") {
@@ -1450,6 +1506,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // do detalhe de projeto — a Lorena não queria mais ver isso como um
   // modal flutuando por cima da lista.
   function buildZFicha(V) {
+    if (V.zEditing) return buildZFichaEdit(V);
     var info = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.zInfo.map(function (i) {
       var isPrio = i.l === "Prioridade" && V.zHasPrio;
       var val = isPrio
@@ -1457,6 +1514,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         : '<span style="font-size:14px;font-weight:600">' + esc(i.v) + "</span>";
       return '<div style="padding:14px 16px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(i.l) + "</span>" + val + "</div>";
     }).join("") + "</div>";
+    var flagChip = function (on, label, onLabel, hid) {
+      return '<button ' + h(hid) + ' style="padding:8px 14px;border:1px solid ' + (on ? "var(--accTxt)" : "var(--line2)") + ';background:' + (on ? "var(--accSoft)" : "none") + ";color:" + (on ? "var(--accTxt)" : "var(--ink)") + ';font-family:\'Lexend Exa\',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">' + (on ? "✓ " : "") + esc(on ? onLabel : label) + "</button>";
+    };
+    var flags = '<div style="display:flex;gap:8px;flex-wrap:wrap">'
+      + flagChip(V.zContatado, "Marcar como contatado", "Já entrei em contato", V.zContatadoH)
+      + flagChip(V.zReuniao, "Marcar reunião/ligação agendada", "Reunião/ligação agendada", V.zReuniaoH)
+      + "</div>";
     var actions = '<div style="display:flex;gap:8px;flex-wrap:wrap">'
       + (V.zWaUrl ? '<a href="' + esc(V.zWaUrl) + '" target="_blank" rel="noopener" style="padding:11px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-decoration:none">Chamar no WhatsApp</a>' : "")
       + (V.zSite ? '<a href="' + esc(V.zSite) + '" target="_blank" rel="noopener" style="padding:11px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-decoration:none">Ver site</a>' : "")
@@ -1465,7 +1529,25 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var block = function (label, text) {
       return '<div style="display:flex;flex-direction:column;gap:8px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(label) + '</span><p style="margin:0;font-size:14px;line-height:1.7;color:var(--ink2)">' + esc(text) + "</p></div>";
     };
-    return '<div style="display:flex;flex-direction:column;gap:24px">' + info + actions + block("Estratégia", V.zEstrategia) + block("Dor percebida", V.zDor) + "</div>";
+    return '<div style="display:flex;flex-direction:column;gap:24px">' + info + flags + actions + block("Estratégia", V.zEstrategia) + block("Dor percebida", V.zDor) + "</div>";
+  }
+
+  // Ficha em modo de edição: os campos ficam editáveis direto na página,
+  // sem precisar abrir o modal — a Lorena queria editar "de verdade",
+  // sem esse passo extra.
+  function buildZFichaEdit(V) {
+    var fields = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 16px">' + V.zEditFields.map(function (f) {
+      var label = '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(f.l) + "</span>";
+      var inner;
+      if (f.kind === "select") inner = '<select data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 11px;font:inherit;font-size:13.5px;width:100%">' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === f.value ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("") + "</select>";
+      else inner = '<input type="' + f.type + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 11px;font:inherit;font-size:13.5px;width:100%">';
+      return '<label style="display:flex;flex-direction:column;gap:6px">' + label + inner + "</label>";
+    }).join("") + "</div>";
+    var area = function (label, f) {
+      return '<label style="display:flex;flex-direction:column;gap:6px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(label) + '</span><textarea data-ch="' + f.chH + '" data-field="' + esc(f.key) + '" rows="4" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:13.5px;outline:none;width:100%;resize:vertical">' + esc(f.value) + "</textarea></label>";
+    };
+    var actions = '<div style="display:flex;gap:8px"><button ' + h(V.zSaveH) + ' style="padding:11px 18px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Salvar alterações</button><button ' + h(V.zCancelH) + ' style="padding:11px 18px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Cancelar</button></div>';
+    return '<div style="display:flex;flex-direction:column;gap:20px">' + fields + area("Estratégia", V.zEstrategiaField) + area("Dor percebida", V.zDorField) + actions + "</div>";
   }
 
   function buildPropostas(V) {
