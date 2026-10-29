@@ -16,6 +16,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 @keyframes modIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes botBlink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 @keyframes botBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes balloonUp{0%{transform:translateY(0) translateX(0) rotate(0deg);opacity:0}8%{opacity:1}100%{transform:translateY(-115vh) translateX(var(--bx,20px)) rotate(var(--br,8deg));opacity:0}}
+#zCelebrate,#zCelebrateBig{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+#zCelebrate span,#zCelebrateBig span{position:absolute;bottom:-80px;display:flex;flex-direction:column;align-items:center;animation:balloonUp 4.2s ease-in forwards}
+#zCelebrateBig span{animation-duration:5.6s}
+#zCelebrateBig i:first-child{width:38px!important;height:48px!important}
 #bootMsg{min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Lexend Exa',sans-serif;font-size:13px;color:var(--mute)}
 </style>
 </head>
@@ -128,7 +133,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
     sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
-    msgDraft: "", toast: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
+    msgDraft: "", toast: null, clientWon: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     accessBusy: false, accessResult: null,
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
     w: window.innerWidth
@@ -136,6 +141,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var app = document.getElementById("app");
   var toastTimer = null;
+  var winTimer = null;
   var H = {}; // registro de handlers por render
   var HID = 0;
   function reg(fn) { var id = "h" + (HID++); H[id] = fn; return id; }
@@ -689,6 +695,18 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var lowAcceptance = hasSample && acceptRate < ACCEPT_MIN;
           var weekGoal = lowAcceptance ? baseGoal * 2 : baseGoal;
           out.zWeekCount = weekCount; out.zWeekGoal = weekGoal; out.zWeekPct = Math.min(100, Math.round(weekCount / weekGoal * 100)); out.zWeekDone = weekCount >= weekGoal;
+          // Comemoração de balõezinhos quando bate a meta — só uma vez
+          // por semana (marca no localStorage), senão dispararia de novo
+          // a cada clique na aba.
+          if (out.zWeekDone) {
+            var weekKey = monday.toISOString().slice(0, 10);
+            var celebratedWeek = null;
+            try { celebratedWeek = localStorage.getItem("buovai_week_celebrated"); } catch (e) {}
+            if (celebratedWeek !== weekKey) {
+              out.zCelebrate = true;
+              try { localStorage.setItem("buovai_week_celebrated", weekKey); } catch (e) {}
+            }
+          }
           out.zAcceptRate = Math.round(acceptRate * 100); out.zAcceptBoosted = lowAcceptance; out.zAcceptThreshold = Math.round(ACCEPT_MIN * 100);
           out.zContactedCount = contactedZ.length; out.zHasSample = hasSample; out.zMinSample = MIN_SAMPLE;
           var baseZ = D.prospects.filter(function (z) { return match(z.nome, z.contato, z.estrategia, z.dor); });
@@ -1286,6 +1304,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
                 p.parcelas.length ? sb().from("project_installments").insert(p.parcelas.map(function (q) { return { project_id: p.id, numero: q.n, valor: q.valor, vencimento: q.venc, pago: q.pago }; })).select().then(function (r) { if (r.error) throw r.error; r.data.forEach(function (row, i) { p.parcelas[i].id = row.id; }); }) : null,
                 fromProspectId ? sb().from("prospects").update({ status: "Convertido" }).eq("id", fromProspectId) : null
               ]);
+            }).then(function () {
+              // Comemoração maior que a de bater meta de prospecção —
+              // virar cliente de verdade merece mais festa, e o robô
+              // aparece dando parabéns (pedido da Lorena).
+              S.clientWon = c.nome;
+              clearTimeout(winTimer);
+              winTimer = setTimeout(function () { setState({ clientWon: null }); }, 6500);
             });
           });
           S.modal = null; S.f = {}; S.wStep = 1; render();
@@ -1297,7 +1322,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         S.modal = null; S.f = {}; render();
         if (after) after();
       }),
-      hasToast: !!S.toast, toast: S.toast || ""
+      hasToast: !!S.toast, toast: S.toast || "", clientWon: S.clientWon || ""
     }, out);
   }
 
@@ -1529,9 +1554,27 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     }).join("") + "</div>";
   }
 
+  // Balõezinhos desenhados em CSS (sem emoji — a Lorena não gosta), ao
+  // bater a meta semanal de prospecção ou fechar um cliente novo. Só
+  // retorna os <span>, quem chama decide o wrapper (tamanho/duração).
+  var BALLOON_COLORS = ["var(--bar)", "var(--okFg)", "var(--warnFg)", "var(--ink)"];
+  function buildBalloons(count) {
+    var spans = [];
+    for (var i = 0; i < count; i++) {
+      var left = Math.round(Math.random() * 96) + 1;
+      var delay = (Math.random() * 1.4).toFixed(2);
+      var drift = Math.round((Math.random() - 0.5) * 160);
+      var rot = Math.round((Math.random() - 0.5) * 24);
+      var color = BALLOON_COLORS[i % BALLOON_COLORS.length];
+      spans.push('<span style="left:' + left + '%;animation-delay:' + delay + 's;--bx:' + drift + 'px;--br:' + rot + 'deg"><i style="display:block;width:30px;height:38px;border-radius:50% 50% 50% 50%/58% 58% 42% 42%;background:' + color + '"></i><i style="display:block;width:1px;height:26px;margin:0 auto;background:' + color + ';opacity:.6"></i></span>');
+    }
+    return spans.join("");
+  }
+
   function buildProspeccao(V) {
     if (V.v_zFicha) return buildZFicha(V);
-    var goal = '<div style="padding:14px 16px;border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'
+    var balloons = V.zCelebrate ? '<div id="zCelebrate">' + buildBalloons(16) + "</div>" : "";
+    var goal = balloons + '<div style="padding:14px 16px;border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'
       + '<span style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Meta da semana' + (V.zAcceptBoosted ? " (dobrada)" : "") + '</span><span style="font-size:13px;font-weight:600;color:' + (V.zWeekDone ? "var(--accTxt)" : "var(--ink)") + '">' + V.zWeekCount + " de " + V.zWeekGoal + "</span></span>"
       + '<span style="height:5px;background:var(--barBg)"><span style="display:block;height:100%;width:' + V.zWeekPct + '%;background:var(--bar)"></span></span>'
       + '<span style="font-size:11.5px;color:var(--mute)">Taxa de aceitação (respondeu ou converteu de quem foi contatado): ' + V.zAcceptRate + '% de ' + V.zContactedCount + ' contatados' + (V.zHasSample ? "" : " (ainda abaixo da amostra mínima de " + V.zMinSample + " pra valer pra meta)") + '. Abaixo de ' + V.zAcceptThreshold + '%, a meta dobra.</span>'
@@ -1731,9 +1774,24 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     return '<main style="min-width:0;padding:clamp(22px,3.4vw,44px) clamp(16px,3.6vw,52px) 120px;display:flex;flex-direction:column;gap:28px">' + buildHeader(V) + buildToolbar(V) + body + "</main>";
   }
 
+  var BOT_ICON = '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><line x1="76" y1="132" x2="18" y2="38" stroke="#457528" stroke-width="16" stroke-linecap="round"></line><line x1="246" y1="126" x2="292" y2="24" stroke="#457528" stroke-width="16" stroke-linecap="round"></line><circle cx="170" cy="283" r="172" fill="#defa9a"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#0e0f0b"></rect><rect x="66" y="230" width="208" height="134" rx="67" fill="#defa9a"></rect><g style="transform-origin:170px 297px;animation:botBlink 4.2s infinite"><circle cx="122" cy="297" r="16" fill="#0e0f0b"></circle><circle cx="218" cy="297" r="16" fill="#0e0f0b"></circle></g></svg>';
+
+  // Comemoração grande quando um lead/prospecção vira cliente de
+  // verdade — bem mais festa que a meta semanal de prospecção, e o
+  // próprio robô aparece dando parabéns (pedido da Lorena).
+  function buildWinCelebration(V) {
+    if (!V.clientWon) return "";
+    var balloons = buildBalloons(28);
+    var bubble = '<div style="position:fixed;left:50%;bottom:130px;transform:translateX(-50%);z-index:201;display:flex;flex-direction:column;align-items:center;gap:14px;animation:modIn .4s both">'
+      + '<div style="max-width:min(420px,calc(100vw - 32px));padding:16px 20px;background:var(--panel);border:1px solid var(--line2);box-shadow:0 24px 60px rgba(0,0,0,.3);text-align:center"><span style="display:block;font-family:\'Lexend Exa\',sans-serif;font-size:14px;margin-bottom:4px">Parabéns!</span><span style="font-size:13.5px;color:var(--ink2);line-height:1.5">' + esc(V.clientWon) + " virou cliente de verdade. Mais um negócio conquistado!</span></div>"
+      + '<span style="width:84px;line-height:0;animation:botBob 2.4s ease-in-out infinite">' + BOT_ICON + "</span>"
+      + "</div>";
+    return '<div id="zCelebrateBig">' + balloons + "</div>" + bubble;
+  }
+
   function buildBot(V) {
     if (!V.showBot) return "";
-    var botIcon = '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><line x1="76" y1="132" x2="18" y2="38" stroke="#457528" stroke-width="16" stroke-linecap="round"></line><line x1="246" y1="126" x2="292" y2="24" stroke="#457528" stroke-width="16" stroke-linecap="round"></line><circle cx="170" cy="283" r="172" fill="#defa9a"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#0e0f0b"></rect><rect x="66" y="230" width="208" height="134" rx="67" fill="#defa9a"></rect><g style="transform-origin:170px 297px;animation:botBlink 4.2s infinite"><circle cx="122" cy="297" r="16" fill="#0e0f0b"></circle><circle cx="218" cy="297" r="16" fill="#0e0f0b"></circle></g></svg>';
+    var botIcon = BOT_ICON;
     var btn = '<button ' + h(V.toggleHelpH) + ' aria-label="Ajuda com o portal" style="position:fixed;right:22px;bottom:22px;z-index:40;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);cursor:pointer;font-family:\'Lexend Exa\',sans-serif;font-size:11px;box-shadow:0 14px 40px rgba(0,0,0,.25)"><span style="width:40px;line-height:0;animation:botBob 3.2s ease-in-out infinite">' + botIcon + "</span><span>" + esc(V.helpBtnLabel) + "</span></button>";
     var panel = "";
     if (V.helpOpen) {
@@ -1823,7 +1881,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     H = {}; HID = 0;
     var V = computeVals();
     document.body.dataset.theme = S.theme;
-    app.innerHTML = '<div style="min-height:100vh;display:grid;grid-template-columns:' + V.shellCols + ';background:var(--bg)">' + buildAside(V) + buildMain(V) + "</div>" + buildBot(V) + buildCmd(V) + buildModal(V) + buildToast(V) + buildUserMenu(V);
+    app.innerHTML = '<div style="min-height:100vh;display:grid;grid-template-columns:' + V.shellCols + ';background:var(--bg)">' + buildAside(V) + buildMain(V) + "</div>" + buildBot(V) + buildCmd(V) + buildModal(V) + buildToast(V) + buildUserMenu(V) + buildWinCelebration(V);
 
     if (keep) {
       var back = (keep.field && app.querySelector('[data-field="' + keep.field + '"]')) || (keep.ch && app.querySelector('[data-ch="' + keep.ch + '"]'));
