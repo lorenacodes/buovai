@@ -319,7 +319,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("admins").select("id,name,email,avatar_url")
       ]);
       var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9];
-      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo" }; });
+      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, setor: z.setor || "", estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo" }; });
       D.admins = (adminsRes.data || []).map(function (a) { return { id: a.id, name: a.name, email: (a.email || "").toLowerCase(), avatarUrl: a.avatar_url || "" }; });
 
       D.users = (teamRes.data || []).map(function (u) { return { id: u.id, nome: u.nome, email: u.email, papel: u.papel, ativo: u.ativo }; });
@@ -646,11 +646,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         out.prospeccao = listZ.slice().sort(function (a, b) { return (a.quando || "9999").localeCompare(b.quando || "9999"); }).map(function (z) {
           var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[z.status] || CH.neu;
           return {
-            nome: z.nome, local: [z.cidade, z.estado].filter(Boolean).join(" / "), contato: z.contato || "sem contato", acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data", estrategia: z.estrategia || "", dor: z.dor || "",
+            nome: z.nome, setor: z.setor || "", local: [z.cidade, z.estado].filter(Boolean).join(" / "), contato: z.contato || "sem contato", acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data", estrategia: z.estrategia || "", dor: z.dor || "",
             status: z.status, chipBg: c[0], chipFg: c[1], canConvert: z.status !== "Convertido",
             waUrl: z.meio === "telefone" ? waUrl(z.contato, z.nome) : "",
-            h: reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); }),
-            convertH: reg(function () { openModal("clienteProjeto", { cPj: "PJ", cNome: z.nome, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
+            h: reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, setor: z.setor, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); }),
+            convertH: reg(function () { openModal("clienteProjeto", { fromProspectId: z.id, cPj: "PJ", cNome: z.nome, cSetor: z.setor, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
           };
         });
       }
@@ -921,6 +921,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         } },
       prospeccao: { t: F.id ? "Editar prospecção" : "Nova prospecção", b: F.id ? "Salvar alterações" : "Registrar prospecção", fields: [
           inp("Nome ou empresa *", "nome", "Quem você quer conquistar"),
+          sl("Área de atuação", "setor", optList(SETORES)),
           sl("Estado", "estado", optList(ESTADOS_BR)),
           sl("Cidade", "cidade", optList(CIDADES_SE)),
           sl("Meio de contato", "meio", MEIOS_CONTATO),
@@ -932,12 +933,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           sl("Status", "status", [{ v: "Novo", l: "Novo" }, { v: "Contatado", l: "Contatado" }, { v: "Respondeu", l: "Respondeu" }, { v: "Sem interesse", l: "Sem interesse" }, { v: "Convertido", l: "Convertido em cliente" }])
         ], req: ["nome"],
         go: function (d) {
-          var vals = { nome: F.nome, estado: F.estado || "", cidade: F.cidade || "", meio: F.meio || "", contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" };
+          var vals = { nome: F.nome, setor: F.setor || "", estado: F.estado || "", cidade: F.cidade || "", meio: F.meio || "", contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" };
           if (F.id) { var z = d.prospects.filter(function (x) { return x.id === F.id; })[0]; if (z) Object.assign(z, vals); }
           else d.prospects.unshift(Object.assign({ id: "z" + Date.now() }, vals));
         }, toast: F.id ? "Prospecção atualizada" : "Prospecção registrada",
         remote: function (d) {
-          var payload = { nome: F.nome, estado: F.estado || null, cidade: F.cidade || null, meio_contato: F.meio || null, contato: F.contato || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
+          var payload = { nome: F.nome, setor: F.setor || null, estado: F.estado || null, cidade: F.cidade || null, meio_contato: F.meio || null, contato: F.contato || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
           if (F.id) return sb().from("prospects").update(payload).eq("id", F.id);
           return sb().from("prospects").insert(payload).select().single().then(function (res) { if (res.error) throw res.error; d.prospects[0].id = res.data.id; });
         } }
@@ -1072,6 +1073,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (md.req.some(function (k) { return !String(F[k] || "").trim(); })) { setState({ mErr: true }); return; }
         if (M === "clienteProjeto" && (S.wStep || 1) < wizSteps.length) { setState({ wStep: (S.wStep || 1) + 1, mErr: false }); return; }
         if (M === "clienteProjeto") {
+          var fromProspectId = F.fromProspectId;
           save(function (d) {
             d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", setor: F.cSetor || "", email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
             var newC = d.clients[d.clients.length - 1];
@@ -1080,6 +1082,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             var nums = d.projects.map(function (p) { var mm = /BV-(\d+)/.exec(p.code || ""); return mm ? parseInt(mm[1]) : 0; });
             var code = "BV-" + String((nums.length ? Math.max.apply(null, nums) : 0) + 1).padStart(3, "0");
             d.projects.unshift({ id: "p" + Date.now(), code: code, clientId: newC.id, nome: F.pNome, tplId: t ? t.id : "", tipo: t ? t.nome : "", status: "Em andamento", prazo: F.pPrazo || "", valor: v, parcelas: mkParc(v, n, F.pVenc || T, 0), tasks: mkTasks(t ? t.etapas : [], 0), docs: [], hist: [{ at: nowStr(), who: "Lorena", text: 'criou o projeto a partir do modelo "' + (t ? t.nome : "") + '"' }] });
+            // Veio de uma prospecção (botão "Converter em cliente")? Marca
+            // ela como Convertido junto — sem isso a prospecção ficava
+            // "Novo" pra sempre mesmo depois de virar cliente de verdade
+            // (pedido da Lorena: quer ver quem evoluiu pra cliente).
+            if (fromProspectId) { var zp = d.prospects.filter(function (x) { return x.id === fromProspectId; })[0]; if (zp) zp.status = "Convertido"; }
           }, "Cliente e projeto criados", function (d) {
             var c = d.clients[d.clients.length - 1], p = d.projects[0];
             return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
@@ -1094,7 +1101,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
               p.id = res2.data.id;
               return Promise.all([
                 p.tasks.length ? sb().from("project_stages").insert(p.tasks.map(function (tk, i) { return { project_id: p.id, title: tk.t, status: tk.done ? "concluido" : "pendente", order_index: i, checklist: [] }; })).select().then(function (r) { if (r.error) throw r.error; r.data.forEach(function (row, i) { p.tasks[i].id = row.id; }); }) : null,
-                p.parcelas.length ? sb().from("project_installments").insert(p.parcelas.map(function (q) { return { project_id: p.id, numero: q.n, valor: q.valor, vencimento: q.venc, pago: q.pago }; })).select().then(function (r) { if (r.error) throw r.error; r.data.forEach(function (row, i) { p.parcelas[i].id = row.id; }); }) : null
+                p.parcelas.length ? sb().from("project_installments").insert(p.parcelas.map(function (q) { return { project_id: p.id, numero: q.n, valor: q.valor, vencimento: q.venc, pago: q.pago }; })).select().then(function (r) { if (r.error) throw r.error; r.data.forEach(function (row, i) { p.parcelas[i].id = row.id; }); }) : null,
+                fromProspectId ? sb().from("prospects").update({ status: "Convertido" }).eq("id", fromProspectId) : null
               ]);
             });
           });
@@ -1338,7 +1346,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   function buildProspeccao(V) {
     var rows = V.prospeccao.map(function (z) {
       return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:start;padding:15px 0;border-top:1px solid var(--line)">'
-        + '<button ' + h(z.h) + ' style="text-align:left;border:0;background:none;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.contato) + (z.local ? " · " + esc(z.local) : "") + "</span></button>"
+        + '<button ' + h(z.h) + ' style="text-align:left;border:0;background:none;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + (z.setor ? ' <span style="font-weight:400;color:var(--mute)">· ' + esc(z.setor) + "</span>" : "") + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.contato) + (z.local ? " · " + esc(z.local) : "") + "</span></button>"
         + '<span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(z.acao) + '</span><span style="color:var(--mute)">' + esc(z.quando) + "</span></span>"
         + '<span style="font-size:12px;color:var(--ink2);line-height:1.45">' + esc(z.estrategia) + "</span>"
         + '<span style="font-size:12px;color:var(--mute);line-height:1.45">' + esc(z.dor) + "</span>"
