@@ -651,9 +651,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var zsel = S.zsel ? D.prospects.filter(function (z) { return z.id === S.zsel; })[0] : null;
         var PRIO_ORDER = { Alta: 0, "Média": 1, Baixa: 2 };
         var prioOf = function (z) { return PRIO_ORDER[z.prioridade] !== undefined ? PRIO_ORDER[z.prioridade] : 3; };
-        // Prazo de 7 dias, a partir do cadastro, pra fazer o primeiro
+        // Prazo de 10 dias, a partir do cadastro, pra fazer o primeiro
         // contato. Depois de contatada, o prazo deixa de valer.
-        var CONTACT_DEADLINE_DAYS = 7;
+        var CONTACT_DEADLINE_DAYS = 10;
         var prazoInfo = function (z) {
           if (!z.criadoEm) return { label: "", overdue: false };
           if (z.contatado) return { label: "", overdue: false };
