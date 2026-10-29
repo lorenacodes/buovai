@@ -37,6 +37,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var SETORES = ["Contabilidade", "Engenharia / Construção civil", "Advocacia / Jurídico", "Saúde / Clínica médica", "Odontologia", "Arquitetura", "Comércio / Varejo", "Indústria", "Tecnologia / TI", "Educação", "Alimentação / Restaurante", "Beleza e estética", "Imobiliário", "Transporte e logística", "Serviços financeiros", "Agronegócio", "Outro"];
   var ASSUNTOS_REUNIAO = ["Diagnóstico inicial", "Validação do protótipo", "Alinhamento de escopo", "Apresentação de proposta", "Fechamento de contrato", "Acompanhamento do projeto", "Treinamento do sistema", "Suporte / dúvidas", "Outro"];
   var MEIOS_CONTATO = [{ v: "telefone", l: "Telefone / WhatsApp" }, { v: "instagram", l: "Instagram" }, { v: "email", l: "E-mail" }, { v: "outro", l: "Outro" }];
+  // Prioridade de abordagem: quem não tem site nenhum é o alvo mais
+  // fácil de converter rápido (pedido da Lorena), por isso fica em
+  // destaque tanto na lista quanto na ficha.
+  var PRIORIDADES = [{ v: "Alta", l: "Alta — sem site nenhum" }, { v: "Média", l: "Média — tem site, mas cai no WhatsApp" }, { v: "Baixa", l: "Baixa" }];
+  var PRIO_CH = { Alta: "bad", "Média": "warn", Baixa: "neu" };
   // Monta o link direto do WhatsApp (wa.me) com mensagem já pronta, a
   // partir do número cadastrado — assume DDI 55 quando a pessoa só
   // digitou o número local (com DDD), que é o caso mais comum aqui.
@@ -319,7 +324,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("admins").select("id,name,email,avatar_url")
       ]);
       var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9];
-      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, setor: z.setor || "", estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo" }; });
+      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, prioridade: z.prioridade || "", setor: z.setor || "", estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo" }; });
       D.admins = (adminsRes.data || []).map(function (a) { return { id: a.id, name: a.name, email: (a.email || "").toLowerCase(), avatarUrl: a.avatar_url || "" }; });
 
       D.users = (teamRes.data || []).map(function (u) { return { id: u.id, nome: u.nome, email: u.email, papel: u.papel, ativo: u.ativo }; });
@@ -639,8 +644,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "prospeccao") {
         var zsel = S.zsel ? D.prospects.filter(function (z) { return z.id === S.zsel; })[0] : null;
+        var PRIO_ORDER = { Alta: 0, "Média": 1, Baixa: 2 };
+        var prioOf = function (z) { return PRIO_ORDER[z.prioridade] !== undefined ? PRIO_ORDER[z.prioridade] : 3; };
         var editProspectH = function (z) {
-          return reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, setor: z.setor, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); });
+          return reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, prioridade: z.prioridade, setor: z.setor, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); });
         };
         var convertProspectH = function (z) {
           return reg(function () { openModal("clienteProjeto", { fromProspectId: z.id, cPj: "PJ", cNome: z.nome, cSetor: z.setor, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); });
@@ -651,12 +658,16 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var baseZ = D.prospects.filter(function (z) { return match(z.nome, z.contato, z.estrategia, z.dor); });
           tFilters = ["Todos", "Novo", "Contatado", "Respondeu", "Sem interesse", "Convertido"].map(function (k) { return filt(k, k === "Todos" ? baseZ.length : baseZ.filter(function (z) { return z.status === k; }).length); });
           var listZ = baseZ.filter(function (z) { return S.tf === "Todos" || z.status === S.tf; }); emptyList = !listZ.length;
-          out.prospeccao = listZ.slice().sort(function (a, b) { return (a.quando || "9999").localeCompare(b.quando || "9999"); }).map(function (z) {
+          // Prioridade alta (sem site nenhum) primeiro — é quem a Lorena
+          // quer abordar logo — e dentro da mesma prioridade, por data.
+          out.prospeccao = listZ.slice().sort(function (a, b) { var pd = prioOf(a) - prioOf(b); return pd !== 0 ? pd : (a.quando || "9999").localeCompare(b.quando || "9999"); }).map(function (z) {
             var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[z.status] || CH.neu;
+            var pc = CH[PRIO_CH[z.prioridade]] || null;
             return {
               id: z.id, nome: z.nome, setor: z.setor || "sem área", local: [z.cidade, z.estado].filter(Boolean).join(" / ") || "sem local",
               acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data",
               status: z.status, chipBg: c[0], chipFg: c[1],
+              prioridade: z.prioridade || "", hasPrio: !!pc, prioBg: pc ? pc[0] : "", prioFg: pc ? pc[1] : "",
               h: reg(function () { setState({ zsel: z.id }); })
             };
           });
@@ -665,9 +676,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           // cima da lista pro detalhe, queria entrar de verdade na
           // informação, página própria, igual já é o detalhe de projeto.
           var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[zsel.status] || CH.neu;
+          var pc2 = CH[PRIO_CH[zsel.prioridade]] || null;
           title = zsel.nome; kicker = [zsel.setor, [zsel.cidade, zsel.estado].filter(Boolean).join(" / ")].filter(Boolean).join(" · ") || "Prospecção"; out.v_zFicha = true;
           actions = [btnS("← Prospecção", function () { setState({ zsel: null }); }), btnS("Editar", editProspectH(zsel))];
           out.zInfo = [
+            { l: "Prioridade", v: zsel.prioridade || "não definida" },
             { l: "Status", v: zsel.status },
             { l: "Meio de contato", v: (MEIOS_CONTATO.filter(function (m) { return m.v === zsel.meio; })[0] || {}).l || "não informado" },
             { l: "Contato", v: zsel.contato || "sem contato" },
@@ -675,6 +688,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             { l: "Quando", v: zsel.quando ? (dt(zsel.quando) + " " + zsel.quando.slice(11, 16)) : "sem data" }
           ];
           out.zChipBg = c[0]; out.zChipFg = c[1]; out.zStatus = zsel.status;
+          out.zHasPrio = !!pc2; out.zPrioBg = pc2 ? pc2[0] : ""; out.zPrioFg = pc2 ? pc2[1] : ""; out.zPrioridade = zsel.prioridade || "";
           out.zEstrategia = zsel.estrategia || "Nada registrado ainda.";
           out.zDor = zsel.dor || "Nada registrado ainda.";
           out.zWaUrl = zsel.meio === "telefone" ? waUrl(zsel.contato, zsel.nome) : "";
@@ -978,6 +992,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         } },
       prospeccao: { t: F.id ? "Editar prospecção" : "Nova prospecção", b: F.id ? "Salvar alterações" : "Registrar prospecção", fields: [
           inp("Nome ou empresa *", "nome", "Quem você quer conquistar"),
+          sl("Prioridade", "prioridade", [{ v: "", l: "Selecione…" }].concat(PRIORIDADES)),
           sl("Área de atuação", "setor", optList(SETORES)),
           sl("Estado", "estado", optList(ESTADOS_BR)),
           sl("Cidade", "cidade", optList(CIDADES_SE)),
@@ -990,12 +1005,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           sl("Status", "status", [{ v: "Novo", l: "Novo" }, { v: "Contatado", l: "Contatado" }, { v: "Respondeu", l: "Respondeu" }, { v: "Sem interesse", l: "Sem interesse" }, { v: "Convertido", l: "Convertido em cliente" }])
         ], req: ["nome"],
         go: function (d) {
-          var vals = { nome: F.nome, setor: F.setor || "", estado: F.estado || "", cidade: F.cidade || "", meio: F.meio || "", contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" };
+          var vals = { nome: F.nome, prioridade: F.prioridade || "", setor: F.setor || "", estado: F.estado || "", cidade: F.cidade || "", meio: F.meio || "", contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" };
           if (F.id) { var z = d.prospects.filter(function (x) { return x.id === F.id; })[0]; if (z) Object.assign(z, vals); }
           else d.prospects.unshift(Object.assign({ id: "z" + Date.now() }, vals));
         }, toast: F.id ? "Prospecção atualizada" : "Prospecção registrada",
         remote: function (d) {
-          var payload = { nome: F.nome, setor: F.setor || null, estado: F.estado || null, cidade: F.cidade || null, meio_contato: F.meio || null, contato: F.contato || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
+          var payload = { nome: F.nome, prioridade: F.prioridade || null, setor: F.setor || null, estado: F.estado || null, cidade: F.cidade || null, meio_contato: F.meio || null, contato: F.contato || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
           if (F.id) return sb().from("prospects").update(payload).eq("id", F.id);
           return sb().from("prospects").insert(payload).select().single().then(function (res) { if (res.error) throw res.error; d.prospects[0].id = res.data.id; });
         } }
@@ -1420,7 +1435,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<button ' + h(z.h) + ' style="width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:center;padding:15px 0">'
         + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.setor) + " · " + esc(z.local) + "</span></span>"
         + '<span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(z.acao) + '</span><span style="color:var(--mute)">' + esc(z.quando) + "</span></span>"
-        + '<span style="justify-self:end"><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span></span>"
+        + '<span style="justify-self:end;display:flex;gap:6px">' + (z.hasPrio ? '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.prioBg + ";color:" + z.prioFg + '">' + esc(z.prioridade) + "</span>" : "") + '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span></span>"
         + "</button>";
     }).join("");
     return '<div style="display:flex;flex-direction:column">' + rows + (V.emptyList ? '<span style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhuma prospecção ainda. Comece registrando quem você quer conquistar.</span>' : "") + "</div>";
@@ -1431,7 +1446,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // modal flutuando por cima da lista.
   function buildZFicha(V) {
     var info = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.zInfo.map(function (i) {
-      return '<div style="padding:14px 16px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(i.l) + '</span><span style="font-size:14px;font-weight:600">' + esc(i.v) + "</span></div>";
+      var isPrio = i.l === "Prioridade" && V.zHasPrio;
+      var val = isPrio
+        ? '<span style="display:inline-block;font-size:11px;font-weight:600;padding:4px 8px;background:' + V.zPrioBg + ";color:" + V.zPrioFg + '">' + esc(V.zPrioridade) + "</span>"
+        : '<span style="font-size:14px;font-weight:600">' + esc(i.v) + "</span>";
+      return '<div style="padding:14px 16px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(i.l) + "</span>" + val + "</div>";
     }).join("") + "</div>";
     var actions = '<div style="display:flex;gap:8px;flex-wrap:wrap">'
       + (V.zWaUrl ? '<a href="' + esc(V.zWaUrl) + '" target="_blank" rel="noopener" style="padding:11px 16px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer;text-decoration:none">Chamar no WhatsApp</a>' : "")
