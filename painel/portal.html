@@ -36,6 +36,22 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var CARGOS = ["Dono(a) / Proprietário(a)", "Sócio(a)", "Fundador(a)", "Diretor(a)", "Diretor(a) Financeiro(a)", "Diretor(a) Comercial", "Gerente", "Gerente Administrativo(a)", "Coordenador(a)", "Administrador(a)", "Contador(a)", "Advogado(a)", "Engenheiro(a)", "Arquiteto(a)", "Médico(a)", "Dentista", "Assistente Administrativo(a)", "Secretário(a)", "Outro"];
   var SETORES = ["Contabilidade", "Engenharia / Construção civil", "Advocacia / Jurídico", "Saúde / Clínica médica", "Odontologia", "Arquitetura", "Comércio / Varejo", "Indústria", "Tecnologia / TI", "Educação", "Alimentação / Restaurante", "Beleza e estética", "Imobiliário", "Transporte e logística", "Serviços financeiros", "Agronegócio", "Outro"];
   var ASSUNTOS_REUNIAO = ["Diagnóstico inicial", "Validação do protótipo", "Alinhamento de escopo", "Apresentação de proposta", "Fechamento de contrato", "Acompanhamento do projeto", "Treinamento do sistema", "Suporte / dúvidas", "Outro"];
+  var MEIOS_CONTATO = [{ v: "telefone", l: "Telefone / WhatsApp" }, { v: "instagram", l: "Instagram" }, { v: "email", l: "E-mail" }, { v: "outro", l: "Outro" }];
+  // Monta o link direto do WhatsApp (wa.me) com mensagem já pronta, a
+  // partir do número cadastrado — assume DDI 55 quando a pessoa só
+  // digitou o número local (com DDD), que é o caso mais comum aqui.
+  var waUrl = function (contato, nome) {
+    var digits = String(contato || "").replace(/\D/g, "");
+    if (!digits) return "";
+    if (digits.length <= 11) digits = "55" + digits;
+    var msg = "Olá" + (nome ? ", " + nome : "") + "! Aqui é a Lorena, da buov.ai 👋 Vi o trabalho de vocês e acho que posso ajudar a facilitar o dia a dia com um sistema sob medida. Posso te mostrar rapidinho?";
+    return "https://wa.me/" + digits + "?text=" + encodeURIComponent(msg);
+  };
+  var ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
+  // A grande maioria da prospecção da Lorena é em Sergipe (ela atende o
+  // Brasil todo, mas a base é local) — por isso lista os 75 municípios
+  // de SE certinho, com "Outra cidade" pra fora disso.
+  var CIDADES_SE = ["Amparo de São Francisco", "Aquidabã", "Aracaju", "Arauá", "Areia Branca", "Barra dos Coqueiros", "Boquim", "Brejo Grande", "Campo do Brito", "Canhoba", "Canindé de São Francisco", "Capela", "Carira", "Carmópolis", "Cedro de São João", "Cristinápolis", "Cumbe", "Divina Pastora", "Estância", "Feira Nova", "Frei Paulo", "Gararu", "General Maynard", "Gracho Cardoso", "Ilha das Flores", "Indiaroba", "Itabaiana", "Itabaianinha", "Itabi", "Itaporanga d'Ajuda", "Japaratuba", "Japoatã", "Lagarto", "Laranjeiras", "Macambira", "Malhada dos Bois", "Malhador", "Maruim", "Moita Bonita", "Monte Alegre de Sergipe", "Muribeca", "Neópolis", "Nossa Senhora Aparecida", "Nossa Senhora da Glória", "Nossa Senhora das Dores", "Nossa Senhora de Lourdes", "Nossa Senhora do Socorro", "Pacatuba", "Pedra Mole", "Pedrinhas", "Pinhão", "Pirambu", "Poço Redondo", "Poço Verde", "Porto da Folha", "Propriá", "Riachão do Dantas", "Riachuelo", "Ribeirópolis", "Rosário do Catete", "Salgado", "Santa Luzia do Itanhy", "Santa Rosa de Lima", "Santana do São Francisco", "Santo Amaro das Brotas", "São Cristóvão", "São Domingos", "São Francisco", "São Miguel do Aleixo", "Simão Dias", "Siriri", "Telha", "Tobias Barreto", "Tomar do Geru", "Umbaúba", "Outra cidade (fora de SE)"];
   var optList = function (arr) { return [{ v: "", l: "Selecione…" }].concat(arr.map(function (x) { return { v: x, l: x }; })); };
   var MODS = ["Projetos", "Clientes", "Comercial", "Financeiro", "Configurações"];
   var addM = function (iso, n) { var p = iso.split("-").map(Number), y = p[0], m = p[1], d = p[2]; var x = new Date(y, m - 1 + n, d); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); };
@@ -303,7 +319,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("admins").select("id,name,email,avatar_url")
       ]);
       var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9];
-      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, contato: z.contato || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo" }; });
+      D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo" }; });
       D.admins = (adminsRes.data || []).map(function (a) { return { id: a.id, name: a.name, email: (a.email || "").toLowerCase(), avatarUrl: a.avatar_url || "" }; });
 
       D.users = (teamRes.data || []).map(function (u) { return { id: u.id, nome: u.nome, email: u.email, papel: u.papel, ativo: u.ativo }; });
@@ -623,16 +639,17 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "prospeccao") {
         title = "Prospecção"; sub = "Pessoas e empresas que você está tentando conquistar como cliente, antes de virarem contato no funil.";
-        actions = [btnP("Nova prospecção", function () { openModal("prospeccao", { acao: "Ligar", status: "Novo" }); })];
+        actions = [btnP("Nova prospecção", function () { openModal("prospeccao", { acao: "Ligar", status: "Novo", estado: "SE" }); })];
         var baseZ = D.prospects.filter(function (z) { return match(z.nome, z.contato, z.estrategia, z.dor); });
         tFilters = ["Todos", "Novo", "Contatado", "Respondeu", "Sem interesse", "Convertido"].map(function (k) { return filt(k, k === "Todos" ? baseZ.length : baseZ.filter(function (z) { return z.status === k; }).length); });
         var listZ = baseZ.filter(function (z) { return S.tf === "Todos" || z.status === S.tf; }); emptyList = !listZ.length;
         out.prospeccao = listZ.slice().sort(function (a, b) { return (a.quando || "9999").localeCompare(b.quando || "9999"); }).map(function (z) {
           var c = ({ Novo: CH.neu, Contatado: CH.warn, Respondeu: CH.ok, "Sem interesse": CH.bad, Convertido: CH.ok })[z.status] || CH.neu;
           return {
-            nome: z.nome, contato: z.contato || "sem contato", acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data", estrategia: z.estrategia || "", dor: z.dor || "",
+            nome: z.nome, local: [z.cidade, z.estado].filter(Boolean).join(" / "), contato: z.contato || "sem contato", acao: z.acao || "", quando: z.quando ? (dt(z.quando) + " " + z.quando.slice(11, 16)) : "sem data", estrategia: z.estrategia || "", dor: z.dor || "",
             status: z.status, chipBg: c[0], chipFg: c[1], canConvert: z.status !== "Convertido",
-            h: reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); }),
+            waUrl: z.meio === "telefone" ? waUrl(z.contato, z.nome) : "",
+            h: reg(function () { openModal("prospeccao", { id: z.id, nome: z.nome, estado: z.estado, cidade: z.cidade, meio: z.meio, contato: z.contato, acao: z.acao, quando: z.quando ? z.quando.slice(0, 16) : "", estrategia: z.estrategia, dor: z.dor, status: z.status }); }),
             convertH: reg(function () { openModal("clienteProjeto", { cPj: "PJ", cNome: z.nome, cContato: z.contato, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
           };
         });
@@ -904,7 +921,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         } },
       prospeccao: { t: F.id ? "Editar prospecção" : "Nova prospecção", b: F.id ? "Salvar alterações" : "Registrar prospecção", fields: [
           inp("Nome ou empresa *", "nome", "Quem você quer conquistar"),
-          inp("Contato (telefone, Instagram, e-mail)", "contato", ""),
+          sl("Estado", "estado", optList(ESTADOS_BR)),
+          sl("Cidade", "cidade", optList(CIDADES_SE)),
+          sl("Meio de contato", "meio", MEIOS_CONTATO),
+          inp(F.meio === "telefone" ? "Telefone / WhatsApp" : "Contato", "contato", F.meio === "telefone" ? "(79) 90000-0000" : "@perfil ou e-mail", "text", F.meio === "telefone" ? "tel" : null),
           sl("Próxima ação", "acao", [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais" }, { v: "Reunião", l: "Agendar reunião" }]),
           inp("Quando", "quando", "", "datetime-local"),
           area("Estratégia", "estrategia", "Como abordar, o que oferecer"),
@@ -912,11 +932,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           sl("Status", "status", [{ v: "Novo", l: "Novo" }, { v: "Contatado", l: "Contatado" }, { v: "Respondeu", l: "Respondeu" }, { v: "Sem interesse", l: "Sem interesse" }, { v: "Convertido", l: "Convertido em cliente" }])
         ], req: ["nome"],
         go: function (d) {
-          if (F.id) { var z = d.prospects.filter(function (x) { return x.id === F.id; })[0]; if (z) Object.assign(z, { nome: F.nome, contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" }); }
-          else d.prospects.unshift({ id: "z" + Date.now(), nome: F.nome, contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" });
+          var vals = { nome: F.nome, estado: F.estado || "", cidade: F.cidade || "", meio: F.meio || "", contato: F.contato || "", acao: F.acao || "", quando: F.quando || "", estrategia: F.estrategia || "", dor: F.dor || "", status: F.status || "Novo" };
+          if (F.id) { var z = d.prospects.filter(function (x) { return x.id === F.id; })[0]; if (z) Object.assign(z, vals); }
+          else d.prospects.unshift(Object.assign({ id: "z" + Date.now() }, vals));
         }, toast: F.id ? "Prospecção atualizada" : "Prospecção registrada",
         remote: function (d) {
-          var payload = { nome: F.nome, contato: F.contato || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
+          var payload = { nome: F.nome, estado: F.estado || null, cidade: F.cidade || null, meio_contato: F.meio || null, contato: F.contato || null, acao: F.acao || null, quando: F.quando || null, estrategia: F.estrategia || null, dor: F.dor || null, status: F.status || "Novo" };
           if (F.id) return sb().from("prospects").update(payload).eq("id", F.id);
           return sb().from("prospects").insert(payload).select().single().then(function (res) { if (res.error) throw res.error; d.prospects[0].id = res.data.id; });
         } }
@@ -1317,11 +1338,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   function buildProspeccao(V) {
     var rows = V.prospeccao.map(function (z) {
       return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:start;padding:15px 0;border-top:1px solid var(--line)">'
-        + '<button ' + h(z.h) + ' style="text-align:left;border:0;background:none;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.contato) + "</span></button>"
+        + '<button ' + h(z.h) + ' style="text-align:left;border:0;background:none;color:inherit;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.contato) + (z.local ? " · " + esc(z.local) : "") + "</span></button>"
         + '<span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(z.acao) + '</span><span style="color:var(--mute)">' + esc(z.quando) + "</span></span>"
         + '<span style="font-size:12px;color:var(--ink2);line-height:1.45">' + esc(z.estrategia) + "</span>"
         + '<span style="font-size:12px;color:var(--mute);line-height:1.45">' + esc(z.dor) + "</span>"
-        + '<span style="display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap"><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span>" + (z.canConvert ? '<button ' + h(z.convertH) + ' style="padding:7px 10px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:11px;font-weight:600;cursor:pointer">Converter em cliente</button>' : "") + "</span>"
+        + '<span style="display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap"><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span>" + (z.waUrl ? '<a href="' + esc(z.waUrl) + '" target="_blank" rel="noopener" style="padding:7px 10px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:11px;font-weight:600;cursor:pointer;text-decoration:none">Chamar no WhatsApp</a>' : "") + (z.canConvert ? '<button ' + h(z.convertH) + ' style="padding:7px 10px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:11px;font-weight:600;cursor:pointer">Converter em cliente</button>' : "") + "</span>"
         + "</div>";
     }).join("");
     return '<div style="display:flex;flex-direction:column">' + rows + (V.emptyList ? '<span style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhuma prospecção ainda. Comece registrando quem você quer conquistar.</span>' : "") + "</div>";
