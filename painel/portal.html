@@ -759,7 +759,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var zCommitH = reg(commitZForm);
           var zfH = function (key, autosave) {
             return reg(function (e) {
-              setState(function (s) { var f = Object.assign({}, s.zForm); f[key] = e.target.value; return { zForm: f }; });
+              setState(function (s) {
+                var f = Object.assign({}, s.zForm); f[key] = e.target.value;
+                // Prioridade Alta = sem site nenhum, o lead mais fácil de
+                // fechar rápido — ligação funciona melhor que mensagem
+                // nesse caso, então já troca a próxima ação sozinho.
+                if (key === "prioridade" && f.prioridade === "Alta" && f.acao !== "Ligar") f.acao = "Ligar";
+                return { zForm: f };
+              });
               if (autosave) commitZForm();
             });
           };
@@ -772,7 +779,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             { l: "Meio de contato", key: "meio", kind: "select", value: zf.meio || "", options: MEIOS_CONTATO },
             { l: "Contato", key: "contato", kind: "input", type: "text", value: zf.contato || "" },
             { l: "Link do site", key: "site", kind: "input", type: "text", value: zf.site || "" },
-            { l: "Próxima ação", key: "acao", kind: "select", value: zf.acao || "", options: [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais" }, { v: "Reunião", l: "Agendar reunião" }] },
+            { l: "Próxima ação", key: "acao", kind: "select", value: zf.acao || "", options: [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais (achar telefone/site)" }, { v: "Reunião", l: "Agendar reunião" }] },
             { l: "Quando", key: "quando", kind: "input", type: "datetime-local", value: zf.quando || "" },
             { l: "Status", key: "status", kind: "select", value: zf.status || "", options: [{ v: "Novo", l: "Novo" }, { v: "Contatado", l: "Contatado" }, { v: "Respondeu", l: "Respondeu" }, { v: "Sem interesse", l: "Sem interesse" }, { v: "Convertido", l: "Convertido em cliente" }] },
             { l: "Cadastrado em", key: "criadoEm", kind: "readonly", value: zsel.criadoEm ? dt(zsel.criadoEm) : "não informado" }
@@ -1090,7 +1097,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           sl("Meio de contato", "meio", MEIOS_CONTATO),
           inp(F.meio === "telefone" ? "Telefone / WhatsApp" : "Contato", "contato", F.meio === "telefone" ? "(79) 90000-0000" : "@perfil ou e-mail", "text", F.meio === "telefone" ? "tel" : null),
           inp("Link do site (se tiver)", "site", "https://..."),
-          sl("Próxima ação", "acao", [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais" }, { v: "Reunião", l: "Agendar reunião" }]),
+          sl("Próxima ação", "acao", [{ v: "Ligar", l: "Ligar" }, { v: "Mensagem", l: "Mandar mensagem" }, { v: "Pesquisar", l: "Pesquisar mais (achar telefone/site)" }, { v: "Reunião", l: "Agendar reunião" }]),
           inp("Quando", "quando", "", "datetime-local"),
           area("Estratégia", "estrategia", "Como abordar, o que oferecer"),
           area("Dor percebida", "dor", "Qual problema essa pessoa ou empresa parece ter"),
