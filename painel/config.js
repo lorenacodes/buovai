@@ -7,5 +7,5 @@ window.BUOVAI_CONFIG = {
   // Client ID OAuth do Google (público — não é segredo), usado só pra
   // conectar o Google Search Console. Vazio até a Lorena criar o projeto
   // no Google Cloud e me passar o valor.
-  googleClientId: "",
+  googleClientId: "464233818854-8hgujhjvgnr0h34a8p8o19hkp66mlkaq.apps.googleusercontent.com",
 };
