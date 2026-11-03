@@ -9,6 +9,10 @@
   function record() {
     try {
       var params = new URLSearchParams(location.search);
+      // O builder do supabase-js só dispara a requisição quando a Promise
+      // é consumida (await/.then) — sem isso, o insert nunca saía do
+      // navegador. Por isso o .then()/.catch() aqui, mesmo sem usar o
+      // resultado.
       window.buovaiClient.from("site_views").insert({
         path: location.pathname,
         referrer: document.referrer || null,
@@ -16,7 +20,7 @@
         utm_medium: params.get("utm_medium") || null,
         utm_campaign: params.get("utm_campaign") || null,
         device: window.matchMedia && window.matchMedia("(max-width: 760px)").matches ? "mobile" : "desktop",
-      });
+      }).then(function () {}, function () {});
     } catch (e) {}
   }
 
