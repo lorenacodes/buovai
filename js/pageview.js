@@ -1,15 +1,21 @@
 /**
  * Contador leve de visualizações de página, sem cookies nem identificação
  * pessoal — grava 1 linha em site_views por carregamento, usada só para a
- * Lorena acompanhar tráfego no painel administrativo. Só grava depois que
- * o visitante aceita no aviso de cookies/LGPD (js/cookie-consent.js).
+ * Lorena acompanhar tráfego e origem de campanhas no painel administrativo.
+ * Só grava depois que o visitante aceita no aviso de cookies/LGPD
+ * (js/cookie-consent.js).
  */
 (function () {
   function record() {
     try {
+      var params = new URLSearchParams(location.search);
       window.buovaiClient.from("site_views").insert({
         path: location.pathname,
         referrer: document.referrer || null,
+        utm_source: params.get("utm_source") || null,
+        utm_medium: params.get("utm_medium") || null,
+        utm_campaign: params.get("utm_campaign") || null,
+        device: window.matchMedia && window.matchMedia("(max-width: 760px)").matches ? "mobile" : "desktop",
       });
     } catch (e) {}
   }

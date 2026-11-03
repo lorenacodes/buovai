@@ -337,7 +337,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("prospects").select("*").order("quando", { ascending: true }),
         sb().from("admins").select("id,name,email,avatar_url"),
         sb().from("contact_messages").select("*").order("created_at", { ascending: false }),
-        sb().from("site_views").select("created_at,path").order("created_at", { ascending: false }).limit(5000),
+        sb().from("site_views").select("created_at,path,referrer,utm_source,utm_medium,device").order("created_at", { ascending: false }).limit(5000),
         sb().from("integration_status").select("*").eq("service", "google_search_console").maybeSingle()
       ]);
       var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9], contactMsgRes = res[10], siteViewsRes = res[11], gscRes = res[12];
@@ -484,6 +484,19 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         D.siteViews.forEach(function (v) { var k = (v.created_at || "").slice(0, 10); viewsByDay[k] = (viewsByDay[k] || 0) + 1; });
         var maxViewsDay = Math.max(1, Math.max.apply(null, dayKeys.map(function (dk) { return viewsByDay[dk.key] || 0; })));
         out.chartViews = dayKeys.map(function (dk) { var v = viewsByDay[dk.key] || 0; return { label: dk.label, val: v, valLabel: String(v), pct: Math.round(v / maxViewsDay * 100) }; });
+        var views30List = D.siteViews.filter(function (v) { return new Date(v.created_at) >= since30; });
+        var mobileCount = views30List.filter(function (v) { return v.device === "mobile"; }).length;
+        var desktopCount = views30List.length - mobileCount;
+        var origemCount = {};
+        views30List.forEach(function (v) {
+          var k = v.utm_source ? v.utm_source : (v.referrer ? (function () { try { return new URL(v.referrer).hostname.replace(/^www\./, ""); } catch (e) { return "outros"; } })() : "direto");
+          origemCount[k] = (origemCount[k] || 0) + 1;
+        });
+        out.gscViewsOrigem = Object.keys(origemCount).sort(function (a, b) { return origemCount[b] - origemCount[a]; }).slice(0, 6).map(function (k) { return { nome: k, qtd: origemCount[k] }; });
+        out.gscViewsDevice = views30List.length ? [
+          { label: "Celular", pct: Math.round(mobileCount / views30List.length * 100) },
+          { label: "Computador", pct: Math.round(desktopCount / views30List.length * 100) }
+        ] : [];
         var msgsTotal = D.contactMessages.length;
         var msgs30 = D.contactMessages.filter(function (m) { return new Date(m.created_at) >= since30; }).length;
         out.metKpis = [
@@ -1585,6 +1598,16 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<div style="padding:18px 18px 20px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:' + s.color + '">' + esc(s.val) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(s.sub) + "</span></div>";
     }).join("") + "</div>";
     var chart = '<div style="margin-top:32px">' + buildMiniBarChart("Visualizações por dia · últimos 14 dias", V.chartViews) + "</div>";
+    var origem = (V.gscViewsOrigem || []).map(function (o) {
+      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px"><span>' + esc(o.nome) + '</span><span style="color:var(--mute)">' + o.qtd + "</span></div>";
+    }).join("");
+    var device = (V.gscViewsDevice || []).map(function (d) {
+      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px"><span>' + esc(d.label) + '</span><span style="color:var(--mute)">' + d.pct + "%</span></div>";
+    }).join("");
+    var origemDevice = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:36px 48px;margin-top:28px">'
+      + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">De onde vêm · 30 dias</span>' + (origem || '<span style="padding:10px 0;font-size:13px;color:var(--mute)">Sem dados ainda.</span>') + "</section>"
+      + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">Dispositivo · 30 dias</span>' + (device || '<span style="padding:10px 0;font-size:13px;color:var(--mute)">Sem dados ainda.</span>') + "</section>"
+      + "</div>";
     var msgs = V.contactMsgs.map(function (m) {
       var actions = '<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:2px;font-family:\'Lexend Exa\',sans-serif;font-size:11px">'
         + (m.hasWa ? '<a href="' + esc(m.waLink) + '" target="_blank" rel="noopener" style="color:var(--accTxt);text-decoration:none">Responder no WhatsApp →</a>' : "")
@@ -1622,7 +1645,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             : '<span style="font-size:13px;color:var(--ink2)">Clique em "Atualizar agora" pra buscar os dados pela primeira vez.</span>')
         + "</div>";
     }
-    return kpis + chart
+    return kpis + chart + origemDevice
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:36px 48px;margin-top:32px">'
       + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">Contatos recebidos pelo site</span>' + msgs + "</section>"
       + '<section style="display:flex;flex-direction:column;gap:20px">' + seo + "</section>"
