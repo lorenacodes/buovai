@@ -489,8 +489,20 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           { label: "Visualizações · 30 dias", val: String(views30), sub: "páginas carregadas", color: "var(--ink)" },
           { label: "Contatos recebidos · 30 dias", val: String(msgs30), sub: msgsTotal + " desde o início", color: "var(--accTxt)" }
         ];
+        var waReplyUrl = function (tel, nome) {
+          var digits = String(tel || "").replace(/\D/g, "");
+          if (!digits) return "";
+          if (digits.length <= 11) digits = "55" + digits;
+          var primeiro = (nome || "").split(" ")[0];
+          var msg = "Oi" + (primeiro ? ", " + primeiro : "") + "! Aqui é a Lorena, da buov.ai. Recebi sua mensagem pelo site, vamos conversar?";
+          return "https://wa.me/" + digits + "?text=" + encodeURIComponent(msg);
+        };
         out.contactMsgs = D.contactMessages.slice(0, 15).map(function (m) {
-          return { nome: m.name || "Sem nome", empresa: m.company || "", msg: (m.message || "").slice(0, 160), origem: m.source || "Site", quando: dt(m.created_at), email: m.email || "", tel: m.phone || "" };
+          return {
+            nome: m.name || "Sem nome", empresa: m.company || "", msg: (m.message || "").slice(0, 160), origem: m.source || "Site", quando: dt(m.created_at), email: m.email || "", tel: m.phone || "",
+            waLink: waReplyUrl(m.phone, m.name), hasWa: !!m.phone, convertido: m.status === "convertido",
+            leadH: reg(function () { openModal("lead", { nome: m.name || m.company || "", interesse: m.message || "", origem: m.source === "assistente" ? "Assistente" : "Site", contactMsgId: m.id }); })
+          };
         });
         out.noMsgs = !D.contactMessages.length;
         kpis = [
@@ -1131,10 +1143,17 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           return sb().from("proposals").insert({ client_email: p.clientId, client_name: p.clienteNome, titulo: p.titulo, tipo: p.tipo, valor: p.valor, status: p.status, data: p.data }).select().single().then(function (res) { if (res.error) throw res.error; p.id = res.data.id; });
         } },
       lead: { t: "Novo contato", b: "Adicionar ao funil", fields: [inp("Nome *", "nome", "Empresa ou pessoa"), inp("O que precisa *", "interesse", "Ex.: sistema de orçamentos"), inp("Valor estimado (R$)", "valor", "", "number"), sl("Origem", "origem", ["Site", "Assistente", "WhatsApp", "Indicação"].map(function (x) { return { v: x, l: x }; }))], req: ["nome", "interesse"],
-        go: function (d) { d.leads.push({ id: "l" + Date.now(), nome: F.nome, interesse: F.interesse, valor: Number(F.valor) || 0, origem: F.origem || "Site", etapa: 0 }); }, toast: "Contato adicionado",
+        go: function (d) {
+          d.leads.push({ id: "l" + Date.now(), nome: F.nome, interesse: F.interesse, valor: Number(F.valor) || 0, origem: F.origem || "Site", etapa: 0 });
+          if (F.contactMsgId) { var cm = d.contactMessages.filter(function (x) { return x.id === F.contactMsgId; })[0]; if (cm) cm.status = "convertido"; }
+        }, toast: "Contato adicionado",
         remote: function (d) {
           var l = d.leads[d.leads.length - 1];
-          return sb().from("leads").insert({ company_name: l.nome, opportunities: l.interesse, budget_value: l.valor, source: l.origem, stage: "possiveis_leads" }).select().single().then(function (res) { if (res.error) throw res.error; l.id = res.data.id; });
+          return sb().from("leads").insert({ company_name: l.nome, opportunities: l.interesse, budget_value: l.valor, source: l.origem, stage: "possiveis_leads" }).select().single().then(function (res) {
+            if (res.error) throw res.error;
+            l.id = res.data.id;
+            if (F.contactMsgId) return sb().from("contact_messages").update({ status: "convertido" }).eq("id", F.contactMsgId);
+          });
         } },
       reuniao: { t: "Agendar reunião", b: "Agendar", fields: [sl("Assunto *", "titulo", optList(ASSUNTOS_REUNIAO)), sl("Com quem", "cliente", cliNameOpts), inp("Data *", "data", "", "date"), inp("Horário", "hora", "", "time")], req: ["titulo", "data"],
         go: function (d) { d.meetings.push({ id: "m" + Date.now(), titulo: F.titulo, cliente: F.cliente || "", data: F.data, hora: F.hora || "" }); }, toast: "Reunião agendada",
@@ -1523,7 +1542,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     }).join("") + "</div>";
     var chart = '<div style="margin-top:32px">' + buildMiniBarChart("Visualizações por dia · últimos 14 dias", V.chartViews) + "</div>";
     var msgs = V.contactMsgs.map(function (m) {
-      return '<div style="display:flex;flex-direction:column;gap:4px;padding:14px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600">' + esc(m.nome) + (m.empresa ? " · " + esc(m.empresa) : "") + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--mute)">' + esc(m.quando) + " · " + esc(m.origem) + '</span></div><span style="font-size:13px;color:var(--ink2)">' + esc(m.msg) + '</span><span style="font-size:12px;color:var(--mute)">' + [m.tel, m.email].filter(Boolean).map(esc).join(" · ") + "</span></div>";
+      var actions = '<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:2px;font-family:\'Lexend Exa\',sans-serif;font-size:11px">'
+        + (m.hasWa ? '<a href="' + esc(m.waLink) + '" target="_blank" rel="noopener" style="color:var(--accTxt);text-decoration:none">Responder no WhatsApp →</a>' : "")
+        + (m.convertido
+            ? '<span style="color:var(--mute)">Já está no funil</span>'
+            : '<button ' + h(m.leadH) + ' style="padding:0;border:0;background:none;color:var(--ink2);cursor:pointer;text-decoration:underline;font:inherit">Mover para o funil</button>')
+        + "</div>";
+      return '<div style="display:flex;flex-direction:column;gap:4px;padding:14px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600">' + esc(m.nome) + (m.empresa ? " · " + esc(m.empresa) : "") + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--mute)">' + esc(m.quando) + " · " + esc(m.origem) + '</span></div><span style="font-size:13px;color:var(--ink2)">' + esc(m.msg) + '</span><span style="font-size:12px;color:var(--mute)">' + [m.tel, m.email].filter(Boolean).map(esc).join(" · ") + "</span>" + actions + "</div>";
     }).join("") + (V.noMsgs ? '<span style="padding:14px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhum contato recebido pelo site ainda.</span>' : "");
     var seo = '<div style="display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid var(--line);background:var(--panel)">'
       + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Aparecer no Google</span>'
