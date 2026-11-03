@@ -170,7 +170,6 @@
       ["Portal do cliente", "Você acompanha o andamento sem precisar pedir.", 0],
       ["Quem faz", "Do diagnóstico à entrega, sem intermediários.", 1],
       ["Dúvidas", "Se ficou alguma pergunta, ela responde pessoalmente.", 0],
-      ["Contato", "Descreva como é hoje. O caminho vem na resposta.", 1],
     ];
     const secs = cfg
       .map(([lab, msg, dark, targetSel]) => {

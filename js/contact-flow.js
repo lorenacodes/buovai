@@ -142,7 +142,7 @@
 
   let chatStep = 0;
   let botTyping = false;
-  let chatLog = [{ me: false, text: "Olá. Eu recebo os novos projetos da Lorena. Para começar, qual é o seu nome?" }];
+  let chatLog = [{ me: false, text: "Olá! Sou o assistente virtual da buov.ai. Vou fazer algumas perguntas rápidas para entender o seu projeto. Para começar, qual é o seu nome?" }];
   let botTimer = null;
 
   const BOT_ICON_22 =
@@ -252,7 +252,7 @@
     renderCard();
     renderChatInput();
 
-    if (chatStep === 1) botSay("Prazer, " + first + ". Como essa tarefa é feita hoje, e onde ela trava? Pode escrever do seu jeito.");
+    if (chatStep === 1) botSay("Prazer, " + first + ". Qual problema você precisa resolver? Conte como funciona hoje e o que trava ou toma tempo. Pode escrever do seu jeito.");
     else if (chatStep === 2) botSay(reactionFor(v) + " Qual telefone ou WhatsApp a Lorena pode usar para falar com você? Com DDD, por favor.");
     else if (chatStep === 3) botSay("Quer deixar um e-mail também? É opcional.");
     else botSay("Pronto. Montei o resumo do seu pedido ao lado. Posso enviar?");
