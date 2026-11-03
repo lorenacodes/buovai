@@ -337,7 +337,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("prospects").select("*").order("quando", { ascending: true }),
         sb().from("admins").select("id,name,email,avatar_url"),
         sb().from("contact_messages").select("*").order("created_at", { ascending: false }),
-        sb().from("site_views").select("created_at,path,referrer,utm_source,utm_medium,device").order("created_at", { ascending: false }).limit(5000),
+        sb().from("site_views").select("created_at,path,referrer,utm_source,utm_medium,device,max_scroll_pct,time_on_page_sec").order("created_at", { ascending: false }).limit(5000),
         sb().from("integration_status").select("*").eq("service", "google_search_console").maybeSingle()
       ]);
       var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9], contactMsgRes = res[10], siteViewsRes = res[11], gscRes = res[12];
@@ -497,6 +497,16 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           { label: "Celular", pct: Math.round(mobileCount / views30List.length * 100) },
           { label: "Computador", pct: Math.round(desktopCount / views30List.length * 100) }
         ] : [];
+        var withTime = views30List.filter(function (v) { return v.time_on_page_sec != null; });
+        var withScroll = views30List.filter(function (v) { return v.max_scroll_pct != null; });
+        var avgTimeSec = withTime.length ? Math.round(withTime.reduce(function (a, v) { return a + v.time_on_page_sec; }, 0) / withTime.length) : null;
+        var avgScroll = withScroll.length ? Math.round(withScroll.reduce(function (a, v) { return a + v.max_scroll_pct; }, 0) / withScroll.length) : null;
+        var fullScrollPct = withScroll.length ? Math.round(withScroll.filter(function (v) { return v.max_scroll_pct >= 90; }).length / withScroll.length * 100) : null;
+        out.gscEngajamento = (avgTimeSec != null || avgScroll != null) ? [
+          { label: "Tempo médio na página", valor: avgTimeSec != null ? (Math.floor(avgTimeSec / 60) + "min " + (avgTimeSec % 60) + "s") : "—" },
+          { label: "Rolagem média da página", valor: avgScroll != null ? avgScroll + "%" : "—" },
+          { label: "Leu até o fim", valor: fullScrollPct != null ? fullScrollPct + "% dos visitantes" : "—" }
+        ] : [];
         var msgsTotal = D.contactMessages.length;
         var msgs30 = D.contactMessages.filter(function (m) { return new Date(m.created_at) >= since30; }).length;
         out.metKpis = [
@@ -617,7 +627,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "projetos" && sel) {
         title = sel.nome; kicker = sel.code + " · " + cli(sel.clientId).nome; out.v_projDet = true;
-        actions = [btnS("← Projetos", function () { setState({ sel: null }); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
+        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
         var pg = sel.parcelas.filter(function (q) { return q.pago; });
         out.pdInfo = [{ l: "Modelo", v: sel.tipo }, { l: "Valor", v: money(sel.valor) }, { l: "Parcelas pagas", v: pg.length + " de " + sel.parcelas.length }, { l: "Entrega", v: dt(sel.prazo) }, { l: "Progresso", v: pct(sel) + "%" }];
         // Acesso do cliente ao portal: e-mail (o mesmo que libera o link
@@ -765,7 +775,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
               var isCli = D.clients.some(function (c) { return c.nome === l.nome; });
               return {
                 nome: l.nome, interesse: l.interesse, origem: l.origem, valor: l.valor ? moneyK(l.valor) : "",
-                canPrev: i > 0, canNext: i < 3, nextLabel: i < 3 ? ETAPAS[i + 1] + " →" : "", canConvert: i === 3 && !isCli, converted: i === 3 && isCli,
+                canPrev: i > 0, canNext: i < 3, nextLabel: i < 3 ? ETAPAS[i + 1] + " →︎" : "", canConvert: i === 3 && !isCli, converted: i === 3 && isCli,
                 prevH: reg(function () { save(function (d) { d.leads.filter(function (x) { return x.id === l.id; })[0].etapa--; }, null, function (d) { var ld = d.leads.filter(function (x) { return x.id === l.id; })[0]; return sb().from("leads").update({ stage: LEAD_ETAPA[ld.etapa] }).eq("id", l.id); }); }),
                 nextH: reg(function () { save(function (d) { d.leads.filter(function (x) { return x.id === l.id; })[0].etapa++; }, null, function (d) { var ld = d.leads.filter(function (x) { return x.id === l.id; })[0]; return sb().from("leads").update({ stage: LEAD_ETAPA[ld.etapa] }).eq("id", l.id); }); }),
                 convertH: reg(function () { openModal("clienteProjeto", { cPj: "PJ", cNome: l.nome, cOrigem: l.origem, pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })
@@ -881,7 +891,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           };
           out.zContatadoH = toggleFlag("contatado", "contatado");
           out.zReuniaoH = toggleFlag("reuniaoAgendada", "reuniao_agendada");
-          actions = [btnS("← Prospecção", function () { setState({ zsel: null }); })];
+          actions = [btnS("←︎ Prospecção", function () { setState({ zsel: null }); })];
 
           var zf = S.zForm || {};
           var commitZForm = function () {
@@ -1263,7 +1273,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
     // ---- wizard "cliente + projeto" (cadastro combinado, em 2 passos) ----
     var wizSteps = [
-      { title: "Dados do cliente", b: "Continuar →", req: F.cPj === "PF" ? ["cNome", "cTel"] : ["cNome", "cTel", "cDoc"], fields: [
+      { title: "Dados do cliente", b: "Continuar →︎", req: F.cPj === "PF" ? ["cNome", "cTel"] : ["cNome", "cTel", "cDoc"], fields: [
           sl("Tipo", "cPj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
           inp("Nome ou razão social *", "cNome", ""),
           sl("Setor", "cSetor", optList(SETORES)),
@@ -1481,7 +1491,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           + '<span style="font-size:12px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(V.meName) + '</span>'
         + '</button>'
       + '<input type="file" accept="image/*" id="avatarFileInput" data-fileh="' + V.avatarUploadH + '" style="display:none">'
-      + '<a href="index.html" style="font-size:12px;color:var(--mute);white-space:nowrap;padding:0 2px">← Voltar ao site</a>'
+      + '<a href="index.html" style="font-size:12px;color:var(--mute);white-space:nowrap;padding:0 2px">←︎ Voltar ao site</a>'
       + "</div></aside>";
   }
 
@@ -1580,7 +1590,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<div style="padding:18px 18px 20px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:' + s.color + '">' + esc(s.val) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(s.sub) + "</span></div>";
     }).join("") + "</div>";
     var alerts = V.alerts.map(function (a) {
-      return '<button ' + h(a.h) + ' style="display:grid;grid-template-columns:8px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);text-align:left;font:inherit;cursor:pointer"><span style="width:8px;height:8px;background:' + a.dot + '"></span><span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:14px;font-weight:600">' + esc(a.title) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(a.sub) + '</span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--accTxt)">' + esc(a.cta) + " →</span></button>";
+      return '<button ' + h(a.h) + ' style="display:grid;grid-template-columns:8px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);text-align:left;font:inherit;cursor:pointer"><span style="width:8px;height:8px;background:' + a.dot + '"></span><span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:14px;font-weight:600">' + esc(a.title) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(a.sub) + '</span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--accTxt)">' + esc(a.cta) + " →︎</span></button>";
     }).join("") + (V.noAlerts ? '<span style="padding:14px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nada pendente. Tudo em dia.</span>' : "");
     var agenda = V.agendaNext.map(function (m) {
       return '<div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;font-variant-numeric:tabular-nums">' + m.dia + "/" + m.mesN + '</span><span style="font-size:11px;color:var(--mute)">' + esc(m.hora) + '</span></span><span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:14px;font-weight:600">' + esc(m.titulo) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(m.semana) + " · " + esc(m.cliente) + "</span></span></div>";
@@ -1592,9 +1602,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + '<div style="margin-top:32px">' + charts + "</div>"
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:36px 48px">'
       + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Precisa de atenção</span><span style="font-size:12px;color:var(--mute)">' + V.alertCount + "</span></div>" + alerts + "</section>"
-      + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Próximos compromissos</span><button ' + h(V.goAgenda) + ' style="border:0;background:none;color:var(--accTxt);font-size:12px;cursor:pointer;padding:0">Agenda →</button></div>' + agenda + "</section>"
+      + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Próximos compromissos</span><button ' + h(V.goAgenda) + ' style="border:0;background:none;color:var(--accTxt);font-size:12px;cursor:pointer;padding:0">Agenda →︎</button></div>' + agenda + "</section>"
       + "</div>"
-      + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Projetos ativos</span><button ' + h(V.goProjetos) + ' style="border:0;background:none;color:var(--accTxt);font-size:12px;cursor:pointer;padding:0">Todos os projetos →</button></div>' + ativos + "</section>";
+      + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Projetos ativos</span><button ' + h(V.goProjetos) + ' style="border:0;background:none;color:var(--accTxt);font-size:12px;cursor:pointer;padding:0">Todos os projetos →︎</button></div>' + ativos + "</section>";
   }
 
   function buildMetricas(V) {
@@ -1608,13 +1618,17 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var device = (V.gscViewsDevice || []).map(function (d) {
       return '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px"><span>' + esc(d.label) + '</span><span style="color:var(--mute)">' + d.pct + "%</span></div>";
     }).join("");
+    var engajamento = (V.gscEngajamento || []).map(function (e) {
+      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px"><span>' + esc(e.label) + '</span><span style="color:var(--mute)">' + esc(e.valor) + "</span></div>";
+    }).join("");
     var origemDevice = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:36px 48px;margin-top:28px">'
       + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">De onde vêm · 30 dias</span>' + (origem || '<span style="padding:10px 0;font-size:13px;color:var(--mute)">Sem dados ainda.</span>') + "</section>"
       + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">Dispositivo · 30 dias</span>' + (device || '<span style="padding:10px 0;font-size:13px;color:var(--mute)">Sem dados ainda.</span>') + "</section>"
+      + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">Engajamento · 30 dias</span>' + (engajamento || '<span style="padding:10px 0;font-size:13px;color:var(--mute)">Sem dados ainda.</span>') + "</section>"
       + "</div>";
     var msgs = V.contactMsgs.map(function (m) {
       var actions = '<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:2px;font-family:\'Lexend Exa\',sans-serif;font-size:11px">'
-        + (m.hasWa ? '<a href="' + esc(m.waLink) + '" target="_blank" rel="noopener" style="color:var(--accTxt);text-decoration:none">Responder no WhatsApp →</a>' : "")
+        + (m.hasWa ? '<a href="' + esc(m.waLink) + '" target="_blank" rel="noopener" style="color:var(--accTxt);text-decoration:none">Responder no WhatsApp →︎</a>' : "")
         + (m.convertido
             ? '<span style="color:var(--mute)">Já está no funil</span>'
             : '<button ' + h(m.leadH) + ' style="padding:0;border:0;background:none;color:var(--ink2);cursor:pointer;text-decoration:underline;font:inherit">Mover para o funil</button>')
@@ -1752,7 +1766,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;align-items:start">' + V.funil.map(function (col) {
       return '<div style="display:flex;flex-direction:column;gap:8px"><span style="display:flex;flex-direction:column;gap:4px;padding-bottom:10px;border-bottom:1px solid var(--line2)"><span style="display:flex;justify-content:space-between;font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.06em;text-transform:uppercase"><span>' + esc(col.etapa) + '</span><span style="color:var(--mute)">' + col.count + '</span></span><span style="font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums">' + esc(col.total) + "</span></span>" + col.items.map(function (l) {
         var actions = '<span style="display:flex;gap:6px;margin-top:4px">'
-          + (l.canPrev ? '<button ' + h(l.prevH) + ' aria-label="Voltar etapa" style="padding:7px 10px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer">←</button>' : "")
+          + (l.canPrev ? '<button ' + h(l.prevH) + ' aria-label="Voltar etapa" style="padding:7px 10px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer">←︎</button>' : "")
           + (l.canNext ? '<button ' + h(l.nextH) + ' style="flex:1;padding:7px 10px;border:1px solid var(--line2);background:none;color:var(--accTxt);font-size:12px;cursor:pointer">' + esc(l.nextLabel) + "</button>" : "")
           + (l.canConvert ? '<button ' + h(l.convertH) + ' style="flex:1;padding:7px 10px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:12px;font-weight:600;cursor:pointer">Cadastrar cliente</button>' : "")
           + (l.converted ? '<span style="flex:1;padding:7px 0;font-size:12px;color:var(--accTxt);display:flex;align-items:center;gap:6px">' + CHECK_SVG + "cliente cadastrado</span>" : "")
@@ -1862,9 +1876,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   function buildAgCal(V) {
     var nav = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px">'
-      + '<button ' + h(V.calPrevH) + ' aria-label="Mês anterior" style="width:32px;height:32px;border:1px solid var(--line2);background:none;color:var(--ink);cursor:pointer">←</button>'
+      + '<button ' + h(V.calPrevH) + ' aria-label="Mês anterior" style="width:32px;height:32px;border:1px solid var(--line2);background:none;color:var(--ink);cursor:pointer">←︎</button>'
       + '<span style="display:flex;align-items:center;gap:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:15px">' + esc(V.calTitle) + '</span><button ' + h(V.calTodayH) + ' style="padding:6px 10px;border:1px solid var(--line2);background:none;color:var(--mute);font-size:11px;cursor:pointer">Hoje</button></span>'
-      + '<button ' + h(V.calNextH) + ' aria-label="Próximo mês" style="width:32px;height:32px;border:1px solid var(--line2);background:none;color:var(--ink);cursor:pointer">→</button>'
+      + '<button ' + h(V.calNextH) + ' aria-label="Próximo mês" style="width:32px;height:32px;border:1px solid var(--line2);background:none;color:var(--ink);cursor:pointer">→︎</button>'
       + "</div>";
     var head = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--line)">' + DIAS_SEMANA_CURTO.map(function (d) {
       return '<div style="background:var(--panel);padding:8px;text-align:center;font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">' + d + "</div>";
@@ -1886,7 +1900,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var sel = "";
     if (V.hasTplSel) {
       var steps = V.tplSteps.map(function (s) {
-        return '<div style="display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--mute)">' + s.num + '</span><span style="font-size:14px">' + esc(s.t) + '</span><span style="display:flex;gap:2px"><button ' + h(s.upH) + ' aria-label="Subir" style="width:28px;height:28px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer">↑</button><button ' + h(s.downH) + ' aria-label="Descer" style="width:28px;height:28px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer">↓</button><button ' + h(s.delH) + ' aria-label="Remover" style="width:28px;height:28px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer">×</button></span></div>';
+        return '<div style="display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--mute)">' + s.num + '</span><span style="font-size:14px">' + esc(s.t) + '</span><span style="display:flex;gap:2px"><button ' + h(s.upH) + ' aria-label="Subir" style="width:28px;height:28px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer">↑︎</button><button ' + h(s.downH) + ' aria-label="Descer" style="width:28px;height:28px;border:1px solid var(--line);background:none;color:var(--ink);cursor:pointer">↓︎</button><button ' + h(s.delH) + ' aria-label="Remover" style="width:28px;height:28px;border:1px solid var(--line);background:none;color:var(--mute);cursor:pointer">×</button></span></div>';
       }).join("");
       sel = '<div style="display:flex;flex-direction:column;gap:14px;grid-column:span 2;min-width:0">'
         + '<input value="' + esc(V.tplName) + '" data-ch="' + V.tplNameCh + '" style="background:transparent;border:0;border-bottom:1px solid var(--line2);color:var(--ink);padding:8px 0;font-family:\'Lexend Exa\',sans-serif;font-size:20px;letter-spacing:-.04em;outline:none">'
@@ -1928,7 +1942,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   function buildDocumentos(V) {
     return '<div style="display:flex;flex-direction:column">' + V.cDocs.map(function (d) {
-      return '<div style="display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--accTxt)">' + esc(d.tipo) + '</span><span style="font-size:14px">' + esc(d.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(d.data) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--accTxt)">Baixar ↓</span></div>';
+      return '<div style="display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--accTxt)">' + esc(d.tipo) + '</span><span style="font-size:14px">' + esc(d.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(d.data) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--accTxt)">Baixar ↓︎</span></div>';
     }).join("") + "</div>";
   }
 
@@ -1940,7 +1954,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       var action = q.canPay
         ? '<span style="justify-self:end;display:flex;gap:6px;flex-wrap:wrap"><button ' + h(q.h) + ' style="padding:8px 13px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:12px;font-weight:600;cursor:pointer">Pagar com Pix</button><button ' + h(q.avisoH) + ' style="padding:8px 13px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer;white-space:nowrap">Já paguei por boleto</button></span>'
         : q.awaiting ? '<span style="justify-self:end;font-size:12px;color:var(--mute)">Avisamos a Lorena</span>'
-        : '<span style="justify-self:end;font-size:12px;color:var(--mute)">Comprovante ↓</span>';
+        : '<span style="justify-self:end;font-size:12px;color:var(--mute)">Comprovante ↓︎</span>';
       return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;font-variant-numeric:tabular-nums">Parcela ' + q.n + '</span><span style="font-size:14px;font-variant-numeric:tabular-nums">' + esc(q.valor) + '</span><span style="font-size:12px;color:var(--mute)">vence ' + esc(q.venc) + '</span><span><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + q.chipBg + ";color:" + q.chipFg + '">' + esc(q.chip) + "</span></span>" + action + "</div>";
     }).join("");
     return kpis + '<div style="display:flex;flex-direction:column">' + rows + "</div>";
@@ -2004,7 +2018,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var panel = "";
     if (V.helpOpen) {
       var log = V.helpLog.map(function (m) {
-        return '<div style="display:flex;flex-direction:column;align-items:' + m.align + ';gap:8px"><span style="max-width:88%;padding:11px 13px;font-size:13.5px;line-height:1.55;background:' + m.bg + ";color:" + m.fg + ';white-space:pre-line">' + esc(m.text) + "</span>" + (m.hasGo ? '<button ' + h(m.goH) + ' style="padding:7px 11px;border:1px solid var(--line2);background:none;color:var(--accTxt);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">' + esc(m.goLabel) + " →</button>" : "") + "</div>";
+        return '<div style="display:flex;flex-direction:column;align-items:' + m.align + ';gap:8px"><span style="max-width:88%;padding:11px 13px;font-size:13.5px;line-height:1.55;background:' + m.bg + ";color:" + m.fg + ';white-space:pre-line">' + esc(m.text) + "</span>" + (m.hasGo ? '<button ' + h(m.goH) + ' style="padding:7px 11px;border:1px solid var(--line2);background:none;color:var(--accTxt);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">' + esc(m.goLabel) + " →︎</button>" : "") + "</div>";
       }).join("");
       var sugg = V.helpSugg.map(function (s) { return '<button ' + h(s.h) + ' style="padding:7px 10px;border:1px solid var(--line2);background:none;color:var(--ink2);font-size:12px;cursor:pointer;text-align:left">' + esc(s.q) + "</button>"; }).join("");
       panel = '<div style="position:fixed;right:22px;bottom:92px;z-index:41;width:min(380px,calc(100vw - 32px));max-height:min(560px,calc(100vh - 120px));display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line2);box-shadow:0 24px 60px rgba(0,0,0,.3)">'
@@ -2048,7 +2062,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var tplPrev = V.hasTplPreview ? '<div style="display:flex;flex-direction:column;gap:6px;padding:14px;border:1px dashed var(--line2)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">Etapas que serão criadas</span>' + V.tplPreview.map(function (t) { return '<span style="font-size:13px;color:var(--ink2)">' + esc(t) + "</span>"; }).join("") + "</div>" : "";
     var err = V.mErr ? '<span style="font-size:13px;color:var(--badFg)">' + esc(V.mErrMsg || "Preencha os campos marcados com *.") + "</span>" : "";
     var sub = V.hasMSub ? '<span style="font-size:12px;color:var(--mute)">' + esc(V.mSub) + "</span>" : "";
-    var btns = (V.wShowBack ? '<button ' + h(V.wBackH) + ' style="padding:14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer">← Voltar</button>' : "")
+    var btns = (V.wShowBack ? '<button ' + h(V.wBackH) + ' style="padding:14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer">←︎ Voltar</button>' : "")
       + '<button ' + h(V.mSubmitH) + ' style="flex:1;padding:14px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:13px;cursor:pointer">' + esc(V.mSubmitLabel) + "</button>";
     return '<div data-h="' + V.closeModalBgH + '" style="position:fixed;inset:0;z-index:50;background:var(--overlay);backdrop-filter:blur(4px);display:flex;overflow-y:auto;padding:20px">'
       + '<div style="margin:auto;width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line2);padding:clamp(22px,4vw,34px);display:flex;flex-direction:column;gap:18px">'
