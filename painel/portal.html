@@ -134,7 +134,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var S = {
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
-    sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
+    sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", itab: "resumo", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, clientWon: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     accessBusy: false, accessResult: null,
@@ -319,7 +319,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // ---- carrega tudo do Supabase (substitui o seed fictício) ----
   async function loadAll(role, email) {
     var isAdmin = role === "admin";
-    var D = { templates: [], users: [], perms: {}, clients: [], projects: [], leads: [], proposals: [], meetings: [], messages: [], tickets: [], prospects: [], admins: [] };
+    var D = { templates: [], users: [], perms: {}, clients: [], projects: [], leads: [], proposals: [], meetings: [], messages: [], tickets: [], prospects: [], admins: [], contactMessages: [], siteViews: [] };
 
     var tplRes = await sb().from("project_templates").select("*").order("created_at");
     D.templates = (tplRes.data || []).map(function (t) { return { id: t.id, nome: t.nome, etapas: t.etapas || [] }; });
@@ -335,9 +335,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("support_tickets").select("*").order("numero"),
         sb().from("client_projects").select("*").order("created_at", { ascending: false }),
         sb().from("prospects").select("*").order("quando", { ascending: true }),
-        sb().from("admins").select("id,name,email,avatar_url")
+        sb().from("admins").select("id,name,email,avatar_url"),
+        sb().from("contact_messages").select("*").order("created_at", { ascending: false }),
+        sb().from("site_views").select("created_at,path").order("created_at", { ascending: false }).limit(5000)
       ]);
-      var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9];
+      var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9], contactMsgRes = res[10], siteViewsRes = res[11];
+      D.contactMessages = contactMsgRes.data || [];
+      D.siteViews = siteViewsRes.data || [];
       D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, prioridade: z.prioridade || "", setor: z.setor || "", estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", site: z.site || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo", criadoEm: z.created_at || "", contatado: !!z.contatado, reuniaoAgendada: !!z.reuniao_agendada }; });
       D.admins = (adminsRes.data || []).map(function (a) { return { id: a.id, name: a.name, email: (a.email || "").toLowerCase(), avatarUrl: a.avatar_url || "" }; });
 
@@ -463,6 +467,32 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     if (admin) {
       if (V === "inicio") {
         title = "Visão geral";
+        var iTabBtn = function (k, label) { return { label: label, bd: S.itab === k ? "var(--accTxt)" : "transparent", fg: S.itab === k ? "var(--ink)" : "var(--mute)", h: reg(function () { setState({ itab: k }); }) }; };
+        out.iTabs = [iTabBtn("resumo", "Resumo"), iTabBtn("metricas", "Métricas do site")];
+        out.it_metricas = S.itab === "metricas";
+        var now = new Date();
+        var since7 = new Date(now); since7.setDate(since7.getDate() - 7);
+        var since30 = new Date(now); since30.setDate(since30.getDate() - 30);
+        var viewsTotal = D.siteViews.length;
+        var views7 = D.siteViews.filter(function (v) { return new Date(v.created_at) >= since7; }).length;
+        var views30 = D.siteViews.filter(function (v) { return new Date(v.created_at) >= since30; }).length;
+        var dayKeys = [];
+        for (var di = 13; di >= 0; di--) { var dday = new Date(now); dday.setDate(dday.getDate() - di); dayKeys.push({ key: dday.toISOString().slice(0, 10), label: String(dday.getDate()) }); }
+        var viewsByDay = {};
+        D.siteViews.forEach(function (v) { var k = (v.created_at || "").slice(0, 10); viewsByDay[k] = (viewsByDay[k] || 0) + 1; });
+        var maxViewsDay = Math.max(1, Math.max.apply(null, dayKeys.map(function (dk) { return viewsByDay[dk.key] || 0; })));
+        out.chartViews = dayKeys.map(function (dk) { var v = viewsByDay[dk.key] || 0; return { label: dk.label, val: v, valLabel: String(v), pct: Math.round(v / maxViewsDay * 100) }; });
+        var msgsTotal = D.contactMessages.length;
+        var msgs30 = D.contactMessages.filter(function (m) { return new Date(m.created_at) >= since30; }).length;
+        out.metKpis = [
+          { label: "Visualizações · 7 dias", val: String(views7), sub: viewsTotal + " desde o início", color: "var(--ink)" },
+          { label: "Visualizações · 30 dias", val: String(views30), sub: "páginas carregadas", color: "var(--ink)" },
+          { label: "Contatos recebidos · 30 dias", val: String(msgs30), sub: msgsTotal + " desde o início", color: "var(--accTxt)" }
+        ];
+        out.contactMsgs = D.contactMessages.slice(0, 15).map(function (m) {
+          return { nome: m.name || "Sem nome", empresa: m.company || "", msg: (m.message || "").slice(0, 160), origem: m.source || "Site", quando: dt(m.created_at), email: m.email || "", tel: m.phone || "" };
+        });
+        out.noMsgs = !D.contactMessages.length;
         kpis = [
           { label: "Projetos ativos", val: String(D.projects.filter(function (p) { return p.status !== "Concluído"; }).length), sub: D.clients.length + " clientes", color: "var(--ink)" },
           { label: "Entra em 30 dias", val: money(in30.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: in30.length + " parcelas", color: "var(--ink)" },
@@ -1460,6 +1490,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function buildInicio(V) {
+    var tabs = '<div style="display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--line);font-family:\'Lexend Exa\',sans-serif;font-size:12px;margin-bottom:28px">' + V.iTabs.map(function (t) { return '<button ' + h(t.h) + ' style="padding:11px 14px;border:0;border-bottom:2px solid ' + t.bd + ';cursor:pointer;font:inherit;background:none;color:' + t.fg + ';margin-bottom:-1px">' + esc(t.label) + "</button>"; }).join("") + "</div>";
+    if (V.it_metricas) return tabs + buildMetricas(V);
     var charts = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:36px 48px;margin-bottom:8px">'
       + buildMiniBarChart("Contratos fechados por mês", V.chartContratos)
       + buildMiniBarChart("Recebido por mês", V.chartRecebido)
@@ -1476,13 +1508,32 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var ativos = V.ativos.map(function (p) {
       return '<button ' + h(p.h) + ' style="display:grid;grid-template-columns:' + V.miniCols + ';gap:8px 18px;align-items:center;padding:14px 0;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);text-align:left;font:inherit;cursor:pointer"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--mute)">' + esc(p.code) + '</span><span style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font-size:14px;font-weight:600">' + esc(p.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(p.cliente) + '</span></span><span style="font-size:12px;color:var(--ink2)">' + esc(p.next) + "</span>" + barRow(p, true) + "</button>";
     }).join("");
-    return kpis
+    return tabs + kpis
       + '<div style="margin-top:32px">' + charts + "</div>"
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:36px 48px">'
       + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Precisa de atenção</span><span style="font-size:12px;color:var(--mute)">' + V.alertCount + "</span></div>" + alerts + "</section>"
       + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Próximos compromissos</span><button ' + h(V.goAgenda) + ' style="border:0;background:none;color:var(--accTxt);font-size:12px;cursor:pointer;padding:0">Agenda →</button></div>' + agenda + "</section>"
       + "</div>"
       + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:12px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Projetos ativos</span><button ' + h(V.goProjetos) + ' style="border:0;background:none;color:var(--accTxt);font-size:12px;cursor:pointer;padding:0">Todos os projetos →</button></div>' + ativos + "</section>";
+  }
+
+  function buildMetricas(V) {
+    var kpis = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + V.metKpis.map(function (s) {
+      return '<div style="padding:18px 18px 20px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:' + s.color + '">' + esc(s.val) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(s.sub) + "</span></div>";
+    }).join("") + "</div>";
+    var chart = '<div style="margin-top:32px">' + buildMiniBarChart("Visualizações por dia · últimos 14 dias", V.chartViews) + "</div>";
+    var msgs = V.contactMsgs.map(function (m) {
+      return '<div style="display:flex;flex-direction:column;gap:4px;padding:14px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600">' + esc(m.nome) + (m.empresa ? " · " + esc(m.empresa) : "") + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--mute)">' + esc(m.quando) + " · " + esc(m.origem) + '</span></div><span style="font-size:13px;color:var(--ink2)">' + esc(m.msg) + '</span><span style="font-size:12px;color:var(--mute)">' + [m.tel, m.email].filter(Boolean).map(esc).join(" · ") + "</span></div>";
+    }).join("") + (V.noMsgs ? '<span style="padding:14px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhum contato recebido pelo site ainda.</span>' : "");
+    var seo = '<div style="display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid var(--line);background:var(--panel)">'
+      + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Aparecer no Google</span>'
+      + '<span style="font-size:13px;color:var(--ink2);line-height:1.6">Isso não é algo que se "liga" no código — o Google indexa o site aos poucos e a posição depende de tempo, conteúdo e links. Pra acompanhar de verdade: cadastre o site no <strong>Google Search Console</strong> (gratuito) — ele mostra se o buov.ai já está indexado e em quais buscas ele aparece, inclusive "buovai" e "desenvolvimento de software". Se quiser, posso te guiar no cadastro.</span>'
+      + '</div>';
+    return kpis + chart
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:36px 48px;margin-top:32px">'
+      + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">Contatos recebidos pelo site</span>' + msgs + "</section>"
+      + '<section style="display:flex;flex-direction:column;gap:20px">' + seo + "</section>"
+      + "</div>";
   }
 
   function buildProjList(V) {
