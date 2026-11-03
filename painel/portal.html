@@ -515,7 +515,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var msgLimit = S.msgLimit || 15;
         out.contactMsgs = D.contactMessages.slice(0, msgLimit).map(function (m) {
           return {
-            nome: m.name || "Sem nome", empresa: m.company || "", msg: (m.message || "").slice(0, 160), origem: m.source || "Site", quando: dt(m.created_at), email: m.email || "", tel: m.phone || "",
+            nome: m.name || "Sem nome", empresa: m.company || "", msg: (m.message || "").slice(0, 160), origem: m.source || "Site", quando: dt(m.created_at) + " " + (m.created_at || "").slice(11, 16), email: m.email || "", tel: m.phone || "",
             waLink: waReplyUrl(m.phone, m.name), hasWa: !!m.phone, convertido: m.status === "convertido",
             leadH: reg(function () { openModal("lead", { nome: m.name || m.company || "", interesse: m.message || "", origem: m.source === "assistente" ? "Assistente" : "Site", contactMsgId: m.id }); })
           };
