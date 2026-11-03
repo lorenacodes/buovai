@@ -343,8 +343,8 @@
       .join(" · ");
     setupShots(project);
 
-    modalEl.querySelector('[data-field="problem"]').textContent = project.problem || "—";
-    modalEl.querySelector('[data-field="solution"]').textContent = project.solution || "—";
+    modalEl.querySelector('[data-field="problem"]').textContent = project.problem || "-";
+    modalEl.querySelector('[data-field="solution"]').textContent = project.solution || "-";
 
     const highlightsEl = modalEl.querySelector('[data-field="highlights"]');
     highlightsEl.innerHTML = (project.highlights || []).map((h) => `<li>${escapeHtml(h)}</li>`).join("");

@@ -45,7 +45,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // Prioridade de abordagem: quem não tem site nenhum é o alvo mais
   // fácil de converter rápido (pedido da Lorena), por isso fica em
   // destaque tanto na lista quanto na ficha.
-  var PRIORIDADES = [{ v: "Alta", l: "Alta — sem site nenhum" }, { v: "Média", l: "Média — tem site, mas cai no WhatsApp" }, { v: "Baixa", l: "Baixa" }];
+  var PRIORIDADES = [{ v: "Alta", l: "Alta · sem site nenhum" }, { v: "Média", l: "Média · tem site, mas cai no WhatsApp" }, { v: "Baixa", l: "Baixa" }];
   var PRIO_CH = { Alta: "bad", "Média": "warn", Baixa: "neu" };
   // Monta o link direto do WhatsApp (wa.me) com mensagem já pronta, a
   // partir do número cadastrado — assume DDI 55 quando a pessoa só
@@ -254,13 +254,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + "<div class=\"row\"><span class=\"lbl\">E-mail de acesso</span><span class=\"val\">" + esc(acc.email) + "</span></div>"
       + "<div class=\"row\"><span class=\"lbl\">Senha temporária</span><span class=\"val\">" + esc(acc.password) + "</span></div>"
       + "</div>"
-      + "<p class=\"note\">Essa senha é só para o seu primeiro acesso. Assim que você entrar, o sistema vai pedir que você crie uma senha nova, só sua — a partir daí, só você sabe qual é.</p>"
+      + "<p class=\"note\">Essa senha é só para o seu primeiro acesso. Assim que você entrar, o sistema vai pedir que você crie uma senha nova, só sua. A partir daí, só você sabe qual é.</p>"
       + "<p class=\"link\">Acesse em: <strong>" + esc(loginUrl) + "</strong></p>"
       + "<div class=\"footer\"><span>buov.ai · Lorena Cardoso</span><span>Dúvidas? Fale pelo WhatsApp (79) 9 9828-9485</span></div>"
       + "</div></body></html>";
     var blobUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
     var w = window.open(blobUrl, "_blank");
-    if (!w) { S.toast = "O navegador bloqueou a aba nova — permita pop-ups pra esse site e tente de novo."; render(); return; }
+    if (!w) { S.toast = "O navegador bloqueou a aba nova. Permita pop-ups pra esse site e tente de novo."; render(); return; }
     var printed = false;
     var doPrint = function () { if (printed) return; printed = true; try { w.print(); } catch (e) {} setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 10000); };
     setTimeout(doPrint, 600);
@@ -531,16 +531,16 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var gscMeta = D.gsc && D.gsc.meta;
         out.gscHasData = !!gscMeta;
         if (gscMeta) {
-          var verdictMap = { PASS: "Indexada no Google ✓", NEUTRAL: "Indexação parcial", FAIL: "Não indexada ainda" };
+          var verdictMap = { PASS: "Indexada no Google", NEUTRAL: "Indexação parcial", FAIL: "Não indexada ainda" };
           out.gscIndexLabel = verdictMap[gscMeta.index_verdict] || "Ainda sem retorno do Google sobre isso";
           out.gscIndexOk = gscMeta.index_verdict === "PASS";
           out.gscPeriod = gscMeta.period_start && gscMeta.period_end ? dt(gscMeta.period_start) + " – " + dt(gscMeta.period_end) : "";
           var watchLabels = { "buovai": "buovai", "buov.ai": "buov.ai", "desenvolvimento de software": "desenvolvimento de software" };
           out.gscWatched = Object.keys(watchLabels).map(function (k) {
             var w = gscMeta.watched_queries && gscMeta.watched_queries[k];
-            return w ? { termo: watchLabels[k], achou: true, posicao: w.position ? w.position.toFixed(1) : "—", cliques: w.clicks } : { termo: watchLabels[k], achou: false };
+            return w ? { termo: watchLabels[k], achou: true, posicao: w.position ? w.position.toFixed(1) : "-", cliques: w.clicks } : { termo: watchLabels[k], achou: false };
           });
-          out.gscTopQueries = (gscMeta.top_queries || []).slice(0, 8).map(function (q) { return { query: q.query, clicks: q.clicks, impressions: q.impressions, pos: q.position ? q.position.toFixed(1) : "—" }; });
+          out.gscTopQueries = (gscMeta.top_queries || []).slice(0, 8).map(function (q) { return { query: q.query, clicks: q.clicks, impressions: q.impressions, pos: q.position ? q.position.toFixed(1) : "-" }; });
           out.gscNoQueries = !out.gscTopQueries.length;
         }
         out.gscConnectH = reg(function () {
@@ -626,7 +626,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         out.accessBusy = !!S.accessBusy;
         out.accessResult = S.accessResult && S.accessResult.projectId === sel.id ? S.accessResult : null;
         out.genAccessH = reg(function () {
-          if (!accCli.email) { S.toast = "Esse cliente não tem e-mail cadastrado — adicione o e-mail no cadastro do cliente primeiro."; clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3600); render(); return; }
+          if (!accCli.email) { S.toast = "Esse cliente não tem e-mail cadastrado. Adicione o e-mail no cadastro do cliente primeiro."; clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3600); render(); return; }
           var pw = genTempPassword();
           S.accessBusy = true; render();
           Promise.resolve(sb().functions.invoke("admin-create-client-access", { body: { email: accCli.email, password: pw } })).then(function (res) {
@@ -1621,7 +1621,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var seo;
     if (!V.gscConnected) {
       seo = '<div style="display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid var(--line);background:var(--panel)">' + seoHead
-        + '<span style="font-size:13px;color:var(--ink2);line-height:1.6">Conecte o Google Search Console pra ver aqui, com dados reais, se o buov.ai está indexado e em quais buscas ele aparece — inclusive "buovai" e "desenvolvimento de software".</span>'
+        + '<span style="font-size:13px;color:var(--ink2);line-height:1.6">Conecte o Google Search Console pra ver aqui, com dados reais, se o buov.ai está indexado e em quais buscas ele aparece, inclusive "buovai" e "desenvolvimento de software".</span>'
         + (V.gscConfigured
             ? '<button ' + h(V.gscConnectH) + ' style="align-self:flex-start;padding:11px 16px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Conectar Google Search Console</button>'
             : '<span style="font-size:12px;color:var(--mute)">Essa conexão ainda está sendo configurada.</span>')
@@ -1786,7 +1786,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<button ' + h(z.h) + ' style="width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;cursor:pointer;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:center;padding:15px 0">'
         + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(z.nome) + (z.hasSite ? ' <span title="Tem site" style="font-size:10px;font-weight:600;color:var(--mute);border:1px solid var(--line2);padding:1px 5px;vertical-align:middle">site</span>' : "") + '</span><span style="font-size:12px;color:var(--mute)">' + esc(z.setor) + " · " + esc(z.local) + "</span></span>"
         + '<span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(z.acao) + '</span><span style="color:var(--mute)">' + esc(z.quando) + "</span></span>"
-        + '<span style="display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)"><span>cadastrada em</span><span>' + esc(z.criadoEm || "—") + "</span>" + (z.prazoLabel ? '<span style="color:' + (z.prazoOverdue ? "var(--badFg)" : "var(--mute)") + '">' + esc(z.prazoLabel) + "</span>" : "") + "</span>"
+        + '<span style="display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute)"><span>cadastrada em</span><span>' + esc(z.criadoEm || "-") + "</span>" + (z.prazoLabel ? '<span style="color:' + (z.prazoOverdue ? "var(--badFg)" : "var(--mute)") + '">' + esc(z.prazoLabel) + "</span>" : "") + "</span>"
         + '<span style="justify-self:end;display:flex;gap:6px">' + (z.hasPrio ? '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.prioBg + ";color:" + z.prioFg + '">' + esc(z.prioridade) + "</span>" : "") + '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + z.chipBg + ";color:" + z.chipFg + '">' + esc(z.status) + "</span></span>"
         + "</button>";
     }).join("");

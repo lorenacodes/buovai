@@ -31,7 +31,7 @@
     fill: document.getElementById("lcFill"),
   };
 
-  function dash(v) { return v && v.trim() ? v : "—"; }
+  function dash(v) { return v && v.trim() ? v : "-"; }
 
   function renderCard() {
     lc.name.textContent = dash(state.fName);
