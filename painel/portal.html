@@ -134,7 +134,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var S = {
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
-    sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", itab: "resumo", q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
+    sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", itab: "resumo", msgLimit: 15, q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, clientWon: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     accessBusy: false, accessResult: null,
@@ -512,7 +512,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var msg = "Oi" + (primeiro ? ", " + primeiro : "") + "! Aqui é a Lorena, da buov.ai. Recebi sua mensagem pelo site, vamos conversar?";
           return "https://wa.me/" + digits + "?text=" + encodeURIComponent(msg);
         };
-        out.contactMsgs = D.contactMessages.slice(0, 15).map(function (m) {
+        var msgLimit = S.msgLimit || 15;
+        out.contactMsgs = D.contactMessages.slice(0, msgLimit).map(function (m) {
           return {
             nome: m.name || "Sem nome", empresa: m.company || "", msg: (m.message || "").slice(0, 160), origem: m.source || "Site", quando: dt(m.created_at), email: m.email || "", tel: m.phone || "",
             waLink: waReplyUrl(m.phone, m.name), hasWa: !!m.phone, convertido: m.status === "convertido",
@@ -520,6 +521,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           };
         });
         out.noMsgs = !D.contactMessages.length;
+        out.msgCountLabel = D.contactMessages.length ? ("Mostrando " + out.contactMsgs.length + " de " + D.contactMessages.length) : "";
+        out.msgHasMore = D.contactMessages.length > msgLimit;
+        out.msgMoreH = reg(function () { setState({ msgLimit: msgLimit + 15 }); });
         var gscClientId = (window.BUOVAI_CONFIG && window.BUOVAI_CONFIG.googleClientId) || "";
         out.gscConfigured = !!gscClientId;
         out.gscConnected = !!(D.gsc && D.gsc.connected);
@@ -1621,7 +1625,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var seo;
     if (!V.gscConnected) {
       seo = '<div style="display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid var(--line);background:var(--panel)">' + seoHead
-        + '<span style="font-size:13px;color:var(--ink2);line-height:1.6">Conecte o Google Search Console pra ver aqui, com dados reais, se o buov.ai está indexado e em quais buscas ele aparece, inclusive "buovai" e "desenvolvimento de software".</span>'
+        + '<span style="font-size:13px;color:var(--ink2);line-height:1.6">Essa parte é pra responder: "quando alguém pesquisa no Google, o buov.ai aparece?". Conectando com a ferramenta oficial do Google (Search Console), o painel mostra se o site já foi indexado e em quais termos de busca ele apareceu nos últimos 28 dias, inclusive "buovai" e "desenvolvimento de software".</span>'
         + (V.gscConfigured
             ? '<button ' + h(V.gscConnectH) + ' style="align-self:flex-start;padding:11px 16px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Conectar Google Search Console</button>'
             : '<span style="font-size:12px;color:var(--mute)">Essa conexão ainda está sendo configurada.</span>')
@@ -1645,9 +1649,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             : '<span style="font-size:13px;color:var(--ink2)">Clique em "Atualizar agora" pra buscar os dados pela primeira vez.</span>')
         + "</div>";
     }
+    var msgsMore = V.msgHasMore ? '<button ' + h(V.msgMoreH) + ' style="align-self:flex-start;margin-top:10px;padding:0;border:0;background:none;color:var(--accTxt);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Ver mais</button>' : "";
     return kpis + chart + origemDevice
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:36px 48px;margin-top:32px">'
-      + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">Contatos recebidos pelo site</span>' + msgs + "</section>"
+      + '<section style="display:flex;flex-direction:column"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">Contatos recebidos pelo site</span><span style="font-size:11px;color:var(--mute)">' + esc(V.msgCountLabel) + "</span></div>" + msgs + msgsMore + "</section>"
       + '<section style="display:flex;flex-direction:column;gap:20px">' + seo + "</section>"
       + "</div>";
   }
