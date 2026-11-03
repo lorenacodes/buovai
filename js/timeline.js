@@ -1,13 +1,10 @@
 /**
- * "Como trabalho": timeline arrastável com janela de mockup que se
- * constrói conforme o progresso avança. O "setor" (tema do mockup) é
- * controlado externamente por js/sector-picker.js, que dispara o evento
+ * "Como trabalho": timeline cujo progresso acompanha o scroll da
+ * página (coluna do mockup fixa via position:sticky, lista de etapas
+ * rola por baixo). O "setor" (tema do mockup) é controlado
+ * externamente por js/sector-picker.js, que dispara o evento
  * "buovai:sector" sempre que o usuário escolhe ou troca de área — este
- * módulo escuta esse evento para trocar tlTheme/lb/LAY, em vez do antigo
- * seletor de pills embutido. Porte 1:1 da lógica original
- * (tlRun/tlGo/tlFromX/tlDown/tlObserve + o cálculo de tlBlocks/tlNotes,
- * incluindo o vocabulário completo de tipos de bloco: top/menu/card/
- * main/list/rows/cols/bars/grid/nav/id/hero/tile).
+ * módulo escuta esse evento para trocar tlTheme/lb/LAY.
  */
 (function () {
   "use strict";
@@ -95,10 +92,7 @@
   let currentSector = null; // null = sem escolha -> tema padrão "comercio"
   let tlP = 0;
   let tlTarget = 0;
-  let tlAuto = false;
-  let tlTouched = false;
   let tlDrag = false;
-  let raf = 0;
 
   function themeKey() {
     return currentSector && (LAY[currentSector] || currentSector === "site") ? currentSector : "comercio";
@@ -227,7 +221,7 @@
     stepsEl.querySelectorAll("[data-step]").forEach((btn) => {
       btn.addEventListener("click", () => {
         const i = Number(btn.getAttribute("data-step"));
-        tlGo((i + 0.96) / 4);
+        tlScrollTo((i + 0.96) / 4);
       });
     });
 
@@ -262,7 +256,7 @@
         <span style="font-family:'Lexend Exa',sans-serif;font-size:10px;color:${fg};opacity:${lo.toFixed(3)};white-space:nowrap">${label}</span>
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;opacity:${xo};pointer-events:none"><line x1="0" y1="0" x2="100" y2="100" stroke="#8a8d7c" stroke-width="1" vector-effect="non-scaling-stroke"></line><line x1="100" y1="0" x2="0" y2="100" stroke="#8a8d7c" stroke-width="1" vector-effect="non-scaling-stroke"></line></svg>
         ${inner}
-        <span style="position:absolute;top:6px;right:6px;width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#0e0f0b;font-size:10px;line-height:1;opacity:${vo.toFixed(3)}">✓</span>
+        <span style="position:absolute;top:6px;right:6px;width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#0e0f0b;line-height:1;opacity:${vo.toFixed(3)}"><svg width="8" height="8" viewBox="0 0 10 10" style="display:block"><path d="M1.5 5.3L3.8 7.6L8.5 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </div>`;
     }).join("");
 
@@ -287,36 +281,28 @@
     trackThumb.style.left = pct;
   }
 
-  function tlRun() {
-    if (raf) return;
-    let last = performance.now();
-    const frame = (now) => {
-      const dt = Math.min(50, now - last);
-      last = now;
-      let p = tlP;
-      if (tlAuto) {
-        p = Math.min(tlTarget, p + dt / 9000);
-        if (p >= tlTarget) tlAuto = false;
-      } else if (!tlDrag) {
-        p += (tlTarget - p) * Math.min(1, dt / 160);
-      }
-      if (Math.abs(p - tlP) > 0.0005) tlP = p;
-      render();
-      if (tlAuto || tlDrag || Math.abs(tlTarget - p) > 0.001) {
-        raf = requestAnimationFrame(frame);
-      } else {
-        raf = 0;
-        if (Math.abs(tlTarget - p) > 0) { tlP = tlTarget; render(); }
-      }
-    };
-    raf = requestAnimationFrame(frame);
+  // A barra de arrastar sozinha é pouco descoberta (a Lorena notou que
+  // o usuário dificilmente percebe que dá pra arrastar). Agora o
+  // progresso acompanha diretamente o scroll da página: conforme a
+  // seção atravessa a tela (de entrar por baixo até sair por cima), a
+  // fração percorrida vira o progresso da timeline — o próprio ato de
+  // rolar a página já "passa o slide", sem precisar de nenhum elemento
+  // fixo na tela.
+  function updateFromScroll() {
+    if (tlDrag) return;
+    const rect = root.getBoundingClientRect();
+    const total = rect.height + window.innerHeight;
+    const scrolled = window.innerHeight - rect.top;
+    const p = Math.max(0, Math.min(1, scrolled / total));
+    if (p !== tlP) { tlP = p; tlTarget = p; render(); }
   }
 
-  function tlGo(p, auto) {
-    tlTarget = Math.max(0, Math.min(1, p));
-    tlAuto = !!auto;
-    if (!auto) tlTouched = true;
-    tlRun();
+  function tlScrollTo(p) {
+    const rect = root.getBoundingClientRect();
+    const total = rect.height + window.innerHeight;
+    const rootAbsTop = window.scrollY + rect.top;
+    const y = rootAbsTop - window.innerHeight + total * Math.max(0, Math.min(1, p));
+    window.scrollTo({ top: y, behavior: "smooth" });
   }
 
   function tlFromX(x) {
@@ -328,8 +314,6 @@
   }
 
   trackEl.addEventListener("pointerdown", (e) => {
-    tlTouched = true;
-    tlAuto = false;
     tlDrag = true;
     tlFromX(e.clientX);
     const mv = (ev) => tlFromX(ev.clientX);
@@ -350,21 +334,11 @@
 
   window.addEventListener("buovai:sector", (e) => {
     currentSector = e.detail && e.detail.key ? e.detail.key : null;
-    tlP = 0;
-    tlTarget = 0;
     render();
-    setTimeout(() => tlGo(1, true), 60);
   });
 
   render();
-
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((en) => {
-        if (en.isIntersecting && !tlTouched && tlP < 0.01) tlGo(1, true);
-      }),
-      { threshold: 0.35 }
-    );
-    obs.observe(root);
-  }
+  window.addEventListener("scroll", updateFromScroll, { passive: true });
+  window.addEventListener("resize", updateFromScroll);
+  updateFromScroll();
 })();

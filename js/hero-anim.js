@@ -148,7 +148,7 @@
     }
     for (let i = 0; i < n; i++) {
       const s = document.createElement("span");
-      s.textContent = "✦";
+      s.innerHTML = '<svg width="1em" height="1em" viewBox="0 0 24 24" style="display:block"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z" fill="currentColor"/></svg>';
       const ang = Math.random() * Math.PI * 2;
       const dist = fromBot ? 80 + Math.random() * 160 : 10 + Math.random() * 30;
       const size = 10 + Math.random() * (fromBot ? 22 : 12);

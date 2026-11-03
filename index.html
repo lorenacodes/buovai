@@ -160,7 +160,7 @@
     <div id="brand" style="position:absolute;inset:0;pointer-events:none"></div>
     <canvas id="cover" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:block"></canvas>
 
-    <div id="star" style="position:absolute;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;display:grid;place-items:center;pointer-events:none;color:#fffceb;font-size:34px;line-height:1;opacity:0;text-shadow:0 0 14px #defa9a">✦</div>
+    <div id="star" style="position:absolute;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;display:grid;place-items:center;pointer-events:none;color:#fffceb;font-size:34px;line-height:1;opacity:0;filter:drop-shadow(0 0 10px #defa9a)"><svg width="1em" height="1em" viewBox="0 0 24 24" style="display:block"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z" fill="currentColor"/></svg></div>
     <div id="spark" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
     <div style="position:relative;max-width:1320px;width:100%;margin:0 auto;padding:44px 28px 0;display:flex;justify-content:space-between;gap:20px;font-family:'Lexend Exa',sans-serif;font-size:12px;color:#0e0f0b">
       <span>//sites, aplicativos, automações, migrações e integrações</span>
@@ -208,23 +208,23 @@
 
 <section id="servicos" data-screen-label="Serviços" style="max-width:1320px;margin:0 auto;padding:56px 28px 8px">
   <div id="svcStrip" style="display:grid;grid-template-columns:var(--svc-strip-cols,repeat(4,minmax(0,1fr)));gap:20px 32px;padding-top:28px;border-top:1px solid #0e0f0b">
-    <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:baseline">
-      <span style="width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#1f4905;font-size:10px;line-height:1">✓</span>
+    <div style="display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 10px;align-items:baseline">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:11px;color:#457528">01</span>
       <span style="font-family:'Lexend Exa',sans-serif;font-size:14px;letter-spacing:-.03em;line-height:1.3;color:#0e0f0b">Sistemas para a operação</span>
       <span></span><span style="font-size:14px;line-height:1.55;color:#2b2e24">Seu processo vira sistema, sem você se adaptar à ferramenta.</span>
     </div>
-    <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:baseline">
-      <span style="width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#1f4905;font-size:10px;line-height:1">✓</span>
+    <div style="display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 10px;align-items:baseline">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:11px;color:#457528">02</span>
       <span style="font-family:'Lexend Exa',sans-serif;font-size:14px;letter-spacing:-.03em;line-height:1.3;color:#0e0f0b">Migração e reconstrução</span>
       <span></span><span style="font-size:14px;line-height:1.55;color:#2b2e24">Sem perder dados e sem parar a operação durante a troca.</span>
     </div>
-    <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:baseline">
-      <span style="width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#1f4905;font-size:10px;line-height:1">✓</span>
+    <div style="display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 10px;align-items:baseline">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:11px;color:#457528">03</span>
       <span style="font-family:'Lexend Exa',sans-serif;font-size:14px;letter-spacing:-.03em;line-height:1.3;color:#0e0f0b">Automação e integrações</span>
       <span></span><span style="font-size:14px;line-height:1.55;color:#2b2e24">Sistemas conversando sozinhos, sem digitação dupla.</span>
     </div>
-    <div style="display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 10px;align-items:baseline">
-      <span style="width:16px;height:16px;display:grid;place-items:center;background:#defa9a;color:#1f4905;font-size:10px;line-height:1">✓</span>
+    <div style="display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 10px;align-items:baseline">
+      <span style="font-family:'Lexend Exa',sans-serif;font-size:11px;color:#457528">04</span>
       <span style="font-family:'Lexend Exa',sans-serif;font-size:14px;letter-spacing:-.03em;line-height:1.3;color:#0e0f0b">Sites e identidade visual</span>
       <span></span><span style="font-size:14px;line-height:1.55;color:#2b2e24">Presença profissional, com a marca criada se precisar.</span>
     </div>
@@ -267,9 +267,9 @@
       </div>
       <p style="font-size:17px;line-height:1.7;margin:0;color:#e6e8d4;max-width:520px;text-wrap:pretty">Não há equipe entre o seu problema e o código. O projeto avança em ciclos curtos, e você valida cada parte pronta em vez de descobrir um desalinhamento só na entrega.</p>
     </div>
-    <div id="tlRoot" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px;align-items:start">
+    <div id="tlRoot" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:48px;align-items:start;padding-bottom:50vh">
       <div id="tlSteps" style="display:flex;flex-direction:column;border-top:1px solid rgba(255,252,235,.4)"></div>
-      <div style="display:flex;flex-direction:column;gap:22px">
+      <div id="tlSticky" style="display:flex;flex-direction:column;gap:22px">
         <button type="button" id="tlAreaBtn" style="align-self:flex-start;padding:0 0 3px;background:none;border:0;border-bottom:1px solid rgba(222,250,154,.6);color:#defa9a;font-family:'Lexend Exa',sans-serif;font-size:11px;cursor:pointer">//exemplo para <span id="tlAreaLabel">comércio</span> · trocar área</button>
         <div id="tlWindow" style="background:#fffceb;box-shadow:0 40px 80px rgba(14,15,11,.35);transition:background .4s">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;background:#0e0f0b;font-family:'Lexend Exa',sans-serif;font-size:10px">
@@ -287,7 +287,7 @@
             <div id="tlTrackFill" style="position:absolute;left:0;top:13px;height:2px;width:0%;background:#defa9a"></div>
             <div id="tlTrackThumb" style="position:absolute;top:6px;left:0%;width:16px;height:16px;margin-left:-8px;background:#defa9a;box-shadow:0 0 0 6px rgba(222,250,154,.18)"></div>
           </div>
-          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#e6e8d4"><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;display:grid;place-items:center;background:#defa9a;color:#0e0f0b">✓</span>parte validada com você</span><span style="color:#defa9a">Sem identidade visual? Eu crio a marca e aplico no projeto, incluído no serviço.</span></div>
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#e6e8d4"><span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;display:grid;place-items:center;background:#defa9a;color:#0e0f0b"><svg width="8" height="8" viewBox="0 0 10 10" style="display:block"><path d="M1.5 5.3L3.8 7.6L8.5 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>parte validada com você</span><span style="color:#defa9a">Sem identidade visual? Eu crio a marca e aplico no projeto, incluído no serviço.</span></div>
           <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));font-family:'Lexend Exa',sans-serif;font-size:10px;color:#e6e8d4">
             <span>Conversa</span><span>Definição</span><span>Construção</span><span style="text-align:right">Entrega</span>
           </div>
@@ -471,8 +471,8 @@
     <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:14px;font-size:15px">
       <span style="font-family:'Lexend Exa',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#defa9a;margin-bottom:6px">Contato</span>
       <a href="https://wa.me/5579998289485" class="footer-link" style="color:#fffceb">(79) 9 9828-9485</a>
-      <a href="mailto:contatobuovai@gmail.com" class="footer-link" style="color:#fffceb">contatobuovai@gmail.com</a>
-      <a href="https://instagram.com/buovai" target="_blank" rel="noopener" class="footer-link" style="color:#fffceb">@buovai</a>
+      <a href="mailto:contato@buovai.com.br" class="footer-link" style="color:#fffceb">contato@buovai.com.br</a>
+      <a href="https://instagram.com/buovai" target="_blank" rel="noopener" class="footer-link" style="color:#fffceb">Instagram · @buovai</a>
       <a href="#contato" class="footer-link" style="color:#fffceb">Enviar mensagem</a>
       <a href="painel/login.html" class="footer-link" style="color:#fffceb">Já é cliente? Acesse o painel</a>
     </div>

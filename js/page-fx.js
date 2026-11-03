@@ -13,7 +13,7 @@
     const r = el.getBoundingClientRect();
     for (let i = 0; i < 10; i++) {
       const s = document.createElement("span");
-      s.textContent = "✦";
+      s.innerHTML = '<svg width="1em" height="1em" viewBox="0 0 24 24" style="display:block"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z" fill="currentColor"/></svg>';
       const a = -Math.PI * (0.1 + Math.random() * 0.8);
       const d = 50 + Math.random() * 70;
       s.style.cssText =
@@ -38,7 +38,11 @@
 
     const glows = Array.from(document.querySelectorAll("[data-glow]")).map((el) => {
       if (getComputedStyle(el).position === "static") el.style.position = "relative";
-      el.style.overflow = "hidden";
+      // clip-path em vez de overflow:hidden: contém o brilho do mesmo
+      // jeito, mas sem criar um "scroll container" que quebra
+      // position:sticky em elementos filhos (ex.: a timeline de
+      // "Como trabalho", que fica dentro de uma seção com data-glow).
+      el.style.clipPath = "inset(0)";
       const o = document.createElement("div");
       // Brilho mais suave e orgânico (como as manchas que seguem o cursor
       // no hero), em vez do ponto de luz nítido do arquivo original —

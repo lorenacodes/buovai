@@ -81,6 +81,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var sb = function () { return window.buovaiClient; };
 
   var ETAPAS = ["Novo contato", "Em conversa", "Proposta enviada", "Fechado"];
+  // Ícone de check desenhado em SVG — nunca o glifo de texto "✓", que
+  // em algumas fontes/dispositivos acaba virando um emoji colorido.
+  var CHECK_SVG = '<svg width="8" height="8" viewBox="0 0 10 10" style="display:block"><path d="M1.5 5.3L3.8 7.6L8.5 2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var MES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
   var SEM = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
   var money = function (v) { return "R$ " + Number(v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
@@ -560,7 +563,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var itemsOut = items.map(function (it, j) {
             return {
               t: it.t, done: it.done,
-              mark: it.done ? "✓" : "", boxBg: it.done ? "var(--btnBg)" : "transparent", bd: it.done ? "var(--btnBg)" : "var(--line2)", color: it.done ? "var(--mute)" : "var(--ink2)", deco: it.done ? "line-through" : "none",
+              mark: it.done ? CHECK_SVG : "", boxBg: it.done ? "var(--btnBg)" : "transparent", bd: it.done ? "var(--btnBg)" : "var(--line2)", color: it.done ? "var(--mute)" : "var(--ink2)", deco: it.done ? "line-through" : "none",
               toggleH: reg(function () { save(function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i].items[j]; x.done = !x.done; log(d, sel.id, (x.done ? "concluiu" : "reabriu") + ' a tarefa "' + x.t + '" em "' + t.t + '"'); }, null, function (d) { var tk = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; return sb().from("project_stages").update({ checklist: tk.items }).eq("id", tk.id).then(function () { return logRemote(sel.id, (tk.items[j].done ? "concluiu" : "reabriu") + ' a tarefa "' + tk.items[j].t + '" em "' + t.t + '"'); }); }); }),
               delH: reg(function () { save(function (d) { var tk = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; var removed = tk.items[j]; tk.items.splice(j, 1); log(d, sel.id, 'removeu a tarefa "' + removed.t + '" de "' + t.t + '"'); }, null, function (d) { var tk = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; return sb().from("project_stages").update({ checklist: tk.items }).eq("id", tk.id).then(function () { return logRemote(sel.id, 'removeu a tarefa de "' + t.t + '"'); }); }); })
             };
@@ -571,7 +574,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             var nd = Object.assign({}, S.newItem); nd[i] = ""; S.newItem = nd; render();
           };
           return {
-            t: t.t, num: String(i + 1).padStart(2, "0"), mark: t.done ? "✓" : "", boxBg: t.done ? "var(--btnBg)" : "transparent", bd: t.done ? "var(--btnBg)" : "var(--line2)", color: t.done ? "var(--mute)" : "var(--ink)", deco: "none", when: t.done && t.at ? "concluída " + dt(t.at) : "", h: reg(function () { save(function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; x.done = !x.done; x.at = x.done ? T : null; log(d, sel.id, (x.done ? "concluiu" : "reabriu") + ' "' + x.t + '"'); }, null, function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; return sb().from("project_stages").update({ status: x.done ? "concluido" : "em_andamento", completed_at: x.at }).eq("id", x.id).then(function () { return logRemote(sel.id, (x.done ? "concluiu" : "reabriu") + ' "' + x.t + '"'); }); }); }),
+            t: t.t, num: String(i + 1).padStart(2, "0"), mark: t.done ? CHECK_SVG : "", boxBg: t.done ? "var(--btnBg)" : "transparent", bd: t.done ? "var(--btnBg)" : "var(--line2)", color: t.done ? "var(--mute)" : "var(--ink)", deco: "none", when: t.done && t.at ? "concluída " + dt(t.at) : "", h: reg(function () { save(function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; x.done = !x.done; x.at = x.done ? T : null; log(d, sel.id, (x.done ? "concluiu" : "reabriu") + ' "' + x.t + '"'); }, null, function (d) { var x = d.projects.filter(function (p) { return p.id === sel.id; })[0].tasks[i]; return sb().from("project_stages").update({ status: x.done ? "concluido" : "em_andamento", completed_at: x.at }).eq("id", x.id).then(function () { return logRemote(sel.id, (x.done ? "concluiu" : "reabriu") + ' "' + x.t + '"'); }); }); }),
             items: itemsOut, doneCount: items.filter(function (it) { return it.done; }).length, totalCount: items.length,
             newItem: newItemDrafts[i] || "", newItemCh: reg(function (e) { var nd = Object.assign({}, S.newItem); nd[i] = e.target.value; S.newItem = nd; render(); }), newItemKey: reg(function (e) { if (e.key === "Enter") addItem(); }), addItem: reg(addItem)
           };
@@ -929,7 +932,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           return {
             mod: m, cells: ROLES.map(function (r) {
               var on = (D.perms[r] || []).indexOf(m) >= 0, locked = r === "Administrador";
-              return { mark: on ? "✓" : "", bg: on ? "var(--btnBg)" : "transparent", bd: on ? "var(--btnBg)" : "var(--line2)", h: reg(function () { if (locked) return; save(function (d) { var a = d.perms[r] = d.perms[r] || []; var i = a.indexOf(m); if (i >= 0) a.splice(i, 1); else a.push(m); }, null, function (d) { var allowed = (d.perms[r] || []).indexOf(m) >= 0; return sb().from("team_permissions").upsert({ papel: r, modulo: m, allowed: allowed }, { onConflict: "papel,modulo" }); }); }) };
+              return { mark: on ? CHECK_SVG : "", bg: on ? "var(--btnBg)" : "transparent", bd: on ? "var(--btnBg)" : "var(--line2)", h: reg(function () { if (locked) return; save(function (d) { var a = d.perms[r] = d.perms[r] || []; var i = a.indexOf(m); if (i >= 0) a.splice(i, 1); else a.push(m); }, null, function (d) { var allowed = (d.perms[r] || []).indexOf(m) >= 0; return sb().from("team_permissions").upsert({ papel: r, modulo: m, allowed: allowed }, { onConflict: "papel,modulo" }); }); }) };
             })
           };
         });
@@ -1580,7 +1583,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           + (l.canPrev ? '<button ' + h(l.prevH) + ' aria-label="Voltar etapa" style="padding:7px 10px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer">←</button>' : "")
           + (l.canNext ? '<button ' + h(l.nextH) + ' style="flex:1;padding:7px 10px;border:1px solid var(--line2);background:none;color:var(--accTxt);font-size:12px;cursor:pointer">' + esc(l.nextLabel) + "</button>" : "")
           + (l.canConvert ? '<button ' + h(l.convertH) + ' style="flex:1;padding:7px 10px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:12px;font-weight:600;cursor:pointer">Cadastrar cliente</button>' : "")
-          + (l.converted ? '<span style="flex:1;padding:7px 0;font-size:12px;color:var(--accTxt)">✓ cliente cadastrado</span>' : "")
+          + (l.converted ? '<span style="flex:1;padding:7px 0;font-size:12px;color:var(--accTxt);display:flex;align-items:center;gap:6px">' + CHECK_SVG + "cliente cadastrado</span>" : "")
           + "</span>";
         return '<div style="padding:14px;border:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;gap:7px"><span style="font-size:14px;font-weight:600">' + esc(l.nome) + '</span><span style="font-size:12px;color:var(--ink2)">' + esc(l.interesse) + '</span><span style="display:flex;justify-content:space-between;font-size:11px;color:var(--mute)"><span>' + esc(l.origem) + '</span><span style="font-variant-numeric:tabular-nums">' + esc(l.valor) + "</span></span>" + actions + "</div>";
       }).join("") + "</div>";
@@ -1639,7 +1642,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<label style="padding:11px 4px;display:flex;align-items:center;gap:18px;border-bottom:1px solid var(--line);cursor:text">' + label + inner + "</label>";
     }).join("") + "</div>";
     var flagChip = function (on, label, onLabel, hid) {
-      return '<button ' + h(hid) + ' style="padding:8px 14px;border:1px solid ' + (on ? "var(--accTxt)" : "var(--line2)") + ';background:' + (on ? "var(--accSoft)" : "none") + ";color:" + (on ? "var(--accTxt)" : "var(--ink)") + ';font-family:\'Lexend Exa\',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">' + (on ? "✓ " : "") + esc(on ? onLabel : label) + "</button>";
+      return '<button ' + h(hid) + ' style="padding:8px 14px;border:1px solid ' + (on ? "var(--accTxt)" : "var(--line2)") + ';background:' + (on ? "var(--accSoft)" : "none") + ";color:" + (on ? "var(--accTxt)" : "var(--ink)") + ';font-family:\'Lexend Exa\',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">' + (on ? CHECK_SVG : "") + esc(on ? onLabel : label) + "</button>";
     };
     var flags = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
       + flagChip(V.zContatado, "Marcar como contatado", "Já entrei em contato", V.zContatadoH)

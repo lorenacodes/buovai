@@ -101,7 +101,7 @@
       popupEl.style.cssText = "position:fixed;left:20px;bottom:20px;z-index:45;display:flex;background:#0e0f0b;box-shadow:0 12px 30px rgba(14,15,11,.3);font-family:'Lexend Exa',sans-serif;font-size:10px";
       popupEl.innerHTML = `
         <button type="button" data-area-reopen style="padding:10px 14px;background:transparent;color:#fffceb;border:0;font:inherit;cursor:pointer" class="area-chip-btn">Exemplos para: <span style="color:#defa9a">${s.label}</span> · trocar</button>
-        <button type="button" data-area-clear aria-label="Remover exemplo" title="Remover exemplo" style="padding:10px 12px;background:transparent;color:#c9cbb5;border:0;border-left:1px solid rgba(255,252,235,.2);font:inherit;cursor:pointer" class="area-chip-close">✕</button>
+        <button type="button" data-area-clear aria-label="Remover exemplo" title="Remover exemplo" style="padding:10px 12px;background:transparent;color:#c9cbb5;border:0;border-left:1px solid rgba(255,252,235,.2);font:inherit;cursor:pointer" class="area-chip-close">×</button>
       `;
       document.body.appendChild(popupEl);
       popupEl.querySelector("[data-area-reopen]").addEventListener("click", () => { open = true; renderPopup(); });
