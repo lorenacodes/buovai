@@ -319,7 +319,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // ---- carrega tudo do Supabase (substitui o seed fictício) ----
   async function loadAll(role, email) {
     var isAdmin = role === "admin";
-    var D = { templates: [], users: [], perms: {}, clients: [], projects: [], leads: [], proposals: [], meetings: [], messages: [], tickets: [], prospects: [], admins: [], contactMessages: [], siteViews: [] };
+    var D = { templates: [], users: [], perms: {}, clients: [], projects: [], leads: [], proposals: [], meetings: [], messages: [], tickets: [], prospects: [], admins: [], contactMessages: [], siteViews: [], gsc: null };
 
     var tplRes = await sb().from("project_templates").select("*").order("created_at");
     D.templates = (tplRes.data || []).map(function (t) { return { id: t.id, nome: t.nome, etapas: t.etapas || [] }; });
@@ -337,11 +337,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("prospects").select("*").order("quando", { ascending: true }),
         sb().from("admins").select("id,name,email,avatar_url"),
         sb().from("contact_messages").select("*").order("created_at", { ascending: false }),
-        sb().from("site_views").select("created_at,path").order("created_at", { ascending: false }).limit(5000)
+        sb().from("site_views").select("created_at,path").order("created_at", { ascending: false }).limit(5000),
+        sb().from("integration_status").select("*").eq("service", "google_search_console").maybeSingle()
       ]);
-      var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9], contactMsgRes = res[10], siteViewsRes = res[11];
+      var teamRes = res[0], permRes = res[1], clientsRes = res[2], leadsRes = res[3], proposalsRes = res[4], meetingsRes = res[5], ticketsRes = res[6], projRes = res[7], prospectsRes = res[8], adminsRes = res[9], contactMsgRes = res[10], siteViewsRes = res[11], gscRes = res[12];
       D.contactMessages = contactMsgRes.data || [];
       D.siteViews = siteViewsRes.data || [];
+      D.gsc = gscRes.data || null;
       D.prospects = (prospectsRes.data || []).map(function (z) { return { id: z.id, nome: z.nome, prioridade: z.prioridade || "", setor: z.setor || "", estado: z.estado || "", cidade: z.cidade || "", meio: z.meio_contato || "", contato: z.contato || "", site: z.site || "", acao: z.acao || "", quando: z.quando || "", estrategia: z.estrategia || "", dor: z.dor || "", status: z.status || "Novo", criadoEm: z.created_at || "", contatado: !!z.contatado, reuniaoAgendada: !!z.reuniao_agendada }; });
       D.admins = (adminsRes.data || []).map(function (a) { return { id: a.id, name: a.name, email: (a.email || "").toLowerCase(), avatarUrl: a.avatar_url || "" }; });
 
@@ -505,6 +507,48 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           };
         });
         out.noMsgs = !D.contactMessages.length;
+        var gscClientId = (window.BUOVAI_CONFIG && window.BUOVAI_CONFIG.googleClientId) || "";
+        out.gscConfigured = !!gscClientId;
+        out.gscConnected = !!(D.gsc && D.gsc.connected);
+        out.gscSiteUrl = D.gsc && D.gsc.site_url ? D.gsc.site_url.replace(/^sc-domain:/, "") : "";
+        out.gscLastError = (D.gsc && D.gsc.last_error) || "";
+        out.gscHasError = !!out.gscLastError;
+        out.gscLastSync = D.gsc && D.gsc.last_sync_at ? dt(D.gsc.last_sync_at) : "";
+        out.gscSyncing = !!S.gscSyncing;
+        var gscMeta = D.gsc && D.gsc.meta;
+        out.gscHasData = !!gscMeta;
+        if (gscMeta) {
+          var verdictMap = { PASS: "Indexada no Google ✓", NEUTRAL: "Indexação parcial", FAIL: "Não indexada ainda" };
+          out.gscIndexLabel = verdictMap[gscMeta.index_verdict] || "Ainda sem retorno do Google sobre isso";
+          out.gscIndexOk = gscMeta.index_verdict === "PASS";
+          out.gscPeriod = gscMeta.period_start && gscMeta.period_end ? dt(gscMeta.period_start) + " – " + dt(gscMeta.period_end) : "";
+          var watchLabels = { "buovai": "buovai", "buov.ai": "buov.ai", "desenvolvimento de software": "desenvolvimento de software" };
+          out.gscWatched = Object.keys(watchLabels).map(function (k) {
+            var w = gscMeta.watched_queries && gscMeta.watched_queries[k];
+            return w ? { termo: watchLabels[k], achou: true, posicao: w.position ? w.position.toFixed(1) : "—", cliques: w.clicks } : { termo: watchLabels[k], achou: false };
+          });
+          out.gscTopQueries = (gscMeta.top_queries || []).slice(0, 8).map(function (q) { return { query: q.query, clicks: q.clicks, impressions: q.impressions, pos: q.position ? q.position.toFixed(1) : "—" }; });
+          out.gscNoQueries = !out.gscTopQueries.length;
+        }
+        out.gscConnectH = reg(function () {
+          if (!gscClientId) return;
+          var redirectUri = window.BUOVAI_CONFIG.supabaseUrl + "/functions/v1/gsc-oauth-callback";
+          var state = encodeURIComponent(location.origin + location.pathname);
+          var authUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + encodeURIComponent(gscClientId) + "&redirect_uri=" + encodeURIComponent(redirectUri) + "&response_type=code&access_type=offline&prompt=consent&scope=" + encodeURIComponent("https://www.googleapis.com/auth/webmasters.readonly") + "&state=" + state;
+          location.href = authUrl;
+        });
+        out.gscSyncH = reg(function () {
+          S.gscSyncing = true; render();
+          Promise.resolve(sb().functions.invoke("gsc-sync", {})).then(function (res) {
+            if (res.error || (res.data && res.data.error)) { S.toast = "Não deu pra atualizar agora. Tente de novo em instantes."; return null; }
+            S.toast = "Dados do Search Console atualizados";
+            return Promise.resolve(sb().from("integration_status").select("*").eq("service", "google_search_console").maybeSingle()).then(function (r) { S.data.gsc = r.data || null; });
+          }).catch(function () { S.toast = "Não deu pra atualizar agora. Tente de novo em instantes."; }).then(function () {
+            S.gscSyncing = false;
+            clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
+            render();
+          });
+        });
         kpis = [
           { label: "Projetos ativos", val: String(D.projects.filter(function (p) { return p.status !== "Concluído"; }).length), sub: D.clients.length + " clientes", color: "var(--ink)" },
           { label: "Entra em 30 dias", val: money(in30.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: in30.length + " parcelas", color: "var(--ink)" },
@@ -1550,10 +1594,34 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         + "</div>";
       return '<div style="display:flex;flex-direction:column;gap:4px;padding:14px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600">' + esc(m.nome) + (m.empresa ? " · " + esc(m.empresa) : "") + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--mute)">' + esc(m.quando) + " · " + esc(m.origem) + '</span></div><span style="font-size:13px;color:var(--ink2)">' + esc(m.msg) + '</span><span style="font-size:12px;color:var(--mute)">' + [m.tel, m.email].filter(Boolean).map(esc).join(" · ") + "</span>" + actions + "</div>";
     }).join("") + (V.noMsgs ? '<span style="padding:14px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhum contato recebido pelo site ainda.</span>' : "");
-    var seo = '<div style="display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid var(--line);background:var(--panel)">'
-      + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Aparecer no Google</span>'
-      + '<span style="font-size:13px;color:var(--ink2);line-height:1.6">Isso não é algo que se "liga" no código — o Google indexa o site aos poucos e a posição depende de tempo, conteúdo e links. Pra acompanhar de verdade: cadastre o site no <strong>Google Search Console</strong> (gratuito) — ele mostra se o buov.ai já está indexado e em quais buscas ele aparece, inclusive "buovai" e "desenvolvimento de software". Se quiser, posso te guiar no cadastro.</span>'
-      + '</div>';
+    var seoHead = '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase">Aparecer no Google</span>';
+    var seo;
+    if (!V.gscConnected) {
+      seo = '<div style="display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid var(--line);background:var(--panel)">' + seoHead
+        + '<span style="font-size:13px;color:var(--ink2);line-height:1.6">Conecte o Google Search Console pra ver aqui, com dados reais, se o buov.ai está indexado e em quais buscas ele aparece — inclusive "buovai" e "desenvolvimento de software".</span>'
+        + (V.gscConfigured
+            ? '<button ' + h(V.gscConnectH) + ' style="align-self:flex-start;padding:11px 16px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Conectar Google Search Console</button>'
+            : '<span style="font-size:12px;color:var(--mute)">Essa conexão ainda está sendo configurada.</span>')
+        + (V.gscHasError ? '<span style="font-size:12px;color:var(--badFg)">' + esc(V.gscLastError) + "</span>" : "")
+        + "</div>";
+    } else {
+      var watched = (V.gscWatched || []).map(function (w) {
+        return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)"><span style="font-size:13px">"' + esc(w.termo) + '"</span><span style="font-size:13px;color:' + (w.achou ? "var(--accTxt)" : "var(--mute)") + '">' + (w.achou ? "posição ~" + w.posicao + " · " + w.cliques + " cliques" : "não apareceu nos últimos 28 dias") + "</span></div>";
+      }).join("");
+      var topQ = (V.gscTopQueries || []).map(function (q) {
+        return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:12px;color:var(--ink2)"><span>' + esc(q.query) + '</span><span style="color:var(--mute);white-space:nowrap">pos. ' + q.pos + " · " + q.clicks + " cliques</span></div>";
+      }).join("");
+      seo = '<div style="display:flex;flex-direction:column;gap:10px;padding:18px;border:1px solid var(--line);background:var(--panel)">'
+        + '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap">' + seoHead + '<button ' + h(V.gscSyncH) + ' style="border:0;background:none;color:var(--accTxt);font-size:12px;cursor:pointer;padding:0" ' + (V.gscSyncing ? "disabled" : "") + '>' + (V.gscSyncing ? "Atualizando…" : "Atualizar agora") + "</button></div>"
+        + '<span style="font-size:12px;color:var(--mute)">' + esc(V.gscSiteUrl) + (V.gscLastSync ? " · última checagem " + esc(V.gscLastSync) : " · ainda não atualizado") + "</span>"
+        + (V.gscHasError ? '<span style="font-size:12px;color:var(--badFg)">' + esc(V.gscLastError) + "</span>" : "")
+        + (V.gscHasData
+            ? ('<span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;color:' + (V.gscIndexOk ? "var(--accTxt)" : "var(--ink)") + '">' + esc(V.gscIndexLabel) + "</span>"
+              + '<div>' + watched + "</div>"
+              + (topQ ? '<div style="display:flex;flex-direction:column;gap:2px;margin-top:6px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:4px">Principais buscas · ' + esc(V.gscPeriod) + "</span>" + topQ + "</div>" : ""))
+            : '<span style="font-size:13px;color:var(--ink2)">Clique em "Atualizar agora" pra buscar os dados pela primeira vez.</span>')
+        + "</div>";
+    }
     return kpis + chart
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:36px 48px;margin-top:32px">'
       + '<section style="display:flex;flex-direction:column"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-bottom:4px">Contatos recebidos pelo site</span>' + msgs + "</section>"
@@ -2072,6 +2140,15 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       // ninguém, então a própria foto fica só no metadata da conta.
       S.clientAvatarUrl = (sessRes.data.session.user.user_metadata || {}).avatar_url || "";
       document.body.dataset.theme = S.theme;
+      // Volta do redirect de autorização do Google Search Console
+      // (js/..._oauth-callback) — mostra o resultado e limpa a URL.
+      var gscParam = new URLSearchParams(location.search).get("gsc");
+      if (gscParam) {
+        var gscMsgs = { connected: "Google Search Console conectado", denied: "Autorização cancelada", no_site: "Conectado, mas não achei o buovai.com.br verificado nessa conta Google", not_configured: "Integração ainda não configurada", error: "Não foi possível conectar agora" };
+        S.toast = gscMsgs[gscParam] || "";
+        clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3400);
+        history.replaceState(null, "", location.pathname);
+      }
       render();
     } catch (err) {
       console.error("[Buovai] Falha ao carregar o portal:", err);
