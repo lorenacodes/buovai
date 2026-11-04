@@ -155,7 +155,7 @@
 
       return `
         <div data-project-id="${project.id}" data-case-title="${escapeHtml(project.title || "")}" data-screen-label="Caso ${index + 1}" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;scroll-snap-align:start;border:1px solid #0e0f0b;background:#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:auto auto 1fr auto;row-gap:24px">
-          <div>
+          <div style="min-height:232px">
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:18px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
             <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>
             <p style="font-size:15.5px;line-height:1.6;margin:0;color:#0e0f0b;text-wrap:pretty">${copy.intro}</p>
