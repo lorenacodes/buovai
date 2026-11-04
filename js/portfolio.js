@@ -30,6 +30,7 @@
     { key: "frota", label: "Frota", src: "assets/caso-mila-frota-v1.png", caption: "Planejamento de rota de entrega: distância, tempo total, paradas e os trechos da viagem calculados automaticamente." },
     { key: "tarefas", label: "Tarefas de TI", src: "assets/caso-mila-tarefas-v1.png", caption: "Até a manutenção do próprio sistema roda dentro dele: backlog, tarefas em andamento e concluídas, com subtarefas e anexos." },
     { key: "rh", label: "Colaboradores", src: "assets/caso-mila-rh-v1.png", caption: "Módulo de RH com dados do colaborador, férias e atestados, com pendências de cadastro sinalizadas automaticamente." },
+    { key: "producao", label: "Produção", src: "assets/caso-mila-producao-v1.png", caption: "Ordens de produção por obra, com quantidade, pedido vinculado, status e entrega ligada a cada uma." },
   ];
 
   const TRILHAR_SHOTS = [
