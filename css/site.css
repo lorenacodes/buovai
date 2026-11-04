@@ -198,6 +198,28 @@ html.no-intro .site-intro {
   }
 }
 
+/* ---- Carrossel de cases: dois cartões cabem exatos na largura, sem
+   sobrar pedaço cortado de um terceiro, e a barra de rolagem nativa
+   fica escondida — só as setinhas controlam (pedido da Lorena) ---- */
+.case-scroller {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.case-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.case-scroller .case-card {
+  flex: 0 0 calc(50% - 14px);
+}
+
+@media (max-width: 780px) {
+  .case-scroller .case-card {
+    flex: 0 0 100%;
+  }
+}
+
 /* ---- Acessibilidade: não altera o visual, só fica visível ao navegar
    por teclado (não está no arquivo original porque ele não é o site real) ---- */
 .skip-link {

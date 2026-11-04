@@ -154,7 +154,7 @@
       ).join("");
 
       return `
-        <div data-project-id="${project.id}" data-case-title="${escapeHtml(project.title || "")}" data-screen-label="Caso ${index + 1}" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;flex:0 0 min(620px,86vw);scroll-snap-align:start;border:1px solid #0e0f0b;background:#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:auto auto 1fr auto;row-gap:24px">
+        <div data-project-id="${project.id}" data-case-title="${escapeHtml(project.title || "")}" data-screen-label="Caso ${index + 1}" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;scroll-snap-align:start;border:1px solid #0e0f0b;background:#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:auto auto 1fr auto;row-gap:24px">
           <div>
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:18px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
             <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>
@@ -456,7 +456,7 @@
       const testimonialIndex = projects.findIndex((p) => p.title === "Portal do Cliente");
 
       listEl.innerHTML = `
-        <div id="caseScroller" style="display:flex;gap:28px;max-width:1376px;margin:0 auto;padding:0 28px 12px;overflow-x:auto;scroll-snap-type:x proximity;scroll-behavior:smooth">
+        <div id="caseScroller" class="case-scroller" style="display:flex;gap:28px;max-width:1376px;margin:0 auto;padding:0 28px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth">
           ${projects.map((project, index) => renderCase(project, index)).join("")}
         </div>
         ${testimonialIndex > -1 ? renderTestimonial(testimonialIndex) : ""}
