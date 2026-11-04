@@ -120,7 +120,7 @@
       const shots = copy.shots;
       const tabs = shots.map(
         (s, i) =>
-          `<button type="button" role="tab" data-case-tab="${s.key}" class="case-tab-btn" style="padding:12px 16px;border:0;background:${i === 0 ? "#0e0f0b" : "transparent"};color:${i === 0 ? "#fffceb" : "#0e0f0b"};font:inherit;cursor:pointer">${s.label}</button>`
+          `<button type="button" role="tab" data-case-tab="${s.key}" class="case-tab-btn" style="flex:1 1 auto;white-space:nowrap;text-align:center;padding:12px 16px;border:0;background:${i === 0 ? "#0e0f0b" : "transparent"};color:${i === 0 ? "#fffceb" : "#0e0f0b"};font:inherit;cursor:pointer">${s.label}</button>`
       ).join("");
 
       const imgs = shots.map((s, i) =>
@@ -180,7 +180,7 @@
           ${tabLabels
             .map(
               (label, i) =>
-                `<button type="button" role="tab" data-tab-btn="${i}" class="case-tab-btn" style="padding:12px 16px;border:0;background:${i === 0 ? "#0e0f0b" : "transparent"};color:${i === 0 ? "#fffceb" : "#0e0f0b"};font:inherit;cursor:pointer">${label}</button>`
+                `<button type="button" role="tab" data-tab-btn="${i}" class="case-tab-btn" style="flex:1 1 auto;white-space:nowrap;text-align:center;padding:12px 16px;border:0;background:${i === 0 ? "#0e0f0b" : "transparent"};color:${i === 0 ? "#fffceb" : "#0e0f0b"};font:inherit;cursor:pointer">${label}</button>`
             )
             .join("")}
         </div>`
