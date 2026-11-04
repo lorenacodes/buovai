@@ -503,9 +503,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var avgScroll = withScroll.length ? Math.round(withScroll.reduce(function (a, v) { return a + v.max_scroll_pct; }, 0) / withScroll.length) : null;
         var fullScrollPct = withScroll.length ? Math.round(withScroll.filter(function (v) { return v.max_scroll_pct >= 90; }).length / withScroll.length * 100) : null;
         out.gscEngajamento = (avgTimeSec != null || avgScroll != null) ? [
-          { label: "Tempo médio na página", valor: avgTimeSec != null ? (Math.floor(avgTimeSec / 60) + "min " + (avgTimeSec % 60) + "s") : "—" },
-          { label: "Rolagem média da página", valor: avgScroll != null ? avgScroll + "%" : "—" },
-          { label: "Leu até o fim", valor: fullScrollPct != null ? fullScrollPct + "% dos visitantes" : "—" }
+          { label: "Tempo médio na página", valor: avgTimeSec != null ? (Math.floor(avgTimeSec / 60) + "min " + (avgTimeSec % 60) + "s") : "sem dados" },
+          { label: "Rolagem média da página", valor: avgScroll != null ? avgScroll + "%" : "sem dados" },
+          { label: "Leu até o fim", valor: fullScrollPct != null ? fullScrollPct + "% dos visitantes" : "sem dados" }
         ] : [];
         var msgsTotal = D.contactMessages.length;
         var msgs30 = D.contactMessages.filter(function (m) { return new Date(m.created_at) >= since30; }).length;
