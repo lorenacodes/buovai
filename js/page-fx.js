@@ -8,6 +8,40 @@
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // ---- Som curto e sintetizado do robô do rodapé (sem arquivo externo),
+  // no mesmo estilo minimalista do som de abertura do site: duas notas
+  // senoidais limpas, volume baixo, sem ataque percussivo. Toca só nas
+  // duas transições que importam (acordou / voltou a dormir), nunca a
+  // cada letra digitada — pra não ficar repetitivo.
+  let footAudioCtx = null;
+  function playFootChime(notes) {
+    if (reduceMotion) return;
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!footAudioCtx) footAudioCtx = new Ctx();
+      var ctx = footAudioCtx;
+      var fire = function () {
+        var now = ctx.currentTime;
+        notes.forEach(function (freq, i) {
+          var start = now + i * 0.08;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, start);
+          gain.gain.linearRampToValueAtTime(0.05, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.35);
+        });
+      };
+      if (ctx.state === "suspended") ctx.resume().then(fire, function () {});
+      else fire();
+    } catch (e) {}
+  }
+
   // ---- spawnAt: rajada de faíscas ----
   function spawnAt(el) {
     const r = el.getBoundingClientRect();
@@ -438,6 +472,7 @@
       state = "wake";
       t0 = performance.now();
       typed = "";
+      playFootChime([740, 988]);
     });
     const io = new IntersectionObserver(
       (es) =>
@@ -450,6 +485,7 @@
           }
           if (en.isIntersecting && en.intersectionRatio > 0.5 && state === "sleep") {
             state = "wake"; t0 = performance.now();
+            playFootChime([740, 988]);
           }
         }),
       { threshold: [0, 0.2, 0.5, 0.8] }
@@ -501,7 +537,7 @@
             const c = cl((act - windDownStart) / 900);
             lv = (scene === 3 && !tapActive ? 1 : lv) - c * (scene === 3 && !tapActive ? 0.92 : lv - 0.08);
             rot = -4 * c;
-            if (c >= 1) { state = "sleep"; tapActive = false; }
+            if (c >= 1) { state = "sleep"; tapActive = false; playFootChime([494, 370]); }
           }
           const msg = tapActive ? TAP_MSG : lines[scene];
           const n = Math.min(msg.length, Math.floor(act / 34));
