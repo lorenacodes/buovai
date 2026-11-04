@@ -16,6 +16,7 @@
 | [ESTRATEGIA_PRODUTO.md](ESTRATEGIA_PRODUTO.md) | Posicionamento, MVP inovador, roadmap, conflitos com o doc 01 | 2 |
 | [VALIDACAO_MERCADO.md](VALIDACAO_MERCADO.md) | Hipóteses, experimentos e critérios de decisão | 2 |
 | [MODELO_NEGOCIO.md](MODELO_NEGOCIO.md) | Receitas, custos, entrada no mercado, expansão | 2 |
+| [DECISOES.md](DECISOES.md) | Registro de decisões aprovadas e pendentes | — |
 
 Convenção: **[FATO]** com fonte · **[HIPÓTESE]** a validar · **[OPINIÃO]**
 recomendação · **[VERIFICAR]** confirmar na fonte oficial.

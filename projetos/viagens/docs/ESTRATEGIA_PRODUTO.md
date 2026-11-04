@@ -1,7 +1,7 @@
 # Estratégia de Produto
 
 > Data: 04/11/2026. Direção recomendada: **Conceito B — "Da Vontade ao Embarque"**
-> (ver `CONCEITOS_STARTUP.md`). **Ainda pendente da sua aprovação.**
+> (ver `CONCEITOS_STARTUP.md`). **Aprovada em 04/11/2026** (ver `DECISOES.md`, D-001).
 
 ## 1. Posicionamento
 

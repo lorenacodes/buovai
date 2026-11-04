@@ -144,7 +144,7 @@ o MVP precisa testá-los primeiro.
 
 ---
 
-## Recomendação: Conceito B, com elementos de A e C
+## Recomendação: Conceito B, com elementos de A e C — ✅ aprovado em 04/11/2026 (`DECISOES.md`, D-001)
 
 **Escolho o Conceito B — "Da Vontade ao Embarque"**, que coincide com a formulação
 que você trouxe: *acompanhar a pessoa desde o momento em que ela diz "um dia quero
