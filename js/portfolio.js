@@ -122,7 +122,7 @@
     "Site Institucional": {
       shots: MILATEC_SITE_SHOTS,
       urlLabel: "site · institucional",
-      heading: 'Um site institucional <span style="color:#457528">pra gerar pedido de orçamento, não só existir.</span>',
+      heading: 'Um site institucional <span style="color:#457528">pensado para converter visita em orçamento.</span>',
       intro: "Cada linha de produto (telhados, solar, modular, steel frame) com sua própria página, números de credibilidade e botão de orçamento sempre à vista. Abra o caso para ver as telas, com a marca da empresa borrada.",
     },
   };
@@ -154,7 +154,7 @@
       ).join("");
 
       return `
-        <div data-project-id="${project.id}" data-case-title="${escapeHtml(project.title || "")}" data-screen-label="Caso ${index + 1}" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;border:1px solid #0e0f0b;background:#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:subgrid;grid-row:span 4;row-gap:24px">
+        <div data-project-id="${project.id}" data-case-title="${escapeHtml(project.title || "")}" data-screen-label="Caso ${index + 1}" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;flex:0 0 min(620px,86vw);scroll-snap-align:start;border:1px solid #0e0f0b;background:#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:auto auto 1fr auto;row-gap:24px">
           <div>
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:18px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
             <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>
@@ -369,9 +369,6 @@
     const highlightsEl = modalEl.querySelector('[data-field="highlights"]');
     highlightsEl.innerHTML = (project.highlights || []).map((h) => `<li>${escapeHtml(h)}</li>`).join("");
 
-    const stackEl = modalEl.querySelector('[data-field="stack"]');
-    stackEl.innerHTML = (project.tech_stack || []).map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("");
-
     const noteEl = modalEl.querySelector('[data-field="note"]');
     noteEl.textContent = project.access_note || "";
     noteEl.style.display = project.access_note ? "block" : "none";
@@ -385,6 +382,19 @@
     if (!modalEl) return;
     modalEl.classList.remove("is-open");
     document.body.style.overflow = "";
+  }
+
+  // Setinhas ao lado de "0N casos" rolam o carrossel de cases um cartão
+  // por vez, em vez de deixar o terceiro caso (e os próximos) caírem
+  // numa linha embaixo — pedido da Lorena pra ficar lado a lado.
+  function bindCaseScroller() {
+    const scroller = document.getElementById("caseScroller");
+    const prevBtn = document.getElementById("caseScrollPrev");
+    const nextBtn = document.getElementById("caseScrollNext");
+    if (!scroller || !prevBtn || !nextBtn) return;
+    const step = () => (scroller.querySelector(".case-card") || {}).offsetWidth + 28 || scroller.clientWidth * 0.8;
+    prevBtn.addEventListener("click", () => scroller.scrollBy({ left: -step(), behavior: "smooth" }));
+    nextBtn.addEventListener("click", () => scroller.scrollBy({ left: step(), behavior: "smooth" }));
   }
 
   function bindCaseEvents() {
@@ -446,12 +456,13 @@
       const testimonialIndex = projects.findIndex((p) => p.title === "Portal do Cliente");
 
       listEl.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));grid-template-rows:repeat(4,auto);max-width:1376px;margin:0 auto;padding:0 28px;gap:28px">
+        <div id="caseScroller" style="display:flex;gap:28px;max-width:1376px;margin:0 auto;padding:0 28px 12px;overflow-x:auto;scroll-snap-type:x proximity;scroll-behavior:smooth">
           ${projects.map((project, index) => renderCase(project, index)).join("")}
         </div>
         ${testimonialIndex > -1 ? renderTestimonial(testimonialIndex) : ""}
       `;
       bindCaseEvents();
+      bindCaseScroller();
 
       if (window.buovaiReveal) window.buovaiReveal(listEl.querySelectorAll("[data-screen-label]"));
     } catch (err) {
