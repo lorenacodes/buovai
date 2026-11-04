@@ -36,6 +36,16 @@
     { key: "perfil", label: "Meu perfil", src: "assets/caso-mila-perfil-v1.png", caption: "Painel personalizável: cada usuário ajusta tema, cor do sistema e os próprios dados de cadastro." },
   ];
 
+  // Site institucional público, com a marca da própria empresa borrada
+  // (mesmo motivo do case de gestão de obras: uso do nome não autorizado).
+  const MILATEC_SITE_SHOTS = [
+    { key: "inicio", label: "Início", src: "assets/caso-milatec-inicio-v1.png", caption: "Página inicial com os números da empresa e chamada direta pra pedir orçamento." },
+    { key: "solar", label: "Energia solar", src: "assets/caso-milatec-solar-v1.png", caption: "Linha de produtos de estruturas solares, com os mesmos números de credibilidade da home." },
+    { key: "solucoes", label: "Soluções", src: "assets/caso-milatec-solucoes-v1.png", caption: "Catálogo de soluções com foto real de obra, não imagem de banco de imagens." },
+    { key: "modular", label: "Modular", src: "assets/caso-milatec-modular-v1.png", caption: "Linha de produtos modulares (escritórios, tiny houses, banheiros de obra), cada um com sua própria página." },
+    { key: "steelframe", label: "Steel Frame", src: "assets/caso-milatec-steelframe-v1.png", caption: "Lançamento de uma nova linha de produto, com a mesma identidade visual do restante do site." },
+  ];
+
   const TRILHAR_SHOTS = [
     { key: "vg", label: "Visão geral", src: "assets/caso-contab-visao-geral-v3.png", caption: "O escritório acompanha clientes, documentos e financeiro num só painel." },
     { key: "cl", label: "Ficha do cliente", src: "assets/caso-contab-cliente-v3.png", caption: "Cada cliente reúne dados cadastrais, boletos, documentos, pendências e histórico." },
@@ -108,6 +118,12 @@
       urlLabel: "sistema · painel administrativo",
       heading: 'Da planilha para um sistema que já sustenta <span style="color:#457528">mais de 1.500 obras.</span>',
       intro: "13 módulos interligados, de venda a pós-obra, sincronizados em tempo real: orçamento, frota, estoque, produção e RH num só lugar. Abra o caso para ver as telas e o detalhamento técnico, com os dados da empresa borrados.",
+    },
+    "Site Institucional": {
+      shots: MILATEC_SITE_SHOTS,
+      urlLabel: "site · institucional",
+      heading: 'Um site institucional <span style="color:#457528">pra gerar pedido de orçamento, não só existir.</span>',
+      intro: "Cada linha de produto (telhados, solar, modular, steel frame) com sua própria página, números de credibilidade e botão de orçamento sempre à vista. Abra o caso para ver as telas, com a marca da empresa borrada.",
     },
   };
 
