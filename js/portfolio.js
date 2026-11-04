@@ -31,6 +31,9 @@
     { key: "tarefas", label: "Tarefas de TI", src: "assets/caso-mila-tarefas-v1.png", caption: "Até a manutenção do próprio sistema roda dentro dele: backlog, tarefas em andamento e concluídas, com subtarefas e anexos." },
     { key: "rh", label: "Colaboradores", src: "assets/caso-mila-rh-v1.png", caption: "Módulo de RH com dados do colaborador, férias e atestados, com pendências de cadastro sinalizadas automaticamente." },
     { key: "producao", label: "Produção", src: "assets/caso-mila-producao-v1.png", caption: "Ordens de produção por obra, com quantidade, pedido vinculado, status e entrega ligada a cada uma." },
+    { key: "estoque", label: "Estoque", src: "assets/caso-mila-estoque-v1.png", caption: "Acompanha o estoque em cada etapa da fábrica, do rolo de aço até a entrega, com o total fabricado no mês e no ano." },
+    { key: "permissoes", label: "Permissões", src: "assets/caso-mila-permissoes-v1.png", caption: "Controle de acesso por colaborador: cada um só vê as abas liberadas pra sua função, módulo por módulo." },
+    { key: "perfil", label: "Meu perfil", src: "assets/caso-mila-perfil-v1.png", caption: "Painel personalizável: cada usuário ajusta tema, cor do sistema e os próprios dados de cadastro." },
   ];
 
   const TRILHAR_SHOTS = [
