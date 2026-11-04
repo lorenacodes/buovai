@@ -30,12 +30,39 @@
           osc.type = "sine";
           osc.frequency.value = freq;
           gain.gain.setValueAtTime(0, start);
-          gain.gain.linearRampToValueAtTime(0.05, start + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+          gain.gain.linearRampToValueAtTime(0.1, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.32);
           osc.connect(gain).connect(ctx.destination);
           osc.start(start);
-          osc.stop(start + 0.35);
+          osc.stop(start + 0.37);
         });
+      };
+      if (ctx.state === "suspended") ctx.resume().then(fire, function () {});
+      else fire();
+    } catch (e) {}
+  }
+
+  // Tique curtinho e seco (tipo teclado/datilografia), tocado a cada
+  // letra nova da fala do robô — bem mais perceptível que os acordes de
+  // acordar/dormir, mas sem exagerar: um estalo de ~15ms por letra.
+  function playFootTick() {
+    if (reduceMotion) return;
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!footAudioCtx) footAudioCtx = new Ctx();
+      var ctx = footAudioCtx;
+      var fire = function () {
+        var now = ctx.currentTime;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = "square";
+        osc.frequency.value = 520 + Math.random() * 140;
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.025);
       };
       if (ctx.state === "suspended") ctx.resume().then(fire, function () {});
       else fire();
@@ -537,12 +564,16 @@
             const c = cl((act - windDownStart) / 900);
             lv = (scene === 3 && !tapActive ? 1 : lv) - c * (scene === 3 && !tapActive ? 0.92 : lv - 0.08);
             rot = -4 * c;
-            if (c >= 1) { state = "sleep"; tapActive = false; playFootChime([494, 370]); }
+            if (c >= 1) { state = "sleep"; tapActive = false; playFootChime([587, 494, 392]); }
           }
           const msg = tapActive ? TAP_MSG : lines[scene];
           const n = Math.min(msg.length, Math.floor(act / 34));
           const tx = msg.slice(0, n);
-          if (tx !== typed) { typed = tx; bub.textContent = tx || " "; }
+          if (tx !== typed) {
+            typed = tx;
+            bub.textContent = tx || " ";
+            if (tx.length && tx[tx.length - 1] !== " ") playFootTick();
+          }
           const show = act < windDownStart || scene === 2;
           bub.style.opacity = show && state !== "sleep" ? "1" : "0";
           bub.style.transform = show ? "none" : "translateY(6px)";
