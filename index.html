@@ -106,6 +106,18 @@
       el.classList.add("is-hidden");
       try { sessionStorage.setItem("buovaiIntroShown", "1"); } catch (e) {}
     }, 2500);
+
+    // Se o navegador restaura a página pelo cache de "voltar" (bfcache) —
+    // ex.: a pessoa saiu pro painel antes da animação acabar e depois
+    // apertou "voltar" — o robô ficava congelado no meio do zoom, porque
+    // os timers acima podem não rodar de novo. pageshow com persisted:true
+    // cobre esse caso, escondendo a intro na hora.
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) {
+        document.documentElement.classList.add("no-intro");
+        el.classList.add("is-hidden");
+      }
+    });
   })();
 </script>
 
