@@ -123,7 +123,7 @@
       shots: MILATEC_SITE_SHOTS,
       urlLabel: "site · institucional",
       heading: 'Um site institucional <span style="color:#457528">pensado para converter visita em orçamento.</span>',
-      intro: "Cada linha de produto (telhados, solar, modular, steel frame) com sua própria página, números de credibilidade e botão de orçamento sempre à vista. Abra o caso para ver as telas, com a marca da empresa borrada.",
+      intro: "Cada linha de produto (telhados, solar, modular, steel frame) com sua própria página, números de credibilidade e botão de orçamento sempre à vista. A maior parte do site é em vídeo, não texto: a ideia foi mostrar o produto em ação, não explicar. Abra o caso para ver as telas, com a marca da empresa borrada.",
     },
   };
 
@@ -139,7 +139,7 @@
       const shots = copy.shots;
       const tabs = shots.map(
         (s, i) =>
-          `<button type="button" role="tab" data-case-tab="${s.key}" class="case-tab-btn" style="flex:1 1 auto;white-space:nowrap;text-align:center;padding:12px 16px;border:0;background:${i === 0 ? "#0e0f0b" : "transparent"};color:${i === 0 ? "#fffceb" : "#0e0f0b"};font:inherit;cursor:pointer">${s.label}</button>`
+          `<button type="button" role="tab" data-case-tab="${s.key}" class="case-tab-btn" style="flex:0 0 auto;white-space:nowrap;text-align:center;padding:12px 16px;border:0;background:${i === 0 ? "#0e0f0b" : "transparent"};color:${i === 0 ? "#fffceb" : "#0e0f0b"};font:inherit;cursor:pointer">${s.label}</button>`
       ).join("");
 
       const imgs = shots.map((s, i) =>
@@ -155,12 +155,12 @@
 
       return `
         <div data-project-id="${project.id}" data-case-title="${escapeHtml(project.title || "")}" data-screen-label="Caso ${index + 1}" class="case-card" style="--reveal-delay:${index * 130}ms;position:relative;overflow:hidden;scroll-snap-align:start;border:1px solid #0e0f0b;background:#efeedb;padding:clamp(32px,3.6vw,52px) clamp(24px,3vw,40px);display:grid;grid-template-rows:auto auto 1fr auto;row-gap:24px">
-          <div style="min-height:232px">
+          <div style="height:240px;overflow:hidden">
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:18px">//caso ${String(index + 1).padStart(2, "0")} · ${escapeHtml(project.client_name || "")}</div>
-            <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance">${copy.heading}</h2>
-            <p style="font-size:15.5px;line-height:1.6;margin:0;color:#0e0f0b;text-wrap:pretty">${copy.intro}</p>
+            <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden">${copy.heading}</h2>
+            <p style="font-size:15.5px;line-height:1.6;margin:0;color:#0e0f0b;text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden">${copy.intro}</p>
           </div>
-          <div role="tablist" style="display:flex;flex-wrap:wrap;border:1px solid #0e0f0b;max-width:100%;font-family:'Lexend Exa',sans-serif;font-size:11px">${tabs}</div>
+          <div role="tablist" class="case-scroller" style="display:flex;flex-wrap:nowrap;overflow-x:auto;border:1px solid #0e0f0b;max-width:100%;font-family:'Lexend Exa',sans-serif;font-size:11px">${tabs}</div>
           <div data-case-mockup="${project.id}" style="position:relative">
             <div style="position:relative;width:100%;background:#fffceb;border:1px solid #0e0f0b;transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
               <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #0e0f0b">
@@ -456,8 +456,12 @@
       const testimonialIndex = projects.findIndex((p) => p.title === "Portal do Cliente");
 
       listEl.innerHTML = `
-        <div id="caseScroller" class="case-scroller" style="display:flex;gap:28px;max-width:1376px;margin:0 auto;padding:0 28px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth">
-          ${projects.map((project, index) => renderCase(project, index)).join("")}
+        <div style="position:relative;max-width:1376px;margin:0 auto">
+          <div id="caseScroller" class="case-scroller" style="display:flex;gap:28px;padding:0 28px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth">
+            ${projects.map((project, index) => renderCase(project, index)).join("")}
+          </div>
+          <button type="button" id="caseScrollPrev" aria-label="Caso anterior" style="position:absolute;top:50%;left:4px;transform:translateY(-50%);z-index:5;width:38px;height:38px;border:1px solid #0e0f0b;background:#fffceb;color:#0e0f0b;cursor:pointer;display:grid;place-items:center;font-size:16px;box-shadow:0 4px 14px rgba(14,15,11,.14)">←︎</button>
+          <button type="button" id="caseScrollNext" aria-label="Próximo caso" style="position:absolute;top:50%;right:4px;transform:translateY(-50%);z-index:5;width:38px;height:38px;border:1px solid #0e0f0b;background:#0e0f0b;color:#fffceb;cursor:pointer;display:grid;place-items:center;font-size:16px;box-shadow:0 4px 14px rgba(14,15,11,.14)">→︎</button>
         </div>
         ${testimonialIndex > -1 ? renderTestimonial(testimonialIndex) : ""}
       `;
