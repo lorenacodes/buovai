@@ -18,12 +18,35 @@ contexto e o que muda. Decisões técnicas detalhadas vão para ADRs
   As atualizações do doc 01 listadas na seção 5 daquele documento **continuam
   pendentes** até aprovação específica (D-005).
 
+## D-002 — Partir direto para o desenvolvimento, validando em paralelo
+- **Data:** 04/11/2026
+- **Status:** ✅ Aprovada
+- **Decisão:** não haverá fase de validação antes do código. O MVP enxuto
+  (3 perguntas, calendário de viabilidade, meta, "Minha Viagem" com prontidão,
+  lembretes) é construído já e serve como ferramenta de validação, com métricas de
+  retenção da meta desde o primeiro dia. Entrevistas (10–15) correm em paralelo.
+- **Risco aceito:** construir partes que a validação depois mostre desnecessárias.
+
+## D-006 — Repositório próprio e nome provisório "Rumar"
+- **Data:** 04/11/2026
+- **Status:** ✅ Aprovada (nome provisório)
+- **Decisão:** o app terá repositório próprio no GitHub, separado do site da Buovai.
+  Nome provisório: **Rumar**.
+- **Pendências:** checar disponibilidade de domínio, registro no INPI e conflitos
+  na Google Play antes de adotar como nome definitivo. Uma busca rápida na web
+  em 04/11/2026 não encontrou app de viagem com esse nome no Brasil (não substitui a
+  verificação formal).
+
+## D-008 — Stack: React Native + Expo + TypeScript + Supabase
+- **Data:** 04/11/2026
+- **Status:** ✅ Aprovada
+- **Decisão:** conforme seções 9.2 e 9.3 do doc 01. Projeto Supabase próprio,
+  separado do projeto do site, com ambientes de desenvolvimento e produção.
+
 ## Decisões pendentes
 | ID | Decisão | Recomendação |
 |---|---|---|
-| D-002 | Fazer a fase de validação (4–6 semanas) antes de desenvolver | Sim |
 | D-003 | Princípio: nunca custodiar dinheiro nem pré-vender viagem | Sim |
 | D-004 | Público: S1 como foco de marca; S3 e S4 como foco de receita inicial | Sim |
 | D-005 | Aplicar as atualizações propostas ao doc 01 | Sim |
-| D-006 | Repositório próprio e nome do produto | Repositório próprio; nome a definir |
 | D-007 | Orçamento para testes de aquisição; liberar `tripnarrative.in` na rede | A definir |
