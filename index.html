@@ -281,7 +281,13 @@
       <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//02 · Casos reais</div>
       <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(28px,3.4vw,48px);line-height:1.12;letter-spacing:-.05em;margin:0">Sistemas feitos <span style="color:#457528">para a rotina de cada cliente.</span></h2>
     </div>
-    <span id="caseCount" style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#2b2e24"></span>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span id="caseCount" style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#2b2e24"></span>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="caseScrollPrev" aria-label="Caso anterior" style="width:34px;height:34px;border-radius:50%;border:1px solid #0e0f0b;background:#fffceb;color:#0e0f0b;cursor:pointer;display:grid;place-items:center;font-size:14px;transition:opacity .2s ease">←︎</button>
+        <button type="button" id="caseScrollNext" aria-label="Próximo caso" style="width:34px;height:34px;border-radius:50%;border:1px solid #0e0f0b;background:#0e0f0b;color:#fffceb;cursor:pointer;display:grid;place-items:center;font-size:14px;transition:opacity .2s ease">→︎</button>
+      </div>
+    </div>
   </div>
 
   <div id="portfolio-list" aria-live="polite"></div>
