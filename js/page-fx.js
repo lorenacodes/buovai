@@ -252,6 +252,13 @@
       "position:fixed;left:0;top:0;z-index:26;pointer-events:none;font-family:'Lexend Exa',sans-serif;font-size:11px;background:#0e0f0b;color:#defa9a;padding:8px 12px;white-space:nowrap;opacity:0;transition:opacity .3s ease";
     document.body.append(cv, wrap, bub);
 
+    // A seção "Como trabalho" é escura (robô fica claro, #fffceb, pra
+    // contrastar) mas tem um mockup com fundo claro (#tlWindow) dentro
+    // dela. Quando o h2 que o robô acompanha sai de tela e a posição
+    // fica presa no topo, o robô cai em cima desse mockup e, sendo claro
+    // sobre claro, some (pedido da Lorena). Checado por posição real a
+    // cada frame, não por seção, pra funcionar em qualquer tamanho de tela.
+    const tlWindow = document.getElementById("tlWindow");
     const q = (s) => wrap.querySelector(s);
     const head = q(".g-head"), aL = q(".g-antL"), aR = q(".g-antR"), eyes = q(".g-eyes"), lid = q(".g-lid");
     const ctx = cv.getContext("2d");
@@ -378,14 +385,20 @@
         // já são pretas/escuras (ex. "Quem faz"), sobrando só o texto solto
         // por cima do conteúdo, sem caixa nenhuma por trás (bug real, não
         // só estético). Inverte as cores nas seções escuras.
-        bub.style.background = s.dark ? "#fffceb" : "#0e0f0b";
-        bub.style.color = s.dark ? "#1f4905" : "#defa9a";
+        const overBox = !!(tlWindow && (() => {
+          const tr = tlWindow.getBoundingClientRect();
+          return st.x + S > tr.left && st.x < tr.right && st.y + S > tr.top && st.y < tr.bottom;
+        })());
+        const effDark = s.dark && !overBox;
+        bub.style.background = effDark ? "#fffceb" : "#0e0f0b";
+        bub.style.color = effDark ? "#1f4905" : "#defa9a";
         // O robô em si também era sempre preto (#0e0f0b) — o mesmo bug do
         // balão, mas no corpo dele: em seções escuras ele se camuflava
         // inteiro com o fundo e sumia (pedido da Lorena). O SVG agora usa
         // currentColor nas partes visíveis, então basta trocar a cor do
-        // wrapper conforme a seção.
-        wrap.style.color = s.dark ? "#fffceb" : "#0e0f0b";
+        // wrapper conforme a seção. overBox cobre o caso extra em que a
+        // seção é escura mas o robô está em cima do mockup claro.
+        wrap.style.color = effDark ? "#fffceb" : "#0e0f0b";
         const msg = st.pl ? "Assim fica na ferramenta pronta. Volte para o sistema." : (activeCase ? activeCase.msg : s.msg);
         const n = Math.min(msg.length, Math.floor((now - st.t0 - 200) / 32));
         const txt = n > 0 ? msg.slice(0, n) : "";
