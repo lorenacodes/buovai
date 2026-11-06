@@ -189,7 +189,11 @@
                 <span style="display:flex;gap:5px"><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span></span>
                 <span data-case-url style="flex:1;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#457528;padding:4px 10px;background:rgba(69,117,40,.08)">${copy.urlLabel}</span>
               </div>
-              <div style="position:relative;width:100%;aspect-ratio:1896/937;overflow:hidden;container-type:inline-size">${imgs}</div>
+              <div style="position:relative;width:100%;aspect-ratio:1896/937;overflow:hidden;container-type:inline-size">
+                ${imgs}
+                <button type="button" data-case-shot-prev class="case-shot-nav case-shot-nav--prev" aria-label="Tela anterior">‹</button>
+                <button type="button" data-case-shot-next class="case-shot-nav case-shot-nav--next" aria-label="Próxima tela">›</button>
+              </div>
             </div>
             <div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:14px">
               <span data-case-shot-label style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528">//01 ${escapeHtml(shots[0].label)}</span>
@@ -283,9 +287,22 @@
     }
 
     function setTab(key) { tab = key; render(); }
+    function step(delta) {
+      const i = shots.findIndex((s) => s.key === tab);
+      setTab(shots[(i + delta + shots.length) % shots.length].key);
+    }
 
     dots.forEach((d) => d.addEventListener("click", () => setTab(d.getAttribute("data-case-dot"))));
     tabBtns.forEach((b) => b.addEventListener("click", () => setTab(b.getAttribute("data-case-tab"))));
+
+    // Botões discretos em cima da própria imagem pra trocar de tela —
+    // os pontinhos embaixo eram pequenos demais pra clicar com precisão
+    // (pedido da Lorena). Ficam quase invisíveis até passar o mouse/tocar
+    // perto, pra não poluir a interface.
+    const shotPrev = panel.querySelector("[data-case-shot-prev]");
+    const shotNext = panel.querySelector("[data-case-shot-next]");
+    if (shotPrev) shotPrev.addEventListener("click", (e) => { e.stopPropagation(); step(-1); });
+    if (shotNext) shotNext.addEventListener("click", (e) => { e.stopPropagation(); step(1); });
 
     mockup.addEventListener("mouseenter", () => { paused = true; });
     mockup.addEventListener("mouseleave", () => {
