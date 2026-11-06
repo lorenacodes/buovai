@@ -252,17 +252,45 @@ html.no-intro .site-intro {
   color: #fffceb;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 780px) {
+  /* Abaixo de 780px só cabe um cartão por vez (ver regra acima) e o
+     carrossel já tem scroll-snap: arrastar com o dedo já troca de caso
+     sozinho. As setinhas flutuando por cima do cartão, nessa largura,
+     ficavam cortando a borda do card e mais atrapalhavam do que
+     ajudavam — tirado (pedido da Lorena: celular ficou mal formatado). */
   .case-arrow {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
+    display: none;
   }
-  .case-arrow--prev {
-    left: 4px;
+}
+
+/* ---- Abas de telas dentro de cada case ("Obras", "Ficha da obra"...):
+   rolam na horizontal, mas sem nenhuma pista visual disso o visitante
+   via só 2-3 abas e achava que era tudo (pedido da Lorena: "atalhos"
+   não apareciam). O degradê na borda direita sinaliza que tem mais. ---- */
+.case-tablist {
+  font-size: 11px;
+}
+
+.case-tab-btn {
+  padding: 12px 16px;
+}
+
+.case-tablist-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 28px;
+  background: linear-gradient(90deg, rgba(239, 238, 219, 0), #efeedb);
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .case-tablist {
+    font-size: 10px;
   }
-  .case-arrow--next {
-    right: 4px;
+  .case-tab-btn {
+    padding: 10px 12px;
   }
 }
 

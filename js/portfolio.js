@@ -158,7 +158,7 @@
       const shots = copy.shots;
       const tabs = shots.map(
         (s, i) =>
-          `<button type="button" role="tab" data-case-tab="${s.key}" class="case-tab-btn" style="flex:0 0 auto;white-space:nowrap;text-align:center;padding:12px 16px;border:0;background:${i === 0 ? "#0e0f0b" : "transparent"};color:${i === 0 ? "#fffceb" : "#0e0f0b"};font:inherit;cursor:pointer">${s.label}</button>`
+          `<button type="button" role="tab" data-case-tab="${s.key}" class="case-tab-btn" style="flex:0 0 auto;white-space:nowrap;text-align:center;border:0;background:${i === 0 ? "#0e0f0b" : "transparent"};color:${i === 0 ? "#fffceb" : "#0e0f0b"};font:inherit;cursor:pointer">${s.label}</button>`
       ).join("");
 
       const imgs = shots.map((s, i) =>
@@ -179,7 +179,10 @@
             <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(22px,2.1vw,28px);line-height:1.18;letter-spacing:-.04em;margin:0 0 14px;color:#0e0f0b;text-wrap:balance;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden">${copy.heading}</h2>
             <p style="font-size:15.5px;line-height:1.6;margin:0;color:#0e0f0b;text-wrap:pretty;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden">${copy.intro}</p>
           </div>
-          <div role="tablist" class="case-scroller" style="display:flex;flex-wrap:nowrap;overflow-x:auto;border:1px solid #0e0f0b;max-width:100%;font-family:'Lexend Exa',sans-serif;font-size:11px">${tabs}</div>
+          <div style="position:relative">
+            <div role="tablist" class="case-scroller case-tablist" style="display:flex;flex-wrap:nowrap;overflow-x:auto;border:1px solid #0e0f0b;max-width:100%;font-family:'Lexend Exa',sans-serif">${tabs}</div>
+            <div aria-hidden="true" class="case-tablist-fade"></div>
+          </div>
           <div data-case-mockup="${project.id}" style="position:relative">
             <div style="position:relative;width:100%;background:#fffceb;border:1px solid #0e0f0b;transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
               <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #0e0f0b">
