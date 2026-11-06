@@ -316,10 +316,22 @@
       // fica visível o tempo todo que a seção estiver ativa, igual à
       // linha — não é um flash, é ele explicando mesmo (pedido da Lorena).
       bub.style.opacity = visible && (now - st.t0 < 3200 || st.pl || (s && s.skipLabel)) ? 1 : 0;
-      const target = s
+      let target = s
         ? (activeCase && document.querySelector(activeCase.sel)) || (s.targetSel && document.querySelector(s.targetSel)) || s.h2
         : null;
+      // No modo "apontar pro quadro" (cases), a seção-mãe ("Casos reais")
+      // engloba o carrossel inteiro e o bloco de depoimento logo abaixo —
+      // ela continua "ativa" mesmo quando o quadro em si já saiu da tela
+      // (ex. visitante rolou até o depoimento). Sem checar isso o robô
+      // ficava flutuando sobre o depoimento, apontando pra um quadro que
+      // não está mais visível (bug relatado pela Lorena).
+      if (s && s.skipLabel && target) {
+        const tr = target.getBoundingClientRect();
+        if (tr.bottom < 0 || tr.top > H) target = null;
+      }
       let tx = W - S - (mob ? 16 : 36), ty = mob ? H - S - 90 : H * 0.45;
+      const targetHidden = s && s.skipLabel && !target;
+      if (targetHidden) { wrap.style.opacity = 0; bub.style.opacity = 0; }
       if (target && !mob) {
         const r = target.getBoundingClientRect();
         ty = Math.max(90, Math.min(H - S - 40, r.top + r.height / 2 - S / 2));
@@ -333,7 +345,7 @@
           tx = rightSide ? Math.min(W - S - 20, r.right + 64) : Math.max(20, r.left - S - 64);
         }
       }
-      if (!visible) ty = -S * 2;
+      if (!visible || targetHidden) ty = -S * 2;
       st.vx += (tx - st.x) * 0.06; st.vy += (ty - st.y) * 0.06;
       st.vx *= 0.78; st.vy *= 0.78;
       st.x += st.vx; st.y += st.vy;

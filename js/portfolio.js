@@ -74,21 +74,18 @@
   }
 
   // Depoimento em vídeo (vertical, gravado em celular, já com legenda e
-  // cartão de nome embutidos no próprio arquivo). Toca mudo em loop assim
-  // que entra na tela (padrão de feed), com botão de som para o visitante
-  // ativar o áudio quando quiser. bindTestimonialVideo() liga o botão e o
-  // play/pause automático por visibilidade.
+  // cartão de nome embutidos no próprio arquivo). Usa os controles nativos
+  // do navegador: dá pra avançar/voltar no vídeo (barra de progresso),
+  // pausar e silenciar — tudo de fábrica, sem reinventar player. Começa
+  // parado (no poster) e com áudio ligado: ao dar play, o som já vem
+  // junto, e quem quiser tira pelo próprio controle de volume.
   function renderTestimonial(index) {
     return `
       <div style="background:#efeedb" data-screen-label="Depoimento">
         <div style="max-width:1320px;margin:0 auto;padding:clamp(48px,6vw,88px) 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px 72px;align-items:center">
           <div style="display:flex;justify-content:center">
             <div style="position:relative;width:100%;max-width:340px;aspect-ratio:9/16;background:#0e0f0b;overflow:hidden;border:1px solid #0e0f0b;box-shadow:0 18px 40px rgba(14,15,11,.18)">
-              <video data-testimonial-video src="assets/depoimento-trilhar.mp4" poster="assets/depoimento-trilhar-poster.jpg" muted loop playsinline preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" aria-label="Depoimento em vídeo de Tinaysa Freitas, fundadora da Trilhar Contabilidade"></video>
-              <button type="button" data-testimonial-sound aria-pressed="false" aria-label="Ativar som do depoimento" style="position:absolute;right:14px;bottom:14px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,252,235,.55);background:rgba(14,15,11,.55);color:#fffceb;display:grid;place-items:center;cursor:pointer">
-                <svg data-icon-muted width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-                <svg data-icon-unmuted width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
-              </button>
+              <video data-testimonial-video src="assets/depoimento-trilhar.mp4" poster="assets/depoimento-trilhar-poster.jpg" controls playsinline preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" aria-label="Depoimento em vídeo de Tinaysa Freitas, fundadora da Trilhar Contabilidade"></video>
             </div>
           </div>
           <div>
@@ -104,42 +101,22 @@
     `;
   }
 
-  // Toca/pausa o vídeo conforme ele entra e sai da tela, e liga o botão
-  // de som. Começa mudo (autoplay mudo é permitido pelos navegadores);
-  // o visitante decide se quer ouvir.
+  // Pausa o vídeo quando ele sai da tela (ex. visitante continua rolando
+  // com o depoimento tocando) — não mexe em play nem em áudio, só evita
+  // som tocando fora de vista.
   function bindTestimonialVideo(root) {
     const video = root.querySelector("[data-testimonial-video]");
-    const btn = root.querySelector("[data-testimonial-sound]");
-    if (!video || !btn) return;
-
-    const iconMuted = btn.querySelector("[data-icon-muted]");
-    const iconUnmuted = btn.querySelector("[data-icon-unmuted]");
-
-    function updateButton() {
-      iconMuted.style.display = video.muted ? "block" : "none";
-      iconUnmuted.style.display = video.muted ? "none" : "block";
-      btn.setAttribute("aria-pressed", String(!video.muted));
-      btn.setAttribute("aria-label", video.muted ? "Ativar som do depoimento" : "Silenciar depoimento");
-    }
-
-    btn.addEventListener("click", () => {
-      video.muted = !video.muted;
-      if (!video.muted) video.play().catch(() => {});
-      updateButton();
-    });
+    if (!video) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) video.play().catch(() => {});
-          else video.pause();
+          if (!entry.isIntersecting) video.pause();
         });
       },
       { threshold: 0.5 }
     );
     observer.observe(video);
-
-    updateButton();
   }
 
   // Copy fixa por caso que usa o mockup interativo (abas + crossfade +
