@@ -220,6 +220,52 @@ html.no-intro .site-intro {
   }
 }
 
+/* ---- Setinhas do carrossel de cases: flutuam ao lado dos próprios
+   cartões (não no cabeçalho — lá quebrava/cortava em telas pequenas).
+   Usa classe (em vez de inline left:4px/right:4px) pra garantir uma
+   margem segura da borda real da tela em qualquer largura. ---- */
+.case-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #0e0f0b;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(14, 15, 11, 0.18);
+}
+
+.case-arrow--prev {
+  left: 8px;
+  background: #fffceb;
+  color: #0e0f0b;
+}
+
+.case-arrow--next {
+  right: 8px;
+  background: #0e0f0b;
+  color: #fffceb;
+}
+
+@media (max-width: 480px) {
+  .case-arrow {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .case-arrow--prev {
+    left: 4px;
+  }
+  .case-arrow--next {
+    right: 4px;
+  }
+}
+
 /* ---- Acessibilidade: não altera o visual, só fica visível ao navegar
    por teclado (não está no arquivo original porque ele não é o site real) ---- */
 .skip-link {

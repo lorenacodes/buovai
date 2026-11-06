@@ -475,10 +475,12 @@
       const testimonialIndex = projects.findIndex((p) => p.title === "Portal do Cliente");
 
       listEl.innerHTML = `
-        <div style="max-width:1376px;margin:0 auto">
+        <div style="position:relative;max-width:1376px;margin:0 auto">
           <div id="caseScroller" class="case-scroller" style="display:flex;gap:28px;padding:0 28px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth">
             ${projects.map((project, index) => renderCase(project, index)).join("")}
           </div>
+          <button type="button" id="caseScrollPrev" class="case-arrow case-arrow--prev" aria-label="Caso anterior">←︎</button>
+          <button type="button" id="caseScrollNext" class="case-arrow case-arrow--next" aria-label="Próximo caso">→︎</button>
         </div>
         ${testimonialIndex > -1 ? renderTestimonial(testimonialIndex) : ""}
       `;
