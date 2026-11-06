@@ -93,7 +93,7 @@
           </div>
           <div>
             <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:24px">//depoimento · caso ${String(index + 1).padStart(2, "0")}</div>
-            <p style="font-family:'Lexend Exa',sans-serif;font-weight:300;font-size:clamp(20px,2.2vw,30px);line-height:1.35;letter-spacing:-.04em;margin:0 0 32px;text-wrap:pretty">"[Trecho do depoimento da cliente, em uma ou duas frases.]"</p>
+            <p style="font-family:'Lexend Exa',sans-serif;font-weight:300;font-size:clamp(20px,2.2vw,30px);line-height:1.35;letter-spacing:-.04em;margin:0 0 32px;text-wrap:pretty">"A Lorena realizou um trabalho impecável. Ela atendeu todas as minhas demandas e foi sempre muito solícita."</p>
             <div style="border-top:1px solid #0e0f0b;padding-top:18px">
               <div style="font-family:'Lexend Exa',sans-serif;font-size:15px;letter-spacing:-.02em">Tinaysa Freitas</div>
               <div style="font-size:14px;color:#2b2e24;margin-top:6px">Fundadora da Trilhar Contabilidade</div>
