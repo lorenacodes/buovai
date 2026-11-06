@@ -73,18 +73,22 @@
       .join("");
   }
 
-  // Testemunho real ainda não coletado — mantém o bloco como roteiro
-  // (texto entre colchetes), igual ao arquivo original, até termos a
-  // citação e o vídeo de verdade. Estilos inline copiados literalmente.
+  // Depoimento em vídeo (vertical, gravado em celular, já com legenda e
+  // cartão de nome embutidos no próprio arquivo). Toca mudo em loop assim
+  // que entra na tela (padrão de feed), com botão de som para o visitante
+  // ativar o áudio quando quiser. bindTestimonialVideo() liga o botão e o
+  // play/pause automático por visibilidade.
   function renderTestimonial(index) {
     return `
       <div style="background:#efeedb" data-screen-label="Depoimento">
         <div style="max-width:1320px;margin:0 auto;padding:clamp(48px,6vw,88px) 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px 72px;align-items:center">
-          <div style="position:relative;aspect-ratio:16/9;background:#0e0f0b;display:grid;place-items:center;overflow:hidden">
-            <div style="position:absolute;inset:0;background:radial-gradient(circle at 0% 0%,#3f5204 0%,#1f4905 55%,#0e0f0b 100%);opacity:.7"></div>
-            <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:18px;color:#fffceb">
-              <span style="width:72px;height:72px;border:1px solid #fffceb;border-radius:50%;display:grid;place-items:center;font-size:22px;padding-left:5px">▶</span>
-              <span style="font-family:'Lexend Exa',sans-serif;font-size:12px">//vídeo do depoimento</span>
+          <div style="display:flex;justify-content:center">
+            <div style="position:relative;width:100%;max-width:340px;aspect-ratio:9/16;background:#0e0f0b;overflow:hidden;border:1px solid #0e0f0b;box-shadow:0 18px 40px rgba(14,15,11,.18)">
+              <video data-testimonial-video src="assets/depoimento-trilhar.mp4" poster="assets/depoimento-trilhar-poster.jpg" muted loop playsinline preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" aria-label="Depoimento em vídeo de Tinaysa Freitas, fundadora da Trilhar Contabilidade"></video>
+              <button type="button" data-testimonial-sound aria-pressed="false" aria-label="Ativar som do depoimento" style="position:absolute;right:14px;bottom:14px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,252,235,.55);background:rgba(14,15,11,.55);color:#fffceb;display:grid;place-items:center;cursor:pointer">
+                <svg data-icon-muted width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                <svg data-icon-unmuted width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+              </button>
             </div>
           </div>
           <div>
@@ -98,6 +102,44 @@
         </div>
       </div>
     `;
+  }
+
+  // Toca/pausa o vídeo conforme ele entra e sai da tela, e liga o botão
+  // de som. Começa mudo (autoplay mudo é permitido pelos navegadores);
+  // o visitante decide se quer ouvir.
+  function bindTestimonialVideo(root) {
+    const video = root.querySelector("[data-testimonial-video]");
+    const btn = root.querySelector("[data-testimonial-sound]");
+    if (!video || !btn) return;
+
+    const iconMuted = btn.querySelector("[data-icon-muted]");
+    const iconUnmuted = btn.querySelector("[data-icon-unmuted]");
+
+    function updateButton() {
+      iconMuted.style.display = video.muted ? "block" : "none";
+      iconUnmuted.style.display = video.muted ? "none" : "block";
+      btn.setAttribute("aria-pressed", String(!video.muted));
+      btn.setAttribute("aria-label", video.muted ? "Ativar som do depoimento" : "Silenciar depoimento");
+    }
+
+    btn.addEventListener("click", () => {
+      video.muted = !video.muted;
+      if (!video.muted) video.play().catch(() => {});
+      updateButton();
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) video.play().catch(() => {});
+          else video.pause();
+        });
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(video);
+
+    updateButton();
   }
 
   // Copy fixa por caso que usa o mockup interativo (abas + crossfade +
@@ -467,6 +509,7 @@
       `;
       bindCaseEvents();
       bindCaseScroller();
+      if (testimonialIndex > -1) bindTestimonialVideo(listEl);
 
       if (window.buovaiReveal) window.buovaiReveal(listEl.querySelectorAll("[data-screen-label]"));
     } catch (err) {
