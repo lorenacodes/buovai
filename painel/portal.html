@@ -2049,7 +2049,17 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var fields = V.mFields.map(function (f) {
       var inner;
       var maskAttr = f.mask ? ' data-mask="1"' : "";
-      if (f.isInput) inner = '<input type="' + f.type + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" data-field="' + esc(f.key || "") + '"' + maskAttr + ' placeholder="' + esc(f.ph) + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%">';
+      // input type="email"/"number" não suportam setSelectionRange nem
+      // devolvem selectionStart (o navegador recusa) — sem isso, o
+      // cursor não voltava pro lugar certo a cada re-render, e cada
+      // tecla nova digitada entrava antes da anterior: a palavra saía
+      // toda embaralhada (reportado pela Lorena no campo de e-mail).
+      // type="text" com inputmode mantém o teclado certo no celular sem
+      // perder o controle do cursor.
+      var SAFE_TYPE = { email: "text", number: "text" }, INPUTMODE = { email: "email", number: "decimal" };
+      var realType = SAFE_TYPE[f.type] || f.type;
+      var modeAttr = INPUTMODE[f.type] ? ' inputmode="' + INPUTMODE[f.type] + '"' : "";
+      if (f.isInput) inner = '<input type="' + realType + '" value="' + esc(f.value) + '" data-ch="' + f.chH + '" data-field="' + esc(f.key || "") + '"' + maskAttr + modeAttr + ' placeholder="' + esc(f.ph) + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%">';
       else if (f.isSelect) inner = '<select data-ch="' + f.chH + '" data-field="' + esc(f.key || "") + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px;font:inherit;font-size:14px;width:100%">' + f.options.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === f.value ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("") + "</select>";
       else inner = '<textarea data-ch="' + f.chH + '" data-field="' + esc(f.key || "") + '" placeholder="' + esc(f.ph) + '" rows="4" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%;resize:vertical">' + esc(f.value) + "</textarea>";
       // Label termina em " *" pros campos obrigatórios (convenção já usada
@@ -2112,7 +2122,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (keep.mask && typeof back.setSelectionRange === "function") {
           try { back.setSelectionRange(back.value.length, back.value.length); } catch (e) {}
         } else if (keep.selStart != null && typeof back.setSelectionRange === "function") {
-          try { back.setSelectionRange(keep.selStart, keep.selEnd); } catch (e) {}
+          // input type="email"/"number" não suportam setSelectionRange
+          // (o navegador recusa com erro) — sem isso, o cursor voltava
+          // pro início a cada letra digitada, então cada tecla nova
+          // entrava antes da anterior e a palavra saía toda embaralhada
+          // (reportado pela Lorena no campo de e-mail). Cai pro mesmo
+          // fallback do campo com máscara: cursor no fim.
+          try { back.setSelectionRange(keep.selStart, keep.selEnd); }
+          catch (e) { try { back.setSelectionRange(back.value.length, back.value.length); } catch (e2) {} }
         }
       }
     }
