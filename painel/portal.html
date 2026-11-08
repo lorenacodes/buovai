@@ -258,7 +258,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // depender de mais nenhum carregamento de rede, então a logo nunca
   // falta por timing ou por a aba nova não enxergar o servidor local.
   function openWelcomePdf(acc) {
-    var loginUrl = location.origin + location.pathname.replace(/portal\.html$/, "login.html");
+    var loginUrl = location.origin + location.pathname.replace(/\/[^/]*$/, "/login.html");
     var html = "<!doctype html><html lang=\"pt-BR\"><head><meta charset=\"utf-8\">"
       + "<title>Boas-vindas · " + esc(acc.clientName) + "</title>"
       + "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link href=\"https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap\" rel=\"stylesheet\">"
@@ -724,7 +724,16 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         out.sendInviteH = reg(function () {
           if (!accCli.email) { S.toast = "Esse cliente não tem e-mail cadastrado. Adicione o e-mail no cadastro do cliente primeiro."; clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3600); render(); return; }
           S.inviteBusy = true; render();
-          var redirectTo = location.origin + location.pathname.replace(/portal\.html$/, "set-password.html");
+          // O regex era só /portal\.html$/, que não casava quando a página
+          // está em /painel/portal (sem extensão — o GitHub Pages também
+          // serve assim, "URL bonita"): o redirectTo ficava sem efeito
+          // nenhum, o e-mail chegava apontando de volta pro próprio portal
+          // em vez de set-password.html, e o cliente caía direto logado,
+          // sem passar pela tela de criar senha (bug real, achado pela
+          // Lorena: a conta de teste "entrou direto, nem pediu senha").
+          // Troca pelo padrão já usado em js/main.js: troca só o último
+          // pedaço do caminho, funciona com ou sem ".html".
+          var redirectTo = location.origin + location.pathname.replace(/\/[^/]*$/, "/set-password.html");
           Promise.resolve(sb().auth.signInWithOtp({ email: accCli.email, options: { emailRedirectTo: redirectTo } })).then(function (res) {
             S.inviteBusy = false;
             if (res.error) {
@@ -1505,7 +1514,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       // tela de definir senha nova (não existe formulário de "senha
       // atual + nova senha" no portal).
       resetPasswordH: reg(function () {
-        var redirectTo = location.origin + location.pathname.replace(/portal\.html$/, "set-password.html");
+        // Mesmo bug do redirectTo do convite por e-mail: só casava com
+        // "/portal.html", não com a URL sem extensão (GitHub Pages serve
+        // os dois). Troca pelo padrão robusto (último pedaço do caminho).
+        var redirectTo = location.origin + location.pathname.replace(/\/[^/]*$/, "/set-password.html");
         sb().auth.resetPasswordForEmail(S.email, { redirectTo: redirectTo }).then(function (r) {
           S.toast = r.error ? "Não foi possível enviar o link agora." : "Enviamos um link para o seu e-mail trocar a senha.";
           clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
