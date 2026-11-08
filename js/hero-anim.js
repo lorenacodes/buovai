@@ -154,6 +154,7 @@
       if (!dragging) return;
       dragging = false;
       el.style.cursor = "pointer";
+      document.body.style.userSelect = "";
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseup", onUp);
       document.removeEventListener("touchmove", onMove);
@@ -172,6 +173,11 @@
       sx = p.clientX; sy = p.clientY;
       el.style.transition = "none";
       el.style.cursor = "grabbing";
+      // Sem isso, arrastar o robô ia junto selecionando o texto do
+      // título atrás dele (arrastar o mouse por cima de texto seleciona
+      // por padrão) — pedido da Lorena.
+      document.body.style.userSelect = "none";
+      if (e.cancelable) e.preventDefault();
       document.addEventListener("mousemove", onMove);
       document.addEventListener("mouseup", onUp);
       document.addEventListener("touchmove", onMove, { passive: false });
