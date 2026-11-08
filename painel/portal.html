@@ -120,14 +120,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   var HELP = {
     andamento: { q: "O que mostra esta tela?", a: 'Aqui você acompanha o seu projeto etapa por etapa. A etapa marcada como "Em andamento" é a que está sendo feita agora. Quando a Lorena conclui uma etapa, ela aparece aqui na hora, sem você precisar perguntar.' },
-    documentos: { q: "Onde ficam os meus arquivos?", a: 'Em Documentos e entregas ficam o escopo, os protótipos, os manuais e tudo o que foi entregue. Clique em "Baixar" ao lado do arquivo. Só aparecem documentos do seu projeto.', go: "documentos", goLabel: "Abrir documentos" },
-    aprovacoes: { q: "Como aprovo uma proposta?", a: 'Abra Propostas e contratos e clique em "Aprovar" ao lado do item. A Lorena recebe o aviso na mesma hora. Se algo não fizer sentido, use "Recusar" e explique o motivo em Mensagens.', go: "aprovacoes", goLabel: "Ver propostas" },
+    documentos: { q: "Onde ficam os meus arquivos e propostas?", a: 'Em Documentos e entregas ficam o escopo, os protótipos, os manuais e tudo o que foi entregue — clique em "Baixar" ao lado do arquivo. Use a aba "Propostas" ali mesmo pra ver e aprovar propostas e contratos. Só aparece o que é do seu projeto.', go: "documentos", goLabel: "Abrir documentos" },
     cobrancas: { q: "Como pago uma parcela?", a: 'Em Cobranças aparecem todas as parcelas do projeto, com vencimento e situação. Clique em "Pagar com Pix" na parcela em aberto. Depois do pagamento, o comprovante fica disponível na mesma linha.', go: "cobrancas", goLabel: "Abrir cobranças" },
-    mensagens: { q: "Como falo com a Lorena?", a: "Use Mensagens para dúvidas e combinados do projeto. As respostas chegam em até 1 dia útil e ficam registradas para consulta.", go: "mensagens", goLabel: "Abrir mensagens" },
-    suporte: { q: "Quando abro um chamado?", a: "Abra um chamado quando algo no sistema entregue não funcionar como deveria, ou para pedir um ajuste. Cada chamado tem número e situação, para você acompanhar até a solução.", go: "suporte", goLabel: "Abrir suporte" },
+    suporte: { q: "Como falo com a Lorena ou abro um chamado?", a: "Abra um chamado em Suporte pra dúvidas, combinados do projeto, ou quando algo não funcionar como deveria. Cada chamado tem número e situação, para você acompanhar até a solução.", go: "suporte", goLabel: "Abrir suporte" },
     seguranca: { q: "Outras pessoas veem meus dados?", a: "Não. Cada cliente entra com o próprio acesso e vê apenas os próprios projetos, documentos e cobranças." }
   };
-  var KW = [["cobrancas", ["pag", "parcela", "boleto", "pix", "cobr", "comprovante", "valor"]], ["aprovacoes", ["aprov", "contrato", "proposta", "orcamento", "assin"]], ["documentos", ["document", "arquivo", "baixar", "download", "entrega"]], ["andamento", ["etapa", "andamento", "prazo", "status", "progresso", "quando fica"]], ["mensagens", ["mensag", "falar", "lorena", "contato", "conversar"]], ["suporte", ["suporte", "erro", "problema", "chamado", "bug", "ajuste"]], ["seguranca", ["segur", "dados", "privac", "outras pessoas", "senha"]]];
+  var KW = [["cobrancas", ["pag", "parcela", "boleto", "pix", "cobr", "comprovante", "valor"]], ["documentos", ["document", "arquivo", "baixar", "download", "entrega", "aprov", "contrato", "proposta", "orcamento", "assin"]], ["andamento", ["etapa", "andamento", "prazo", "status", "progresso", "quando fica"]], ["suporte", ["suporte", "erro", "problema", "chamado", "bug", "ajuste", "mensag", "falar", "lorena", "contato", "conversar"]], ["seguranca", ["segur", "dados", "privac", "outras pessoas", "senha"]]];
 
   // ---- estado ----
   var theme0 = "dark";
@@ -565,7 +563,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       ["Comercial", [item("funil", "Funil", leadsOpen), item("prospeccao", "Prospecção", D.prospects.filter(function (z) { return z.status !== "Convertido" && z.status !== "Sem interesse"; }).length), item("propostas", "Propostas e contratos")]],
       ["Financeiro", [item("financeiro", "Recebimentos", atras.length || "")]],
       ["Configuração", [item("modelos", "Modelos de projeto"), item("equipe", "Equipe e permissões")]]
-    ] : [["Seu projeto", [item("andamento", "Andamento"), item("documentos", "Documentos e entregas"), item("aprovacoes", "Propostas e contratos", pendProps), item("cobrancas", "Cobranças"), item("mensagens", "Mensagens"), item("suporte", "Suporte")]]];
+    ] : [["Seu projeto", [item("andamento", "Andamento"), item("documentos", "Documentos e entregas", pendProps), item("cobrancas", "Cobranças"), item("suporte", "Suporte")]]];
     var navGroups = groups.map(function (g) { return { label: g[0], items: g[1], showLabel: !narrow }; });
 
     var title = "", kicker = admin ? dateLine : (myProj0 ? myProj0.clienteNome : S.email) + " · portal do cliente", sub = "", actions = [], kpis = [], hasToolbar = false, qPh = "Buscar", tFilters = [], emptyList = false, hasViewToggle = false;
@@ -1286,8 +1284,24 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           };
         });
       }
-      if (V === "documentos") { title = "Documentos e entregas"; out.cDocs = []; cps.forEach(function (x) { x.docs.filter(function (d) { return d.cli; }).forEach(function (d) { out.cDocs.push({ nome: d.nome, tipo: d.tipo, data: dt(d.data), url: d.url || "", isImage: d.tipo === "IMAGEM" && !!d.url }); }); }); }
-      if (V === "aprovacoes") title = "Propostas e contratos";
+      if (V === "documentos") {
+        // Propostas e contratos virou uma aba aqui dentro, em vez de
+        // item próprio no menu — não tinha função clara separada, e o
+        // cliente não via diferença entre as duas páginas (pedido da
+        // Lorena).
+        title = "Documentos e entregas"; hasToolbar = true; qPh = "Buscar por nome";
+        out.cDocs = []; cps.forEach(function (x) { x.docs.filter(function (d) { return d.cli && match(d.nome); }).forEach(function (d) { out.cDocs.push({ nome: d.nome, tipo: d.tipo, data: dt(d.data), url: d.url || "", isImage: d.tipo === "IMAGEM" && !!d.url }); }); });
+        var baseP2 = D.proposals.filter(function (p) { return match(p.titulo); });
+        out.cPropostas = baseP2.slice().reverse().map(function (p) {
+          var c = statusCh(p.status);
+          var setSt = function (st) { return reg(function () { save(function (d) { d.proposals.filter(function (x) { return x.id === p.id; })[0].status = st; }, st === "Aprovada" ? "Aprovado. A Lorena foi avisada." : "Resposta enviada.", function () { return sb().from("proposals").update({ status: st }).eq("id", p.id); }); }); };
+          return { titulo: p.titulo, tipo: p.tipo, valor: money(p.valor), data: dt(p.data), status: p.status === "Aguardando" ? "Aguardando sua aprovação" : p.status, chipBg: c[0], chipFg: c[1], canAnswer: p.status === "Aguardando", approveH: setSt("Aprovada"), refuseH: setSt("Recusada") };
+        });
+        out.docTab = S.tf === "Propostas" ? "Propostas" : "Arquivos";
+        var docTabChip = function (label, count) { var on = out.docTab === label; return { label: label, count: String(count), bd: on ? "var(--accTxt)" : "var(--line2)", bg: on ? "var(--accSoft)" : "transparent", fg: on ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { setState({ tf: label }); }) }; };
+        tFilters = [docTabChip("Arquivos", out.cDocs.length), docTabChip("Propostas", out.cPropostas.length)];
+        emptyList = out.docTab === "Arquivos" ? !out.cDocs.length : !out.cPropostas.length;
+      }
       if (V === "cobrancas") {
         title = "Cobranças";
         var psAll = []; cps.forEach(function (x) { psAll = psAll.concat(x.parcelas); });
@@ -1310,35 +1324,20 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           });
         });
       }
-      if (V === "mensagens") {
-        title = "Mensagens";
-        out.msgs = D.messages.map(function (m) { return { text: m.text, who: m.from === "admin" ? "Lorena · buov.ai" : "Você", at: dt(m.at) + " " + m.at.slice(11, 16), align: m.from === "admin" ? "flex-start" : "flex-end", bg: m.from === "admin" ? "var(--bubble)" : "var(--btnBg)", fg: m.from === "admin" ? "var(--ink)" : "var(--btnFg)" }; });
-        var send = function () {
-          var t = S.msgDraft.trim(); if (!t) return;
-          save(function (d) { d.messages.push({ from: "client", text: t, at: nowStr() }); }, null, function (d) {
-            return sb().from("project_messages").insert({ project_id: p0.id, sender_role: "client", body: t }).select().single().then(function (res) {
-              if (res.error) throw res.error;
-              d.messages[d.messages.length - 1].id = res.data.id;
-            });
-          });
-          S.msgDraft = ""; render();
-        };
-        out.msgDraft = S.msgDraft; out.msgCh = reg(function (e) { setState({ msgDraft: e.target.value }); }); out.msgKey = reg(function (e) { if (e.key === "Enter") send(); }); out.sendMsg = reg(send);
-      }
       if (V === "suporte") {
         title = "Suporte"; actions = [btnP("Abrir chamado", function () { openModal("ticket"); })];
         out.tickets = D.tickets.slice().reverse().map(function (t) { var c = statusCh(t.status); return { num: String(t.num).padStart(3, "0"), titulo: t.titulo, motivo: t.motivo || "", status: t.status, at: dt(t.at), chipBg: c[0], chipFg: c[1] }; });
       }
     }
 
-    if (V === "propostas" || V === "aprovacoes") {
+    if (V === "propostas") {
       var baseP = D.proposals.filter(function (p) { return match(p.titulo, p.clienteNome); });
-      if (admin) tFilters = ["Todos", "Aguardando", "Aprovada", "Recusada"].map(function (k) { return filt(k, k === "Todos" ? baseP.length : baseP.filter(function (p) { return p.status === k; }).length); });
-      var listP = baseP.filter(function (p) { return !admin || S.tf === "Todos" || p.status === S.tf; }).slice().reverse(); emptyList = !listP.length;
+      tFilters = ["Todos", "Aguardando", "Aprovada", "Recusada"].map(function (k) { return filt(k, k === "Todos" ? baseP.length : baseP.filter(function (p) { return p.status === k; }).length); });
+      var listP = baseP.filter(function (p) { return S.tf === "Todos" || p.status === S.tf; }).slice().reverse(); emptyList = !listP.length;
       out.propostas = listP.map(function (p) {
         var c = statusCh(p.status);
         var setSt = function (st) { return reg(function () { save(function (d) { d.proposals.filter(function (x) { return x.id === p.id; })[0].status = st; }, st === "Aprovada" ? "Aprovado. A Lorena foi avisada." : "Resposta enviada.", function () { return sb().from("proposals").update({ status: st }).eq("id", p.id); }); }); };
-        return { titulo: p.titulo, tipo: p.tipo, cliente: p.clienteNome, valor: money(p.valor), data: dt(p.data), status: p.status === "Aguardando" ? (admin ? "Aguardando cliente" : "Aguardando sua aprovação") : p.status, chipBg: c[0], chipFg: c[1], canAnswer: !admin && p.status === "Aguardando", approveH: setSt("Aprovada"), refuseH: setSt("Recusada") };
+        return { titulo: p.titulo, tipo: p.tipo, cliente: p.clienteNome, valor: money(p.valor), data: dt(p.data), status: p.status === "Aguardando" ? "Aguardando cliente" : p.status, chipBg: c[0], chipFg: c[1], canAnswer: false, approveH: setSt("Aprovada"), refuseH: setSt("Recusada") };
       });
     }
 
@@ -1374,7 +1373,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
                   d.messages[d.messages.length - 1].id = res.data.id;
                 });
               });
-              S.helpLog = S.helpLog.concat([{ me: false, text: "Pronto, enviei sua dúvida. A resposta aparece em Mensagens.", go: "mensagens", goLabel: "Abrir mensagens" }]); render(); scrollHelp();
+              S.helpLog = S.helpLog.concat([{ me: false, text: "Pronto, enviei sua dúvida para a Lorena. A resposta chega em até 1 dia útil." }]); render(); scrollHelp();
             }
           : function () { go(m.go); })
       };
@@ -1702,8 +1701,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }),
       navGroups: navGroups, title: title, kicker: kicker, sub: sub, hasSub: !!sub, actions: actions, kpis: kpis, hasToolbar: hasToolbar, qPh: qPh, tFilters: tFilters, emptyList: emptyList, hasViewToggle: hasViewToggle,
       q: S.q, qChH: reg(function (e) { setState({ q: e.target.value }); }),
-      v_inicio: admin && V === "inicio", v_clientes: admin && V === "clientes", v_funil: admin && V === "funil", v_prospeccao: admin && V === "prospeccao", v_propostas: V === "propostas" || V === "aprovacoes", v_financeiro: admin && V === "financeiro", v_agenda: admin && V === "agenda", v_modelos: admin && V === "modelos", v_equipe: admin && V === "equipe",
-      v_andamento: !admin && V === "andamento", v_documentos: !admin && V === "documentos", v_cobrancas: !admin && V === "cobrancas", v_mensagens: !admin && V === "mensagens", v_suporte: !admin && V === "suporte",
+      v_inicio: admin && V === "inicio", v_clientes: admin && V === "clientes", v_funil: admin && V === "funil", v_prospeccao: admin && V === "prospeccao", v_propostas: admin && V === "propostas", v_financeiro: admin && V === "financeiro", v_agenda: admin && V === "agenda", v_modelos: admin && V === "modelos", v_equipe: admin && V === "equipe",
+      v_andamento: !admin && V === "andamento", v_documentos: !admin && V === "documentos", v_cobrancas: !admin && V === "cobrancas", v_suporte: !admin && V === "suporte",
       openCmdH: reg(function () { setState({ cmdOpen: true, cmdQ: "" }); focusCmd(); }), cmdOpen: S.cmdOpen, cmdQ: S.cmdQ, cmdChH: reg(function (e) { setState({ cmdQ: e.target.value }); }), cmdRes: cmdRes, cmdEmpty: !cmdRes.length,
       cmdKeyH: reg(function (e) { if (e.key === "Enter" && cmdRes[0]) H[cmdRes[0].h](); }), closeCmdBgH: reg(function (e) { if (e.target === e.currentTarget) setState({ cmdOpen: false }); }),
       showBot: !admin, helpOpen: !admin && S.helpOpen, helpBtnLabel: S.helpOpen ? "Fechar ajuda" : "Precisa de ajuda?", toggleHelpH: reg(function () { S.helpOpen = !S.helpOpen; render(); scrollHelp(); }),
@@ -2345,6 +2344,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function buildDocumentos(V) {
+    if (V.docTab === "Propostas") {
+      if (!V.cPropostas.length) return '<div style="padding:22px 0;color:var(--mute);font-size:13px">Nenhuma proposta ou contrato por aqui ainda.</div>';
+      return '<div style="display:flex;flex-direction:column">' + V.cPropostas.map(function (p) {
+        var ans = p.canAnswer ? '<button ' + h(p.approveH) + ' style="padding:7px 12px;border:0;background:var(--btnBg);color:var(--btnFg);font-size:12px;font-weight:600;cursor:pointer">Aprovar</button><button ' + h(p.refuseH) + ' style="padding:7px 12px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer">Recusar</button>' : "";
+        return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 20px;align-items:center;padding:15px 0;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:3px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">' + esc(p.tipo) + '</span><span style="font-size:14px;font-weight:600">' + esc(p.titulo) + '</span></span><span style="font-size:12px;color:var(--mute)">enviada ' + esc(p.data) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;font-variant-numeric:tabular-nums">' + esc(p.valor) + '</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + p.chipBg + ";color:" + p.chipFg + '">' + esc(p.status) + "</span>" + ans + "</span></div>";
+      }).join("") + "</div>";
+    }
     if (!V.cDocs.length) return '<div style="padding:22px 0;color:var(--mute);font-size:13px">Nenhum documento disponível ainda.</div>';
     // "Baixar" era só um texto solto, sem link nenhum — não baixava
     // nada de verdade (bug real). Agora usa o link assinado do arquivo,
@@ -2376,14 +2382,6 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     return kpis + '<div style="display:flex;flex-direction:column">' + rows + "</div>";
   }
 
-  function buildMensagens(V) {
-    var msgs = V.msgs.map(function (m) {
-      return '<div style="display:flex;flex-direction:column;align-items:' + m.align + ';gap:6px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--mute)">' + esc(m.who) + " · " + esc(m.at) + '</span><span style="max-width:80%;padding:12px 15px;font-size:14px;line-height:1.55;background:' + m.bg + ";color:" + m.fg + '">' + esc(m.text) + "</span></div>";
-    }).join("");
-    return '<div style="display:flex;flex-direction:column;gap:14px;max-width:760px">' + msgs
-      + '<div style="display:flex;gap:8px;margin-top:10px"><input value="' + esc(V.msgDraft) + '" data-ch="' + V.msgCh + '" data-kh="' + V.msgKey + '" placeholder="Escreva uma mensagem para a Lorena" style="flex:1;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:13px;font:inherit;font-size:14px;outline:none"><button ' + h(V.sendMsg) + ' style="padding:13px 18px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Enviar</button></div></div>';
-  }
-
   function buildSuporte(V) {
     return '<div style="display:flex;flex-direction:column">' + V.tickets.map(function (t) {
       var motivoTag = t.motivo ? '<span style="font-size:11px;color:var(--accTxt)">' + esc(t.motivo) + "</span>" : "";
@@ -2407,7 +2405,6 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     else if (V.v_andamento) body = buildAndamento(V);
     else if (V.v_documentos) body = buildDocumentos(V);
     else if (V.v_cobrancas) body = buildCobrancas(V);
-    else if (V.v_mensagens) body = buildMensagens(V);
     else if (V.v_suporte) body = buildSuporte(V);
     else if (V.v_prospeccao) body = buildProspeccao(V);
     return '<main style="min-width:0;padding:clamp(22px,3.4vw,44px) clamp(16px,3.6vw,52px) 120px;display:flex;flex-direction:column;gap:28px">' + buildSideReopen(V) + buildHeader(V) + buildToolbar(V) + body + "</main>";
