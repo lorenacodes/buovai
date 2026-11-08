@@ -42,6 +42,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var SETORES = ["Contabilidade", "Engenharia / Construção civil", "Advocacia / Jurídico", "Saúde / Clínica médica", "Odontologia", "Arquitetura", "Comércio / Varejo", "Indústria", "Tecnologia / TI", "Educação", "Alimentação / Restaurante", "Beleza e estética", "Imobiliário", "Transporte e logística", "Serviços financeiros", "Agronegócio", "Outro"];
   var ASSUNTOS_REUNIAO = ["Diagnóstico inicial", "Validação do protótipo", "Alinhamento de escopo", "Apresentação de proposta", "Fechamento de contrato", "Acompanhamento do projeto", "Treinamento do sistema", "Suporte / dúvidas", "Outro"];
   var MEIOS_CONTATO = [{ v: "telefone", l: "Telefone / WhatsApp" }, { v: "instagram", l: "Instagram" }, { v: "email", l: "E-mail" }, { v: "outro", l: "Outro" }];
+  var MOTIVOS_SUPORTE = ["Erro ou travamento no sistema", "Dúvida sobre como usar algo", "Pedido de ajuste ou melhoria", "Problema de acesso ou login", "Dúvida sobre cobrança ou pagamento", "Outro"];
   // Prioridade de abordagem: quem não tem site nenhum é o alvo mais
   // fácil de converter rápido (pedido da Lorena), por isso fica em
   // destaque tanto na lista quanto na ficha.
@@ -446,7 +447,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       D.leads = (leadsRes.data || []).map(function (l) { return { id: l.id, nome: l.company_name, interesse: l.opportunities || l.description || "", origem: l.source || "", valor: Number(l.budget_value) || 0, etapa: LEAD_IDX[l.stage] != null ? LEAD_IDX[l.stage] : 0 }; });
       D.proposals = (proposalsRes.data || []).map(function (p) { return { id: p.id, clientId: p.client_email, clienteNome: p.client_name, titulo: p.titulo, tipo: p.tipo, valor: Number(p.valor) || 0, status: p.status, data: p.data }; });
       D.meetings = (meetingsRes.data || []).map(function (m) { return { id: m.id, titulo: m.titulo, data: m.data, hora: (m.hora || "").slice(0, 5), cliente: m.cliente_nome || "" }; });
-      D.tickets = (ticketsRes.data || []).map(function (t) { return { id: t.id, num: t.numero, titulo: t.titulo, status: t.status, at: t.created_at }; });
+      D.tickets = (ticketsRes.data || []).map(function (t) { return { id: t.id, num: t.numero, titulo: t.titulo, status: t.status, at: t.created_at, motivo: t.motivo || "" }; });
 
       var projRows = projRes.data || [];
       var pids = projRows.map(function (p) { return p.id; });
@@ -497,7 +498,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       projRows2.forEach(function (p) {
         (msgRes2.data || []).filter(function (m) { return m.project_id === p.id; }).forEach(function (m) { D.messages.push({ id: m.id, from: m.sender_role, text: m.body, at: m.created_at }); });
       });
-      D.tickets = (ticketsRes2.data || []).filter(function (t) { return !t.project_id || pids2.indexOf(t.project_id) >= 0; }).map(function (t) { return { id: t.id, num: t.numero, titulo: t.titulo, status: t.status, at: t.created_at }; });
+      D.tickets = (ticketsRes2.data || []).filter(function (t) { return !t.project_id || pids2.indexOf(t.project_id) >= 0; }).map(function (t) { return { id: t.id, num: t.numero, titulo: t.titulo, status: t.status, at: t.created_at, motivo: t.motivo || "" }; });
       D.proposals = (propRes2.data || []).map(function (p) { return { id: p.id, clientId: p.client_email, clienteNome: p.client_name, titulo: p.titulo, tipo: p.tipo, valor: Number(p.valor) || 0, status: p.status, data: p.data }; });
     }
     return D;
@@ -1256,7 +1257,23 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       if (V === "andamento") {
         title = "Andamento do projeto";
         var firstOpen = p0.tasks.findIndex ? p0.tasks.findIndex(function (t) { return !t.done; }) : -1;
-        out.cp = { code: p0.code, nome: p0.nome, tipo: p0.tipo, pct: pct(p0), barW: pct(p0) + "%", next: nextTask(p0), prazo: dt(p0.prazo) };
+        // Diasimples: devolve quantos dias faltam (ou passaram) até o
+        // prazo, pra dar algo concreto além da barra de progresso —
+        // o cartão da esquerda ficava com espaço vazio enorme ao lado
+        // da linha do tempo, que é bem mais alta (pedido da Lorena).
+        var diasPrazo = null;
+        if (p0.prazo) {
+          var hoje0 = new Date(); hoje0.setHours(0, 0, 0, 0);
+          var prazoD = new Date(p0.prazo + "T00:00:00");
+          diasPrazo = Math.round((prazoD - hoje0) / 86400000);
+        }
+        var proximosPassos = [];
+        p0.tasks.forEach(function (t) { (t.items || []).forEach(function (it) { if (!it.done && proximosPassos.length < 4) proximosPassos.push({ t: it.t, stage: t.t }); }); });
+        out.cp = {
+          code: p0.code, nome: p0.nome, tipo: p0.tipo, pct: pct(p0), barW: pct(p0) + "%", next: nextTask(p0), prazo: dt(p0.prazo),
+          diasPrazo: diasPrazo, etapasDone: p0.tasks.filter(function (t) { return t.done; }).length, etapasTotal: p0.tasks.length,
+          proximos: proximosPassos
+        };
         // As subtarefas de cada etapa (checklist que o admin preenche)
         // não apareciam aqui, só o título da etapa — o cliente não tinha
         // como ver o que exatamente está sendo feito dentro dela (pedido
@@ -1310,7 +1327,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "suporte") {
         title = "Suporte"; actions = [btnP("Abrir chamado", function () { openModal("ticket"); })];
-        out.tickets = D.tickets.slice().reverse().map(function (t) { var c = statusCh(t.status); return { num: String(t.num).padStart(3, "0"), titulo: t.titulo, status: t.status, at: dt(t.at), chipBg: c[0], chipFg: c[1] }; });
+        out.tickets = D.tickets.slice().reverse().map(function (t) { var c = statusCh(t.status); return { num: String(t.num).padStart(3, "0"), titulo: t.titulo, motivo: t.motivo || "", status: t.status, at: dt(t.at), chipBg: c[0], chipFg: c[1] }; });
       }
     }
 
@@ -1465,11 +1482,21 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var u = d.users[d.users.length - 1];
           return sb().from("team_members").insert({ nome: u.nome, email: u.email, papel: u.papel, ativo: false }).select().single().then(function (res) { if (res.error) throw res.error; u.id = res.data.id; });
         } },
-      ticket: { t: "Abrir chamado de suporte", b: "Enviar chamado", fields: [inp("Assunto *", "titulo", "Ex.: Erro ao gerar relatório"), area("O que aconteceu", "desc", "Quanto mais detalhe, mais rápido resolvemos.")], req: ["titulo"],
-        go: function (d) { d.tickets.push({ num: (d.tickets.reduce(function (a, t) { return Math.max(a, t.num || 0); }, 0)) + 1, titulo: F.titulo, status: "Aberto", at: T }); }, toast: "Chamado aberto. Resposta em até 1 dia útil.",
+      // Motivo é uma categoria fechada (pra Lorena bater o olho e saber
+      // do que se trata antes de abrir) — "Outro" libera um campo pra
+      // escrever o motivo de verdade (pedido da Lorena).
+      ticket: { t: "Abrir chamado de suporte", b: "Enviar chamado",
+        fields: [sl("Motivo *", "motivo", [{ v: "", l: "Selecione…" }].concat(MOTIVOS_SUPORTE.map(function (m) { return { v: m, l: m }; })))]
+          .concat(F.motivo === "Outro" ? [inp("Qual motivo? *", "motivoOutro", "Descreva em poucas palavras")] : [])
+          .concat([inp("Assunto *", "titulo", "Ex.: Erro ao gerar relatório"), area("O que aconteceu", "desc", "Quanto mais detalhe, mais rápido resolvemos.")]),
+        req: F.motivo === "Outro" ? ["motivo", "motivoOutro", "titulo"] : ["motivo", "titulo"],
+        go: function (d) {
+          var motivoFinal = F.motivo === "Outro" ? (F.motivoOutro || "").trim() : F.motivo;
+          d.tickets.push({ num: (d.tickets.reduce(function (a, t) { return Math.max(a, t.num || 0); }, 0)) + 1, titulo: F.titulo, status: "Aberto", at: T, motivo: motivoFinal });
+        }, toast: "Chamado aberto. Resposta em até 1 dia útil.",
         remote: function (d) {
           var tk = d.tickets[d.tickets.length - 1];
-          return sb().from("support_tickets").insert({ numero: tk.num, project_id: (D.projects[0] || {}).id || null, titulo: tk.titulo, descricao: F.desc || null, status: "Aberto" }).select().single().then(function (res) { if (res.error) throw res.error; tk.id = res.data.id; });
+          return sb().from("support_tickets").insert({ numero: tk.num, project_id: (D.projects[0] || {}).id || null, titulo: tk.titulo, descricao: F.desc || null, status: "Aberto", motivo: tk.motivo || null }).select().single().then(function (res) { if (res.error) throw res.error; tk.id = res.data.id; });
         } },
       prospeccao: { t: F.id ? "Editar prospecção" : "Nova prospecção", b: F.id ? "Salvar alterações" : "Registrar prospecção", fields: [
           inp("Nome ou empresa *", "nome", "Quem você quer conquistar"),
@@ -1839,7 +1866,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         + '<button ' + h(V.saveProfileNameH) + ' style="align-self:flex-start;padding:10px 18px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Salvar nome</button>')
       : "";
     return '<div data-h="' + V.closeUserMenuH + '" style="position:fixed;inset:0;z-index:56;background:var(--overlay);backdrop-filter:blur(2px)"></div>'
-      + '<div style="position:fixed;top:0;left:0;bottom:0;z-index:57;width:min(360px,100vw);background:var(--panel);border-right:1px solid var(--line2);box-shadow:20px 0 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow-y:auto">'
+      // Largura batendo com o menu lateral atual (que agora é ajustável)
+      // em vez de um 360px fixo que não combinava com nada — pedido da
+      // Lorena. Nunca mais estreito que ele dava pra ficar legível.
+      + '<div style="position:fixed;top:0;left:0;bottom:0;z-index:57;width:min(' + Math.max(V.sideW || 252, 300) + 'px,100vw);background:var(--panel);border-right:1px solid var(--line2);box-shadow:20px 0 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow-y:auto">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--line);flex:none">'
         + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Meu perfil</span>'
         + '<button ' + h(V.closeUserMenuH) + ' aria-label="Fechar" style="border:0;background:none;color:var(--ink);font-size:24px;cursor:pointer;line-height:1">×</button>'
@@ -2278,6 +2308,20 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   function buildAndamento(V) {
     var cp = V.cp;
+    var prazoTxt = cp.diasPrazo == null ? ""
+      : cp.diasPrazo > 1 ? cp.diasPrazo + " dias até a entrega"
+      : cp.diasPrazo === 1 ? "Entrega amanhã"
+      : cp.diasPrazo === 0 ? "Entrega é hoje"
+      : Math.abs(cp.diasPrazo) + (Math.abs(cp.diasPrazo) === 1 ? " dia de atraso" : " dias de atraso");
+    var prazoColor = cp.diasPrazo != null && cp.diasPrazo < 0 ? "#b4443a" : "var(--accTxt)";
+    var stats = '<div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">'
+      + '<span style="display:flex;flex-direction:column;gap:4px;padding:14px 14px 14px 0;border-right:1px solid var(--line)"><span style="font-size:12px;color:var(--mute)">Etapas concluídas</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:18px;letter-spacing:-.03em">' + cp.etapasDone + " / " + cp.etapasTotal + '</span></span>'
+      + '<span style="display:flex;flex-direction:column;gap:4px;padding:14px"><span style="font-size:12px;color:var(--mute)">Prazo</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;letter-spacing:-.02em;color:' + prazoColor + '">' + esc(prazoTxt || "—") + "</span></span></div>";
+    var proximos = cp.proximos && cp.proximos.length
+      ? '<div style="display:flex;flex-direction:column;gap:10px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">O que falta agora</span>' + cp.proximos.map(function (it) {
+          return '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;color:var(--ink)">' + esc(it.t) + '</span><span style="font-size:11px;color:var(--mute)">' + esc(it.stage) + "</span></div>";
+        }).join("") + "</div>"
+      : '<div style="font-size:13px;color:var(--mute)">Nenhuma pendência aberta no momento — tudo em dia.</div>';
     var steps = V.cTasks.map(function (t) {
       // Subtarefas da etapa, só leitura (quem edita é o admin) — ponto
       // marcado quando concluída, pra dar pra ver o que exatamente está
@@ -2290,7 +2334,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     }).join("");
     return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:40px 56px;align-items:start">'
       + '<section style="display:flex;flex-direction:column;gap:20px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">' + esc(cp.code) + " · " + esc(cp.tipo) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;line-height:1.25">' + esc(cp.nome) + '</span><span style="display:flex;align-items:center;gap:14px"><span style="flex:1;height:4px;background:var(--barBg)"><span style="display:block;height:100%;width:' + cp.barW + ';background:var(--bar);transition:width .6s"></span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;font-variant-numeric:tabular-nums">' + cp.pct + '%</span></span>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:4px;padding:14px 14px 14px 0;border-right:1px solid var(--line)"><span style="font-size:12px;color:var(--mute)">Etapa atual</span><span style="font-size:14px;font-weight:600">' + esc(cp.next) + '</span></span><span style="display:flex;flex-direction:column;gap:4px;padding:14px"><span style="font-size:12px;color:var(--mute)">Previsão de entrega</span><span style="font-size:14px;font-weight:600">' + esc(cp.prazo) + "</span></span></div></section>"
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:4px;padding:14px 14px 14px 0;border-right:1px solid var(--line)"><span style="font-size:12px;color:var(--mute)">Etapa atual</span><span style="font-size:14px;font-weight:600">' + esc(cp.next) + '</span></span><span style="display:flex;flex-direction:column;gap:4px;padding:14px"><span style="font-size:12px;color:var(--mute)">Previsão de entrega</span><span style="font-size:14px;font-weight:600">' + esc(cp.prazo) + "</span></span></div>"
+      + stats
+      + '<div style="padding:18px;background:var(--field);border:1px solid var(--line)">' + proximos + "</div></section>"
       + '<section style="display:flex;flex-direction:column">' + steps + "</section></div>";
   }
 
@@ -2336,7 +2382,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   function buildSuporte(V) {
     return '<div style="display:flex;flex-direction:column">' + V.tickets.map(function (t) {
-      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 0;border-top:1px solid var(--line);flex-wrap:wrap"><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(t.titulo) + '</span><span style="font-size:12px;color:var(--mute)">Chamado #' + t.num + " · aberto " + esc(t.at) + '</span></span><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + t.chipBg + ";color:" + t.chipFg + '">' + esc(t.status) + "</span></div>";
+      var motivoTag = t.motivo ? '<span style="font-size:11px;color:var(--accTxt)">' + esc(t.motivo) + "</span>" : "";
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 0;border-top:1px solid var(--line);flex-wrap:wrap"><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(t.titulo) + '</span><span style="font-size:12px;color:var(--mute)">Chamado #' + t.num + " · aberto " + esc(t.at) + "</span>" + motivoTag + '</span><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + t.chipBg + ";color:" + t.chipFg + '">' + esc(t.status) + "</span></div>";
     }).join("") + "</div>";
   }
 
@@ -2362,7 +2409,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     return '<main style="min-width:0;padding:clamp(22px,3.4vw,44px) clamp(16px,3.6vw,52px) 120px;display:flex;flex-direction:column;gap:28px">' + buildHeader(V) + buildToolbar(V) + body + "</main>";
   }
 
-  var BOT_ICON = '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><line x1="76" y1="132" x2="18" y2="38" stroke="#457528" stroke-width="16" stroke-linecap="round"></line><line x1="246" y1="126" x2="292" y2="24" stroke="#457528" stroke-width="16" stroke-linecap="round"></line><circle cx="170" cy="283" r="172" fill="#defa9a"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#0e0f0b"></rect><rect x="66" y="230" width="208" height="134" rx="67" fill="#defa9a"></rect><g style="transform-origin:170px 297px;animation:botBlink 4.2s infinite"><circle cx="122" cy="297" r="16" fill="#0e0f0b"></circle><circle cx="218" cy="297" r="16" fill="#0e0f0b"></circle></g></svg>';
+  // Preto sólido + rosto creme, igual ao robô-padrão usado no resto do
+  // site (guia, rodapé) — a versão anterior usava um verde-limão claro
+  // (#defa9a) só aqui, destoando do resto (pedido da Lorena).
+  var BOT_ICON = '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><line x1="76" y1="132" x2="18" y2="38" stroke="#0e0f0b" stroke-width="16" stroke-linecap="round"></line><line x1="246" y1="126" x2="292" y2="24" stroke="#0e0f0b" stroke-width="16" stroke-linecap="round"></line><circle cx="170" cy="283" r="172" fill="#0e0f0b"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#0e0f0b"></rect><rect x="66" y="230" width="208" height="134" rx="67" fill="#fffceb"></rect><g style="transform-origin:170px 297px;animation:botBlink 4.2s infinite"><circle cx="122" cy="297" r="16" fill="#0e0f0b"></circle><circle cx="218" cy="297" r="16" fill="#0e0f0b"></circle></g></svg>';
 
   // Comemoração grande quando um lead/prospecção vira cliente de
   // verdade — bem mais festa que a meta semanal de prospecção, e o
@@ -2586,10 +2636,59 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         history.replaceState(null, "", location.pathname);
       }
       render();
+      if (role === "admin") watchInstallmentNotices();
     } catch (err) {
       console.error("[Buovai] Falha ao carregar o portal:", err);
       app.innerHTML = '<div id="bootMsg">Não foi possível carregar o portal agora. Atualize a página em instantes.</div>';
     }
+  }
+
+  // Antes disso, a Lorena só ficava sabendo que um cliente avisou que
+  // pagou (boleto) quando abrisse o painel de novo e reparasse na lista
+  // "Precisa de atenção" — nada avisava na hora. Agora escuta em tempo
+  // real (Supabase Realtime) e mostra um toast + toca um bipe + manda
+  // uma notificação do próprio navegador (se autorizado), do jeito que
+  // uma notificação de celular funcionaria (pedido da Lorena).
+  function watchInstallmentNotices() {
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+      try { Notification.requestPermission(); } catch (e) {}
+    }
+    function beep() {
+      try {
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator(), gain = ctx.createGain();
+        osc.frequency.value = 880; osc.type = "sine";
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(); osc.stop(ctx.currentTime + 0.4);
+      } catch (e) {}
+    }
+    sb().channel("installment-notices").on("postgres_changes", { event: "UPDATE", schema: "public", table: "project_installments" }, function (payload) {
+      var n = payload.new, o = payload.old;
+      // Só interessa a transição pra "avisado" (cliente clicou "Já
+      // paguei por boleto"), não qualquer UPDATE na parcela — e não se
+      // já tiver sido confirmada (senão dispararia de novo ao marcar
+      // como paga).
+      if (!n || !n.avisado || n.pago || (o && o.avisado)) return;
+      var p = (S.data.projects || []).filter(function (x) { return x.id === n.project_id; })[0];
+      var cliNome = p ? (((S.data.clients || []).filter(function (c) { return c.id === p.clientId; })[0] || {}).nome || p.clienteNome) : "Um cliente";
+      var msg = cliNome + " avisou que pagou a parcela " + n.numero + " · " + money(Number(n.valor) || 0);
+      S.toast = msg;
+      clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 6000);
+      beep();
+      if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+        try { new Notification("buov.ai · pagamento avisado", { body: msg }); } catch (e) {}
+      }
+      // Atualiza o estado local na hora (sem esperar reload) se o
+      // projeto já estiver carregado nessa sessão.
+      if (p) {
+        var q = p.parcelas.filter(function (x) { return x.id === n.id; })[0];
+        if (q) q.avisado = true;
+      }
+      render();
+    }).subscribe();
   }
 
   sb().auth.onAuthStateChange(function (event) {
