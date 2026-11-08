@@ -1376,15 +1376,30 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       // preencher na mão nem precisa clicar (pedido da Lorena).
       if (wStepN === 2 && F.cTipoUsuario === "teste") {
         MODALS.clienteProjeto.randomH = reg(function () {
-          var NOMES_TESTE = ["Site institucional de teste", "Sistema de gestão (ambiente de teste)", "Portal do cliente (teste)", "App de pedidos (teste)", "Automação financeira (teste)"];
+          // Nome sorteado por modelo, não solto — sem isso dava pra
+          // sortear "Aplicativo" com nome "Automação financeira (teste)",
+          // uma combinação que não faz sentido nenhum (pedido da Lorena:
+          // o preenchimento aleatório tem que fazer sentido).
+          var NOMES_POR_MODELO = {
+            "Sistema sob medida": ["Sistema de gestão interna (teste)", "Sistema de controle de pedidos (teste)"],
+            "Migração de sistema": ["Migração do sistema financeiro (teste)", "Migração da planilha de clientes (teste)"],
+            "Site institucional": ["Site institucional de teste", "Novo site institucional (teste)"],
+            "Automação e integração": ["Automação financeira (teste)", "Integração entre sistemas (teste)"],
+            "Aplicativo": ["App de pedidos (teste)", "Aplicativo de agendamento (teste)"]
+          };
           var t = D.templates.length ? D.templates[Math.floor(Math.random() * D.templates.length)] : null;
-          var valor = (10 + Math.floor(Math.random() * 71)) * 100;
+          var nomesDoModelo = (t && NOMES_POR_MODELO[t.nome]) || (t ? ["Projeto " + t.nome + " (teste)"] : ["Projeto de teste"]);
+          var pick = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
+          // Valor em múltiplo das parcelas, pra cada parcela sair redonda
+          // (ex.: 3x de R$ 1.500) em vez de uma divisão quebrada.
           var parcelas = 1 + Math.floor(Math.random() * 4);
+          var porParcela = (5 + Math.floor(Math.random() * 16)) * 100;
+          var valor = porParcela * parcelas;
           var vencDias = 5 + Math.floor(Math.random() * 15);
           var prazoDias = vencDias + 20 + Math.floor(Math.random() * 30);
           var addDias = function (n) { var dd = new Date(T + "T12:00"); dd.setDate(dd.getDate() + n); return dd.toISOString().slice(0, 10); };
           setState({ f: Object.assign({}, F, {
-            pNome: NOMES_TESTE[Math.floor(Math.random() * NOMES_TESTE.length)],
+            pNome: pick(nomesDoModelo),
             tplId: t ? t.id : F.tplId,
             pValor: String(valor),
             pParcelas: String(parcelas),
