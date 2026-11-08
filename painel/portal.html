@@ -1369,6 +1369,30 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     if (M === "clienteProjeto") {
       var wStepN = Math.min(Math.max(S.wStep || 1, 1), wizSteps.length), wStepDef = wizSteps[wStepN - 1];
       MODALS.clienteProjeto = { t: "Novo cliente e projeto", sub: "Passo " + wStepN + " de " + wizSteps.length + " · " + wStepDef.title, b: wStepDef.b, fields: wStepDef.fields, req: wStepDef.req };
+      // Pro usuário de teste, preenche o passo "Dados do projeto" com
+      // valores de exemplo plausíveis num clique — a Lorena só quer
+      // conferir como os dados aparecem pro cliente, não digitar um
+      // projeto inteiro à mão. Continua editável depois, e quem preferir
+      // preencher na mão nem precisa clicar (pedido da Lorena).
+      if (wStepN === 2 && F.cTipoUsuario === "teste") {
+        MODALS.clienteProjeto.randomH = reg(function () {
+          var NOMES_TESTE = ["Site institucional de teste", "Sistema de gestão (ambiente de teste)", "Portal do cliente (teste)", "App de pedidos (teste)", "Automação financeira (teste)"];
+          var t = D.templates.length ? D.templates[Math.floor(Math.random() * D.templates.length)] : null;
+          var valor = (10 + Math.floor(Math.random() * 71)) * 100;
+          var parcelas = 1 + Math.floor(Math.random() * 4);
+          var vencDias = 5 + Math.floor(Math.random() * 15);
+          var prazoDias = vencDias + 20 + Math.floor(Math.random() * 30);
+          var addDias = function (n) { var dd = new Date(T + "T12:00"); dd.setDate(dd.getDate() + n); return dd.toISOString().slice(0, 10); };
+          setState({ f: Object.assign({}, F, {
+            pNome: NOMES_TESTE[Math.floor(Math.random() * NOMES_TESTE.length)],
+            tplId: t ? t.id : F.tplId,
+            pValor: String(valor),
+            pParcelas: String(parcelas),
+            pVenc: addDias(vencDias),
+            pPrazo: addDias(prazoDias)
+          }) });
+        });
+      }
     }
     var md = M ? MODALS[M] : null;
     var tplP = M === "projeto" ? (tplOf(F.tplId) || D.templates[0]) : null;
@@ -1465,6 +1489,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       showBot: !admin, helpOpen: !admin && S.helpOpen, helpBtnLabel: S.helpOpen ? "Fechar ajuda" : "Precisa de ajuda?", toggleHelpH: reg(function () { S.helpOpen = !S.helpOpen; render(); scrollHelp(); }),
       helpLog: helpLog, helpSugg: sugg.map(function (k) { return { q: HELP[k].q, h: reg(function () { ask(k); }) }; }), helpDraft: S.helpDraft, helpChH: reg(function (e) { setState({ helpDraft: e.target.value }); }), helpKeyH: reg(function (e) { if (e.key === "Enter") helpSend(); }), helpSendH: reg(helpSend),
       modalOpen: !!md, mTitle: md ? md.t : "", mSub: md ? (md.sub || "") : "", hasMSub: !!(md && md.sub), mSubmitLabel: md ? md.b : "", mFields: md ? md.fields : [], mErr: S.mErr, mErrMsg: S.mErrMsg,
+      mRandomH: md && md.randomH ? md.randomH : null,
       hasTplPreview: !!tplP, tplPreview: tplP ? tplP.etapas.map(function (t, i) { return String(i + 1).padStart(2, "0") + "  " + t; }) : [],
       wShowBack: M === "clienteProjeto" && (S.wStep || 1) > 1,
       wBackH: reg(function () { setState({ wStep: Math.max(1, (S.wStep || 1) - 1), mErr: false }); }),
@@ -2150,6 +2175,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       if (/\*\s*$/.test(labelText)) { labelText = labelText.replace(/\*\s*$/, "").trim(); reqMark = ' <span style="color:var(--badFg)">*</span>'; }
       return '<label style="display:flex;flex-direction:column;gap:7px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">' + esc(labelText) + reqMark + "</span>" + inner + "</label>";
     }).join("");
+    var randomBtn = V.mRandomH
+      ? '<button type="button" ' + h(V.mRandomH) + ' style="padding:10px 14px;border:1px dashed var(--line2);background:none;color:var(--accTxt);font-family:\'Lexend Exa\',sans-serif;font-size:11.5px;cursor:pointer;align-self:flex-start">🎲 Preencher com dados de exemplo</button>'
+      : "";
     var tplPrev = V.hasTplPreview ? '<div style="display:flex;flex-direction:column;gap:6px;padding:14px;border:1px dashed var(--line2)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">Etapas que serão criadas</span>' + V.tplPreview.map(function (t) { return '<span style="font-size:13px;color:var(--ink2)">' + esc(t) + "</span>"; }).join("") + "</div>" : "";
     var err = V.mErr ? '<span style="font-size:13px;color:var(--badFg)">' + esc(V.mErrMsg || "Preencha os campos marcados com *.") + "</span>" : "";
     var sub = V.hasMSub ? '<span style="font-size:12px;color:var(--mute)">' + esc(V.mSub) + "</span>" : "";
@@ -2158,7 +2186,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     return '<div data-h="' + V.closeModalBgH + '" style="position:fixed;inset:0;z-index:50;background:var(--overlay);backdrop-filter:blur(4px);display:flex;overflow-y:auto;padding:20px">'
       + '<div style="margin:auto;width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line2);padding:clamp(22px,4vw,34px);display:flex;flex-direction:column;gap:18px">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><span style="display:flex;flex-direction:column;gap:4px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:18px;letter-spacing:-.04em">' + esc(V.mTitle) + "</span>" + sub + '</span><button ' + h(V.closeModalH) + ' aria-label="Fechar" style="border:0;background:none;color:var(--ink);font-size:22px;cursor:pointer;line-height:1">×</button></div>'
-      + fields + tplPrev + err
+      + randomBtn + fields + tplPrev + err
       + '<div style="display:flex;gap:10px">' + btns + "</div>"
       + "</div></div>";
   }
