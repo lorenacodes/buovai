@@ -184,6 +184,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     sideResize.w = w;
     var shell = document.getElementById("appShell");
     if (shell) shell.style.gridTemplateColumns = w + "px minmax(0,1fr)";
+    var panel = document.getElementById("userMenuPanel");
+    if (panel) panel.style.width = "min(" + w + "px, 100vw)";
   }
   function onSideResizeMove(e) { applySideResize(e.clientX); }
   function onSideResizeTouchMove(e) { if (e.touches[0]) { applySideResize(e.touches[0].clientX); e.preventDefault(); } }
@@ -444,7 +446,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", cargo: c.cargo_contato || "", setor: c.setor || "", origem: c.origem || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "", isTest: !!c.is_test }; });
       D.leads = (leadsRes.data || []).map(function (l) { return { id: l.id, nome: l.company_name, interesse: l.opportunities || l.description || "", origem: l.source || "", valor: Number(l.budget_value) || 0, etapa: LEAD_IDX[l.stage] != null ? LEAD_IDX[l.stage] : 0 }; });
       D.proposals = (proposalsRes.data || []).map(function (p) { return { id: p.id, clientId: p.client_email, clienteNome: p.client_name, titulo: p.titulo, tipo: p.tipo, valor: Number(p.valor) || 0, status: p.status, data: p.data }; });
-      D.meetings = (meetingsRes.data || []).map(function (m) { return { id: m.id, titulo: m.titulo, data: m.data, hora: (m.hora || "").slice(0, 5), cliente: m.cliente_nome || "" }; });
+      D.meetings = (meetingsRes.data || []).map(function (m) { return { id: m.id, titulo: m.titulo, data: m.data, hora: (m.hora || "").slice(0, 5), cliente: m.cliente_nome || "", status: m.status || "confirmada", pedidoCliente: !!m.requested_by_client }; });
       D.tickets = (ticketsRes.data || []).map(function (t) { return { id: t.id, num: t.numero, titulo: t.titulo, status: t.status, at: t.created_at, motivo: t.motivo || "" }; });
 
       var projRows = projRes.data || [];
@@ -545,7 +547,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var in30 = all.filter(function (x) { return !x.q.pago && x.q.venc >= T && daysBetween(T, x.q.venc) <= 30; });
     var meetRow = function (m) {
       var dd = new Date(m.data + "T12:00");
-      return { dia: m.data.slice(8, 10), mesN: m.data.slice(5, 7), mes: MES[dd.getMonth()], semana: SEM[dd.getDay()], hora: m.hora, titulo: m.titulo, cliente: m.cliente || "sem cliente", h: reg(function () { save(function (d2) { d2.meetings = d2.meetings.filter(function (x) { return x.id !== m.id; }); }, null, function () { return sb().from("calendar_events").delete().eq("id", m.id); }); }) };
+      var pending = m.status === "pendente";
+      return {
+        dia: m.data.slice(8, 10), mesN: m.data.slice(5, 7), mes: MES[dd.getMonth()], semana: SEM[dd.getDay()], hora: m.hora, titulo: m.titulo, cliente: m.cliente || "sem cliente",
+        pending: pending, pedidoCliente: !!m.pedidoCliente,
+        confirmH: reg(function () { save(function (d2) { var x = d2.meetings.filter(function (y) { return y.id === m.id; })[0]; if (x) x.status = "confirmada"; }, "Reunião confirmada", function () { return sb().from("calendar_events").update({ status: "confirmada" }).eq("id", m.id); }); }),
+        h: reg(function () { save(function (d2) { d2.meetings = d2.meetings.filter(function (x) { return x.id !== m.id; }); }, null, function () { return sb().from("calendar_events").delete().eq("id", m.id); }); })
+      };
     };
     var meetings = D.meetings.slice().sort(function (a, b) { return (a.data + a.hora).localeCompare(b.data + b.hora); });
     var upcoming = meetings.filter(function (m) { return m.data >= T; });
@@ -1336,7 +1344,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         });
       }
       if (V === "suporte") {
-        title = "Suporte"; actions = [btnP("Abrir chamado", function () { openModal("ticket"); })];
+        title = "Suporte"; actions = [btnS("Solicitar reunião", function () { openModal("solicitarReuniao", { data: T }); }), btnP("Abrir chamado", function () { openModal("ticket"); })];
         out.tickets = D.tickets.slice().reverse().map(function (t) { var c = statusCh(t.status); return { num: String(t.num).padStart(3, "0"), titulo: t.titulo, motivo: t.motivo || "", status: t.status, at: dt(t.at), chipBg: c[0], chipFg: c[1] }; });
       }
     }
@@ -1485,6 +1493,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         remote: function (d) {
           var m = d.meetings[d.meetings.length - 1];
           return sb().from("calendar_events").insert({ titulo: m.titulo, cliente_nome: m.cliente || null, data: m.data, hora: m.hora || null }).select().single().then(function (res) { if (res.error) throw res.error; m.id = res.data.id; });
+        } },
+      // Pedido de reunião feito pelo próprio cliente — fica "pendente"
+      // até a Lorena confirmar dia/horário na Agenda (pedido da Lorena).
+      solicitarReuniao: { t: "Solicitar reunião", b: "Enviar solicitação", fields: [sl("Assunto *", "titulo", optList(ASSUNTOS_REUNIAO)), inp("Data desejada *", "data", "", "date"), inp("Horário desejado", "hora", "", "time")], req: ["titulo", "data"],
+        go: function (d) { d.meetings.push({ id: "m" + Date.now(), titulo: F.titulo, cliente: myProj0 ? myProj0.clienteNome : "", data: F.data, hora: F.hora || "", status: "pendente", pedidoCliente: true }); }, toast: "Solicitação enviada. A Lorena confirma o dia e horário.",
+        remote: function (d) {
+          var m = d.meetings[d.meetings.length - 1];
+          return sb().from("calendar_events").insert({ titulo: m.titulo, cliente_nome: m.cliente || null, data: m.data, hora: m.hora || null, status: "pendente", requested_by_client: true, client_email: S.email }).select().single().then(function (res) { if (res.error) throw res.error; m.id = res.data.id; });
         } },
       usuario: { t: "Convidar pessoa", b: "Enviar convite", fields: [inp("Nome *", "nome", ""), inp("E-mail *", "email", "", "email"), sl("Papel", "papel", ROLES.map(function (r) { return { v: r, l: r }; }))], req: ["nome", "email"],
         go: function (d) { d.users.push({ id: "u" + Date.now(), nome: F.nome, email: F.email, papel: F.papel || "Desenvolvimento", ativo: false }); }, toast: "Convite enviado",
@@ -1858,7 +1874,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           + '<span style="font-size:12px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(V.meName) + '</span>'
         + '</button>'
       + '<input type="file" accept="image/*" id="avatarFileInput" data-fileh="' + V.avatarUploadH + '" style="display:none">'
-      + '<a href="index.html" style="font-size:12px;color:var(--mute);white-space:nowrap;padding:0 2px">←︎ Voltar ao site</a>'
+      + '<a href="../index.html" style="font-size:12px;color:var(--mute);white-space:nowrap;padding:0 2px">←︎ Voltar ao site</a>'
       + "</div></aside>";
   }
 
@@ -1879,11 +1895,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       ? ('<label style="display:flex;flex-direction:column;gap:7px;width:100%"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)">Nome</span><input value="' + esc(V.profileNameDraft) + '" data-ch="' + V.profileNameChH + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:11px 13px;font:inherit;font-size:14px;outline:none;width:100%"></label>'
         + '<button ' + h(V.saveProfileNameH) + ' style="align-self:flex-start;padding:10px 18px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:12px;cursor:pointer">Salvar nome</button>')
       : "";
+    // Mesma largura do menu lateral — nada de 360px fixo nem piso
+    // próprio — e com a própria alça de arrastar, que também atualiza
+    // a largura do menu lateral (é a mesma medida) — pedido da Lorena.
+    var umW = V.sideW || 252;
     return '<div data-h="' + V.closeUserMenuH + '" style="position:fixed;inset:0;z-index:56;background:var(--overlay);backdrop-filter:blur(2px)"></div>'
-      // Largura batendo com o menu lateral atual (que agora é ajustável)
-      // em vez de um 360px fixo que não combinava com nada — pedido da
-      // Lorena. Nunca mais estreito que ele dava pra ficar legível.
-      + '<div style="position:fixed;top:0;left:0;bottom:0;z-index:57;width:min(' + Math.max(V.sideW || 252, 300) + 'px,100vw);background:var(--panel);border-right:1px solid var(--line2);box-shadow:20px 0 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow-y:auto">'
+      + '<div id="userMenuPanel" style="position:fixed;top:0;left:0;bottom:0;z-index:57;width:min(' + umW + 'px,100vw);background:var(--panel);border-right:1px solid var(--line2);box-shadow:20px 0 50px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow-y:auto">'
+      + '<div data-resizeh="1" title="Arrastar para redimensionar" style="position:absolute;top:0;right:-3px;bottom:0;width:6px;cursor:col-resize;z-index:6"></div>'
       + '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--line);flex:none">'
         + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Meu perfil</span>'
         + '<button ' + h(V.closeUserMenuH) + ' aria-label="Fechar" style="border:0;background:none;color:var(--ink);font-size:24px;cursor:pointer;line-height:1">×</button>'
@@ -2259,7 +2277,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     if (V.v_agCal) return buildAgCal(V);
     if (!V.agenda.length) return '<div style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhum compromisso agendado.</div>';
     return '<div style="display:flex;flex-direction:column">' + V.agenda.map(function (m) {
-      return '<div style="display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;font-variant-numeric:tabular-nums">' + m.dia + " " + m.mes + '</span><span style="font-size:11px;color:var(--mute)">' + esc(m.semana) + " · " + esc(m.hora) + '</span></span><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(m.titulo) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(m.cliente) + '</span></span><button ' + h(m.h) + ' style="border:0;background:none;color:var(--mute);font-size:12px;cursor:pointer">Remover</button></div>';
+      var badge = m.pending ? '<span style="font-size:11px;font-weight:600;padding:4px 8px;background:#f4e3b8;color:#8a6a1f">Pendente' + (m.pedidoCliente ? " · pedido do cliente" : "") + '</span>' : "";
+      var confirmBtn = m.pending ? '<button ' + h(m.confirmH) + ' style="border:0;background:var(--btnBg);color:var(--btnFg);font-size:12px;padding:7px 12px;cursor:pointer">Confirmar</button>' : "";
+      return '<div style="display:grid;grid-template-columns:90px minmax(0,1fr) auto auto auto;gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;font-variant-numeric:tabular-nums">' + m.dia + " " + m.mes + '</span><span style="font-size:11px;color:var(--mute)">' + esc(m.semana) + " · " + esc(m.hora) + '</span></span><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(m.titulo) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(m.cliente) + "</span></span>" + badge + confirmBtn + '<button ' + h(m.h) + ' style="border:0;background:none;color:var(--mute);font-size:12px;cursor:pointer">Remover</button></div>';
     }).join("") + "</div>";
   }
 
