@@ -137,7 +137,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", itab: "resumo", msgLimit: 15, q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, clientWon: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
-    accessBusy: false, accessResult: null,
+    accessBusy: false, accessResult: null, inviteBusy: false, inviteSentFor: null,
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
     w: window.innerWidth
   };
@@ -351,7 +351,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       if (!D.users.length) D.users = [{ id: "me", nome: email, email: email, papel: "Administrador", ativo: true }];
       ROLES.forEach(function (r) { D.perms[r] = []; });
       (permRes.data || []).forEach(function (p) { if (p.allowed) D.perms[p.papel] = (D.perms[p.papel] || []).concat([p.modulo]); });
-      D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", cargo: c.cargo_contato || "", setor: c.setor || "", origem: c.origem || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "" }; });
+      D.clients = (clientsRes.data || []).map(function (c) { return { id: c.id, nome: c.nome, pj: c.pj, contato: c.contato || "", cargo: c.cargo_contato || "", setor: c.setor || "", origem: c.origem || "", email: c.email || "", tel: c.tel || "", doc: c.documento || "", isTest: !!c.is_test }; });
       D.leads = (leadsRes.data || []).map(function (l) { return { id: l.id, nome: l.company_name, interesse: l.opportunities || l.description || "", origem: l.source || "", valor: Number(l.budget_value) || 0, etapa: LEAD_IDX[l.stage] != null ? LEAD_IDX[l.stage] : 0 }; });
       D.proposals = (proposalsRes.data || []).map(function (p) { return { id: p.id, clientId: p.client_email, clienteNome: p.client_name, titulo: p.titulo, tipo: p.tipo, valor: Number(p.valor) || 0, status: p.status, data: p.data }; });
       D.meetings = (meetingsRes.data || []).map(function (m) { return { id: m.id, titulo: m.titulo, data: m.data, hora: (m.hora || "").slice(0, 5), cliente: m.cliente_nome || "" }; });
@@ -413,6 +413,21 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // ---- computa valores de exibição (equivalente a renderVals) ----
   function computeVals() {
     var D = S.data, admin = S.role === "admin", T = new Date().toISOString().slice(0, 10), narrow = S.w < 760, light = S.theme === "light";
+    // Clientes marcados como "usuário de teste" (ex.: conta de preview da
+    // própria Lorena) somem de toda métrica, gráfico e lista do painel —
+    // um só ponto de filtro aqui, em vez de cada KPI ter que lembrar de
+    // excluir. S.data continua com tudo, então nada se perde; só a tela
+    // do admin não mostra. Não afeta o portal do próprio cliente de teste
+    // (ele faz login e vê o projeto dele normalmente — só o LADO ADMIN
+    // some, que é o que "não contar nas métricas" significa).
+    if (admin) {
+      var testClientIds = {};
+      (D.clients || []).forEach(function (c) { if (c.isTest) testClientIds[c.id] = true; });
+      D = Object.assign({}, D, {
+        clients: D.clients.filter(function (c) { return !c.isTest; }),
+        projects: D.projects.filter(function (p) { return !testClientIds[p.clientId]; })
+      });
+    }
     var adminMe = admin ? (D.admins || []).filter(function (a) { return a.email === (S.email || "").toLowerCase(); })[0] : null;
     var meTeam = admin ? (D.users || []).filter(function (u) { return (u.email || "").toLowerCase() === (S.email || "").toLowerCase(); })[0] : null;
     var cli = function (id) { return D.clients.filter(function (c) { return c.id === id; })[0] || { nome: "..." }; };
@@ -666,6 +681,38 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         });
         out.printWelcomeH = reg(function () {
           if (S.accessResult) openWelcomePdf(S.accessResult);
+        });
+        // Antes disso, o único jeito de um cliente novo entrar no portal
+        // era o próprio cliente ir até a tela de login e pedir o link por
+        // conta própria — ninguém avisava ele que o acesso existia.
+        // Esse botão dispara, pelo painel, o mesmo e-mail de link mágico
+        // que login.html manda (via signInWithOtp), só que iniciado pela
+        // Lorena na hora que o cliente é cadastrado (pedido da Lorena:
+        // "preciso receber um e-mail de primeiro acesso").
+        out.inviteBusy = !!S.inviteBusy;
+        out.inviteSentFor = S.inviteSentFor === sel.id ? accCli.email : null;
+        out.sendInviteH = reg(function () {
+          if (!accCli.email) { S.toast = "Esse cliente não tem e-mail cadastrado. Adicione o e-mail no cadastro do cliente primeiro."; clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3600); render(); return; }
+          S.inviteBusy = true; render();
+          var redirectTo = location.origin + location.pathname.replace(/portal\.html$/, "set-password.html");
+          Promise.resolve(sb().auth.signInWithOtp({ email: accCli.email, options: { emailRedirectTo: redirectTo } })).then(function (res) {
+            S.inviteBusy = false;
+            if (res.error) {
+              console.error("[Buovai] Falha ao enviar e-mail de primeiro acesso:", res.error);
+              S.toast = "Não foi possível enviar o e-mail agora.";
+            } else {
+              S.inviteSentFor = sel.id;
+              S.toast = "E-mail de primeiro acesso enviado para " + accCli.email;
+            }
+            clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
+            render();
+          }).catch(function (err) {
+            S.inviteBusy = false;
+            console.error("[Buovai] Falha ao enviar e-mail de primeiro acesso:", err);
+            S.toast = "Não foi possível enviar o e-mail agora.";
+            clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
+            render();
+          });
         });
         out.pTabs = [["tarefas", "Etapas"], ["docs", "Documentação · " + sel.docs.length], ["fin", "Parcelas"], ["hist", "Histórico"]].map(function (x) { var k = x[0], label = x[1]; return { label: label, bd: S.ptab === k ? "var(--accTxt)" : "transparent", fg: S.ptab === k ? "var(--ink)" : "var(--mute)", h: reg(function () { setState({ ptab: k }); }) }; });
         out.statusOpts = ["Em andamento", "Aguardando cliente", "Concluído"].map(function (s) { return { label: s, bd: sel.status === s ? "var(--accTxt)" : "var(--line2)", bg: sel.status === s ? "var(--accSoft)" : "transparent", fg: sel.status === s ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { save(function (d) { d.projects.filter(function (x) { return x.id === sel.id; })[0].status = s; log(d, sel.id, 'mudou o status para "' + s + '"'); }, null, function () { return sb().from("client_projects").update({ status: ST_DB[s] || "em_andamento" }).eq("id", sel.id).then(function () { return logRemote(sel.id, 'mudou o status para "' + s + '"'); }); }); }) }; });
@@ -1169,6 +1216,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       cliente: { t: "Cadastrar cliente", b: "Salvar cliente", fields: [
           sl("Tipo", "pj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
           inp("Nome ou razão social *", "nome", ""),
+          sl("Tipo de usuário", "tipoUsuario", [{ v: "cliente", l: "Cliente" }, { v: "teste", l: "Usuário de teste (não entra nas métricas)" }]),
           sl("Setor", "setor", optList(SETORES)),
           sl("Origem", "origem", optList(["Site", "Assistente", "WhatsApp", "Indicação", "Prospecção", "Outro"])),
           inp("Responsável pelo contato", "contato", "Quem fala com você"),
@@ -1177,10 +1225,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           inp("E-mail", "email", "nome@empresa.com.br", "email"),
           inp(F.pj === "PF" ? "CPF" : "CNPJ *", "doc", "", "text", F.pj === "PF" ? "cpf" : "cnpj")
         ], req: F.pj === "PF" ? ["nome", "tel"] : ["nome", "tel", "doc"],
-        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", cargo: F.cargo || "", setor: F.setor || "", origem: F.origem || "", email: F.email || "", tel: F.tel, doc: F.doc || "" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
+        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", cargo: F.cargo || "", setor: F.setor || "", origem: F.origem || "", email: F.email || "", tel: F.tel, doc: F.doc || "", isTest: F.tipoUsuario === "teste" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
         remote: function (d) {
           var c = d.clients[d.clients.length - 1];
-          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, origem: c.origem || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
+          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, origem: c.origem || null, email: c.email, tel: c.tel, documento: c.doc, is_test: !!c.isTest }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
         } },
       projeto: { t: "Novo projeto", b: "Criar projeto", fields: [inp("Nome do projeto *", "nome", "Ex.: Migração do sistema financeiro"), sl("Cliente", "clientId", cliOpts), sl("Modelo de projeto", "tplId", D.templates.map(function (t) { return { v: t.id, l: t.nome }; })), inp("Valor cobrado (R$) *", "valor", "0,00", "number"), inp("Parcelas", "parcelas", "1", "number"), inp("1º vencimento", "venc", "", "date"), inp("Entrega prevista", "prazo", "", "date")], req: ["nome", "valor"],
         go: function (d) {
@@ -1276,6 +1324,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       { title: "Dados do cliente", b: "Continuar →︎", req: F.cPj === "PF" ? ["cNome", "cTel"] : ["cNome", "cTel", "cDoc"], fields: [
           sl("Tipo", "cPj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
           inp("Nome ou razão social *", "cNome", ""),
+          sl("Tipo de usuário", "cTipoUsuario", [{ v: "cliente", l: "Cliente" }, { v: "teste", l: "Usuário de teste (não entra nas métricas)" }]),
           sl("Setor", "cSetor", optList(SETORES)),
           sl("Origem", "cOrigem", optList(["Site", "Assistente", "WhatsApp", "Indicação", "Prospecção", "Outro"])),
           inp("Responsável pelo contato", "cContato", "Quem fala com você"),
@@ -1413,7 +1462,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (M === "clienteProjeto") {
           var fromProspectId = F.fromProspectId;
           save(function (d) {
-            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", setor: F.cSetor || "", origem: F.cOrigem || (fromProspectId ? "Prospecção" : ""), email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "" });
+            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", setor: F.cSetor || "", origem: F.cOrigem || (fromProspectId ? "Prospecção" : ""), email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "", isTest: F.cTipoUsuario === "teste" });
             var newC = d.clients[d.clients.length - 1];
             var v = Number(String(F.pValor).replace(",", ".")) || 0, n = Math.max(1, parseInt(F.pParcelas) || 1);
             var t = D.templates.filter(function (x) { return x.id === F.tplId; })[0] || D.templates[0];
@@ -1427,7 +1476,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             if (fromProspectId) { var zp = d.prospects.filter(function (x) { return x.id === fromProspectId; })[0]; if (zp) zp.status = "Convertido"; }
           }, "Cliente e projeto criados", function (d) {
             var c = d.clients[d.clients.length - 1], p = d.projects[0];
-            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, origem: c.origem || null, email: c.email, tel: c.tel, documento: c.doc }).select().single().then(function (res) {
+            return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, origem: c.origem || null, email: c.email, tel: c.tel, documento: c.doc, is_test: !!c.isTest }).select().single().then(function (res) {
               if (res.error) throw res.error;
               c.id = res.data.id; p.clientId = c.id;
               return sb().from("client_projects").insert({
@@ -1694,8 +1743,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var access = '<div style="display:flex;flex-direction:column;gap:14px;padding:16px;border:1px solid var(--line);border-top:0">'
       + '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">'
       + '<div style="display:flex;flex-direction:column;gap:4px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Acesso do cliente ao portal</span><span style="font-size:14px">' + (V.accessEmail ? esc(V.accessEmail) : "Sem e-mail cadastrado nesse cliente") + "</span></div>"
+      + '<div style="display:flex;flex-wrap:wrap;gap:8px">'
+      + '<button ' + h(V.sendInviteH) + ' style="padding:10px 14px;border:0;background:var(--btnBg);color:var(--btnFg);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer" ' + (V.inviteBusy ? "disabled" : "") + '>' + (V.inviteBusy ? "Enviando…" : "Enviar e-mail de primeiro acesso") + "</button>"
       + '<button ' + h(V.genAccessH) + ' style="padding:10px 14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer" ' + (V.accessBusy ? "disabled" : "") + '>' + (V.accessBusy ? "Gerando…" : "Gerar senha temporária") + "</button>"
       + "</div>"
+      + "</div>"
+      + (V.inviteSentFor
+        ? ('<div style="padding:12px 16px;background:var(--accSoft);font-size:13px;color:var(--accTxt)">E-mail de primeiro acesso enviado para ' + esc(V.inviteSentFor) + '. O cliente recebe um link mágico pra entrar e definir a própria senha.</div>')
+        : "")
       + (V.accessResult
         ? ('<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:14px 16px;background:var(--accSoft)">'
             + '<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:11px;color:var(--mute)">Senha temporária gerada</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:16px;color:var(--accTxt)">' + esc(V.accessResult.password) + "</span></div>"
