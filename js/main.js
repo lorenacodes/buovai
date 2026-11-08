@@ -33,6 +33,38 @@
   const yearEl = document.getElementById("current-year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // ---- Menu mobile: abaixo de 1100px os links do cabeçalho (.nav-wide)
+  // somem e, antes, não sobrava nenhum jeito de navegar pelo celular —
+  // agora o hamburguer (.nav-narrow) abre um menu de tela cheia com os
+  // mesmos links (pedido da Lorena).
+  const navToggle = document.getElementById("navToggle");
+  const navMobile = document.getElementById("navMobile");
+  const navMobileClose = document.getElementById("navMobileClose");
+  const portalBtnMobile = document.getElementById("portalBtnMobile");
+  if (navToggle && navMobile) {
+    const openNav = () => {
+      navMobile.style.display = "block";
+      document.body.style.overflow = "hidden";
+      navToggle.setAttribute("aria-expanded", "true");
+    };
+    const closeNav = () => {
+      navMobile.style.display = "none";
+      document.body.style.overflow = "";
+      navToggle.setAttribute("aria-expanded", "false");
+    };
+    navToggle.addEventListener("click", openNav);
+    if (navMobileClose) navMobileClose.addEventListener("click", closeNav);
+    navMobile.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeNav));
+    if (portalBtnMobile) {
+      portalBtnMobile.addEventListener("click", () => {
+        closeNav();
+        const portalBtn = document.getElementById("portalBtn");
+        if (portalBtn) portalBtn.click();
+      });
+    }
+    window.addEventListener("resize", () => { if (window.innerWidth >= 1100) closeNav(); });
+  }
+
   // ---- CTA do header: só aparece depois que o hero sai de vista,
   // igual a onScrollNav/showNavCta do arquivo original ----
   const navCta = document.getElementById("navCta");

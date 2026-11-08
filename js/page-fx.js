@@ -287,7 +287,13 @@
     const cl = (v) => Math.max(0, Math.min(1, v));
 
     const frame = (now) => {
-      const W = innerWidth, H = innerHeight, mob = W < 820, S = mob ? 48 : 64;
+      // O robô "flutua" na margem ao lado do conteúdo (max-width:1320px +
+      // 28px de cada lado = 1376px) — abaixo disso não sobra margem
+      // nenhuma, e ele caía sobreposto em cima do próprio texto/mockup em
+      // telas de laptop/tablet (ex. 900–1300px), não só no celular. O
+      // corte de "modo compacto" (docado no canto, sem seguir o alvo)
+      // agora cobre essa faixa inteira também (pedido da Lorena).
+      const W = innerWidth, H = innerHeight, mob = W < 1380, S = mob ? 48 : 64;
       wrap.style.width = S + "px";
       const hero = document.getElementById("inicio");
       const hb = hero ? hero.getBoundingClientRect().bottom : 0;
@@ -434,7 +440,13 @@
       // (régua, seta, extensão do corpo) convenceu — tirado por completo.
       // O robô ainda se posiciona perto do quadro e fala sobre ele, só
       // sem nenhum desenho de linha/colchete (pedido da Lorena).
-      if (visible && !st.pl && target && !s.skipLabel) {
+      // O colchete + o texto "//NN montado" partiam do título (h2) sem
+      // saber o que vem logo abaixo dele — em telas sem margem lateral
+      // sobrando (ver "mob" acima), o parágrafo às vezes reflui pra
+      // logo abaixo do título, bem na faixa onde esse texto cairia, e
+      // ficava escrito por cima dele (pedido da Lorena). Desativado no
+      // mesmo recorte do robô compacto.
+      if (visible && !st.pl && target && !s.skipLabel && !mob) {
         const t = now - st.t0, r = target.getBoundingClientRect(), pad = 18;
         const x0 = r.left - pad, y0 = r.top - pad, x1 = r.left + Math.min(r.width, target.scrollWidth) + pad, y1 = r.bottom + pad;
         const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = 1 - cl((t - 2000) / 600);

@@ -121,7 +121,65 @@
     if (rf.typedText) rf.typedText.textContent = "";
     typeTimer = setTimeout(tick, 7000);
   }
-  if (rf.bot) rf.bot.addEventListener("click", onBotClick);
+  let justDraggedBot = false;
+  if (rf.bot) rf.bot.addEventListener("click", function (e) {
+    if (justDraggedBot) { justDraggedBot = false; return; }
+    onBotClick();
+  });
+
+  // Arrastar o robô: a pessoa pode puxar ele pra qualquer lado enquanto
+  // segura, e ele volta pro lugar sozinho (com uma molinha) ao soltar —
+  // pedido da Lorena.
+  (function enableBotDrag() {
+    const el = rf.bot;
+    if (!el) return;
+    const MAX = 90; // até onde estica, pra não sumir da tela
+    let dragging = false, moved = false, sx = 0, sy = 0;
+    function clampDist(dx, dy) {
+      const d = Math.hypot(dx, dy);
+      if (d <= MAX) return [dx, dy];
+      const k = MAX / d;
+      return [dx * k, dy * k];
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      const p = e.touches ? e.touches[0] : e;
+      const dx = p.clientX - sx, dy = p.clientY - sy;
+      if (Math.hypot(dx, dy) > 4) moved = true;
+      const c = clampDist(dx, dy);
+      el.style.transform = `translate(${c[0].toFixed(1)}px,${c[1].toFixed(1)}px)`;
+      if (e.touches) e.preventDefault();
+    }
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      el.style.cursor = "pointer";
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      document.removeEventListener("touchmove", onMove);
+      document.removeEventListener("touchend", onUp);
+      el.style.transition = "transform .6s cubic-bezier(.34,1.56,.64,1)";
+      el.style.transform = "translate(0,0)";
+      if (moved) {
+        justDraggedBot = true;
+        const stop = function () { el.style.transition = ""; el.removeEventListener("transitionend", stop); };
+        el.addEventListener("transitionend", stop);
+      }
+    }
+    function onDown(e) {
+      const p = e.touches ? e.touches[0] : e;
+      dragging = true; moved = false;
+      sx = p.clientX; sy = p.clientY;
+      el.style.transition = "none";
+      el.style.cursor = "grabbing";
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+      document.addEventListener("touchmove", onMove, { passive: false });
+      document.addEventListener("touchend", onUp);
+    }
+    el.addEventListener("mousedown", onDown);
+    el.addEventListener("touchstart", onDown, { passive: true });
+  })();
 
   function resetWords() {
     const w = rf.words;

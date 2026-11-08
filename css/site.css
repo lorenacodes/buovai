@@ -354,14 +354,26 @@ html.no-intro .site-intro {
   outline-offset: 2px;
 }
 
-/* ---- Nav (desktop, >=1100px — abaixo disso o arquivo original simplesmente
-   esconde esses links, sem alternativa de menu) ---- */
+/* ---- Nav (desktop, >=1100px) — abaixo disso os links de texto somem e
+   o botão de hamburguer (.nav-narrow) assume, abrindo o menu de tela
+   cheia #navMobile (js/main.js). Antes os links simplesmente desapareciam
+   sem nenhuma alternativa de navegação no celular — pedido da Lorena. ---- */
 .nav-wide {
+  display: none;
+}
+
+.nav-narrow {
   display: none;
 }
 
 @media (min-width: 1100px) {
   .nav-wide {
+    display: flex;
+  }
+}
+
+@media (max-width: 1099px) {
+  .nav-narrow {
     display: flex;
   }
 }
