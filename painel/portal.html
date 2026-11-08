@@ -1213,22 +1213,37 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var sl = function (label, key, options) { return { label: label, isInput: false, isSelect: true, isArea: false, value: F[key] || "", chH: fc(key), options: options, key: key }; };
     var area = function (label, key, ph) { return { label: label, isInput: false, isSelect: false, isArea: true, ph: ph, value: F[key] || "", chH: fc(key), key: key }; };
     var MODALS = {
-      cliente: { t: "Cadastrar cliente", b: "Salvar cliente", fields: [
-          sl("Tipo", "pj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
-          inp("Nome ou razão social *", "nome", ""),
-          sl("Tipo de usuário", "tipoUsuario", [{ v: "cliente", l: "Cliente" }, { v: "teste", l: "Usuário de teste (não entra nas métricas)" }]),
-          sl("Setor", "setor", optList(SETORES)),
-          sl("Origem", "origem", optList(["Site", "Assistente", "WhatsApp", "Indicação", "Prospecção", "Outro"])),
-          inp("Responsável pelo contato", "contato", "Quem fala com você"),
-          sl("Cargo do responsável", "cargo", optList(CARGOS)),
-          inp("Telefone *", "tel", "(11) 90000-0000", "tel", "tel"),
-          inp("E-mail", "email", "nome@empresa.com.br", "email"),
-          inp(F.pj === "PF" ? "CPF" : "CNPJ *", "doc", "", "text", F.pj === "PF" ? "cpf" : "cnpj")
-        ], req: F.pj === "PF" ? ["nome", "tel"] : ["nome", "tel", "doc"],
-        go: function (d) { d.clients.push({ id: "c" + Date.now(), nome: F.nome, pj: F.pj !== "PF", contato: F.contato || "", cargo: F.cargo || "", setor: F.setor || "", origem: F.origem || "", email: F.email || "", tel: F.tel, doc: F.doc || "", isTest: F.tipoUsuario === "teste" }); }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
+      cliente: { t: "Cadastrar cliente", b: "Salvar cliente",
+        // Usuário de teste é só uma conta de preview — a Lorena não quer
+        // preencher nome, telefone, CPF etc. pra isso, só o e-mail de
+        // quem vai logar (pedido da Lorena). O nome vira automático:
+        // "Usuário de teste N", contando quantos já existem.
+        fields: F.tipoUsuario === "teste"
+          ? [
+              sl("Tipo de usuário", "tipoUsuario", [{ v: "cliente", l: "Cliente" }, { v: "teste", l: "Usuário de teste (não entra nas métricas)" }]),
+              inp("E-mail *", "email", "nome@email.com", "email")
+            ]
+          : [
+              sl("Tipo", "pj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
+              inp("Nome ou razão social *", "nome", ""),
+              sl("Tipo de usuário", "tipoUsuario", [{ v: "cliente", l: "Cliente" }, { v: "teste", l: "Usuário de teste (não entra nas métricas)" }]),
+              sl("Setor", "setor", optList(SETORES)),
+              sl("Origem", "origem", optList(["Site", "Assistente", "WhatsApp", "Indicação", "Prospecção", "Outro"])),
+              inp("Responsável pelo contato", "contato", "Quem fala com você"),
+              sl("Cargo do responsável", "cargo", optList(CARGOS)),
+              inp("Telefone *", "tel", "(11) 90000-0000", "tel", "tel"),
+              inp("E-mail", "email", "nome@empresa.com.br", "email"),
+              inp(F.pj === "PF" ? "CPF" : "CNPJ *", "doc", "", "text", F.pj === "PF" ? "cpf" : "cnpj")
+            ],
+        req: F.tipoUsuario === "teste" ? ["email"] : (F.pj === "PF" ? ["nome", "tel"] : ["nome", "tel", "doc"]),
+        go: function (d) {
+          var isTest = F.tipoUsuario === "teste";
+          var nome = isTest ? ("Usuário de teste " + ((d.clients.filter(function (c) { return c.isTest; }).length) + 1)) : F.nome;
+          d.clients.push({ id: "c" + Date.now(), nome: nome, pj: isTest ? false : F.pj !== "PF", contato: isTest ? "" : (F.contato || ""), cargo: isTest ? "" : (F.cargo || ""), setor: isTest ? "" : (F.setor || ""), origem: isTest ? "" : (F.origem || ""), email: F.email || "", tel: isTest ? "" : F.tel, doc: isTest ? "" : (F.doc || ""), isTest: isTest });
+        }, toast: "Cliente cadastrado", after: function () { go("clientes"); },
         remote: function (d) {
           var c = d.clients[d.clients.length - 1];
-          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato, cargo_contato: c.cargo || null, setor: c.setor || null, origem: c.origem || null, email: c.email, tel: c.tel, documento: c.doc, is_test: !!c.isTest }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
+          return sb().from("clients").insert({ nome: c.nome, pj: c.pj, contato: c.contato || null, cargo_contato: c.cargo || null, setor: c.setor || null, origem: c.origem || null, email: c.email, tel: c.tel || null, documento: c.doc || null, is_test: !!c.isTest }).select().single().then(function (res) { if (res.error) throw res.error; c.id = res.data.id; });
         } },
       projeto: { t: "Novo projeto", b: "Criar projeto", fields: [inp("Nome do projeto *", "nome", "Ex.: Migração do sistema financeiro"), sl("Cliente", "clientId", cliOpts), sl("Modelo de projeto", "tplId", D.templates.map(function (t) { return { v: t.id, l: t.nome }; })), inp("Valor cobrado (R$) *", "valor", "0,00", "number"), inp("Parcelas", "parcelas", "1", "number"), inp("1º vencimento", "venc", "", "date"), inp("Entrega prevista", "prazo", "", "date")], req: ["nome", "valor"],
         go: function (d) {
@@ -1321,18 +1336,27 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
     // ---- wizard "cliente + projeto" (cadastro combinado, em 2 passos) ----
     var wizSteps = [
-      { title: "Dados do cliente", b: "Continuar →︎", req: F.cPj === "PF" ? ["cNome", "cTel"] : ["cNome", "cTel", "cDoc"], fields: [
-          sl("Tipo", "cPj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
-          inp("Nome ou razão social *", "cNome", ""),
-          sl("Tipo de usuário", "cTipoUsuario", [{ v: "cliente", l: "Cliente" }, { v: "teste", l: "Usuário de teste (não entra nas métricas)" }]),
-          sl("Setor", "cSetor", optList(SETORES)),
-          sl("Origem", "cOrigem", optList(["Site", "Assistente", "WhatsApp", "Indicação", "Prospecção", "Outro"])),
-          inp("Responsável pelo contato", "cContato", "Quem fala com você"),
-          sl("Cargo do responsável", "cCargo", optList(CARGOS)),
-          inp("Telefone *", "cTel", "(11) 90000-0000", "tel", "tel"),
-          inp("E-mail", "cEmail", "nome@empresa.com.br", "email"),
-          inp(F.cPj === "PF" ? "CPF" : "CNPJ *", "cDoc", "", "text", F.cPj === "PF" ? "cpf" : "cnpj")
-        ] },
+      { title: "Dados do cliente", b: "Continuar →︎",
+        req: F.cTipoUsuario === "teste" ? ["cEmail"] : (F.cPj === "PF" ? ["cNome", "cTel"] : ["cNome", "cTel", "cDoc"]),
+        // Mesma lógica do modal "Cadastrar cliente": usuário de teste só
+        // pede e-mail, sem o resto da ficha (pedido da Lorena).
+        fields: F.cTipoUsuario === "teste"
+          ? [
+              sl("Tipo de usuário", "cTipoUsuario", [{ v: "cliente", l: "Cliente" }, { v: "teste", l: "Usuário de teste (não entra nas métricas)" }]),
+              inp("E-mail *", "cEmail", "nome@email.com", "email")
+            ]
+          : [
+              sl("Tipo", "cPj", [{ v: "PJ", l: "Empresa (CNPJ)" }, { v: "PF", l: "Pessoa física (CPF)" }]),
+              inp("Nome ou razão social *", "cNome", ""),
+              sl("Tipo de usuário", "cTipoUsuario", [{ v: "cliente", l: "Cliente" }, { v: "teste", l: "Usuário de teste (não entra nas métricas)" }]),
+              sl("Setor", "cSetor", optList(SETORES)),
+              sl("Origem", "cOrigem", optList(["Site", "Assistente", "WhatsApp", "Indicação", "Prospecção", "Outro"])),
+              inp("Responsável pelo contato", "cContato", "Quem fala com você"),
+              sl("Cargo do responsável", "cCargo", optList(CARGOS)),
+              inp("Telefone *", "cTel", "(11) 90000-0000", "tel", "tel"),
+              inp("E-mail", "cEmail", "nome@empresa.com.br", "email"),
+              inp(F.cPj === "PF" ? "CPF" : "CNPJ *", "cDoc", "", "text", F.cPj === "PF" ? "cpf" : "cnpj")
+            ] },
       { title: "Dados do projeto", b: "Criar cliente e projeto", req: ["pNome", "pValor"], fields: [
           inp("Nome do projeto *", "pNome", "Ex.: Site institucional"),
           sl("Modelo de projeto", "tplId", D.templates.map(function (t) { return { v: t.id, l: t.nome }; })),
@@ -1462,7 +1486,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         if (M === "clienteProjeto") {
           var fromProspectId = F.fromProspectId;
           save(function (d) {
-            d.clients.push({ id: "c" + Date.now(), nome: F.cNome, pj: F.cPj !== "PF", contato: F.cContato || "", cargo: F.cCargo || "", setor: F.cSetor || "", origem: F.cOrigem || (fromProspectId ? "Prospecção" : ""), email: F.cEmail || "", tel: F.cTel, doc: F.cDoc || "", isTest: F.cTipoUsuario === "teste" });
+            var isTestC = F.cTipoUsuario === "teste";
+            var cNomeFinal = isTestC ? ("Usuário de teste " + ((d.clients.filter(function (c) { return c.isTest; }).length) + 1)) : F.cNome;
+            d.clients.push({ id: "c" + Date.now(), nome: cNomeFinal, pj: isTestC ? false : F.cPj !== "PF", contato: isTestC ? "" : (F.cContato || ""), cargo: isTestC ? "" : (F.cCargo || ""), setor: isTestC ? "" : (F.cSetor || ""), origem: isTestC ? "" : (F.cOrigem || (fromProspectId ? "Prospecção" : "")), email: F.cEmail || "", tel: isTestC ? "" : F.cTel, doc: isTestC ? "" : (F.cDoc || ""), isTest: isTestC });
             var newC = d.clients[d.clients.length - 1];
             var v = Number(String(F.pValor).replace(",", ".")) || 0, n = Math.max(1, parseInt(F.pParcelas) || 1);
             var t = D.templates.filter(function (x) { return x.id === F.tplId; })[0] || D.templates[0];
