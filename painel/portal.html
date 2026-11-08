@@ -145,6 +145,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var app = document.getElementById("app");
   var toastTimer = null;
   var winTimer = null;
+  // Arquivo escolhido pra anexar num documento, fora de S (um File não
+  // sobrevive ao JSON.parse(JSON.stringify(...)) que save() faz).
+  var pendingDocFile = null;
   var H = {}; // registro de handlers por render
   var HID = 0;
   function reg(fn) { var id = "h" + (HID++); H[id] = fn; return id; }
@@ -346,6 +349,21 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     scrollHelp();
   }
 
+  // Gera links assinados (bucket "project-files" é privado, ligado por
+  // RLS à pasta "{project_id}/...") pra documentos que têm arquivo de
+  // verdade anexado — sem isso não dava pra mostrar prévia nem baixar
+  // nada, só o nome do documento (pedido da Lorena). 7 dias de validade:
+  // dura a sessão toda, e se expirar basta recarregar a página.
+  async function signDeliveryPaths(paths) {
+    var map = {};
+    if (!paths.length) return map;
+    try {
+      var res = await sb().storage.from("project-files").createSignedUrls(paths, 604800);
+      (res.data || []).forEach(function (r) { if (r.signedUrl && r.path) map[r.path] = r.signedUrl; });
+    } catch (e) { console.error("[Buovai] Falha ao gerar links de documentos:", e); }
+    return map;
+  }
+
   // ---- carrega tudo do Supabase (substitui o seed fictício) ----
   async function loadAll(role, email) {
     var isAdmin = role === "admin";
@@ -396,13 +414,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         pids.length ? sb().from("activity_log").select("*").eq("entity_type", "project").in("entity_id", pids).order("created_at", { ascending: false }) : Promise.resolve({ data: [] })
       ]);
       var stagesRes = res2[0], instRes = res2[1], delivRes = res2[2], histRes = res2[3];
+      var signMap = await signDeliveryPaths((delivRes.data || []).map(function (d) { return d.file_path; }).filter(Boolean));
       D.projects = projRows.map(function (p) {
         return {
           id: p.id, code: p.code || "", clientId: p.client_id || "", clienteNome: p.client_name, nome: p.project_title,
           tplId: p.template_id || "", tipo: p.tipo || "", status: ST_UI[p.status] || p.status, prazo: p.prazo || "", valor: Number(p.budget_value) || 0, criadoEm: p.created_at || "",
           parcelas: (instRes.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [] }; }),
-          docs: (delivRes.data || []).filter(function (d) { return d.project_id === p.id; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: d.visible_to_client }; }),
+          docs: (delivRes.data || []).filter(function (d) { return d.project_id === p.id; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: d.visible_to_client, path: d.file_path || "", url: d.file_path ? (signMap[d.file_path] || "") : "" }; }),
           hist: (histRes.data || []).filter(function (hh) { return hh.entity_id === p.id; }).map(function (hh) { return { at: hh.created_at, who: hh.actor_label, text: hh.detail }; })
         };
       });
@@ -419,13 +438,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         sb().from("proposals").select("*").order("data", { ascending: false })
       ]);
       var stagesRes2 = res3[0], instRes2 = res3[1], delivRes2 = res3[2], msgRes2 = res3[3], ticketsRes2 = res3[4], propRes2 = res3[5];
+      var signMap2 = await signDeliveryPaths((delivRes2.data || []).map(function (d) { return d.file_path; }).filter(Boolean));
       D.projects = projRows2.map(function (p) {
         return {
           id: p.id, code: p.code || "", clientId: p.client_id || "c", clienteNome: p.client_name, nome: p.project_title,
           tplId: p.template_id || "", tipo: p.tipo || "", status: ST_UI[p.status] || p.status, prazo: p.prazo || "", valor: Number(p.budget_value) || 0,
           parcelas: (instRes2.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes2.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [] }; }),
-          docs: (delivRes2.data || []).filter(function (d) { return d.project_id === p.id && d.visible_to_client; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: true }; }),
+          docs: (delivRes2.data || []).filter(function (d) { return d.project_id === p.id && d.visible_to_client; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: true, path: d.file_path || "", url: d.file_path ? (signMap2[d.file_path] || "") : "" }; }),
           hist: []
         };
       });
@@ -798,18 +818,58 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             return sb().from("project_templates").insert({ nome: nome, etapas: etapas }).select().single().then(function (res) { if (res.error) throw res.error; tpl.id = res.data.id; });
           });
         });
-        out.docs = sel.docs.map(function (d, i) { return { nome: d.nome, tipo: d.tipo, data: dt(d.data), vis: d.cli ? "Visível ao cliente" : "Interno", visFg: d.cli ? "var(--accTxt)" : "var(--mute)", h: reg(function () { save(function (dd) { var x = dd.projects.filter(function (p) { return p.id === sel.id; })[0].docs[i]; x.cli = !x.cli; }, null, function (dd) { var x = dd.projects.filter(function (p) { return p.id === sel.id; })[0].docs[i]; return sb().from("project_deliveries").update({ visible_to_client: x.cli }).eq("id", x.id); }); }) }; });
+        // isImage/isPreviewable: pra desenhar a miniatura/link de
+        // visualização certo pra cada tipo (pedido da Lorena: documento
+        // só mostrava nome, sem prévia nenhuma).
+        out.docs = sel.docs.map(function (d, i) {
+          return {
+            nome: d.nome, tipo: d.tipo, data: dt(d.data), vis: d.cli ? "Visível ao cliente" : "Interno", visFg: d.cli ? "var(--accTxt)" : "var(--mute)",
+            url: d.url || "", hasFile: !!d.path, isImage: d.tipo === "IMAGEM" && !!d.url,
+            h: reg(function () { save(function (dd) { var x = dd.projects.filter(function (p) { return p.id === sel.id; })[0].docs[i]; x.cli = !x.cli; }, null, function (dd) { var x = dd.projects.filter(function (p) { return p.id === sel.id; })[0].docs[i]; return sb().from("project_deliveries").update({ visible_to_client: x.cli }).eq("id", x.id); }); })
+          };
+        });
         out.docTipos = ["PDF", "DOC", "XLSX", "LINK", "IMAGEM", "SQL"];
         out.newDoc = S.newDoc; out.newDocCh = reg(function (e) { setState({ newDoc: e.target.value }); }); out.newDocTipo = S.newDocTipo; out.newDocTipoCh = reg(function (e) { setState({ newDocTipo: e.target.value }); });
+        out.newDocFileName = pendingDocFile ? pendingDocFile.name : "";
+        // Escolher um arquivo já chuta o nome (sem extensão) e o tipo,
+        // mas a Lorena pode trocar os dois antes de anexar.
+        out.newDocFileCh = reg(function (e) {
+          var f = e.target.files && e.target.files[0];
+          pendingDocFile = f || null;
+          if (f) {
+            if (!S.newDoc.trim()) S.newDoc = f.name.replace(/\.[^.]+$/, "");
+            var ext = (f.name.split(".").pop() || "").toLowerCase();
+            var guess = { pdf: "PDF", doc: "DOC", docx: "DOC", xls: "XLSX", xlsx: "XLSX", png: "IMAGEM", jpg: "IMAGEM", jpeg: "IMAGEM", webp: "IMAGEM", gif: "IMAGEM", sql: "SQL" }[ext];
+            if (guess) S.newDocTipo = guess;
+          }
+          render();
+        });
         out.addDoc = reg(function () {
           var n = S.newDoc.trim(); if (!n) return;
           var tipo = S.newDocTipo;
-          save(function (d) { d.projects.filter(function (p) { return p.id === sel.id; })[0].docs.unshift({ nome: n, tipo: tipo, data: T, cli: false }); log(d, sel.id, 'anexou "' + n + '"'); }, "Documento anexado como interno", function (d) {
+          var file = pendingDocFile;
+          pendingDocFile = null;
+          save(function (d) { d.projects.filter(function (p) { return p.id === sel.id; })[0].docs.unshift({ nome: n, tipo: tipo, data: T, cli: false, path: "", url: "" }); log(d, sel.id, 'anexou "' + n + '"'); }, file ? "Documento enviado" : "Documento anexado como interno", function (d) {
             var doc = d.projects.filter(function (p) { return p.id === sel.id; })[0].docs[0];
-            return sb().from("project_deliveries").insert({ project_id: sel.id, title: n, doc_type: tipo, delivered_at: T, visible_to_client: false }).select().single().then(function (res) {
+            var filePath = null;
+            var up = Promise.resolve(null);
+            if (file) {
+              var safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+              filePath = sel.id + "/" + Date.now() + "-" + safe;
+              up = sb().storage.from("project-files").upload(filePath, file, { upsert: false, contentType: file.type || undefined });
+            }
+            return Promise.resolve(up).then(function (upRes) {
+              if (upRes && upRes.error) throw upRes.error;
+              return sb().from("project_deliveries").insert({ project_id: sel.id, title: n, doc_type: tipo, delivered_at: T, visible_to_client: false, file_path: filePath }).select().single();
+            }).then(function (res) {
               if (res.error) throw res.error;
               doc.id = res.data.id;
-              return logRemote(sel.id, 'anexou "' + n + '"');
+              doc.path = filePath || "";
+              if (!filePath) return logRemote(sel.id, 'anexou "' + n + '"');
+              return sb().storage.from("project-files").createSignedUrl(filePath, 604800).then(function (sres) {
+                doc.url = (sres.data && sres.data.signedUrl) || "";
+                return logRemote(sel.id, 'anexou "' + n + '"');
+              });
             });
           });
           S.newDoc = ""; render();
@@ -1166,7 +1226,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           };
         });
       }
-      if (V === "documentos") { title = "Documentos e entregas"; out.cDocs = []; cps.forEach(function (x) { x.docs.filter(function (d) { return d.cli; }).forEach(function (d) { out.cDocs.push({ nome: d.nome, tipo: d.tipo, data: dt(d.data) }); }); }); }
+      if (V === "documentos") { title = "Documentos e entregas"; out.cDocs = []; cps.forEach(function (x) { x.docs.filter(function (d) { return d.cli; }).forEach(function (d) { out.cDocs.push({ nome: d.nome, tipo: d.tipo, data: dt(d.data), url: d.url || "", isImage: d.tipo === "IMAGEM" && !!d.url }); }); }); }
       if (V === "aprovacoes") title = "Propostas e contratos";
       if (V === "cobrancas") {
         title = "Cobranças";
@@ -1931,13 +1991,23 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         + '<button ' + h(V.saveAsTpl) + ' style="padding:10px 14px;border:0;background:none;color:var(--accTxt);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">Salvar etapas como modelo</button>'
         + "</div></div>";
     } else if (V.pt_docs) {
+      // Miniatura real pra imagem; pra tudo que tem arquivo (inclusive
+      // PDF, que o navegador já abre sozinho), um link "Visualizar" ao
+      // lado do nome — antes só dava pra ver o nome do documento, nunca
+      // o conteúdo (pedido da Lorena).
       var docs = V.docs.map(function (d) {
-        return '<div style="display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--accTxt)">' + esc(d.tipo) + '</span><span style="font-size:14px">' + esc(d.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(d.data) + '</span><button ' + h(d.h) + ' style="padding:6px 9px;border:1px solid var(--line2);background:none;color:' + d.visFg + ';font-size:11px;cursor:pointer;white-space:nowrap">' + esc(d.vis) + "</button></div>";
+        var thumb = d.isImage
+          ? '<img src="' + esc(d.url) + '" alt="" style="width:62px;height:44px;object-fit:cover;border:1px solid var(--line2);display:block">'
+          : '<span style="width:62px;height:44px;display:grid;place-items:center;border:1px solid var(--line2);background:var(--field);font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;color:var(--accTxt)">' + esc(d.tipo) + "</span>";
+        var viewLink = d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--accTxt)">Visualizar ↗︎</a>' : "";
+        return '<div style="display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line)">' + thumb + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px">' + esc(d.nome) + "</span>" + viewLink + '</span><span style="font-size:12px;color:var(--mute)">' + esc(d.data) + '</span><button ' + h(d.h) + ' style="padding:6px 9px;border:1px solid var(--line2);background:none;color:' + d.visFg + ';font-size:11px;cursor:pointer;white-space:nowrap">' + esc(d.vis) + "</button></div>";
       }).join("");
       var opts = V.docTipos.map(function (o) { return '<option value="' + o + '"' + (o === V.newDocTipo ? " selected" : "") + ">" + o + "</option>"; }).join("");
+      var fileLabel = V.newDocFileName || "Escolher arquivo";
       body = '<div style="display:flex;flex-direction:column">' + docs
-        + '<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap">'
-        + '<input value="' + esc(V.newDoc) + '" data-ch="' + V.newDocCh + '" placeholder="Nome do documento" style="flex:1 1 240px;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 12px;font:inherit;font-size:13px;outline:none">'
+        + '<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap;align-items:center">'
+        + '<label style="padding:10px 14px;border:1px dashed var(--line2);background:none;color:var(--ink2);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis">' + esc(fileLabel) + '<input type="file" data-ch="' + V.newDocFileCh + '" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden"></label>'
+        + '<input value="' + esc(V.newDoc) + '" data-ch="' + V.newDocCh + '" placeholder="Nome do documento" style="flex:1 1 200px;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 12px;font:inherit;font-size:13px;outline:none">'
         + '<select data-ch="' + V.newDocTipoCh + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px;font:inherit;font-size:13px">' + opts + "</select>"
         + '<button ' + h(V.addDoc) + ' style="padding:10px 14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">Anexar</button>'
         + "</div></div>";
@@ -2151,8 +2221,20 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function buildDocumentos(V) {
+    if (!V.cDocs.length) return '<div style="padding:22px 0;color:var(--mute);font-size:13px">Nenhum documento disponível ainda.</div>';
+    // "Baixar" era só um texto solto, sem link nenhum — não baixava
+    // nada de verdade (bug real). Agora usa o link assinado do arquivo,
+    // com miniatura pra imagem e "Visualizar" pra quem tem arquivo
+    // (o navegador já abre PDF sozinho) — pedido da Lorena.
     return '<div style="display:flex;flex-direction:column">' + V.cDocs.map(function (d) {
-      return '<div style="display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;color:var(--accTxt)">' + esc(d.tipo) + '</span><span style="font-size:14px">' + esc(d.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(d.data) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--accTxt)">Baixar ↓︎</span></div>';
+      var thumb = d.isImage
+        ? '<img src="' + esc(d.url) + '" alt="" style="width:62px;height:44px;object-fit:cover;border:1px solid var(--line);display:block">'
+        : '<span style="width:62px;height:44px;display:grid;place-items:center;border:1px solid var(--line);background:var(--field);font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;color:var(--accTxt)">' + esc(d.tipo) + "</span>";
+      var viewLink = d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--accTxt)">Visualizar ↗︎</a>' : "";
+      var baixar = d.url
+        ? '<a href="' + esc(d.url) + '" download style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--accTxt)">Baixar ↓︎</a>'
+        : '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;color:var(--mute)">Sem arquivo</span>';
+      return '<div style="display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)">' + thumb + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px">' + esc(d.nome) + "</span>" + viewLink + '</span><span style="font-size:12px;color:var(--mute)">' + esc(d.data) + "</span>" + baixar + "</div>";
     }).join("") + "</div>";
   }
 
