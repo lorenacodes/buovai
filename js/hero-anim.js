@@ -109,6 +109,7 @@
   let animOn = false;
   let burst = -1e9;
   let mx = 0, my = 0;
+  let botDragging = false; // true enquanto a pessoa arrasta o robô — a animação ambiente (olhos/antenas/piscar) pausa pra deixar a reação do arrasto no comando
 
   function onBotClick() {
     burst = performance.now();
@@ -129,25 +130,62 @@
 
   // Arrastar o robô: a pessoa pode puxar ele pra qualquer lado enquanto
   // segura, e ele volta pro lugar sozinho (com uma molinha) ao soltar —
-  // pedido da Lorena.
+  // pedido da Lorena. Primeira versão ficava "curta" (limite de 90px,
+  // quase sem elasticidade) e nada reagia durante o arrasto (mesma cara
+  // o tempo todo) — agora estica bem mais, com uma resistência de
+  // elástico só perto do limite (nunca trava seco), e ele reage de
+  // verdade: olhos arregalados olhando pro dedo/cursor, antenas
+  // "voando" pra trás feito vento, corpo espichando na direção do
+  // puxão, e um rastro de faíscas enquanto desliza (pedido da Lorena).
   (function enableBotDrag() {
     const el = rf.bot;
     if (!el) return;
-    const MAX = 90; // até onde estica, pra não sumir da tela
-    let dragging = false, moved = false, sx = 0, sy = 0;
-    function clampDist(dx, dy) {
-      const d = Math.hypot(dx, dy);
-      if (d <= MAX) return [dx, dy];
-      const k = MAX / d;
+    const FREE = 170; // até aqui segue o cursor 1:1
+    const STRETCH = 110; // elástico além disso — nunca trava seco
+    let dragging = false, moved = false, sx = 0, sy = 0, lastSpark = 0;
+    // Resistência tipo elástico: livre até FREE, depois cada px adicional
+    // de puxão rende cada vez menos deslocamento (raiz quadrada), sem
+    // nunca travar de vez — bem mais solto que um limite rígido.
+    function rubberBand(dx, dy) {
+      const d = Math.hypot(dx, dy) || 1;
+      let dist = d;
+      if (d > FREE) {
+        // Fórmula clássica de "borracha" (mesma usada em overscroll de
+        // scroll view): nunca deixa o deslocamento passar do que a
+        // pessoa puxou, só vai resistindo cada vez mais — tende a
+        // FREE+STRETCH sem nunca ultrapassar a distância real do cursor.
+        const extra = d - FREE;
+        dist = FREE + (STRETCH * extra) / (STRETCH + extra);
+      }
+      const k = dist / d;
       return [dx * k, dy * k];
+    }
+    function applyFace(dx, dy, d) {
+      const reach = Math.min(1, d / 220);
+      const ux = dx / (d || 1), uy = dy / (d || 1);
+      // Olhos arregalados (sem o blink automático) olhando na direção
+      // do puxão — dá a impressão de "opa, pra onde vamos?".
+      if (rf.eyes) rf.eyes.setAttribute("transform", `translate(${(ux * 26 * reach).toFixed(2)},${(uy * 20 * reach).toFixed(2)}) scale(${(1 + reach * 0.22).toFixed(3)})`);
+      if (rf.lid) rf.lid.setAttribute("transform", "translate(0 300) scale(1 1) translate(0 -300)");
+      // Antenas "voam" pra trás (sentido oposto ao arrasto), feito vento.
+      if (rf.antL) rf.antL.style.transform = `rotate(${Math.max(-48, Math.min(48, -ux * 46 * reach)).toFixed(1)}deg)`;
+      if (rf.antR) rf.antR.style.transform = `rotate(${Math.max(-48, Math.min(48, -ux * 38 * reach)).toFixed(1)}deg)`;
     }
     function onMove(e) {
       if (!dragging) return;
       const p = e.touches ? e.touches[0] : e;
-      const dx = p.clientX - sx, dy = p.clientY - sy;
-      if (Math.hypot(dx, dy) > 4) moved = true;
-      const c = clampDist(dx, dy);
-      el.style.transform = `translate(${c[0].toFixed(1)}px,${c[1].toFixed(1)}px)`;
+      const rawDx = p.clientX - sx, rawDy = p.clientY - sy;
+      const d0 = Math.hypot(rawDx, rawDy);
+      if (d0 > 4) moved = true;
+      const c = rubberBand(rawDx, rawDy);
+      // Inclina como se estivesse "voando puxado pela mão", feito
+      // pipa — só isso já dá bem mais vida que uma translação seca,
+      // sem distorcer o corpo a ponto de perder a forma do robô.
+      const bank = Math.max(-16, Math.min(16, c[0] / 14));
+      el.style.transform = `translate(${c[0].toFixed(1)}px,${c[1].toFixed(1)}px) rotate(${bank.toFixed(1)}deg)`;
+      applyFace(rawDx, rawDy, d0);
+      const now = performance.now();
+      if (d0 > 30 && now - lastSpark > 70) { lastSpark = now; spawn(1, true); }
       if (e.touches) e.preventDefault();
     }
     function onUp() {
@@ -163,13 +201,26 @@
       el.style.transform = "translate(0,0)";
       if (moved) {
         justDraggedBot = true;
-        const stop = function () { el.style.transition = ""; el.removeEventListener("transitionend", stop); };
+        burst = performance.now();
+        spawn(6, true);
+        const stop = function () {
+          el.style.transition = "";
+          el.removeEventListener("transitionend", stop);
+          botDragging = false;
+          if (rf.eyes) rf.eyes.removeAttribute("transform");
+          if (rf.lid) rf.lid.removeAttribute("transform");
+          if (rf.antL) rf.antL.style.transform = "";
+          if (rf.antR) rf.antR.style.transform = "";
+          if (rf.head) rf.head.style.transform = "";
+        };
         el.addEventListener("transitionend", stop);
+      } else {
+        botDragging = false;
       }
     }
     function onDown(e) {
       const p = e.touches ? e.touches[0] : e;
-      dragging = true; moved = false;
+      dragging = true; moved = false; botDragging = true;
       sx = p.clientX; sy = p.clientY;
       el.style.transition = "none";
       el.style.cursor = "grabbing";
@@ -408,7 +459,7 @@
       });
 
       const bot = rf.bot;
-      if (bot) {
+      if (bot && !botDragging) {
         const br = bot.getBoundingClientRect(), hr = hero.getBoundingClientRect();
         const cx = br.left - hr.left + br.width / 2, cy = br.top - hr.top + br.height * 0.58;
         const dx = st.x - cx, dy = st.y - cy, d = Math.hypot(dx, dy) || 1;
