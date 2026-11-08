@@ -121,10 +121,32 @@
     sector = saved;
     applySector();
   } else if (!saved) {
-    askTimer = setTimeout(() => {
-      open = true;
-      renderPopup();
-    }, 7400);
+    // A pergunta aparecia sozinha 7.4s depois de carregar, ainda com o
+    // visitante em cima do hero — num navegador baixo (notebook, tela
+    // dividida) ela cobria praticamente a página inteira por cima do
+    // título. Como "Como trabalho" já tem o mesmo gatilho manual
+    // ("//exemplo para X · trocar área"), a pergunta automática também
+    // só aparece quando essa seção entra na tela, nunca mais em cima do
+    // hero (pedido da Lorena).
+    const processo = document.querySelector('[data-screen-label="Como trabalho"]');
+    if (processo && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            io.disconnect();
+            open = true;
+            renderPopup();
+          }
+        },
+        { threshold: 0.35 }
+      );
+      io.observe(processo);
+    } else {
+      askTimer = setTimeout(() => {
+        open = true;
+        renderPopup();
+      }, 7400);
+    }
   } else {
     renderPopup();
   }
