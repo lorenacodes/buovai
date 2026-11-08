@@ -1512,6 +1512,19 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       mSubmitH: reg(function () {
         if (!md) return;
         if (md.req.some(function (k) { return !String(F[k] || "").trim(); })) { setState({ mErr: true, mErrMsg: "" }); return; }
+        // Dois clientes com o mesmo e-mail quebram o login (quem entra
+        // com esse e-mail cairia num dos dois ao acaso) — barra antes de
+        // salvar, não depois (pedido da Lorena). Olha S.data.clients (não
+        // D.clients, que já tira os de teste) pra pegar duplicata com
+        // QUALQUER cliente, teste incluído.
+        if (M === "cliente" || (M === "clienteProjeto" && (S.wStep || 1) === 1)) {
+          var emailKey = M === "cliente" ? "email" : "cEmail";
+          var emailVal = String(F[emailKey] || "").trim().toLowerCase();
+          if (emailVal) {
+            var dupC = (S.data.clients || []).filter(function (c) { return String(c.email || "").trim().toLowerCase() === emailVal; })[0];
+            if (dupC) { setState({ mErr: true, mErrMsg: 'Já existe um cliente cadastrado com esse e-mail: "' + dupC.nome + '".' }); return; }
+          }
+        }
         if (M === "prospeccao" && F.contato) {
           // Mesmo número de telefone em duas prospecções diferentes é
           // quase sempre a mesma empresa cadastrada duas vezes (pedido
