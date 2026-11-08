@@ -146,7 +146,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
     sideW: sideW0, sideCollapsed: sideCollapsed0,
     sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", itab: "resumo", msgLimit: 15, q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
-    newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
+    newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF", andOpen: {},
     msgDraft: "", toast: null, clientWon: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
     accessBusy: false, accessResult: null, inviteBusy: false, inviteSentFor: null,
     helpLog: [{ me: false, text: "Olá! Sou o assistente do portal. Posso explicar como cada parte funciona. Escolha uma pergunta abaixo ou escreva a sua." }],
@@ -1276,11 +1276,22 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         // não apareciam aqui, só o título da etapa — o cliente não tinha
         // como ver o que exatamente está sendo feito dentro dela (pedido
         // da Lorena: quer ver como as tarefas aparecem pro cliente).
+        //
+        // Com muitas etapas (e muitas subtarefas em cada uma) a página
+        // crescia sem limite, porque tudo ficava sempre expandido. Agora
+        // só a etapa atual abre sozinha — concluídas e futuras ficam
+        // fechadas, mostrando só um resumo, e o cliente abre a que
+        // quiser clicando (pedido da Lorena: "não segue os princípios
+        // de escalabilidade").
         out.cTasks = p0.tasks.map(function (t, i) {
           var cur = i === firstOpen;
+          var items = (t.items || []).map(function (it) { return { t: it.t, done: !!it.done }; });
+          var doneCount = items.filter(function (it) { return it.done; }).length;
+          var open = S.andOpen[i] !== undefined ? S.andOpen[i] : cur;
           return {
             t: t.t, st: t.done ? "Concluída" : cur ? "Em andamento" : "Próxima", stColor: t.done ? "var(--mute)" : cur ? "var(--accTxt)" : "var(--mute)", color: t.done ? "var(--mute)" : cur ? "var(--ink)" : "var(--ink2)", dotBg: t.done ? "var(--bar)" : "transparent", dotBd: t.done || cur ? "var(--bar)" : "var(--line2)",
-            items: (t.items || []).map(function (it) { return { t: it.t, done: !!it.done }; })
+            items: items, hasItems: !!items.length, open: open, summary: items.length ? (doneCount + " de " + items.length + " concluídas") : "",
+            toggleH: reg(function () { S.andOpen[i] = !open; render(); })
           };
         });
       }
@@ -2325,15 +2336,22 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           return '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;color:var(--ink)">' + esc(it.t) + '</span><span style="font-size:11px;color:var(--mute)">' + esc(it.stage) + "</span></div>";
         }).join("") + "</div>"
       : '<div style="font-size:13px;color:var(--mute)">Nenhuma pendência aberta no momento — tudo em dia.</div>';
+    // Com muitas etapas (e muitas subtarefas cada), deixar tudo sempre
+    // expandido faria a página crescer sem limite — não escala. Agora só
+    // a etapa aberta mostra o checklist; as outras mostram um resumo
+    // de uma linha ("X de Y concluídas") e abrem com um clique.
     var steps = V.cTasks.map(function (t) {
-      // Subtarefas da etapa, só leitura (quem edita é o admin) — ponto
-      // marcado quando concluída, pra dar pra ver o que exatamente está
-      // sendo feito dentro de cada etapa, não só o título dela.
-      var items = (t.items || []).map(function (it) {
+      var items = t.open ? (t.items || []).map(function (it) {
         return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12.5px;color:' + (it.done ? "var(--mute)" : "var(--ink2)") + '"><span style="width:12px;height:12px;flex:none;border:1px solid ' + (it.done ? "var(--bar)" : "var(--line2)") + ";background:" + (it.done ? "var(--bar)" : "transparent") + ';display:grid;place-items:center;font-size:8px;color:var(--btnFg)">' + (it.done ? "✓" : "") + '</span><span style="text-decoration:' + (it.done ? "line-through" : "none") + '">' + esc(it.t) + "</span></div>";
-      }).join("");
+      }).join("") : "";
       var itemsBlock = items ? '<div style="display:flex;flex-direction:column;gap:2px;margin-top:6px">' + items + "</div>" : "";
-      return '<div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:14px"><span style="display:flex;flex-direction:column;align-items:center"><span style="width:11px;height:11px;margin-top:5px;flex:none;border:1px solid ' + t.dotBd + ";background:" + t.dotBg + '"></span><span style="flex:1;width:1px;background:var(--line2);min-height:22px"></span></span><span style="padding-bottom:20px"><span style="font-size:14px;color:' + t.color + '">' + esc(t.t) + "</span>" + itemsBlock + '</span><span style="font-size:11px;color:' + t.stColor + '">' + esc(t.st) + "</span></div>";
+      var summaryBlock = !t.open && t.hasItems ? '<span style="font-size:12px;color:var(--mute)">' + esc(t.summary) + "</span>" : "";
+      var chevron = t.hasItems ? '<span style="font-size:10px;color:var(--mute);transform:rotate(' + (t.open ? "0" : "-90") + 'deg);display:inline-block;transition:transform .15s">▾</span>' : "";
+      var head = '<span style="font-size:14px;color:' + t.color + '">' + esc(t.t) + "</span>" + chevron;
+      var headEl = t.hasItems
+        ? '<button ' + h(t.toggleH) + ' style="display:flex;align-items:center;gap:6px;border:0;background:none;padding:0;font:inherit;text-align:left;cursor:pointer;color:inherit">' + head + "</button>"
+        : '<span style="display:flex;align-items:center;gap:6px">' + head + "</span>";
+      return '<div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:14px"><span style="display:flex;flex-direction:column;align-items:center"><span style="width:11px;height:11px;margin-top:5px;flex:none;border:1px solid ' + t.dotBd + ";background:" + t.dotBg + '"></span><span style="flex:1;width:1px;background:var(--line2);min-height:22px"></span></span><span style="padding-bottom:20px;display:flex;flex-direction:column;gap:3px">' + headEl + summaryBlock + itemsBlock + '</span><span style="font-size:11px;color:' + t.stColor + '">' + esc(t.st) + "</span></div>";
     }).join("");
     return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:40px 56px;align-items:start">'
       + '<section style="display:flex;flex-direction:column;gap:20px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">' + esc(cp.code) + " · " + esc(cp.tipo) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;line-height:1.25">' + esc(cp.nome) + '</span><span style="display:flex;align-items:center;gap:14px"><span style="flex:1;height:4px;background:var(--barBg)"><span style="display:block;height:100%;width:' + cp.barW + ';background:var(--bar);transition:width .6s"></span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;font-variant-numeric:tabular-nums">' + cp.pct + '%</span></span>'
