@@ -132,8 +132,20 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var theme0 = "dark";
   try { theme0 = localStorage.getItem(TKEY) || "dark"; } catch (e) {}
 
+  // Largura e visibilidade do painel lateral, lembradas entre sessões
+  // (tanto pro admin quanto pro cliente — é a mesma tela) — pedido da
+  // Lorena: poder ajustar a largura e esconder o menu quando quiser
+  // mais espaço pro conteúdo.
+  var sideW0 = 252, sideCollapsed0 = false;
+  try {
+    var savedW = parseInt(localStorage.getItem("buovaiSideW"), 10);
+    if (savedW && savedW >= 180 && savedW <= 420) sideW0 = savedW;
+    sideCollapsed0 = localStorage.getItem("buovaiSideCollapsed") === "1";
+  } catch (e) {}
+
   var S = {
     data: null, theme: theme0, role: "admin", email: "", view: "inicio",
+    sideW: sideW0, sideCollapsed: sideCollapsed0,
     sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", itab: "resumo", msgLimit: 15, q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF",
     msgDraft: "", toast: null, clientWon: null, cmdOpen: false, cmdQ: "", helpOpen: false, helpDraft: "", userMenuOpen: false, profileNameDraft: "",
@@ -155,6 +167,37 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   function setState(patch) {
     if (typeof patch === "function") patch = patch(S);
     Object.assign(S, patch);
+    render();
+  }
+
+  // ---- redimensionar o menu lateral arrastando a alça ----
+  var sideResize = null;
+  function startSideResize(clientX) {
+    sideResize = { startX: clientX, startW: S.sideW || 252, w: S.sideW || 252 };
+    document.addEventListener("mousemove", onSideResizeMove);
+    document.addEventListener("mouseup", onSideResizeEnd);
+    document.addEventListener("touchmove", onSideResizeTouchMove, { passive: false });
+    document.addEventListener("touchend", onSideResizeEnd);
+  }
+  function applySideResize(clientX) {
+    if (!sideResize) return;
+    var w = Math.max(180, Math.min(420, sideResize.startW + (clientX - sideResize.startX)));
+    sideResize.w = w;
+    var shell = document.getElementById("appShell");
+    if (shell) shell.style.gridTemplateColumns = w + "px minmax(0,1fr)";
+  }
+  function onSideResizeMove(e) { applySideResize(e.clientX); }
+  function onSideResizeTouchMove(e) { if (e.touches[0]) { applySideResize(e.touches[0].clientX); e.preventDefault(); } }
+  function onSideResizeEnd() {
+    if (sideResize) {
+      S.sideW = sideResize.w;
+      try { localStorage.setItem("buovaiSideW", String(sideResize.w)); } catch (e) {}
+    }
+    sideResize = null;
+    document.removeEventListener("mousemove", onSideResizeMove);
+    document.removeEventListener("mouseup", onSideResizeEnd);
+    document.removeEventListener("touchmove", onSideResizeTouchMove);
+    document.removeEventListener("touchend", onSideResizeEnd);
     render();
   }
 
@@ -1532,10 +1575,21 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     }
     var md = M ? MODALS[M] : null;
     var tplP = M === "projeto" ? (tplOf(F.tplId) || D.templates[0]) : null;
+    // Painel lateral ajustável e ocultável (admin e cliente, mesma tela)
+    // — só faz sentido em tela larga; no celular o menu já vira uma
+    // barra horizontal, então ignora collapse/resize lá.
+    var sideCollapsed = !narrow && !!S.sideCollapsed;
+    var sideW = Math.max(180, Math.min(420, S.sideW || 252));
+    var toggleSideH = reg(function () {
+      var v = !S.sideCollapsed; S.sideCollapsed = v;
+      try { localStorage.setItem("buovaiSideCollapsed", v ? "1" : "0"); } catch (e) {}
+      render();
+    });
 
     return Object.assign({
       narrow: narrow, light: light, admin: admin,
-      shellCols: narrow ? "minmax(0,1fr)" : "252px minmax(0,1fr)", asideDir: narrow ? "row" : "column", asideGap: narrow ? "14px" : "26px", asidePad: narrow ? "10px 14px" : "22px 12px", asideH: narrow ? "auto" : "100vh", asideOv: narrow ? "auto" : "hidden", asideOvY: narrow ? "hidden" : "auto", asideAlign: narrow ? "center" : "stretch",
+      sideCollapsed: sideCollapsed, sideW: sideW, toggleSideH: toggleSideH,
+      shellCols: narrow ? "minmax(0,1fr)" : (sideCollapsed ? "0px minmax(0,1fr)" : sideW + "px minmax(0,1fr)"), asideDir: narrow ? "row" : "column", asideGap: narrow ? "14px" : "26px", asidePad: narrow ? "10px 14px" : "22px 12px", asideH: narrow ? "auto" : "100vh", asideOv: narrow ? "auto" : "hidden", asideOvY: narrow ? "hidden" : "auto", asideAlign: narrow ? "center" : "stretch",
       navFlex: narrow ? "0 0 auto" : "1", navGap: narrow ? "4px" : "22px", wideSide: !narrow && admin, footDir: narrow ? "row" : "column", footPad: narrow ? "0" : "16px", footBorder: narrow ? "0" : "1px solid var(--line)", footAlign: narrow ? "center" : "stretch",
       isDark: !light, isLight: light,
       toggleThemeH: reg(function () { setTheme(light ? "dark" : "light"); }),
@@ -1719,9 +1773,28 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // ---- montagem de HTML ----
   function h(id) { return 'data-h="' + id + '"'; }
 
+  // Botão flutuante que reabre o menu quando ele está oculto — fora do
+  // <aside> porque, escondido, a coluna dele no grid vira 0px (não
+  // sobra espaço ali dentro pra um botão aparecer).
+  function buildSideReopen(V) {
+    if (V.narrow || !V.sideCollapsed) return "";
+    return '<button ' + h(V.toggleSideH) + ' aria-label="Mostrar menu" title="Mostrar menu" style="position:fixed;top:18px;left:18px;z-index:8;width:34px;height:34px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);cursor:pointer;display:grid;place-items:center;box-shadow:0 4px 14px rgba(14,15,11,.14)">»</button>';
+  }
+
   function buildAside(V) {
+    // Vazio, não ausente: o grid tem 2 colunas (menu + conteúdo) — sem
+    // um primeiro filho aqui, o conteúdo principal (buildMain) seria
+    // auto-posicionado na primeira coluna (0px) em vez da segunda, e o
+    // layout inteiro sumiria. A coluna já é "0px" quando oculto, então
+    // essa tag vazia não ocupa espaço nenhum na tela mesmo assim.
+    if (V.sideCollapsed) return "<aside></aside>";
     var logoSrc = V.isDark ? "../assets/img/logo-wordmark-light.svg" : "../assets/img/logo-wordmark-dark.svg";
     var search = V.wideSide ? '<button ' + h(V.openCmdH) + ' style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line2);background:var(--field);color:var(--mute);font:inherit;font-size:13px;cursor:pointer;text-align:left">Buscar ou criar…<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;padding:2px 6px;border:1px solid var(--line2)">Ctrl K</span></button>' : "";
+    // Botão de ocultar o menu e a alça de arrastar pra redimensionar —
+    // só fazem sentido em tela larga (pedido da Lorena: ajustar a
+    // largura e poder esconder o menu, tanto pro admin quanto cliente).
+    var collapseBtn = V.narrow ? "" : '<button ' + h(V.toggleSideH) + ' aria-label="Ocultar menu" title="Ocultar menu" style="padding:5px 8px;border:1px solid var(--line2);background:none;color:var(--mute);cursor:pointer;font-size:11px;line-height:1">«</button>';
+    var resizeHandle = V.narrow ? "" : '<div data-resizeh="1" title="Arrastar para redimensionar" style="position:absolute;top:0;right:-3px;bottom:0;width:6px;cursor:col-resize;z-index:6"></div>';
     var groups = V.navGroups.map(function (g) {
       var label = g.showLabel ? '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:0 12px 8px">' + esc(g.label) + "</span>" : "";
       var items = g.items.map(function (n) {
@@ -1730,8 +1803,9 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       return '<div style="display:flex;flex-direction:' + V.asideDir + ';gap:1px">' + label + items + "</div>";
     }).join("");
     return '<aside style="background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:' + V.asideDir + ";gap:" + V.asideGap + ";padding:" + V.asidePad + ';position:sticky;top:0;height:' + V.asideH + ";z-index:5;overflow-x:" + V.asideOv + ";overflow-y:" + V.asideOvY + ';scrollbar-width:none;align-items:' + V.asideAlign + '">'
+      + resizeHandle
       + '<div style="display:flex;flex-direction:column;gap:14px;flex:none">'
-      + '<a href="index.html" style="line-height:0;padding:0 6px"><img src="' + logoSrc + '" alt="buov.ai" style="height:34px;width:auto"></a>'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 0 0 6px"><a href="index.html" style="line-height:0"><img src="' + logoSrc + '" alt="buov.ai" style="height:34px;width:auto"></a>' + collapseBtn + "</div>"
       + search
       + "</div>"
       + '<nav style="display:flex;flex-direction:' + V.asideDir + ";gap:" + V.navGap + ";flex:" + V.navFlex + '">' + groups + "</nav>"
@@ -2408,7 +2482,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     H = {}; HID = 0;
     var V = computeVals();
     document.body.dataset.theme = S.theme;
-    app.innerHTML = '<div style="min-height:100vh;display:grid;grid-template-columns:' + V.shellCols + ';background:var(--bg)">' + buildAside(V) + buildMain(V) + "</div>" + buildBot(V) + buildCmd(V) + buildModal(V) + buildToast(V) + buildUserMenu(V) + buildWinCelebration(V);
+    app.innerHTML = '<div id="appShell" style="min-height:100vh;display:grid;grid-template-columns:' + V.shellCols + ';background:var(--bg)">' + buildAside(V) + buildMain(V) + "</div>" + buildSideReopen(V) + buildBot(V) + buildCmd(V) + buildModal(V) + buildToast(V) + buildUserMenu(V) + buildWinCelebration(V);
 
     if (keep) {
       var back = (keep.field && app.querySelector('[data-field="' + keep.field + '"]')) || (keep.ch && app.querySelector('[data-ch="' + keep.ch + '"]'));
@@ -2447,6 +2521,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var fn = H[el.getAttribute("data-kh")];
         if (fn) fn(e);
       });
+    });
+    // Arrastar a alça da borda do menu lateral pra redimensionar —
+    // mexe direto no estilo do grid durante o arrasto (sem render() a
+    // cada pixel, que ficaria travado numa tela com tanta coisa) e só
+    // confirma no estado/localStorage ao soltar.
+    app.querySelectorAll("[data-resizeh]").forEach(function (el) {
+      el.addEventListener("mousedown", function (e) { startSideResize(e.clientX); e.preventDefault(); });
+      el.addEventListener("touchstart", function (e) { if (e.touches[0]) startSideResize(e.touches[0].clientX); }, { passive: true });
     });
     // Salva sozinho ao sair do campo de texto (sem precisar de botão
     // "Salvar" nem de um modo de edição separado — ex.: ficha da
