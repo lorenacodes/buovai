@@ -205,6 +205,36 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     });
   }
 
+  // Exclui um cliente (hoje só oferecido pra usuário de teste, na lista
+  // de Clientes) — apaga primeiro o(s) projeto(s) dele, que cascateiam
+  // etapas/parcelas/documentos/mensagens, e só depois o cliente, senão a
+  // chave estrangeira barra (client_projects.client_id aponta pro
+  // cliente). Sem isso não dava pra "reaproveitar" o e-mail de um
+  // usuário de teste antigo: a trava de e-mail duplicado barra pra
+  // sempre enquanto o registro existir.
+  function deleteClient(c) {
+    if (!window.confirm('Excluir "' + c.nome + '"? Isso apaga também o(s) projeto(s) dele — etapas, parcelas, documentos e mensagens inclusos. Essa ação não pode ser desfeita.')) return;
+    var projIds = (S.data.projects || []).filter(function (p) { return p.clientId === c.id; }).map(function (p) { return p.id; });
+    Promise.resolve(projIds.length ? sb().from("client_projects").delete().in("id", projIds) : null).then(function (res) {
+      if (res && res.error) throw res.error;
+      return sb().from("clients").delete().eq("id", c.id);
+    }).then(function (res2) {
+      if (res2.error) throw res2.error;
+      S.data.projects = (S.data.projects || []).filter(function (p) { return p.clientId !== c.id; });
+      S.data.clients = (S.data.clients || []).filter(function (x) { return x.id !== c.id; });
+      S.toast = "Cliente excluído";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600);
+      render();
+    }).catch(function (err) {
+      console.error("[Buovai] Falha ao excluir cliente:", err);
+      S.toast = "Não foi possível excluir agora. Tente de novo.";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { setState({ toast: null }); }, 3200);
+      render();
+    });
+  }
+
   // Senha temporária de primeiro acesso: forte o bastante pra proteger
   // a conta até o cliente trocar (o set-password.html exige isso no
   // primeiro login), mas sem caracteres ambíguos (0/O, 1/l/I) pra não
@@ -413,21 +443,18 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // ---- computa valores de exibição (equivalente a renderVals) ----
   function computeVals() {
     var D = S.data, admin = S.role === "admin", T = new Date().toISOString().slice(0, 10), narrow = S.w < 760, light = S.theme === "light";
-    // Clientes marcados como "usuário de teste" (ex.: conta de preview da
-    // própria Lorena) somem de toda métrica, gráfico e lista do painel —
-    // um só ponto de filtro aqui, em vez de cada KPI ter que lembrar de
-    // excluir. S.data continua com tudo, então nada se perde; só a tela
-    // do admin não mostra. Não afeta o portal do próprio cliente de teste
-    // (ele faz login e vê o projeto dele normalmente — só o LADO ADMIN
-    // some, que é o que "não contar nas métricas" significa).
-    if (admin) {
-      var testClientIds = {};
-      (D.clients || []).forEach(function (c) { if (c.isTest) testClientIds[c.id] = true; });
-      D = Object.assign({}, D, {
-        clients: D.clients.filter(function (c) { return !c.isTest; }),
-        projects: D.projects.filter(function (p) { return !testClientIds[p.clientId]; })
-      });
-    }
+    // Clientes marcados como "usuário de teste" (conta de preview) somem
+    // de toda MÉTRICA (KPIs, gráficos) — mas continuam aparecendo nas
+    // listas normais de Clientes/Projetos (com um selo "TESTE"), senão
+    // não tem como a Lorena achar o cliente de teste de novo depois de
+    // criado, pra ver o projeto ou mandar o e-mail de acesso (bug real:
+    // ela ficou sem conseguir reencontrar o usuário de teste que criou).
+    // metricClients/metricProjects abaixo são só pras contas que SÃO
+    // métrica; D.clients/D.projects continuam com tudo.
+    var testClientIds = {};
+    (D.clients || []).forEach(function (c) { if (c.isTest) testClientIds[c.id] = true; });
+    var metricClients = D.clients.filter(function (c) { return !c.isTest; });
+    var metricProjects = D.projects.filter(function (p) { return !testClientIds[p.clientId]; });
     var adminMe = admin ? (D.admins || []).filter(function (a) { return a.email === (S.email || "").toLowerCase(); })[0] : null;
     var meTeam = admin ? (D.users || []).filter(function (u) { return (u.email || "").toLowerCase() === (S.email || "").toLowerCase(); })[0] : null;
     var cli = function (id) { return D.clients.filter(function (c) { return c.id === id; })[0] || { nome: "..." }; };
@@ -443,7 +470,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var btnS = function (label, onClick) { return { label: label, h: reg(onClick), bg: "transparent", fg: "var(--ink)", bd: "var(--line2)" }; };
     var btnDanger = function (label, onClick) { return { label: label, h: reg(onClick), bg: "transparent", fg: "var(--badFg)", bd: "var(--badFg)" }; };
     var all = [];
-    D.projects.forEach(function (p) { p.parcelas.forEach(function (q) { all.push({ q: q, p: p }); }); });
+    // Parcelas de projeto de teste não entram nos totais financeiros,
+    // alertas nem exportação de CSV — por isso "all" usa metricProjects
+    // (sem teste), não D.projects (que tem tudo, usado pra navegação).
+    metricProjects.forEach(function (p) { p.parcelas.forEach(function (q) { all.push({ q: q, p: p }); }); });
     var recebido = all.filter(function (x) { return x.q.pago; }).reduce(function (a, x) { return a + x.q.valor; }, 0);
     var mesAtual = T.slice(0, 7);
     var recebidoMes = all.filter(function (x) { return x.q.pago && (x.q.pagoAt || "").slice(0, 7) === mesAtual; }).reduce(function (a, x) { return a + x.q.valor; }, 0);
@@ -467,7 +497,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
     var item = function (k, label, count) { return { label: label, count: count ? String(count) : "", hasCount: !!count, bd: V === k ? "var(--accTxt)" : "transparent", bg: V === k ? "var(--accSoft)" : "transparent", fg: V === k ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { go(k, { filter: null }); }) }; };
     var groups = admin ? [
-      ["Operação", [item("inicio", "Visão geral"), item("projetos", "Projetos", D.projects.filter(function (p) { return p.status !== "Concluído"; }).length), item("clientes", "Clientes", D.clients.length), item("agenda", "Agenda", upcoming.length)]],
+      ["Operação", [item("inicio", "Visão geral"), item("projetos", "Projetos", metricProjects.filter(function (p) { return p.status !== "Concluído"; }).length), item("clientes", "Clientes", metricClients.length), item("agenda", "Agenda", upcoming.length)]],
       ["Comercial", [item("funil", "Funil", leadsOpen), item("prospeccao", "Prospecção", D.prospects.filter(function (z) { return z.status !== "Convertido" && z.status !== "Sem interesse"; }).length), item("propostas", "Propostas e contratos")]],
       ["Financeiro", [item("financeiro", "Recebimentos", atras.length || "")]],
       ["Configuração", [item("modelos", "Modelos de projeto"), item("equipe", "Equipe e permissões")]]
@@ -592,7 +622,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           });
         });
         kpis = [
-          { label: "Projetos ativos", val: String(D.projects.filter(function (p) { return p.status !== "Concluído"; }).length), sub: D.clients.length + " clientes", color: "var(--ink)" },
+          { label: "Projetos ativos", val: String(metricProjects.filter(function (p) { return p.status !== "Concluído"; }).length), sub: metricClients.length + " clientes", color: "var(--ink)" },
           { label: "Entra em 30 dias", val: money(in30.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: in30.length + " parcelas", color: "var(--ink)" },
           { label: "Recebido", val: money(recebido), sub: "total dos projetos", color: "var(--accTxt)" },
           { label: "Recebido este mês", val: money(recebidoMes), sub: MES[new Date(T + "T12:00").getMonth()], color: "var(--accTxt)" },
@@ -602,7 +632,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         aguardConf.forEach(function (x) { var q = x.q, p = x.p; alerts.push({ dot: "var(--accTxt)", title: "Cliente avisou que pagou · " + cli(p.clientId).nome, sub: money(q.valor) + " · parcela " + q.n + " · confirmar recebimento", cta: "Confirmar", h: reg(function () { go("projetos", { sel: p.id, ptab: "fin" }); }) }); });
         atras.forEach(function (x) { var q = x.q, p = x.p; alerts.push({ dot: "var(--badFg)", title: "Parcela atrasada · " + cli(p.clientId).nome, sub: money(q.valor) + " · venceu " + dt(q.venc), cta: "Cobrar", h: reg(function () { go("projetos", { sel: p.id, ptab: "fin" }); }) }); });
         D.proposals.filter(function (p) { return p.status === "Aguardando"; }).forEach(function (p) { var dd = daysBetween(p.data, T); alerts.push({ dot: "var(--warnFg)", title: "Proposta sem resposta · " + cli(p.clientId).nome, sub: p.titulo + " · enviada há " + dd + (dd === 1 ? " dia" : " dias"), cta: "Ver", h: reg(function () { go("propostas"); }) }); });
-        D.projects.filter(function (p) { return p.status === "Aguardando cliente"; }).forEach(function (p) { alerts.push({ dot: "var(--warnFg)", title: "Aguardando o cliente · " + p.code, sub: p.nome + " · " + nextTask(p), cta: "Abrir", h: reg(function () { go("projetos", { sel: p.id }); }) }); });
+        metricProjects.filter(function (p) { return p.status === "Aguardando cliente"; }).forEach(function (p) { alerts.push({ dot: "var(--warnFg)", title: "Aguardando o cliente · " + p.code, sub: p.nome + " · " + nextTask(p), cta: "Abrir", h: reg(function () { go("projetos", { sel: p.id }); }) }); });
         D.leads.filter(function (l) { return l.etapa === 0; }).forEach(function (l) { alerts.push({ dot: "var(--accTxt)", title: "Novo contato · " + l.nome, sub: l.interesse + " · via " + l.origem, cta: "Responder", h: reg(function () { go("funil"); }) }); });
         out.alerts = alerts.slice(0, 6); out.noAlerts = !alerts.length; out.alertCount = String(alerts.length);
         // Evolução mensal: contratos fechados (projetos criados) e
@@ -614,14 +644,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           monthKeys.push({ key: md2.getFullYear() + "-" + String(md2.getMonth() + 1).padStart(2, "0"), label: MES[md2.getMonth()] });
         }
         var contratosPorMes = {}, recebidoPorMes = {};
-        D.projects.forEach(function (p) { if (p.criadoEm) { var k = p.criadoEm.slice(0, 7); contratosPorMes[k] = (contratosPorMes[k] || 0) + 1; } });
-        D.projects.forEach(function (p) { p.parcelas.forEach(function (q) { if (q.pago) { var k = (q.pagoAt || q.venc || "").slice(0, 7); if (k) recebidoPorMes[k] = (recebidoPorMes[k] || 0) + q.valor; } }); });
+        metricProjects.forEach(function (p) { if (p.criadoEm) { var k = p.criadoEm.slice(0, 7); contratosPorMes[k] = (contratosPorMes[k] || 0) + 1; } });
+        metricProjects.forEach(function (p) { p.parcelas.forEach(function (q) { if (q.pago) { var k = (q.pagoAt || q.venc || "").slice(0, 7); if (k) recebidoPorMes[k] = (recebidoPorMes[k] || 0) + q.valor; } }); });
         var maxContratos = Math.max(1, Math.max.apply(null, monthKeys.map(function (m) { return contratosPorMes[m.key] || 0; })));
         var maxRecebido = Math.max(1, Math.max.apply(null, monthKeys.map(function (m) { return recebidoPorMes[m.key] || 0; })));
         out.chartContratos = monthKeys.map(function (m) { var v = contratosPorMes[m.key] || 0; return { label: m.label, val: v, valLabel: String(v), pct: Math.round(v / maxContratos * 100) }; });
         out.chartRecebido = monthKeys.map(function (m) { var v = recebidoPorMes[m.key] || 0; return { label: m.label, val: v, valLabel: v ? moneyK(v) : "R$ 0", pct: Math.round(v / maxRecebido * 100) }; });
         out.agendaNext = upcoming.slice(0, 4).map(meetRow);
-        out.ativos = D.projects.filter(function (p) { return p.status !== "Concluído"; }).map(projRow);
+        out.ativos = metricProjects.filter(function (p) { return p.status !== "Concluído"; }).map(projRow);
         out.miniCols = narrow ? "minmax(0,1fr)" : "70px minmax(0,2fr) minmax(0,1.4fr) 160px";
         out.goAgenda = reg(function () { go("agenda"); }); out.goProjetos = reg(function () { go("projetos"); });
         actions = [btnP("Cadastrar cliente e projeto", function () { openModal("clienteProjeto", { cPj: "PJ", pParcelas: "1", pVenc: T, tplId: D.templates[0] ? D.templates[0].id : "" }); })];
@@ -808,7 +838,15 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var ab = [];
           ps.forEach(function (p) { p.parcelas.forEach(function (q) { if (!q.pago) ab.push(q); }); });
           var abTotal = ab.reduce(function (a, q) { return a + q.valor; }, 0);
-          return { nome: c.nome, tipo: c.pj ? "CNPJ" : "CPF", doc: c.doc || "não informado", contato: c.contato || c.nome, email: c.email || "sem e-mail", tel: c.tel, nProj: ps.length + (ps.length === 1 ? " projeto" : " projetos"), aberto: money(abTotal), h: reg(function () { go("projetos", { filter: c.id }); }) };
+          return {
+            nome: c.nome, tipo: c.pj ? "CNPJ" : "CPF", doc: c.doc || "não informado", contato: c.contato || c.nome, email: c.email || "sem e-mail", tel: c.tel, nProj: ps.length + (ps.length === 1 ? " projeto" : " projetos"), aberto: money(abTotal),
+            isTest: !!c.isTest,
+            h: reg(function () { go("projetos", { filter: c.id }); }),
+            // Excluir só é oferecido pra usuário de teste, na própria
+            // lista (pedido da Lorena: precisa achar e apagar/reaproveitar
+            // uma conta de teste sem precisar mexer direto no banco).
+            delH: c.isTest ? reg(function () { deleteClient(c); }) : null
+          };
         });
       }
       if (V === "funil") {
@@ -1001,13 +1039,17 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" })); a.download = "recebimentos-buov.csv"; a.click();
         })];
         kpis = [
-          { label: "Contratado", val: money(D.projects.reduce(function (a, p) { return a + p.valor; }, 0)), sub: D.projects.length + " projetos", color: "var(--ink)" },
+          { label: "Contratado", val: money(metricProjects.reduce(function (a, p) { return a + p.valor; }, 0)), sub: metricProjects.length + " projetos", color: "var(--ink)" },
           { label: "Recebido", val: money(recebido), sub: all.filter(function (x) { return x.q.pago; }).length + " parcelas", color: "var(--accTxt)" },
           { label: "A receber", val: money(aReceber), sub: all.filter(function (x) { return !x.q.pago; }).length + " parcelas", color: "var(--ink)" },
           { label: "Atrasado", val: money(atras.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: atras.length + " parcelas", color: atras.length ? "var(--badFg)" : "var(--ink)" },
           { label: "Aguardando confirmação", val: money(aguardConf.reduce(function (a, x) { return a + x.q.valor; }, 0)), sub: aguardConf.length + " parcelas", color: aguardConf.length ? "var(--accTxt)" : "var(--ink)" }
         ];
-        var rows2 = D.projects.filter(function (p) { return match(p.nome, p.code, cli(p.clientId).nome); }).map(function (p) {
+        // Lista de recebimentos é vitrine financeira, não navegação de
+        // projeto — fica de fora dos projetos de teste igual ao resto
+        // das métricas (quem quiser ver o financeiro do teste abre o
+        // projeto direto pela lista de Clientes/Projetos).
+        var rows2 = metricProjects.filter(function (p) { return match(p.nome, p.code, cli(p.clientId).nome); }).map(function (p) {
           var pg2 = p.parcelas.filter(function (q) { return q.pago; }), pv = pg2.reduce(function (a, q) { return a + q.valor; }, 0);
           var late = p.parcelas.some(function (q) { return !q.pago && q.venc < T; }), done = pg2.length === p.parcelas.length;
           return { p: p, pg: pg2, pv: pv, late: late, done: done, st: done ? "Quitado" : late ? "Com atraso" : "Em dia" };
@@ -1891,7 +1933,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   function buildClientes(V) {
     var rows = V.clientes.map(function (c) {
-      return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px 20px;align-items:center;padding:15px 0;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px;font-weight:600">' + esc(c.nome) + '</span><span style="font-size:12px;color:var(--mute)">' + esc(c.tipo) + " · " + esc(c.doc) + '</span></span><span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(c.contato) + '</span><span style="color:var(--mute)">' + esc(c.tel) + " · " + esc(c.email) + '</span></span><span style="display:flex;flex-direction:column;gap:3px;font-size:13px;font-variant-numeric:tabular-nums"><span>' + esc(c.nProj) + '</span><span style="color:var(--mute)">em aberto ' + esc(c.aberto) + '</span></span><button ' + h(c.h) + ' style="justify-self:end;padding:8px 12px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">Projetos</button></div>';
+      // Selo "TESTE" deixa claro, na própria lista, que esse cliente não
+      // entra em nenhuma métrica — e o botão de excluir só aparece pra
+      // ele, pra dar pra reaproveitar o e-mail depois (pedido da Lorena).
+      var badge = c.isTest ? '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;letter-spacing:.06em;padding:2px 7px;border:1px solid var(--accTxt);color:var(--accTxt);width:max-content">TESTE</span>' : "";
+      var delBtn = c.delH ? '<button ' + h(c.delH) + ' style="justify-self:end;padding:8px 12px;border:1px solid var(--badFg);background:none;color:var(--badFg);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">Excluir</button>' : "";
+      return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px 20px;align-items:center;padding:15px 0;border-top:1px solid var(--line)"><span style="display:flex;flex-direction:column;gap:3px"><span style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600">' + esc(c.nome) + badge + '</span><span style="font-size:12px;color:var(--mute)">' + esc(c.tipo) + " · " + esc(c.doc) + '</span></span><span style="display:flex;flex-direction:column;gap:3px;font-size:13px"><span>' + esc(c.contato) + '</span><span style="color:var(--mute)">' + esc(c.tel) + " · " + esc(c.email) + '</span></span><span style="display:flex;flex-direction:column;gap:3px;font-size:13px;font-variant-numeric:tabular-nums"><span>' + esc(c.nProj) + '</span><span style="color:var(--mute)">em aberto ' + esc(c.aberto) + '</span></span><span style="display:flex;gap:8px;justify-self:end">' + delBtn + '<button ' + h(c.h) + ' style="padding:8px 12px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">Projetos</button></span></div>';
     }).join("");
     return '<div style="display:flex;flex-direction:column">' + rows + (V.emptyList ? '<span style="padding:22px 0;border-top:1px solid var(--line);font-size:13px;color:var(--mute)">Nenhum cliente encontrado.</span>' : "") + "</div>";
   }
