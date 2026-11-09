@@ -349,6 +349,51 @@ html.no-intro .site-intro {
   right: 10px;
 }
 
+/* ---- Bolha do depoimento em vídeo: fica por cima do mockup, tocando
+   mudo em loop, enquanto as telas continuam trocando atrás dela —
+   como se a cliente estivesse explicando enquanto o sistema aparece
+   (pedido da Lorena: queria ela "aparecendo ao mesmo tempo" que as
+   telas, não numa seção separada escondida lá embaixo). ---- */
+.case-video-bubble {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 4;
+  width: clamp(64px, 13cqw, 108px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #fffceb;
+  box-shadow: 0 10px 26px rgba(14, 15, 11, 0.35);
+  background: #0e0f0b;
+}
+
+.case-video-bubble video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.case-video-bubble__sound {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: rgba(14, 15, 11, 0.7);
+  color: #fffceb;
+}
+
+.case-video-bubble.is-unmuted .case-mute-x {
+  display: none;
+}
+
 /* ---- Acessibilidade: não altera o visual, só fica visível ao navegar
    por teclado (não está no arquivo original porque ele não é o site real) ---- */
 .skip-link {

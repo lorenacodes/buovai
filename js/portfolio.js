@@ -73,52 +73,6 @@
       .join("");
   }
 
-  // Depoimento em vídeo (vertical, gravado em celular, já com legenda e
-  // cartão de nome embutidos no próprio arquivo). Usa os controles nativos
-  // do navegador: dá pra avançar/voltar no vídeo (barra de progresso),
-  // pausar e silenciar — tudo de fábrica, sem reinventar player. Começa
-  // parado (no poster) e com áudio ligado: ao dar play, o som já vem
-  // junto, e quem quiser tira pelo próprio controle de volume.
-  function renderTestimonial(index) {
-    return `
-      <div style="background:#efeedb" data-screen-label="Depoimento">
-        <div style="max-width:1320px;margin:0 auto;padding:clamp(48px,6vw,88px) 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:48px 72px;align-items:center">
-          <div style="display:flex;justify-content:center">
-            <div style="position:relative;width:100%;max-width:340px;aspect-ratio:9/16;background:#0e0f0b;overflow:hidden;border:1px solid #0e0f0b;box-shadow:0 18px 40px rgba(14,15,11,.18)">
-              <video data-testimonial-video src="assets/depoimento-trilhar.mp4" poster="assets/depoimento-trilhar-poster.jpg" controls playsinline preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block" aria-label="Depoimento em vídeo de Tinaysa Freitas, fundadora da Trilhar Contabilidade"></video>
-            </div>
-          </div>
-          <div>
-            <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:24px">//depoimento · caso ${String(index + 1).padStart(2, "0")}</div>
-            <p style="font-family:'Lexend Exa',sans-serif;font-weight:300;font-size:clamp(20px,2.2vw,30px);line-height:1.35;letter-spacing:-.04em;margin:0 0 32px;text-wrap:pretty">"A Lorena realizou um trabalho impecável. Ela atendeu todas as minhas demandas e foi sempre muito solícita."</p>
-            <div style="border-top:1px solid #0e0f0b;padding-top:18px">
-              <div style="font-family:'Lexend Exa',sans-serif;font-size:15px;letter-spacing:-.02em">Tinaysa Freitas</div>
-              <div style="font-size:14px;color:#2b2e24;margin-top:6px">Fundadora da Trilhar Contabilidade</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  // Pausa o vídeo quando ele sai da tela (ex. visitante continua rolando
-  // com o depoimento tocando) — não mexe em play nem em áudio, só evita
-  // som tocando fora de vista.
-  function bindTestimonialVideo(root) {
-    const video = root.querySelector("[data-testimonial-video]");
-    if (!video) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) video.pause();
-        });
-      },
-      { threshold: 0.5 }
-    );
-    observer.observe(video);
-  }
-
   // Copy fixa por caso que usa o mockup interativo (abas + crossfade +
   // tilt no mouse). Chaveado pelo título do project, que é estável e sob
   // nosso controle (ao contrário de client_name, que no case de gestão de obras é um
@@ -131,6 +85,17 @@
       portalUrlLabel: "trilhar · portal do cliente",
       heading: 'Um portal para um escritório de contabilidade, <span style="color:#457528">feito para a rotina dele.</span>',
       intro: "O administrador publica boletos e documentos, e o cliente acessa o portal para pagar. Abra o caso para ver as telas e o detalhamento técnico, com os dados pessoais borrados.",
+      // Bolha de vídeo com o depoimento (muda, em loop) direto por cima
+      // do mockup, pra dar a sensação de "ela explicando o problema
+      // enquanto as telas vão passando atrás" — antes era uma seção
+      // separada lá embaixo, longe do caso em si (pedido da Lorena).
+      testimonialVideo: {
+        src: "assets/depoimento-trilhar.mp4",
+        poster: "assets/depoimento-trilhar-poster.jpg",
+        name: "Tinaysa Freitas",
+        role: "Fundadora da Trilhar Contabilidade",
+        quote: "A Lorena realizou um trabalho impecável. Ela atendeu todas as minhas demandas e foi sempre muito solícita.",
+      },
     },
     "Sistema de Gestão de Obras": {
       shots: MILA_SHOTS,
@@ -193,6 +158,14 @@
                 ${imgs}
                 <button type="button" data-case-shot-prev class="case-shot-nav case-shot-nav--prev" aria-label="Tela anterior">‹</button>
                 <button type="button" data-case-shot-next class="case-shot-nav case-shot-nav--next" aria-label="Próxima tela">›</button>
+                ${copy.testimonialVideo ? `
+                  <div class="case-video-bubble" data-case-bubble>
+                    <video data-case-bubble-video src="${copy.testimonialVideo.src}" poster="${copy.testimonialVideo.poster}" muted loop playsinline preload="metadata" aria-label="Depoimento em vídeo de ${escapeHtml(copy.testimonialVideo.name)}, ${escapeHtml(copy.testimonialVideo.role)}"></video>
+                    <button type="button" class="case-video-bubble__sound" data-case-bubble-sound aria-label="Ativar som do depoimento" title="Ativar som">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><line class="case-mute-x" x1="16" y1="9" x2="22" y2="15"></line><line class="case-mute-x" x1="22" y1="9" x2="16" y2="15"></line></svg>
+                    </button>
+                  </div>
+                ` : ""}
               </div>
             </div>
             <div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:14px">
@@ -268,6 +241,35 @@
     const dots = Array.from(panel.querySelectorAll("[data-case-dot]"));
     const tabBtns = Array.from(panel.querySelectorAll("[data-case-tab]"));
     const mockup = panel.querySelector("[data-case-mockup]");
+
+    // Bolha do depoimento: toca sozinha, mudo, em loop, independente da
+    // troca de telas — só pausa quando sai da tela (economiza bateria/
+    // dados de quem só passou os olhos) e volta ao reaparecer. Som é
+    // opt-in, pelo botão: autoplay com áudio é bloqueado pelo navegador
+    // de qualquer forma, e tocar som sem pedir seria intrusivo.
+    const bubble = panel.querySelector("[data-case-bubble]");
+    const bubbleVideo = panel.querySelector("[data-case-bubble-video]");
+    const bubbleSound = panel.querySelector("[data-case-bubble-sound]");
+    if (bubbleVideo) {
+      bubbleVideo.play().catch(() => {});
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) bubbleVideo.play().catch(() => {});
+            else bubbleVideo.pause();
+          });
+        },
+        { threshold: 0.3 }
+      ).observe(bubbleVideo);
+    }
+    if (bubbleSound && bubbleVideo && bubble) {
+      bubbleSound.addEventListener("click", (e) => {
+        e.stopPropagation();
+        bubbleVideo.muted = !bubbleVideo.muted;
+        bubble.classList.toggle("is-unmuted", !bubbleVideo.muted);
+        bubbleSound.setAttribute("aria-label", bubbleVideo.muted ? "Ativar som do depoimento" : "Silenciar depoimento");
+      });
+    }
 
     function render() {
       const i = shots.findIndex((s) => s.key === tab);
@@ -492,8 +494,6 @@
       const countEl = document.getElementById("caseCount");
       if (countEl) countEl.textContent = `${String(projects.length).padStart(2, "0")} caso${projects.length > 1 ? "s" : ""}`;
 
-      const testimonialIndex = projects.findIndex((p) => p.title === "Portal do Cliente");
-
       listEl.innerHTML = `
         <div style="position:relative;max-width:1376px;margin:0 auto">
           <div id="caseScroller" class="case-scroller" style="display:flex;gap:28px;padding:0 28px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth">
@@ -502,11 +502,9 @@
           <button type="button" id="caseScrollPrev" class="case-arrow case-arrow--prev" aria-label="Caso anterior">←︎</button>
           <button type="button" id="caseScrollNext" class="case-arrow case-arrow--next" aria-label="Próximo caso">→︎</button>
         </div>
-        ${testimonialIndex > -1 ? renderTestimonial(testimonialIndex) : ""}
       `;
       bindCaseEvents();
       bindCaseScroller();
-      if (testimonialIndex > -1) bindTestimonialVideo(listEl);
 
       if (window.buovaiReveal) window.buovaiReveal(listEl.querySelectorAll("[data-screen-label]"));
     } catch (err) {
