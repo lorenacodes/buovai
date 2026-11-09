@@ -33,7 +33,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=57">
+<link rel="stylesheet" href="css/site.css?v=58">
 <script>
   (function () {
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -127,7 +127,7 @@
 
 <header style="position:sticky;top:0;z-index:20;background:rgba(255,252,235,.92);backdrop-filter:blur(12px)">
   <nav style="max-width:1320px;margin:0 auto;padding:16px 28px;display:flex;align-items:center;gap:32px">
-    <a href="#inicio" style="display:block;line-height:0;flex-shrink:0"><img src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" style="height:30px;width:auto"></a>
+    <a href="#inicio" style="display:block;line-height:0;flex-shrink:0"><img src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" style="height:38px;width:auto"></a>
     <div class="nav-wide" style="gap:28px;flex:1;justify-content:center;font-family:'Lexend Exa',sans-serif;font-size:12px;letter-spacing:.02em;white-space:nowrap">
       <a href="#caso" class="nav-a" style="color:#0e0f0b">Casos</a>
       <a href="#servicos" class="nav-a" style="color:#0e0f0b">Serviços</a>
@@ -137,7 +137,7 @@
     </div>
     <div style="display:flex;gap:10px;margin-left:auto;white-space:nowrap;font-family:'Lexend Exa',sans-serif;font-size:12px">
       <button type="button" id="portalBtn" class="hdr-ghost nav-notnarrow" style="padding:12px 16px;border:1px solid #0e0f0b;color:#0e0f0b;background:transparent;font:inherit;cursor:pointer">Área do cliente</button>
-      <a href="#contato" id="navCta" class="hdr-primary" data-magnet="1" style="padding:12px 18px;display:none;background:#0e0f0b;color:#fffceb;border:1px solid #0e0f0b;white-space:nowrap">Contar meu problema ↗︎</a>
+      <a href="#contato" id="navCta" class="hdr-primary nav-notnarrow" data-magnet="1" style="padding:12px 18px;background:#0e0f0b;color:#fffceb;border:1px solid #0e0f0b;white-space:nowrap">Contar meu problema ↗︎</a>
       <!-- Abaixo de 1100px os links de cima (.nav-wide) somem e não
            sobrava nenhuma forma de navegar — pedido da Lorena. -->
       <button type="button" id="navToggle" class="nav-narrow" aria-label="Abrir menu" aria-expanded="false" aria-controls="navMobile" style="width:44px;height:44px;flex:none;align-items:center;justify-content:center;border:1px solid #0e0f0b;background:transparent;cursor:pointer">
@@ -153,7 +153,7 @@
      inteira (bug real, só aparecia depois de testar de verdade). -->
 <div id="navMobile" style="display:none;position:fixed;inset:0;z-index:40;background:#fffceb;overflow-y:auto">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid rgba(14,15,11,.14)">
-    <a href="#inicio" style="display:block;line-height:0"><img src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" style="height:30px;width:auto"></a>
+    <a href="#inicio" style="display:block;line-height:0"><img src="assets/img/logo-wordmark-dark.svg" alt="buov.ai" style="height:38px;width:auto"></a>
     <button type="button" id="navMobileClose" aria-label="Fechar menu" style="border:0;background:none;font-size:30px;line-height:1;cursor:pointer;color:#0e0f0b;padding:4px">×</button>
   </div>
   <div style="display:flex;flex-direction:column;padding:8px 28px 32px;font-family:'Lexend Exa',sans-serif">
@@ -357,7 +357,7 @@
        nos dois temas do portal — com um toggle pra alternar entre eles
        (pedido da Lorena: "quero o print tanto no tema claro quanto no
        escuro"). ----->
-  <div style="position:relative;aspect-ratio:4/3;width:100%;border:1px solid #0e0f0b;overflow:hidden;background:#0e0f0b;box-shadow:0 30px 70px rgba(14,15,11,.22);font-family:'Open Sans',sans-serif">
+  <div data-portal-frame style="position:relative;aspect-ratio:4/3;width:100%;border:1px solid #0e0f0b;overflow:hidden;background:#0e0f0b;box-shadow:0 30px 70px rgba(14,15,11,.22);font-family:'Open Sans',sans-serif">
     <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,252,235,.12);position:relative;z-index:2;background:#0e0f0b">
       <span style="display:flex;gap:5px"><span style="width:7px;height:7px;border-radius:50%;border:1px solid rgba(255,252,235,.4)"></span><span style="width:7px;height:7px;border-radius:50%;border:1px solid rgba(255,252,235,.4)"></span><span style="width:7px;height:7px;border-radius:50%;border:1px solid rgba(255,252,235,.4)"></span></span>
       <span style="flex:1;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#defa9a;padding:4px 10px;background:rgba(222,250,154,.08)">buovai.com.br / painel / portal</span>
@@ -371,26 +371,6 @@
       <img data-portal-shot="light" src="assets/portal-andamento-light-v2.png" alt="Tela de Andamento do projeto no portal do cliente, tema claro" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top left;display:block;opacity:0;transition:opacity .25s">
     </div>
   </div>
-  <script>
-    (function () {
-      var wrap = document.getElementById("portalThemeToggle");
-      if (!wrap) return;
-      wrap.addEventListener("click", function (e) {
-        var btn = e.target.closest("[data-portal-theme]");
-        if (!btn) return;
-        var theme = btn.getAttribute("data-portal-theme");
-        wrap.querySelectorAll("[data-portal-theme]").forEach(function (b) {
-          var on = b === btn;
-          b.setAttribute("aria-pressed", on ? "true" : "false");
-          b.style.background = on ? "#defa9a" : "transparent";
-          b.style.color = on ? "#0e0f0b" : "#a3a693";
-        });
-        document.querySelectorAll("[data-portal-shot]").forEach(function (img) {
-          img.style.opacity = img.getAttribute("data-portal-shot") === theme ? "1" : "0";
-        });
-      });
-    })();
-  </script>
   <div>
     <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//04 · Portal do cliente</div>
     <h2 style="font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:clamp(26px,3vw,42px);line-height:1.14;letter-spacing:-.05em;margin:0 0 24px;text-wrap:balance">Acompanhe o seu projeto em um <span style="color:#457528">portal exclusivo para clientes.</span></h2>
@@ -398,6 +378,32 @@
     <a href="painel/login.html" class="hdr-primary" data-magnet="1" style="display:inline-block;padding:18px 26px;background:#0e0f0b;color:#fffceb;font-family:'Lexend Exa',sans-serif;font-size:13px;white-space:nowrap">Entrar na área do cliente ↗︎</a>
   </div>
 </section>
+<script>
+  (function () {
+    // Movido pra fora do grid de 2 colunas da seção #portal: um <script>
+    // solto entre os dois divs do grid virava o "próximo irmão" do
+    // quadro do print pro robô-guia (que usa isso pra saber o que não
+    // pode sobrepor) — como <script> não tem tamanho renderizado, a
+    // checagem ficava cega e o robô ia parar em cima do texto ao lado
+    // (bug achado ao testar o robô apontando pro quadro).
+    var wrap = document.getElementById("portalThemeToggle");
+    if (!wrap) return;
+    wrap.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-portal-theme]");
+      if (!btn) return;
+      var theme = btn.getAttribute("data-portal-theme");
+      wrap.querySelectorAll("[data-portal-theme]").forEach(function (b) {
+        var on = b === btn;
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+        b.style.background = on ? "#defa9a" : "transparent";
+        b.style.color = on ? "#0e0f0b" : "#a3a693";
+      });
+      document.querySelectorAll("[data-portal-shot]").forEach(function (img) {
+        img.style.opacity = img.getAttribute("data-portal-shot") === theme ? "1" : "0";
+      });
+    });
+  })();
+</script>
 
 <section id="sobre" data-screen-label="Quem faz" data-reveal style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));background:#0e0f0b;color:#fffceb">
   <div style="position:relative;min-height:560px;display:grid;place-items:center;background:radial-gradient(circle at 0% 0%,#3f5204 0%,#94ab86 28%,#1f4905 62%,#defa9a 100%);overflow:hidden">
@@ -644,18 +650,31 @@
   </div>
 </div>
 
+<!-- Lightbox do depoimento em vídeo: abre o mesmo vídeo da bolha bem
+     maior, com som e controles nativos, pelo botão de expandir no
+     próprio quadro do case (pedido da Lorena: além da bolha crescer no
+     hover, queria um botão de expandir de verdade). Um elemento só,
+     reaproveitado por qualquer case que tenha depoimento em vídeo. -->
+<div class="case-video-lightbox" id="case-video-lightbox" role="dialog" aria-modal="true" aria-label="Depoimento em vídeo">
+  <div class="case-video-lightbox__backdrop"></div>
+  <div class="case-video-lightbox__panel">
+    <video id="case-video-lightbox-video" controls playsinline></video>
+    <button type="button" class="case-video-lightbox__close" aria-label="Fechar">×</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/config.js?v=57"></script>
-<script src="js/supabase-client.js?v=57"></script>
-<script src="js/main.js?v=57"></script>
-<script src="js/hero-anim.js?v=57"></script>
-<script src="js/faq.js?v=57"></script>
-<script src="js/timeline.js?v=57"></script>
-<script src="js/portfolio.js?v=57"></script>
-<script src="js/contact-flow.js?v=57"></script>
-<script src="js/sector-picker.js?v=57"></script>
-<script src="js/page-fx.js?v=57"></script>
-<script src="js/cookie-consent.js?v=57"></script>
-<script src="js/pageview.js?v=57"></script>
+<script src="js/config.js?v=58"></script>
+<script src="js/supabase-client.js?v=58"></script>
+<script src="js/main.js?v=58"></script>
+<script src="js/hero-anim.js?v=58"></script>
+<script src="js/faq.js?v=58"></script>
+<script src="js/timeline.js?v=58"></script>
+<script src="js/portfolio.js?v=58"></script>
+<script src="js/contact-flow.js?v=58"></script>
+<script src="js/sector-picker.js?v=58"></script>
+<script src="js/page-fx.js?v=58"></script>
+<script src="js/cookie-consent.js?v=58"></script>
+<script src="js/pageview.js?v=58"></script>
 </body>
 </html>

@@ -9,6 +9,34 @@
   const modalEl = document.getElementById("case-modal");
   if (!listEl) return;
 
+  // ---- Lightbox do depoimento em vídeo (botão de expandir na bolha) ----
+  const videoLightboxEl = document.getElementById("case-video-lightbox");
+  const videoLightboxVideo = document.getElementById("case-video-lightbox-video");
+  function openVideoLightbox(copy) {
+    if (!videoLightboxEl || !videoLightboxVideo || !copy) return;
+    videoLightboxVideo.src = copy.src;
+    videoLightboxVideo.poster = copy.poster;
+    videoLightboxVideo.setAttribute("aria-label", "Depoimento em vídeo de " + copy.name + ", " + copy.role);
+    videoLightboxEl.classList.add("is-open");
+    videoLightboxVideo.muted = false;
+    videoLightboxVideo.currentTime = 0;
+    videoLightboxVideo.play().catch(() => {});
+  }
+  function closeVideoLightbox() {
+    if (!videoLightboxEl || !videoLightboxVideo) return;
+    videoLightboxEl.classList.remove("is-open");
+    videoLightboxVideo.pause();
+    videoLightboxVideo.removeAttribute("src");
+    videoLightboxVideo.load();
+  }
+  if (videoLightboxEl) {
+    videoLightboxEl.querySelector(".case-video-lightbox__close").addEventListener("click", closeVideoLightbox);
+    videoLightboxEl.querySelector(".case-video-lightbox__backdrop").addEventListener("click", closeVideoLightbox);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && videoLightboxEl.classList.contains("is-open")) closeVideoLightbox();
+    });
+  }
+
   let projects = [];
 
   // Prints reais do sistema da Trilhar, com dados sensíveis borrados.
@@ -149,7 +177,7 @@
             <div aria-hidden="true" class="case-tablist-fade"></div>
           </div>
           <div data-case-mockup="${project.id}" style="position:relative">
-            <div style="position:relative;width:100%;background:#fffceb;border:1px solid #0e0f0b;transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden" data-case-frame>
+            <div style="position:relative;width:100%;background:#fffceb;border:1px solid #0e0f0b;transform:none;transform-origin:50% 50%;transition:transform .35s ease-out,box-shadow .35s ease-out;backface-visibility:hidden;container-type:inline-size" data-case-frame>
               <div style="display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid #0e0f0b">
                 <span style="display:flex;gap:5px"><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span><span style="width:8px;height:8px;border-radius:50%;border:1px solid #0e0f0b"></span></span>
                 <span data-case-url style="flex:1;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#457528;padding:4px 10px;background:rgba(69,117,40,.08)">${copy.urlLabel}</span>
@@ -158,15 +186,20 @@
                 ${imgs}
                 <button type="button" data-case-shot-prev class="case-shot-nav case-shot-nav--prev" aria-label="Tela anterior">‹</button>
                 <button type="button" data-case-shot-next class="case-shot-nav case-shot-nav--next" aria-label="Próxima tela">›</button>
-                ${copy.testimonialVideo ? `
-                  <div class="case-video-bubble" data-case-bubble>
-                    <video data-case-bubble-video src="${copy.testimonialVideo.src}" poster="${copy.testimonialVideo.poster}" muted loop playsinline preload="metadata" aria-label="Depoimento em vídeo de ${escapeHtml(copy.testimonialVideo.name)}, ${escapeHtml(copy.testimonialVideo.role)}"></video>
+              </div>
+              ${copy.testimonialVideo ? `
+                <div class="case-video-bubble" data-case-bubble>
+                  <video data-case-bubble-video src="${copy.testimonialVideo.src}" poster="${copy.testimonialVideo.poster}" muted loop playsinline preload="metadata" aria-label="Depoimento em vídeo de ${escapeHtml(copy.testimonialVideo.name)}, ${escapeHtml(copy.testimonialVideo.role)}"></video>
+                  <div class="case-video-bubble__actions">
                     <button type="button" class="case-video-bubble__sound" data-case-bubble-sound aria-label="Ativar som do depoimento" title="Ativar som">
                       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><line class="case-mute-x" x1="16" y1="9" x2="22" y2="15"></line><line class="case-mute-x" x1="22" y1="9" x2="16" y2="15"></line></svg>
                     </button>
+                    <button type="button" class="case-video-bubble__expand" data-case-bubble-expand aria-label="Expandir vídeo do depoimento" title="Expandir vídeo">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H3v6"></path><path d="M15 3h6v6"></path><path d="M3 15v6h6"></path><path d="M21 15v6h-6"></path></svg>
+                    </button>
                   </div>
-                ` : ""}
-              </div>
+                </div>
+              ` : ""}
             </div>
             <div style="position:relative;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:14px">
               <span data-case-shot-label style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528">//01 ${escapeHtml(shots[0].label)}</span>
@@ -268,6 +301,13 @@
         bubbleVideo.muted = !bubbleVideo.muted;
         bubble.classList.toggle("is-unmuted", !bubbleVideo.muted);
         bubbleSound.setAttribute("aria-label", bubbleVideo.muted ? "Ativar som do depoimento" : "Silenciar depoimento");
+      });
+    }
+    const bubbleExpand = panel.querySelector("[data-case-bubble-expand]");
+    if (bubbleExpand && copy.testimonialVideo) {
+      bubbleExpand.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openVideoLightbox(copy.testimonialVideo);
       });
     }
 

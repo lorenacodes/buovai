@@ -9,15 +9,20 @@
 (function () {
   "use strict";
 
+  // As palavras digitadas no hero eram nome de módulo de sistema
+  // ("controle de produção", "integração com o ERP") — soava a ficha
+  // técnica, não a problema resolvido. Trocado por resultado/benefício:
+  // a ideia é a pessoa ler e pensar "nossa, eu quero isso", não "ah,
+  // entendi o que é isso" (pedido da Lorena).
   const SECT = [
-    { key: "contabilidade", label: "Contabilidade", words: ["portais para clientes", "envio de documentos", "cobrança de honorários", "migração de sistemas"], line: "Para escritórios contábeis: portal de documentos e boletos, cadastro de clientes e rotinas automáticas." },
-    { key: "industria", label: "Indústria", words: ["controle de produção", "ordens de serviço", "estoque de insumos", "integração com o ERP"], line: "Para indústrias: produção, ordens de serviço, estoque e integração com o sistema que você já usa." },
-    { key: "comercio", label: "Comércio", words: ["controle de pedidos", "orçamentos rápidos", "estoque", "integração com a loja"], line: "Para comércio: pedidos, orçamentos, estoque e clientes num lugar só." },
-    { key: "servicos", label: "Serviços", words: ["agenda e atendimentos", "orçamentos", "contratos", "portal do cliente"], line: "Para empresas de serviços: agenda, orçamentos, contratos e acompanhamento do cliente." },
-    { key: "engenharia", label: "Engenharia", words: ["medições de obra", "cronogramas", "orçamentos de obra", "relatórios técnicos"], line: "Para engenharia e construção: medições, cronograma, orçamentos de obra e relatórios." },
-    { key: "saude", label: "Saúde", words: ["agenda de consultas", "cadastro de pacientes", "confirmação de horários", "portal do paciente"], line: "Para clínicas e consultórios: agenda, cadastro de pacientes, confirmações e portal do paciente." },
-    { key: "educacao", label: "Educação", words: ["matrículas", "notas e frequência", "portal do aluno", "comunicação com responsáveis"], line: "Para escolas e cursos: matrículas, turmas, notas, frequência e portal para alunos e responsáveis." },
-    { key: "site", label: "Site institucional", words: ["sites profissionais", "landing pages", "identidade visual", "domínio próprio"], line: "Para quem precisa de presença online: site ou landing page com identidade visual, que abre bem no celular." },
+    { key: "contabilidade", label: "Contabilidade", words: ["clientes que pagam sem cobrar", "documentos que não se perdem", "honorários cobrados sozinhos", "fim da planilha de controle"], line: "Para escritórios contábeis: portal de documentos e boletos, cadastro de clientes e rotinas automáticas." },
+    { key: "industria", label: "Indústria", words: ["produção sem gargalo", "ordens de serviço organizadas", "estoque sempre sob controle", "fábrica ligada ao sistema"], line: "Para indústrias: produção, ordens de serviço, estoque e integração com o sistema que você já usa." },
+    { key: "comercio", label: "Comércio", words: ["pedidos que não se perdem", "orçamento pronto em minutos", "estoque sempre atualizado", "loja e sistema conectados"], line: "Para comércio: pedidos, orçamentos, estoque e clientes num lugar só." },
+    { key: "servicos", label: "Serviços", words: ["agenda sem choque de horário", "orçamento em minutos, não dias", "contrato sem dor de cabeça", "cliente sempre informado"], line: "Para empresas de serviços: agenda, orçamentos, contratos e acompanhamento do cliente." },
+    { key: "engenharia", label: "Engenharia", words: ["obra sem susto no orçamento", "cronograma que todo mundo vê", "medição sem planilha perdida", "relatório sem retrabalho"], line: "Para engenharia e construção: medições, cronograma, orçamentos de obra e relatórios." },
+    { key: "saude", label: "Saúde", words: ["agenda sem falha de horário", "paciente que não falta mais", "confirmação automática", "prontuário sempre à mão"], line: "Para clínicas e consultórios: agenda, cadastro de pacientes, confirmações e portal do paciente." },
+    { key: "educacao", label: "Educação", words: ["matrícula sem fila nem papel", "nota e frequência num clique", "pais sempre informados", "tudo do aluno num só lugar"], line: "Para escolas e cursos: matrículas, turmas, notas, frequência e portal para alunos e responsáveis." },
+    { key: "site", label: "Site institucional", words: ["primeira impressão que converte", "site rápido até no celular", "cara de empresa grande", "presença online que converte"], line: "Para quem precisa de presença online: site ou landing page com identidade visual, que abre bem no celular." },
   ];
 
   const heroSectorLine = document.getElementById("heroSectorLine");

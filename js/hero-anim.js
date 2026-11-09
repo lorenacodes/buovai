@@ -33,7 +33,12 @@
     lid: document.getElementById("lid"),
   };
 
-  const defaultWords = ["sistemas internos", "portais para clientes", "automações", "integrações", "sites profissionais", "migração de sistemas"];
+  // Antes de escolher um setor, as palavras também eram nome de módulo
+  // ("sistemas internos", "integrações") — trocadas por resultado, mesmo
+  // critério usado nas palavras por setor em sector-picker.js (pedido
+  // da Lorena: quer que a pessoa pense "eu quero isso", não leia uma
+  // ficha técnica).
+  const defaultWords = ["trabalho fora da planilha", "cliente com acesso ao que é seu", "tarefa repetitiva automática", "sistemas conversando entre si", "site que impressiona", "migração sem dor de cabeça"];
   let words = defaultWords;
   let state = { wi: 0, ci: 0, del: false };
   let typeTimer = null;

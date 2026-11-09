@@ -228,7 +228,13 @@
       ]],
       ["Serviços", "Não precisa saber o termo técnico para começar.", 0],
       ["Como trabalho", "Cada etapa validada com você antes da próxima.", 1],
-      ["Portal do cliente", "Você acompanha o andamento sem precisar pedir.", 0],
+      // Agora aponta pro print de verdade do portal (antes só ficava ao
+      // lado do título, sem apontar pra nada — pedido da Lorena: quer o
+      // robô voltando a enquadrar pedaços da interface, não só falar
+      // parado do lado do texto).
+      ["Portal do cliente", null, 0, [
+        { sel: "[data-portal-frame]", msg: "Você acompanha o andamento sem precisar pedir." },
+      ]],
       ["Quem faz", "Do diagnóstico à entrega, sem intermediários.", 1],
       ["Dúvidas", "Se ficou alguma pergunta, ela responde pessoalmente.", 0],
     ];
@@ -354,8 +360,25 @@
         // Encosta no lado do quadro que sobra espaço na tela, pra não ficar
         // espremido contra a borda quando o quadro está na coluna direita.
         if (s.skipLabel) {
-          const rightSide = r.right + S + 64 < W;
-          tx = rightSide ? Math.min(W - S - 20, r.right + 64) : Math.max(20, r.left - S - 64);
+          // Media contra a largura da TELA inteira (ou até da seção
+          // inteira, que numa seção de 2 colunas ainda inclui a coluna
+          // de texto) — em vez de contra o que realmente sobra ao lado
+          // do quadro. Numa seção de 2 colunas (ex. "Portal do
+          // cliente"), isso fazia o robô ir parar em cima do texto
+          // vizinho (bug visto ao colocar o print real da seção, pedido
+          // da Lorena: robô enquadrando de novo, sem sobrepor o resto
+          // do conteúdo). Agora checa se o próximo irmão do quadro na
+          // mesma altura (ex. a coluna de texto ao lado) reduz o espaço
+          // disponível, e usa isso como limite.
+          const secR = s.el.getBoundingClientRect();
+          let rightBound = secR.right;
+          const nxt = target.nextElementSibling;
+          if (nxt) {
+            const nr = nxt.getBoundingClientRect();
+            if (nr.top < r.bottom && nr.bottom > r.top && nr.left > r.left) rightBound = Math.min(rightBound, nr.left);
+          }
+          const rightSide = r.right + S + 64 < rightBound;
+          tx = rightSide ? Math.min(rightBound - S - 10, r.right + 64) : Math.max(secR.left + 10, r.left - S - 64);
         }
       }
       if (!visible || targetHidden) ty = -S * 2;
@@ -436,17 +459,19 @@
       }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
-      // No modo "apontar pro quadro" (cases), nenhuma versão do traço
-      // (régua, seta, extensão do corpo) convenceu — tirado por completo.
-      // O robô ainda se posiciona perto do quadro e fala sobre ele, só
-      // sem nenhum desenho de linha/colchete (pedido da Lorena).
       // O colchete + o texto "//NN montado" partiam do título (h2) sem
       // saber o que vem logo abaixo dele — em telas sem margem lateral
       // sobrando (ver "mob" acima), o parágrafo às vezes reflui pra
       // logo abaixo do título, bem na faixa onde esse texto cairia, e
       // ficava escrito por cima dele (pedido da Lorena). Desativado no
       // mesmo recorte do robô compacto.
-      if (visible && !st.pl && target && !s.skipLabel && !mob) {
+      //
+      // No modo "apontar pro quadro" (cases/targetSel) o colchete tinha
+      // sido removido de vez — mas o robô ficava "parado", só falando do
+      // lado, sem realmente enquadrar nada (pedido da Lorena: quer ele
+      // de volta enquadrando pedaços da interface, não só comentando ao
+      // lado). Reativado aqui também, igual ao colchete nos títulos.
+      if (visible && !st.pl && target && !mob) {
         const t = now - st.t0, r = target.getBoundingClientRect(), pad = 18;
         const x0 = r.left - pad, y0 = r.top - pad, x1 = r.left + Math.min(r.width, target.scrollWidth) + pad, y1 = r.bottom + pad;
         const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = 1 - cl((t - 2000) / 600);

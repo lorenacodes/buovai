@@ -372,6 +372,21 @@ html.no-intro .site-intro {
   border: 3px solid #fffceb;
   box-shadow: 0 10px 26px rgba(14, 15, 11, 0.35);
   background: #0e0f0b;
+  transform-origin: bottom left;
+  transition: transform 0.4s cubic-bezier(0.16, 0.84, 0.24, 1), box-shadow 0.4s ease;
+}
+
+/* Passar o cursor aumenta bastante a bolha, pra dar pra ver o rosto e
+   ler a legenda sem precisar expandir — cresce a partir do canto
+   inferior esquerdo (onde ela já fica presa), sem sair do quadro pra
+   fora da tela (pedido da Lorena). O botão de expandir (abaixo) continua
+   funcionando em cima dela, igual, pra quem usa toque/teclado, onde não
+   existe hover. */
+.case-video-bubble:hover,
+.case-video-bubble:focus-within {
+  transform: scale(2.35);
+  z-index: 10;
+  box-shadow: 0 24px 60px rgba(14, 15, 11, 0.5);
 }
 
 .case-video-bubble video {
@@ -381,10 +396,16 @@ html.no-intro .site-intro {
   display: block;
 }
 
-.case-video-bubble__sound {
+.case-video-bubble__actions {
   position: absolute;
   right: 6px;
   top: 6px;
+  display: flex;
+  gap: 6px;
+}
+
+.case-video-bubble__sound,
+.case-video-bubble__expand {
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -395,10 +416,70 @@ html.no-intro .site-intro {
   background: rgba(14, 15, 11, 0.85);
   color: #fffceb;
   box-shadow: 0 4px 10px rgba(14, 15, 11, 0.3);
+  flex: none;
 }
 
 .case-video-bubble.is-unmuted .case-mute-x {
   display: none;
+}
+
+/* ---- Lightbox do depoimento: abre o mesmo vídeo bem maior, com som e
+   controles nativos, pelo botão de expandir (pedido da Lorena: além do
+   hover aumentando, queria um botão de expandir de verdade). ---- */
+.case-video-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.case-video-lightbox.is-open {
+  display: flex;
+}
+
+.case-video-lightbox__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 15, 11, 0.82);
+}
+
+.case-video-lightbox__panel {
+  position: relative;
+  width: min(420px, 88vw);
+  max-height: 88vh;
+  aspect-ratio: 9 / 16;
+  background: #0e0f0b;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55);
+  animation: modIn 0.35s cubic-bezier(0.16, 0.84, 0.24, 1) both;
+}
+
+.case-video-lightbox__panel video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.case-video-lightbox__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #fffceb;
+  background: rgba(14, 15, 11, 0.85);
+  color: #fffceb;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
 }
 
 /* ---- Acessibilidade: não altera o visual, só fica visível ao navegar

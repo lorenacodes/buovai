@@ -65,26 +65,13 @@
     window.addEventListener("resize", () => { if (window.innerWidth >= 1100) closeNav(); });
   }
 
-  // ---- CTA do header: só aparece depois que o hero sai de vista,
-  // igual a onScrollNav/showNavCta do arquivo original ----
-  const navCta = document.getElementById("navCta");
-  const heroEl = document.getElementById("inicio");
-  if (navCta && heroEl) {
-    let shown = false;
-    const onScrollNav = () => {
-      const past = heroEl.getBoundingClientRect().bottom < 80;
-      if (past === shown) return;
-      shown = past;
-      if (past) {
-        navCta.style.display = "";
-        navCta.style.animation = "modIn .4s cubic-bezier(.16,.84,.24,1) both";
-      } else {
-        navCta.style.display = "none";
-      }
-    };
-    window.addEventListener("scroll", onScrollNav, { passive: true });
-    onScrollNav();
-  }
+  // O CTA do cabeçalho ("Contar meu problema") só aparecia depois que o
+  // hero saía de vista — até lá o cabeçalho ficava só com os links e o
+  // botão fantasma "Área do cliente", com um vão grande sem nenhuma ação
+  // comercial (pedido da Lorena: cabeçalho pouco comercial e com espaço
+  // mal aproveitado). Agora fica sempre visível no desktop, junto com o
+  // resto (escondido no celular/tablet estreito como os demais, via
+  // .nav-notnarrow).
 
   // ---- Modal "Área do cliente": porte literal de loginOpen/loginAsCli/
   // loginAsAdm/loginForm/loginSent/loginMagic/loginSubmit do arquivo
