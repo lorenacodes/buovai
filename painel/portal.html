@@ -463,9 +463,15 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         return {
           id: p.id, code: p.code || "", clientId: p.client_id || "", clienteNome: p.client_name, nome: p.project_title,
           tplId: p.template_id || "", tipo: p.tipo || "", status: ST_UI[p.status] || p.status, prazo: p.prazo || "", valor: Number(p.budget_value) || 0, criadoEm: p.created_at || "",
+          // "Atualizado em" não é só a data da linha do projeto (que só
+          // muda quando o admin edita o cadastro em si) — pega a mais
+          // recente entre o projeto, a última etapa concluída e a
+          // última entrega publicada, pra refletir atividade de
+          // verdade (pedido da Lorena, tela de Andamento).
+          atualizadoEm: [p.updated_at || p.created_at || ""].concat((stagesRes.data || []).filter(function (s) { return s.project_id === p.id && s.completed_at; }).map(function (s) { return s.completed_at; })).concat((delivRes.data || []).filter(function (d) { return d.project_id === p.id && d.delivered_at; }).map(function (d) { return d.delivered_at; })).sort().pop(),
           parcelas: (instRes.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [], notes: s.notes || "" }; }),
-          docs: (delivRes.data || []).filter(function (d) { return d.project_id === p.id; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: d.visible_to_client, path: d.file_path || "", url: d.file_path ? (signMap[d.file_path] || "") : "" }; }),
+          docs: (delivRes.data || []).filter(function (d) { return d.project_id === p.id; }).map(function (d) { return { id: d.id, nome: d.title, desc: d.description || "", tipo: d.doc_type, data: d.delivered_at, cli: d.visible_to_client, path: d.file_path || "", url: d.file_path ? (signMap[d.file_path] || "") : "", externalUrl: d.external_url || "", stageId: d.stage_id || "" }; }),
           hist: (histRes.data || []).filter(function (hh) { return hh.entity_id === p.id; }).map(function (hh) { return { at: hh.created_at, who: hh.actor_label, text: hh.detail }; })
         };
       });
@@ -488,9 +494,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         return {
           id: p.id, code: p.code || "", clientId: p.client_id || "c", clienteNome: p.client_name, nome: p.project_title,
           tplId: p.template_id || "", tipo: p.tipo || "", status: ST_UI[p.status] || p.status, prazo: p.prazo || "", valor: Number(p.budget_value) || 0,
+          atualizadoEm: [p.updated_at || p.created_at || ""].concat((stagesRes2.data || []).filter(function (s) { return s.project_id === p.id && s.completed_at; }).map(function (s) { return s.completed_at; })).concat((delivRes2.data || []).filter(function (d) { return d.project_id === p.id && d.delivered_at; }).map(function (d) { return d.delivered_at; })).sort().pop(),
           parcelas: (instRes2.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes2.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [], notes: s.notes || "" }; }),
-          docs: (delivRes2.data || []).filter(function (d) { return d.project_id === p.id && d.visible_to_client; }).map(function (d) { return { id: d.id, nome: d.title, tipo: d.doc_type, data: d.delivered_at, cli: true, path: d.file_path || "", url: d.file_path ? (signMap2[d.file_path] || "") : "" }; }),
+          docs: (delivRes2.data || []).filter(function (d) { return d.project_id === p.id && d.visible_to_client; }).map(function (d) { return { id: d.id, nome: d.title, desc: d.description || "", tipo: d.doc_type, data: d.delivered_at, cli: true, path: d.file_path || "", url: d.file_path ? (signMap2[d.file_path] || "") : "", externalUrl: d.external_url || "", stageId: d.stage_id || "" }; }),
           hist: []
         };
       });
@@ -886,15 +893,23 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         // isImage/isPreviewable: pra desenhar a miniatura/link de
         // visualização certo pra cada tipo (pedido da Lorena: documento
         // só mostrava nome, sem prévia nenhuma).
+        // Qual etapa esse documento pertence (pra aparecer junto da
+        // entrega certa no Andamento do cliente) — "" = documento geral,
+        // não vinculado a etapa nenhuma (pedido da Lorena).
+        var stageById = {}; sel.tasks.forEach(function (tk) { if (tk.id) stageById[tk.id] = tk.t; });
         out.docs = sel.docs.map(function (d, i) {
           return {
             nome: d.nome, tipo: d.tipo, data: dt(d.data), vis: d.cli ? "Visível ao cliente" : "Interno", visFg: d.cli ? "var(--accTxt)" : "var(--mute)",
-            url: d.url || "", hasFile: !!d.path, isImage: d.tipo === "IMAGEM" && !!d.url,
+            url: d.url || d.externalUrl || "", hasFile: !!d.path || !!d.externalUrl, isImage: d.tipo === "IMAGEM" && !!d.url,
+            stageLabel: d.stageId ? (stageById[d.stageId] || "") : "",
             h: reg(function () { save(function (dd) { var x = dd.projects.filter(function (p) { return p.id === sel.id; })[0].docs[i]; x.cli = !x.cli; }, null, function (dd) { var x = dd.projects.filter(function (p) { return p.id === sel.id; })[0].docs[i]; return sb().from("project_deliveries").update({ visible_to_client: x.cli }).eq("id", x.id); }); })
           };
         });
         out.docTipos = ["PDF", "DOC", "XLSX", "LINK", "IMAGEM", "SQL"];
         out.newDoc = S.newDoc; out.newDocCh = reg(function (e) { setState({ newDoc: e.target.value }); }); out.newDocTipo = S.newDocTipo; out.newDocTipoCh = reg(function (e) { setState({ newDocTipo: e.target.value }); });
+        out.newDocStage = S.newDocStage || ""; out.newDocStageCh = reg(function (e) { setState({ newDocStage: e.target.value }); });
+        out.docStageOpts = sel.tasks.map(function (tk) { return { v: tk.id || "", l: tk.t }; });
+        out.newDocUrl = S.newDocUrl || ""; out.newDocUrlCh = reg(function (e) { setState({ newDocUrl: e.target.value }); });
         out.newDocFileName = pendingDocFile ? pendingDocFile.name : "";
         // Escolher um arquivo já chuta o nome (sem extensão) e o tipo,
         // mas a Lorena pode trocar os dois antes de anexar.
@@ -913,8 +928,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var n = S.newDoc.trim(); if (!n) return;
           var tipo = S.newDocTipo;
           var file = pendingDocFile;
+          var extUrl = (S.newDocUrl || "").trim();
+          var stageId = S.newDocStage || "";
           pendingDocFile = null;
-          save(function (d) { d.projects.filter(function (p) { return p.id === sel.id; })[0].docs.unshift({ nome: n, tipo: tipo, data: T, cli: false, path: "", url: "" }); log(d, sel.id, 'anexou "' + n + '"'); }, file ? "Documento enviado" : "Documento anexado como interno", function (d) {
+          save(function (d) { d.projects.filter(function (p) { return p.id === sel.id; })[0].docs.unshift({ nome: n, tipo: tipo, data: T, cli: false, path: "", url: "", externalUrl: extUrl, stageId: stageId }); log(d, sel.id, 'anexou "' + n + '"'); }, file ? "Documento enviado" : extUrl ? "Link anexado" : "Documento anexado como interno", function (d) {
             var doc = d.projects.filter(function (p) { return p.id === sel.id; })[0].docs[0];
             var filePath = null;
             var up = Promise.resolve(null);
@@ -925,7 +942,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             }
             return Promise.resolve(up).then(function (upRes) {
               if (upRes && upRes.error) throw upRes.error;
-              return sb().from("project_deliveries").insert({ project_id: sel.id, title: n, doc_type: tipo, delivered_at: T, visible_to_client: false, file_path: filePath }).select().single();
+              return sb().from("project_deliveries").insert({ project_id: sel.id, title: n, doc_type: tipo, delivered_at: T, visible_to_client: false, file_path: filePath, external_url: extUrl || null, stage_id: stageId || null }).select().single();
             }).then(function (res) {
               if (res.error) throw res.error;
               doc.id = res.data.id;
@@ -937,7 +954,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
               });
             });
           });
-          S.newDoc = ""; render();
+          S.newDoc = ""; S.newDocUrl = ""; S.newDocStage = ""; render();
         });
         out.parcelas = sel.parcelas.map(function (q, i) {
           var r = parcCh(q), chip = r[0], c = r[1];
@@ -1277,7 +1294,20 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       var cps = D.projects, p0 = cps[0];
       if (V === "andamento") {
         title = "Andamento do projeto";
+        sub = "Acompanhe o progresso, veja os detalhes e acesse as entregas do seu projeto.";
         var firstOpen = p0.tasks.findIndex ? p0.tasks.findIndex(function (t) { return !t.done; }) : -1;
+        // Documentos/entregas agrupados pela etapa a que pertencem —
+        // uma etapa pode ter várias entregas, cada uma com arquivo
+        // enviado OU link externo (nunca os dois inventados: se não
+        // tem nenhum dos dois, mostra que ainda não tem documento).
+        var docsByStage = {};
+        p0.docs.forEach(function (d) { var k = d.stageId || "_geral"; (docsByStage[k] = docsByStage[k] || []).push(d); });
+        var stageDocsOut = function (stageId) {
+          return (docsByStage[stageId || "_geral"] || []).map(function (d) {
+            var link = d.url || d.externalUrl || "";
+            return { nome: d.nome, data: dt(d.data), link: link, isExternal: !d.url && !!d.externalUrl };
+          });
+        };
         // Diasimples: devolve quantos dias faltam (ou passaram) até o
         // prazo, pra dar algo concreto além da barra de progresso —
         // o cartão da esquerda ficava com espaço vazio enorme ao lado
@@ -1308,8 +1338,25 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           proximos: proximosPassos,
           proxReuniaoTxt: proxReuniao ? (diasReuniao === 0 ? "Hoje" : diasReuniao === 1 ? "Amanhã" : diasReuniao + " dias") + (proxReuniao.hora ? " · " + proxReuniao.hora : "") : null,
           proxReuniaoTitulo: proxReuniao ? proxReuniao.titulo : "",
-          proxReuniaoPendente: proxReuniao ? proxReuniao.status === "pendente" : false
+          proxReuniaoPendente: proxReuniao ? proxReuniao.status === "pendente" : false,
+          atualizadoEm: p0.atualizadoEm ? dt(p0.atualizadoEm) + " às " + p0.atualizadoEm.slice(11, 16) : "",
+          status: p0.status || ""
         };
+        out.goSuporteH = reg(function () { go("suporte"); });
+        // "O que já foi feito": só as etapas concluídas, com data e os
+        // documentos da própria etapa — e "Próximas etapas": o resto,
+        // com o andamento de cada uma. Divide em duas listas curtas em
+        // vez de uma só longa, que é o que a linha do tempo (mais
+        // embaixo) já cobre em detalhe — pra não duplicar informação
+        // (pedido da Lorena).
+        out.cFeitas = p0.tasks.filter(function (t) { return t.done; }).map(function (t) {
+          return { t: t.t, data: t.at ? dt(t.at) : "", docs: stageDocsOut(t.id) };
+        });
+        out.cProximas = p0.tasks.filter(function (t) { return !t.done; }).map(function (t, idx) {
+          var items = t.items || [];
+          var doneCount = items.filter(function (it) { return it.done; }).length;
+          return { t: t.t, cur: idx === 0, st: idx === 0 ? "Em andamento" : "Próxima", doneCount: doneCount, totalCount: items.length };
+        });
         out.cReunioes = futMeetings.slice(0, 3).map(function (m) {
           return { titulo: m.titulo, data: dt(m.data), hora: m.hora, pendente: m.status === "pendente" };
         });
@@ -1329,10 +1376,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var items = (t.items || []).map(function (it) { return { t: it.t, done: !!it.done }; });
           var doneCount = items.filter(function (it) { return it.done; }).length;
           var open = S.andOpen[i] !== undefined ? S.andOpen[i] : cur;
+          var tDocs = stageDocsOut(t.id);
           return {
             t: t.t, st: t.done ? "Concluída" : cur ? "Em andamento" : "Próxima", stColor: t.done ? "var(--mute)" : cur ? "var(--accTxt)" : "var(--mute)", color: t.done ? "var(--mute)" : cur ? "var(--ink)" : "var(--ink2)", dotBg: t.done ? "var(--bar)" : "transparent", dotBd: t.done || cur ? "var(--bar)" : "var(--line2)",
             items: items, hasItems: !!items.length, open: open, summary: items.length ? (doneCount + " de " + items.length + " concluídas") : "",
-            notes: t.notes || "",
+            notes: t.notes || "", docs: tDocs, hasDocs: !!tDocs.length,
             toggleH: reg(function () { S.andOpen[i] = !open; render(); })
           };
         });
@@ -2176,17 +2224,24 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           ? '<img src="' + esc(d.url) + '" alt="" style="width:62px;height:44px;object-fit:cover;border:1px solid var(--line2);display:block">'
           : '<span style="width:62px;height:44px;display:grid;place-items:center;border:1px solid var(--line2);background:var(--field);font-family:\'Lexend Exa\',sans-serif;font-size:9.5px;color:var(--accTxt)">' + esc(d.tipo) + "</span>";
         var viewLink = d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--accTxt)">Visualizar ↗︎</a>' : "";
-        return '<div style="display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line)">' + thumb + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px">' + esc(d.nome) + "</span>" + viewLink + '</span><span style="font-size:12px;color:var(--mute)">' + esc(d.data) + '</span><button ' + h(d.h) + ' style="padding:6px 9px;border:1px solid var(--line2);background:none;color:' + d.visFg + ';font-size:11px;cursor:pointer;white-space:nowrap">' + esc(d.vis) + "</button></div>";
+        var stageTag = d.stageLabel ? '<span style="font-size:11px;color:var(--mute)">· ' + esc(d.stageLabel) + "</span>" : "";
+        return '<div style="display:grid;grid-template-columns:62px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line)">' + thumb + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:14px">' + esc(d.nome) + '</span><span style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' + viewLink + stageTag + "</span></span>" + '<span style="font-size:12px;color:var(--mute)">' + esc(d.data) + '</span><button ' + h(d.h) + ' style="padding:6px 9px;border:1px solid var(--line2);background:none;color:' + d.visFg + ';font-size:11px;cursor:pointer;white-space:nowrap">' + esc(d.vis) + "</button></div>";
       }).join("");
       var opts = V.docTipos.map(function (o) { return '<option value="' + o + '"' + (o === V.newDocTipo ? " selected" : "") + ">" + o + "</option>"; }).join("");
+      var stageOpts = '<option value="">Documento geral (sem etapa)</option>' + V.docStageOpts.map(function (o) { return '<option value="' + esc(o.v) + '"' + (o.v === V.newDocStage ? " selected" : "") + ">" + esc(o.l) + "</option>"; }).join("");
       var fileLabel = V.newDocFileName || "Escolher arquivo";
       body = '<div style="display:flex;flex-direction:column">' + docs
-        + '<div style="display:flex;gap:8px;padding-top:14px;border-top:1px solid var(--line);flex-wrap:wrap;align-items:center">'
+        + '<div style="display:flex;flex-direction:column;gap:8px;padding-top:14px;border-top:1px solid var(--line)">'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
         + '<label style="padding:10px 14px;border:1px dashed var(--line2);background:none;color:var(--ink2);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis">' + esc(fileLabel) + '<input type="file" data-ch="' + V.newDocFileCh + '" style="position:absolute;width:1px;height:1px;opacity:0;overflow:hidden"></label>'
         + '<input value="' + esc(V.newDoc) + '" data-ch="' + V.newDocCh + '" placeholder="Nome do documento" style="flex:1 1 200px;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 12px;font:inherit;font-size:13px;outline:none">'
         + '<select data-ch="' + V.newDocTipoCh + '" style="background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px;font:inherit;font-size:13px">' + opts + "</select>"
+        + "</div>"
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+        + '<select data-ch="' + V.newDocStageCh + '" style="flex:1 1 200px;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px;font:inherit;font-size:13px">' + stageOpts + "</select>"
+        + '<input value="' + esc(V.newDocUrl) + '" data-ch="' + V.newDocUrlCh + '" placeholder="Ou cole um link (Drive etc.), em vez de enviar arquivo" style="flex:1 1 240px;background:var(--field);border:1px solid var(--line2);color:var(--ink);padding:10px 12px;font:inherit;font-size:13px;outline:none">'
         + '<button ' + h(V.addDoc) + ' style="padding:10px 14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">Anexar</button>'
-        + "</div></div>";
+        + "</div></div></div>";
     } else if (V.pt_fin) {
       body = '<div style="display:flex;flex-direction:column">' + V.parcelas.map(function (q) {
         return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;align-items:center;padding:13px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;font-variant-numeric:tabular-nums">' + esc(q.n) + '</span><span style="font-size:14px;font-variant-numeric:tabular-nums">' + esc(q.valor) + '</span><span style="font-size:12px;color:var(--mute)">vence ' + esc(q.venc) + '</span><span><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + q.chipBg + ";color:" + q.chipFg + '">' + esc(q.chip) + '</span></span><button ' + h(q.h) + ' style="justify-self:end;padding:7px 11px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer">' + esc(q.btn) + "</button></div>";
@@ -2380,6 +2435,20 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + '<div style="overflow-x:auto"><div style="min-width:560px;display:flex;flex-direction:column">' + permHead + permRows + "</div></div></section>";
   }
 
+  // Rótulo de seção reutilizado nos cartões do Andamento — mesmo
+  // estilo usado em "O que falta agora" originalmente, só isolado numa
+  // função pra não repetir o mesmo style="" sete vezes.
+  var andLabel = function (txt) {
+    return '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(txt) + "</span>";
+  };
+  var andDocLink = function (d) {
+    return '<a href="' + esc(d.link) + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--accTxt);white-space:nowrap">' + esc(d.nome) + (d.isExternal ? " ↗︎" : " ↓︎") + "</a>";
+  };
+  var andDocsBlock = function (docs) {
+    if (!docs || !docs.length) return '<span style="font-size:11.5px;color:var(--mute)">Nenhum documento vinculado ainda.</span>';
+    return '<div style="display:flex;flex-direction:column;gap:4px;margin-top:2px">' + docs.map(andDocLink).join("") + "</div>";
+  };
+
   function buildAndamento(V) {
     var cp = V.cp;
     var prazoTxt = cp.diasPrazo == null ? ""
@@ -2388,43 +2457,61 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       : cp.diasPrazo === 0 ? "Entrega é hoje"
       : Math.abs(cp.diasPrazo) + (Math.abs(cp.diasPrazo) === 1 ? " dia de atraso" : " dias de atraso");
     var prazoColor = cp.diasPrazo != null && cp.diasPrazo < 0 ? "#b4443a" : "var(--accTxt)";
-    // Os números ficavam espalhados em duas grades 2x1 separadas (uma
-    // fixa em 2 colunas, sem jeito de caber mais nada sem quebrar) —
-    // agora é uma grade só, auto-ajustável (repeat/auto-fit), com a
-    // próxima reunião junto dos outros números (pedido da Lorena:
-    // "não segue os princípios de escalabilidade, parece desorganizado").
+
+    // ---- B. Resumo geral: um card só com nome/tipo, progresso e os
+    // números principais lado a lado numa grade que se ajusta sozinha
+    // (antes eram duas grades fixas de 2 colunas, sem espaço pra mais
+    // nada — pedido da Lorena: "não segue os princípios de
+    // escalabilidade, parece desorganizado"). ----
     var statCells = [
-      { label: "Etapa atual", value: cp.next, color: "var(--ink)" },
-      { label: "Previsão de entrega", value: cp.prazo, color: "var(--ink)" },
-      { label: "Etapas concluídas", value: cp.etapasDone + " / " + cp.etapasTotal, color: "var(--ink)" },
+      { label: "Etapa atual", value: cp.next },
+      { label: "Previsão de entrega", value: cp.prazo },
+      { label: "Etapas concluídas", value: cp.etapasDone + " / " + cp.etapasTotal },
       { label: "Prazo", value: prazoTxt || "—", color: prazoColor }
     ];
     if (cp.proxReuniaoTxt) statCells.push({ label: "Próxima reunião", value: cp.proxReuniaoTxt + (cp.proxReuniaoPendente ? " · a confirmar" : ""), color: cp.proxReuniaoPendente ? "var(--warnFg)" : "var(--accTxt)" });
-    var stats = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + statCells.map(function (s) {
-      return '<span style="display:flex;flex-direction:column;gap:4px;padding:14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-size:12px;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;letter-spacing:-.02em;color:' + s.color + '">' + esc(s.value) + "</span></span>";
+    var statsGrid = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + statCells.map(function (s) {
+      return '<span style="display:flex;flex-direction:column;gap:4px;padding:14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-size:12px;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;letter-spacing:-.02em;color:' + (s.color || "var(--ink)") + '">' + esc(s.value) + "</span></span>";
     }).join("") + "</div>";
-    var proximos = cp.proximos && cp.proximos.length
-      ? '<div style="display:flex;flex-direction:column;gap:10px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">O que falta agora</span>' + cp.proximos.map(function (it) {
-          return '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;color:var(--ink)">' + esc(it.t) + '</span><span style="font-size:11px;color:var(--mute)">' + esc(it.stage) + "</span></div>";
-        }).join("") + "</div>"
-      : '<div style="font-size:13px;color:var(--mute)">Nenhuma pendência aberta no momento — tudo em dia.</div>';
-    // Reuniões marcadas (inclusive pedidos do próprio cliente, ainda
-    // "a confirmar") — pedido da Lorena pra aparecer aqui, não só por
-    // fora do portal.
-    var reunioes = (V.cReunioes && V.cReunioes.length)
-      ? '<div style="display:flex;flex-direction:column;gap:10px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">Reuniões agendadas</span>' + V.cReunioes.map(function (m) {
-          return '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;color:var(--ink)">' + esc(m.titulo) + '</span><span style="font-size:11px;color:var(--mute)">' + esc(m.data) + (m.hora ? " · " + esc(m.hora) : "") + (m.pendente ? " · a confirmar" : "") + "</span></div>";
-        }).join("") + "</div>"
-      : '<div style="font-size:13px;color:var(--mute)">Nenhuma reunião agendada no momento.</div>';
-    // Com muitas etapas (e muitas subtarefas cada), deixar tudo sempre
-    // expandido faria a página crescer sem limite — não escala. Agora só
-    // a etapa aberta mostra o checklist; as outras mostram um resumo
-    // de uma linha ("X de Y concluídas") e abrem com um clique.
+    var atualizado = cp.atualizadoEm ? '<span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mute);white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:var(--accTxt);flex:none"></span>Atualizado em ' + esc(cp.atualizadoEm) + "</span>" : "";
+    var resumo = '<section style="display:flex;flex-direction:column;gap:18px;padding:22px;background:var(--field);border:1px solid var(--line)">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">'
+      + '<div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">' + esc(cp.code) + " · " + esc(cp.tipo) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;line-height:1.25">' + esc(cp.nome) + "</span></div>"
+      + atualizado
+      + "</div>"
+      + '<span style="display:flex;align-items:center;gap:14px"><span style="flex:1;height:4px;background:var(--barBg)"><span style="display:block;height:100%;width:' + cp.barW + ';background:var(--bar);transition:width .6s"></span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;font-variant-numeric:tabular-nums">' + cp.pct + "%</span></span>"
+      + statsGrid
+      + "</section>";
+
+    // ---- C. O que já foi feito / D. Próximas etapas: duas listas
+    // curtas lado a lado (nome, data/situação, documentos da entrega),
+    // sem repetir o checklist inteiro — isso fica só na linha do
+    // tempo, mais abaixo, evitando duplicar informação. ----
+    var feitas = (V.cFeitas && V.cFeitas.length)
+      ? V.cFeitas.map(function (t) {
+          return '<div style="display:flex;flex-direction:column;gap:4px;padding:12px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="font-size:13.5px;color:var(--ink)">' + esc(t.t) + '</span><span style="font-size:11px;font-weight:600;padding:3px 7px;background:var(--okBg);color:var(--okFg);white-space:nowrap">Concluída</span></div>' + (t.data ? '<span style="font-size:11px;color:var(--mute)">' + esc(t.data) + "</span>" : "") + andDocsBlock(t.docs) + "</div>";
+        }).join("")
+      : '<div style="font-size:13px;color:var(--mute);padding:4px 0">Nenhuma etapa concluída ainda.</div>';
+    var proximas = (V.cProximas && V.cProximas.length)
+      ? V.cProximas.map(function (t) {
+          var chipBg = t.cur ? "var(--accSoft)" : "var(--neuBg)", chipFg = t.cur ? "var(--accTxt)" : "var(--neuFg)";
+          return '<div style="display:flex;flex-direction:column;gap:4px;padding:12px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="font-size:13.5px;color:' + (t.cur ? "var(--ink)" : "var(--ink2)") + '">' + esc(t.t) + '</span><span style="font-size:11px;font-weight:600;padding:3px 7px;background:' + chipBg + ";color:" + chipFg + ';white-space:nowrap">' + esc(t.st) + "</span></div>" + (t.totalCount ? '<span style="font-size:11px;color:var(--mute)">' + t.doneCount + " de " + t.totalCount + " concluídas</span>" : "") + "</div>";
+        }).join("")
+      : '<div style="font-size:13px;color:var(--mute);padding:4px 0">Nenhuma etapa pendente — projeto concluído.</div>';
+    var feitasCard = '<div style="display:flex;flex-direction:column;gap:6px;padding:20px;background:var(--field);border:1px solid var(--line)">' + andLabel("O que já foi feito") + feitas + "</div>";
+    var proximasCard = '<div style="display:flex;flex-direction:column;gap:6px;padding:20px;background:var(--field);border:1px solid var(--line)">' + andLabel("Próximas etapas") + proximas + "</div>";
+
+    // ---- E. Linha do tempo: com muitas etapas (e muitas subtarefas
+    // cada), deixar tudo sempre expandido faria a página crescer sem
+    // limite — não escala. Só a etapa aberta mostra o checklist e os
+    // documentos; as outras ficam resumidas numa linha e abrem com um
+    // clique. ----
     var steps = V.cTasks.map(function (t) {
       var items = t.open ? (t.items || []).map(function (it) {
         return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12.5px;color:' + (it.done ? "var(--mute)" : "var(--ink2)") + '"><span style="width:12px;height:12px;flex:none;border:1px solid ' + (it.done ? "var(--bar)" : "var(--line2)") + ";background:" + (it.done ? "var(--bar)" : "transparent") + ';display:grid;place-items:center;font-size:8px;color:var(--btnFg)">' + (it.done ? "✓" : "") + '</span><span style="text-decoration:' + (it.done ? "line-through" : "none") + '">' + esc(it.t) + "</span></div>";
       }).join("") : "";
       var itemsBlock = items ? '<div style="display:flex;flex-direction:column;gap:2px;margin-top:6px">' + items + "</div>" : "";
+      var docsBlock = t.open && t.hasDocs ? '<div style="margin-top:8px">' + andDocsBlock(t.docs) + "</div>" : "";
       var summaryBlock = !t.open && t.hasItems ? '<span style="font-size:12px;color:var(--mute)">' + esc(t.summary) + "</span>" : "";
       // Observação da Lorena nessa etapa (tipo "protótipo aprovado com
       // tal ajuste") — fica sempre visível, mesmo com a etapa fechada,
@@ -2436,16 +2523,32 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       var headEl = t.hasItems
         ? '<button ' + h(t.toggleH) + ' style="display:flex;align-items:center;gap:6px;border:0;background:none;padding:0;font:inherit;text-align:left;cursor:pointer;color:inherit">' + head + "</button>"
         : '<span style="display:flex;align-items:center;gap:6px">' + head + "</span>";
-      return '<div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:14px"><span style="display:flex;flex-direction:column;align-items:center"><span style="width:11px;height:11px;margin-top:5px;flex:none;border:1px solid ' + t.dotBd + ";background:" + t.dotBg + '"></span><span style="flex:1;width:1px;background:var(--line2);min-height:22px"></span></span><span style="padding-bottom:20px;display:flex;flex-direction:column;gap:3px">' + headEl + summaryBlock + notesBlock + itemsBlock + '</span><span style="font-size:11px;color:' + t.stColor + '">' + esc(t.st) + "</span></div>";
+      return '<div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:14px"><span style="display:flex;flex-direction:column;align-items:center"><span style="width:11px;height:11px;margin-top:5px;flex:none;border:1px solid ' + t.dotBd + ";background:" + t.dotBg + '"></span><span style="flex:1;width:1px;background:var(--line2);min-height:22px"></span></span><span style="padding-bottom:20px;display:flex;flex-direction:column;gap:3px">' + headEl + summaryBlock + notesBlock + itemsBlock + docsBlock + '</span><span style="font-size:11px;color:' + t.stColor + '">' + esc(t.st) + "</span></div>";
     }).join("");
-    return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:40px 56px;align-items:start">'
-      + '<section style="display:flex;flex-direction:column;gap:20px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">' + esc(cp.code) + " · " + esc(cp.tipo) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;line-height:1.25">' + esc(cp.nome) + '</span><span style="display:flex;align-items:center;gap:14px"><span style="flex:1;height:4px;background:var(--barBg)"><span style="display:block;height:100%;width:' + cp.barW + ';background:var(--bar);transition:width .6s"></span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;font-variant-numeric:tabular-nums">' + cp.pct + '%</span></span>'
-      + stats
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px">'
-      + '<div style="padding:18px;background:var(--field);border:1px solid var(--line)">' + proximos + "</div>"
-      + '<div style="padding:18px;background:var(--field);border:1px solid var(--line)">' + reunioes + "</div>"
-      + "</div></section>"
-      + '<section style="display:flex;flex-direction:column">' + steps + "</section></div>";
+    var timelineCard = '<div style="display:flex;flex-direction:column;gap:14px;padding:20px;background:var(--field);border:1px solid var(--line)">' + andLabel("Linha do tempo") + '<div style="display:flex;flex-direction:column">' + steps + "</div></div>";
+
+    // ---- F. Detalhes do projeto / Sobre o projeto. G. Comunicação:
+    // acesso destacado pro cliente falar com a Lorena (pelo Suporte,
+    // que já é o canal de contato do portal). ----
+    var detalhesCard = '<div style="display:flex;flex-direction:column;gap:10px;padding:20px;background:var(--field);border:1px solid var(--line)">' + andLabel("Detalhes do projeto")
+      + '<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12px;color:var(--mute)">Prazo</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;color:' + prazoColor + '">' + esc(prazoTxt || "—") + "</span></div>"
+      + '<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12px;color:var(--mute)">Status do projeto</span><span style="font-size:14px;color:var(--ink)">' + esc(cp.status || "Em andamento") + "</span></div>"
+      + '<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12px;color:var(--mute)">Tipo</span><span style="font-size:14px;color:var(--ink)">' + esc(cp.tipo) + "</span></div>"
+      + "</div>";
+    var comunicacaoCard = '<a href="javascript:void(0)" data-h="' + V.goSuporteH + '" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;padding:20px;background:var(--btnBg);color:var(--btnFg);text-decoration:none">'
+      + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px">Fale conosco</span>'
+      + '<span style="font-size:12.5px;line-height:1.5">Tire dúvidas ou acompanhe mais detalhes do seu projeto direto com a gente.</span>'
+      + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:12px">Abrir suporte →</span>'
+      + "</a>";
+
+    return '<div style="display:flex;flex-direction:column;gap:24px">'
+      + resumo
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:24px;align-items:start">'
+      + '<div style="display:flex;flex-direction:column;gap:24px">' + feitasCard + proximasCard + "</div>"
+      + timelineCard
+      + "</div>"
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:24px">' + detalhesCard + comunicacaoCard + "</div>"
+      + "</div>";
   }
 
   function buildDocumentos(V) {
