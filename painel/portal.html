@@ -1294,8 +1294,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       var cps = D.projects, p0 = cps[0];
       if (V === "andamento") {
         title = "Andamento do projeto";
-        sub = "Acompanhe o progresso, veja os detalhes e acesse as entregas do seu projeto.";
-        var firstOpen = p0.tasks.findIndex ? p0.tasks.findIndex(function (t) { return !t.done; }) : -1;
+        sub = "Acompanhe o progresso e acesse os documentos do seu projeto.";
         // Documentos/entregas agrupados pela etapa a que pertencem —
         // uma etapa pode ter várias entregas, cada uma com arquivo
         // enviado OU link externo (nunca os dois inventados: se não
@@ -1305,26 +1304,20 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         var stageDocsOut = function (stageId) {
           return (docsByStage[stageId || "_geral"] || []).map(function (d) {
             var link = d.url || d.externalUrl || "";
-            return { nome: d.nome, data: dt(d.data), link: link, isExternal: !d.url && !!d.externalUrl };
+            return { nome: d.nome, tipo: d.tipo, link: link, isExternal: !d.url && !!d.externalUrl, has: !!link };
           });
         };
         // Diasimples: devolve quantos dias faltam (ou passaram) até o
-        // prazo, pra dar algo concreto além da barra de progresso —
-        // o cartão da esquerda ficava com espaço vazio enorme ao lado
-        // da linha do tempo, que é bem mais alta (pedido da Lorena).
+        // prazo, pra dar algo concreto além da barra de progresso.
         var diasPrazo = null;
         if (p0.prazo) {
           var hoje0 = new Date(); hoje0.setHours(0, 0, 0, 0);
           var prazoD = new Date(p0.prazo + "T00:00:00");
           diasPrazo = Math.round((prazoD - hoje0) / 86400000);
         }
-        var proximosPassos = [];
-        p0.tasks.forEach(function (t) { (t.items || []).forEach(function (it) { if (!it.done && proximosPassos.length < 4) proximosPassos.push({ t: it.t, stage: t.t }); }); });
         // Reuniões marcadas com a Lorena (inclusive as que o próprio
-        // cliente pediu) — antes não apareciam em lugar nenhum do
-        // Andamento, o cliente só ficava sabendo por e-mail/WhatsApp
-        // (pedido da Lorena: mostrar reunião, feedback e "próximo
-        // alinhamento em X dias", não só a barra de progresso).
+        // cliente pediu) — só a próxima entra no resumo, como mais um
+        // número do painel, sem card separado pra não alongar a página.
         var futMeetings = (D.meetings || []).filter(function (m) { return m.data >= T; }).sort(function (a, b) { return (a.data + a.hora).localeCompare(b.data + b.hora); });
         var proxReuniao = futMeetings[0] || null;
         var diasReuniao = null;
@@ -1335,54 +1328,27 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         out.cp = {
           code: p0.code, nome: p0.nome, tipo: p0.tipo, pct: pct(p0), barW: pct(p0) + "%", next: nextTask(p0), prazo: dt(p0.prazo),
           diasPrazo: diasPrazo, etapasDone: p0.tasks.filter(function (t) { return t.done; }).length, etapasTotal: p0.tasks.length,
-          proximos: proximosPassos,
           proxReuniaoTxt: proxReuniao ? (diasReuniao === 0 ? "Hoje" : diasReuniao === 1 ? "Amanhã" : diasReuniao + " dias") + (proxReuniao.hora ? " · " + proxReuniao.hora : "") : null,
-          proxReuniaoTitulo: proxReuniao ? proxReuniao.titulo : "",
           proxReuniaoPendente: proxReuniao ? proxReuniao.status === "pendente" : false,
           atualizadoEm: p0.atualizadoEm ? dt(p0.atualizadoEm) + " às " + p0.atualizadoEm.slice(11, 16) : "",
           status: p0.status || ""
         };
         out.goSuporteH = reg(function () { go("suporte"); });
-        // "O que já foi feito": só as etapas concluídas, com data e os
-        // documentos da própria etapa — e "Próximas etapas": o resto,
-        // com o andamento de cada uma. Divide em duas listas curtas em
-        // vez de uma só longa, que é o que a linha do tempo (mais
-        // embaixo) já cobre em detalhe — pra não duplicar informação
-        // (pedido da Lorena).
+        // "Acompanhamento e entregas": só as etapas concluídas — cada
+        // uma é uma entrega, com data, observação e, principal, o
+        // acesso aos documentos (pedido da Lorena: a entrega tem que
+        // ser o centro da tela, não um link discreto perdido).
         out.cFeitas = p0.tasks.filter(function (t) { return t.done; }).map(function (t) {
-          return { t: t.t, data: t.at ? dt(t.at) : "", docs: stageDocsOut(t.id) };
+          return { t: t.t, data: t.at ? dt(t.at) : "", notes: t.notes || "", docs: stageDocsOut(t.id) };
         });
+        // "Etapas seguintes": o resto, com o andamento de cada uma —
+        // essa é a única lista com o progresso por subtarefa; a linha
+        // do tempo foi retirada porque só repetia o mesmo dado duas
+        // vezes (pedido da Lorena).
         out.cProximas = p0.tasks.filter(function (t) { return !t.done; }).map(function (t, idx) {
           var items = t.items || [];
           var doneCount = items.filter(function (it) { return it.done; }).length;
-          return { t: t.t, cur: idx === 0, st: idx === 0 ? "Em andamento" : "Próxima", doneCount: doneCount, totalCount: items.length };
-        });
-        out.cReunioes = futMeetings.slice(0, 3).map(function (m) {
-          return { titulo: m.titulo, data: dt(m.data), hora: m.hora, pendente: m.status === "pendente" };
-        });
-        // As subtarefas de cada etapa (checklist que o admin preenche)
-        // não apareciam aqui, só o título da etapa — o cliente não tinha
-        // como ver o que exatamente está sendo feito dentro dela (pedido
-        // da Lorena: quer ver como as tarefas aparecem pro cliente).
-        //
-        // Com muitas etapas (e muitas subtarefas em cada uma) a página
-        // crescia sem limite, porque tudo ficava sempre expandido. Agora
-        // só a etapa atual abre sozinha — concluídas e futuras ficam
-        // fechadas, mostrando só um resumo, e o cliente abre a que
-        // quiser clicando (pedido da Lorena: "não segue os princípios
-        // de escalabilidade").
-        out.cTasks = p0.tasks.map(function (t, i) {
-          var cur = i === firstOpen;
-          var items = (t.items || []).map(function (it) { return { t: it.t, done: !!it.done }; });
-          var doneCount = items.filter(function (it) { return it.done; }).length;
-          var open = S.andOpen[i] !== undefined ? S.andOpen[i] : cur;
-          var tDocs = stageDocsOut(t.id);
-          return {
-            t: t.t, st: t.done ? "Concluída" : cur ? "Em andamento" : "Próxima", stColor: t.done ? "var(--mute)" : cur ? "var(--accTxt)" : "var(--mute)", color: t.done ? "var(--mute)" : cur ? "var(--ink)" : "var(--ink2)", dotBg: t.done ? "var(--bar)" : "transparent", dotBd: t.done || cur ? "var(--bar)" : "var(--line2)",
-            items: items, hasItems: !!items.length, open: open, summary: items.length ? (doneCount + " de " + items.length + " concluídas") : "",
-            notes: t.notes || "", docs: tDocs, hasDocs: !!tDocs.length,
-            toggleH: reg(function () { S.andOpen[i] = !open; render(); })
-          };
+          return { t: t.t, cur: idx === 0, st: idx === 0 ? "Em andamento" : "Próxima", doneCount: doneCount, totalCount: items.length, notes: t.notes || "" };
         });
       }
       if (V === "documentos") {
@@ -2441,12 +2407,23 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var andLabel = function (txt) {
     return '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)">' + esc(txt) + "</span>";
   };
-  var andDocLink = function (d) {
-    return '<a href="' + esc(d.link) + '" target="_blank" rel="noopener" style="font-size:11px;color:var(--accTxt);white-space:nowrap">' + esc(d.nome) + (d.isExternal ? " ↗︎" : " ↓︎") + "</a>";
+  // Ação de acesso ao documento de uma entrega — precisa ser um botão
+  // visível, não um link discreto perdido no canto (pedido da Lorena:
+  // "o acesso aos documentos precisa estar efetivamente disponível na
+  // interface do cliente"). Mostra nome + tipo do documento e separa
+  // claramente "abrir link" de "baixar arquivo".
+  var andDocBtn = function (d) {
+    var label = (d.isExternal ? "Acessar documento" : "Visualizar entrega") + (d.nome ? ": " + d.nome : "");
+    return '<a href="' + esc(d.link) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:7px 11px;background:var(--btnBg);color:var(--btnFg);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap">'
+      + esc(label) + (d.isExternal ? " ↗" : " ↓") + "</a>";
   };
+  // Bloco de documentos de uma entrega: um botão por documento com
+  // link/arquivo de verdade, e quando não há nenhum, um aviso discreto
+  // (nunca um botão fictício) — pedido explícito da Lorena.
   var andDocsBlock = function (docs) {
-    if (!docs || !docs.length) return '<span style="font-size:11.5px;color:var(--mute)">Nenhum documento vinculado ainda.</span>';
-    return '<div style="display:flex;flex-direction:column;gap:4px;margin-top:2px">' + docs.map(andDocLink).join("") + "</div>";
+    var real = (docs || []).filter(function (d) { return d.has; });
+    if (!real.length) return '<span style="font-size:11.5px;color:var(--mute)">Documento ainda não disponível.</span>';
+    return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">' + real.map(andDocBtn).join("") + "</div>";
   };
 
   function buildAndamento(V) {
@@ -2458,96 +2435,77 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       : Math.abs(cp.diasPrazo) + (Math.abs(cp.diasPrazo) === 1 ? " dia de atraso" : " dias de atraso");
     var prazoColor = cp.diasPrazo != null && cp.diasPrazo < 0 ? "#b4443a" : "var(--accTxt)";
 
-    // ---- B. Resumo geral: um card só com nome/tipo, progresso e os
-    // números principais lado a lado numa grade que se ajusta sozinha
-    // (antes eram duas grades fixas de 2 colunas, sem espaço pra mais
-    // nada — pedido da Lorena: "não segue os princípios de
-    // escalabilidade, parece desorganizado"). ----
+    // ---- Resumo do projeto: nome/identificação, progresso geral,
+    // etapa atual, previsão de entrega e etapas concluídas — só isso.
+    // Status e tipo do projeto ficam só em "Informações complementares"
+    // mais abaixo, pra não repetir o mesmo dado em dois lugares (pedido
+    // da Lorena: "o prazo e o status aparecem tanto no resumo quanto
+    // nos detalhes"). ----
     var statCells = [
       { label: "Etapa atual", value: cp.next },
-      { label: "Previsão de entrega", value: cp.prazo },
-      { label: "Etapas concluídas", value: cp.etapasDone + " / " + cp.etapasTotal },
-      { label: "Prazo", value: prazoTxt || "—", color: prazoColor }
+      { label: "Previsão de entrega", value: cp.prazo + (prazoTxt ? " · " + prazoTxt : ""), color: prazoColor },
+      { label: "Etapas concluídas", value: cp.etapasDone + " / " + cp.etapasTotal }
     ];
     if (cp.proxReuniaoTxt) statCells.push({ label: "Próxima reunião", value: cp.proxReuniaoTxt + (cp.proxReuniaoPendente ? " · a confirmar" : ""), color: cp.proxReuniaoPendente ? "var(--warnFg)" : "var(--accTxt)" });
-    var statsGrid = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + statCells.map(function (s) {
-      return '<span style="display:flex;flex-direction:column;gap:4px;padding:14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-size:12px;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;letter-spacing:-.02em;color:' + (s.color || "var(--ink)") + '">' + esc(s.value) + "</span></span>";
+    var statsGrid = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)">' + statCells.map(function (s) {
+      return '<span style="display:flex;flex-direction:column;gap:3px;padding:11px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)"><span style="font-size:11.5px;color:var(--mute)">' + esc(s.label) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;letter-spacing:-.02em;color:' + (s.color || "var(--ink)") + '">' + esc(s.value) + "</span></span>";
     }).join("") + "</div>";
     var atualizado = cp.atualizadoEm ? '<span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mute);white-space:nowrap"><span style="width:7px;height:7px;border-radius:50%;background:var(--accTxt);flex:none"></span>Atualizado em ' + esc(cp.atualizadoEm) + "</span>" : "";
-    var resumo = '<section style="display:flex;flex-direction:column;gap:18px;padding:22px;background:var(--field);border:1px solid var(--line)">'
+    var resumo = '<section style="display:flex;flex-direction:column;gap:14px;padding:18px;background:var(--field);border:1px solid var(--line)">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">'
-      + '<div style="display:flex;flex-direction:column;gap:6px;min-width:0"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">' + esc(cp.code) + " · " + esc(cp.tipo) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:22px;letter-spacing:-.04em;line-height:1.25">' + esc(cp.nome) + "</span></div>"
+      + '<div style="display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">' + esc(cp.code) + " · " + esc(cp.tipo) + '</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:20px;letter-spacing:-.04em;line-height:1.2">' + esc(cp.nome) + "</span></div>"
       + atualizado
       + "</div>"
       + '<span style="display:flex;align-items:center;gap:14px"><span style="flex:1;height:4px;background:var(--barBg)"><span style="display:block;height:100%;width:' + cp.barW + ';background:var(--bar);transition:width .6s"></span></span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px;font-variant-numeric:tabular-nums">' + cp.pct + "%</span></span>"
       + statsGrid
       + "</section>";
 
-    // ---- C. O que já foi feito / D. Próximas etapas: duas listas
-    // curtas lado a lado (nome, data/situação, documentos da entrega),
-    // sem repetir o checklist inteiro — isso fica só na linha do
-    // tempo, mais abaixo, evitando duplicar informação. ----
+    // ---- Acompanhamento e entregas: o centro da página. Cada etapa
+    // concluída é uma entrega, com descrição/feedback, data e — o
+    // mais importante — o acesso ao(s) documento(s), bem visível
+    // (pedido explícito e prioridade máxima da Lorena). ----
     var feitas = (V.cFeitas && V.cFeitas.length)
       ? V.cFeitas.map(function (t) {
-          return '<div style="display:flex;flex-direction:column;gap:4px;padding:12px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="font-size:13.5px;color:var(--ink)">' + esc(t.t) + '</span><span style="font-size:11px;font-weight:600;padding:3px 7px;background:var(--okBg);color:var(--okFg);white-space:nowrap">Concluída</span></div>' + (t.data ? '<span style="font-size:11px;color:var(--mute)">' + esc(t.data) + "</span>" : "") + andDocsBlock(t.docs) + "</div>";
+          var notesBlock = t.notes ? '<span style="font-size:12.5px;color:var(--ink2)">' + esc(t.notes) + "</span>" : "";
+          return '<div style="display:flex;flex-direction:column;gap:5px;padding:13px 0;border-top:1px solid var(--line)">'
+            + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap"><span style="font-size:14px;color:var(--ink)">' + esc(t.t) + '</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;font-weight:600;padding:3px 7px;background:var(--okBg);color:var(--okFg);white-space:nowrap">Concluída</span>' + (t.data ? '<span style="font-size:11px;color:var(--mute)">' + esc(t.data) + "</span>" : "") + "</span></div>"
+            + notesBlock
+            + andDocsBlock(t.docs)
+            + "</div>";
         }).join("")
-      : '<div style="font-size:13px;color:var(--mute);padding:4px 0">Nenhuma etapa concluída ainda.</div>';
+      : '<div style="font-size:13px;color:var(--mute);padding:4px 0">Nenhuma entrega concluída ainda.</div>';
+    var feitasCard = '<section style="display:flex;flex-direction:column;gap:4px;padding:18px;background:var(--field);border:1px solid var(--line)">' + andLabel("Acompanhamento e entregas") + feitas + "</section>";
+
+    // ---- Etapas seguintes: o que está em desenvolvimento e o que
+    // ainda falta, com o progresso por subtarefa só aqui (não repete
+    // na linha do tempo, que foi removida por duplicar essa mesma
+    // informação — pedido da Lorena). ----
     var proximas = (V.cProximas && V.cProximas.length)
       ? V.cProximas.map(function (t) {
           var chipBg = t.cur ? "var(--accSoft)" : "var(--neuBg)", chipFg = t.cur ? "var(--accTxt)" : "var(--neuFg)";
-          return '<div style="display:flex;flex-direction:column;gap:4px;padding:12px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="font-size:13.5px;color:' + (t.cur ? "var(--ink)" : "var(--ink2)") + '">' + esc(t.t) + '</span><span style="font-size:11px;font-weight:600;padding:3px 7px;background:' + chipBg + ";color:" + chipFg + ';white-space:nowrap">' + esc(t.st) + "</span></div>" + (t.totalCount ? '<span style="font-size:11px;color:var(--mute)">' + t.doneCount + " de " + t.totalCount + " concluídas</span>" : "") + "</div>";
+          var notesBlock = t.notes ? '<span style="font-size:12px;color:var(--ink2)">' + esc(t.notes) + "</span>" : "";
+          return '<div style="display:flex;flex-direction:column;gap:4px;padding:11px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="font-size:13.5px;color:' + (t.cur ? "var(--ink)" : "var(--ink2)") + '">' + esc(t.t) + '</span><span style="font-size:11px;font-weight:600;padding:3px 7px;background:' + chipBg + ";color:" + chipFg + ';white-space:nowrap">' + esc(t.st) + "</span></div>" + (t.totalCount ? '<span style="font-size:11px;color:var(--mute)">' + t.doneCount + " de " + t.totalCount + " concluídas</span>" : "") + notesBlock + "</div>";
         }).join("")
       : '<div style="font-size:13px;color:var(--mute);padding:4px 0">Nenhuma etapa pendente — projeto concluído.</div>';
-    var feitasCard = '<div style="display:flex;flex-direction:column;gap:6px;padding:20px;background:var(--field);border:1px solid var(--line)">' + andLabel("O que já foi feito") + feitas + "</div>";
-    var proximasCard = '<div style="display:flex;flex-direction:column;gap:6px;padding:20px;background:var(--field);border:1px solid var(--line)">' + andLabel("Próximas etapas") + proximas + "</div>";
+    var proximasCard = '<section style="display:flex;flex-direction:column;gap:4px;padding:18px;background:var(--field);border:1px solid var(--line)">' + andLabel("Etapas seguintes") + proximas + "</section>";
 
-    // ---- E. Linha do tempo: com muitas etapas (e muitas subtarefas
-    // cada), deixar tudo sempre expandido faria a página crescer sem
-    // limite — não escala. Só a etapa aberta mostra o checklist e os
-    // documentos; as outras ficam resumidas numa linha e abrem com um
-    // clique. ----
-    var steps = V.cTasks.map(function (t) {
-      var items = t.open ? (t.items || []).map(function (it) {
-        return '<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12.5px;color:' + (it.done ? "var(--mute)" : "var(--ink2)") + '"><span style="width:12px;height:12px;flex:none;border:1px solid ' + (it.done ? "var(--bar)" : "var(--line2)") + ";background:" + (it.done ? "var(--bar)" : "transparent") + ';display:grid;place-items:center;font-size:8px;color:var(--btnFg)">' + (it.done ? "✓" : "") + '</span><span style="text-decoration:' + (it.done ? "line-through" : "none") + '">' + esc(it.t) + "</span></div>";
-      }).join("") : "";
-      var itemsBlock = items ? '<div style="display:flex;flex-direction:column;gap:2px;margin-top:6px">' + items + "</div>" : "";
-      var docsBlock = t.open && t.hasDocs ? '<div style="margin-top:8px">' + andDocsBlock(t.docs) + "</div>" : "";
-      var summaryBlock = !t.open && t.hasItems ? '<span style="font-size:12px;color:var(--mute)">' + esc(t.summary) + "</span>" : "";
-      // Observação da Lorena nessa etapa (tipo "protótipo aprovado com
-      // tal ajuste") — fica sempre visível, mesmo com a etapa fechada,
-      // já que é justamente o feedback que o cliente quer ver sem
-      // precisar abrir nada (pedido da Lorena).
-      var notesBlock = t.notes ? '<span style="display:flex;gap:6px;align-items:flex-start;font-size:12.5px;color:var(--ink2);font-style:italic;margin-top:4px"><span style="color:var(--accTxt);flex:none">“</span>' + esc(t.notes) + "</span>" : "";
-      var chevron = t.hasItems ? '<span style="font-size:10px;color:var(--mute);transform:rotate(' + (t.open ? "0" : "-90") + 'deg);display:inline-block;transition:transform .15s">▾</span>' : "";
-      var head = '<span style="font-size:14px;color:' + t.color + '">' + esc(t.t) + "</span>" + chevron;
-      var headEl = t.hasItems
-        ? '<button ' + h(t.toggleH) + ' style="display:flex;align-items:center;gap:6px;border:0;background:none;padding:0;font:inherit;text-align:left;cursor:pointer;color:inherit">' + head + "</button>"
-        : '<span style="display:flex;align-items:center;gap:6px">' + head + "</span>";
-      return '<div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:14px"><span style="display:flex;flex-direction:column;align-items:center"><span style="width:11px;height:11px;margin-top:5px;flex:none;border:1px solid ' + t.dotBd + ";background:" + t.dotBg + '"></span><span style="flex:1;width:1px;background:var(--line2);min-height:22px"></span></span><span style="padding-bottom:20px;display:flex;flex-direction:column;gap:3px">' + headEl + summaryBlock + notesBlock + itemsBlock + docsBlock + '</span><span style="font-size:11px;color:' + t.stColor + '">' + esc(t.st) + "</span></div>";
-    }).join("");
-    var timelineCard = '<div style="display:flex;flex-direction:column;gap:14px;padding:20px;background:var(--field);border:1px solid var(--line)">' + andLabel("Linha do tempo") + '<div style="display:flex;flex-direction:column">' + steps + "</div></div>";
-
-    // ---- F. Detalhes do projeto / Sobre o projeto. G. Comunicação:
-    // acesso destacado pro cliente falar com a Lorena (pelo Suporte,
-    // que já é o canal de contato do portal). ----
-    var detalhesCard = '<div style="display:flex;flex-direction:column;gap:10px;padding:20px;background:var(--field);border:1px solid var(--line)">' + andLabel("Detalhes do projeto")
-      + '<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12px;color:var(--mute)">Prazo</span><span style="font-family:\'Lexend Exa\',sans-serif;font-size:14px;color:' + prazoColor + '">' + esc(prazoTxt || "—") + "</span></div>"
-      + '<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12px;color:var(--mute)">Status do projeto</span><span style="font-size:14px;color:var(--ink)">' + esc(cp.status || "Em andamento") + "</span></div>"
-      + '<div style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12px;color:var(--mute)">Tipo</span><span style="font-size:14px;color:var(--ink)">' + esc(cp.tipo) + "</span></div>"
-      + "</div>";
-    var comunicacaoCard = '<a href="javascript:void(0)" data-h="' + V.goSuporteH + '" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;padding:20px;background:var(--btnBg);color:var(--btnFg);text-decoration:none">'
-      + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px">Fale conosco</span>'
-      + '<span style="font-size:12.5px;line-height:1.5">Tire dúvidas ou acompanhe mais detalhes do seu projeto direto com a gente.</span>'
-      + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:12px">Abrir suporte →</span>'
+    // ---- Informações complementares: detalhes essenciais do projeto
+    // (status, tipo — sem repetir prazo, que já está no resumo) e o
+    // acesso à comunicação com a Buovai. ----
+    var detalhesCard = '<div style="display:flex;flex-direction:column;gap:9px;padding:18px;background:var(--field);border:1px solid var(--line)">' + andLabel("Detalhes do projeto")
+      + '<div style="display:flex;gap:18px;flex-wrap:wrap">'
+      + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12px;color:var(--mute)">Status do projeto</span><span style="font-size:14px;color:var(--ink)">' + esc(cp.status || "Em andamento") + "</span></span>"
+      + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:12px;color:var(--mute)">Tipo</span><span style="font-size:14px;color:var(--ink)">' + esc(cp.tipo) + "</span></span>"
+      + "</div></div>";
+    var comunicacaoCard = '<a href="javascript:void(0)" data-h="' + V.goSuporteH + '" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px;background:var(--btnBg);color:var(--btnFg);text-decoration:none">'
+      + '<span style="display:flex;flex-direction:column;gap:3px"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:13px">Fale conosco</span><span style="font-size:12px;line-height:1.4;opacity:.9">Tire dúvidas sobre o seu projeto direto com a gente.</span></span>'
+      + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:12px;white-space:nowrap">Abrir suporte →</span>'
       + "</a>";
 
-    return '<div style="display:flex;flex-direction:column;gap:24px">'
+    return '<div style="display:flex;flex-direction:column;gap:18px">'
       + resumo
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:24px;align-items:start">'
-      + '<div style="display:flex;flex-direction:column;gap:24px">' + feitasCard + proximasCard + "</div>"
-      + timelineCard
-      + "</div>"
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:24px">' + detalhesCard + comunicacaoCard + "</div>"
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:18px;align-items:start">' + feitasCard + proximasCard + "</div>"
+      + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:18px">' + detalhesCard + comunicacaoCard + "</div>"
       + "</div>";
   }
 
