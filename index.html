@@ -33,7 +33,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/site.css?v=55">
+<link rel="stylesheet" href="css/site.css?v=56">
 <script>
   (function () {
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -352,8 +352,37 @@
 </section>
 
 <section id="portal" data-screen-label="Portal do cliente" data-reveal style="max-width:1320px;margin:0 auto;padding:140px 28px 120px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:56px 80px;align-items:center">
-  <div style="position:relative;aspect-ratio:4/3;width:100%;border:1px solid #0e0f0b;display:grid;place-items:center;color:#2b2e24;font-family:'Lexend Exa',sans-serif;font-size:12px;text-align:center;padding:2rem">
-    Print do portal exclusivo para clientes
+  <!-- Era um placeholder só com o texto "Print do portal exclusivo para
+       clientes", nunca preenchido de verdade. Em vez de um print real
+       (que fica desatualizado a cada mudança no painel — não escala),
+       é um mockup desenhado com o próprio visual do portal: mesma
+       paleta escura, mesma fonte, mesma estrutura de menu + conteúdo
+       da tela "Andamento do projeto" de verdade (pedido da Lorena). -->
+  <div style="position:relative;aspect-ratio:4/3;width:100%;border:1px solid #0e0f0b;overflow:hidden;background:#0e0f0b;box-shadow:0 30px 70px rgba(14,15,11,.22);font-family:'Open Sans',sans-serif">
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,252,235,.12)">
+      <span style="display:flex;gap:5px"><span style="width:7px;height:7px;border-radius:50%;border:1px solid rgba(255,252,235,.4)"></span><span style="width:7px;height:7px;border-radius:50%;border:1px solid rgba(255,252,235,.4)"></span><span style="width:7px;height:7px;border-radius:50%;border:1px solid rgba(255,252,235,.4)"></span></span>
+      <span style="flex:1;font-family:'Lexend Exa',sans-serif;font-size:10px;color:#defa9a;padding:4px 10px;background:rgba(222,250,154,.08)">buovai.com.br / painel / portal</span>
+    </div>
+    <div style="display:flex;height:calc(100% - 37px)">
+      <div style="width:30%;min-width:84px;background:#111309;border-right:1px solid rgba(255,252,235,.08);padding:14px 10px;display:flex;flex-direction:column;gap:9px">
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:9px;letter-spacing:.06em;color:#a3a693;text-transform:uppercase;margin-bottom:2px">Seu projeto</span>
+        <span style="font-size:11px;padding:6px 8px;background:rgba(222,250,154,.1);color:#defa9a;border-left:2px solid #defa9a">Andamento</span>
+        <span style="font-size:11px;padding:6px 8px;color:#e6e8d4">Documentos</span>
+        <span style="font-size:11px;padding:6px 8px;color:#e6e8d4">Cobranças</span>
+        <span style="font-size:11px;padding:6px 8px;color:#e6e8d4">Suporte</span>
+      </div>
+      <div style="flex:1;min-width:0;padding:16px 18px;display:flex;flex-direction:column;gap:12px;color:#fffceb">
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:9px;letter-spacing:.06em;color:#defa9a;text-transform:uppercase">BV-002 · sistema sob medida</span>
+        <span style="font-family:'Lexend Exa',sans-serif;font-size:15px;letter-spacing:-.03em">Andamento do projeto</span>
+        <span style="display:flex;align-items:center;gap:10px"><span style="flex:1;height:4px;background:rgba(255,252,235,.1)"><span style="display:block;width:62%;height:100%;background:#defa9a"></span></span><span style="font-family:'Lexend Exa',sans-serif;font-size:10px;color:#a3a693">62%</span></span>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:4px">
+          <span style="display:flex;align-items:center;gap:8px;font-size:11px;color:#a3a693"><span style="width:9px;height:9px;flex:none;border-radius:50%;background:#defa9a"></span>Diagnóstico da operação <span style="margin-left:auto;color:#5c5f50">Concluída</span></span>
+          <span style="display:flex;align-items:center;gap:8px;font-size:11px;color:#a3a693"><span style="width:9px;height:9px;flex:none;border-radius:50%;background:#defa9a"></span>Protótipo das telas <span style="margin-left:auto;color:#5c5f50">Concluída</span></span>
+          <span style="display:flex;align-items:center;gap:8px;font-size:11px;color:#fffceb"><span style="width:9px;height:9px;flex:none;border-radius:50%;border:1px solid #defa9a"></span>Desenvolvimento por módulos <span style="margin-left:auto;color:#defa9a">Em andamento</span></span>
+          <span style="display:flex;align-items:center;gap:8px;font-size:11px;color:#5c5f50"><span style="width:9px;height:9px;flex:none;border-radius:50%;border:1px solid rgba(255,252,235,.2)"></span>Testes com a equipe <span style="margin-left:auto">Próxima</span></span>
+        </div>
+      </div>
+    </div>
   </div>
   <div>
     <div style="font-family:'Lexend Exa',sans-serif;font-size:12px;color:#457528;margin-bottom:28px">//04 · Portal do cliente</div>
@@ -609,17 +638,17 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/config.js?v=55"></script>
-<script src="js/supabase-client.js?v=55"></script>
-<script src="js/main.js?v=55"></script>
-<script src="js/hero-anim.js?v=55"></script>
-<script src="js/faq.js?v=55"></script>
-<script src="js/timeline.js?v=55"></script>
-<script src="js/portfolio.js?v=55"></script>
-<script src="js/contact-flow.js?v=55"></script>
-<script src="js/sector-picker.js?v=55"></script>
-<script src="js/page-fx.js?v=55"></script>
-<script src="js/cookie-consent.js?v=55"></script>
-<script src="js/pageview.js?v=55"></script>
+<script src="js/config.js?v=56"></script>
+<script src="js/supabase-client.js?v=56"></script>
+<script src="js/main.js?v=56"></script>
+<script src="js/hero-anim.js?v=56"></script>
+<script src="js/faq.js?v=56"></script>
+<script src="js/timeline.js?v=56"></script>
+<script src="js/portfolio.js?v=56"></script>
+<script src="js/contact-flow.js?v=56"></script>
+<script src="js/sector-picker.js?v=56"></script>
+<script src="js/page-fx.js?v=56"></script>
+<script src="js/cookie-consent.js?v=56"></script>
+<script src="js/pageview.js?v=56"></script>
 </body>
 </html>
