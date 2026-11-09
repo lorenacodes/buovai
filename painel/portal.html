@@ -1859,7 +1859,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }).join("");
       return '<div style="display:flex;flex-direction:' + V.asideDir + ';gap:1px">' + label + items + "</div>";
     }).join("");
-    return '<aside style="background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:' + V.asideDir + ";gap:" + V.asideGap + ";padding:" + V.asidePad + ';position:sticky;top:0;height:' + V.asideH + ";z-index:5;overflow-x:" + V.asideOv + ";overflow-y:" + V.asideOvY + ';scrollbar-width:none;align-items:' + V.asideAlign + '">'
+    // O menu usava uma cor sólida separada (--side) enquanto o resto do
+    // painel ganhou o degradê verde da marca — ficava destoando, como
+    // se fosse outro sistema colado do lado (pedido da Lorena: "deve
+    // combinar com o resto"). Agora usa o mesmo degradê do conteúdo.
+    return '<aside style="background:var(--wash);border-right:1px solid var(--line);display:flex;flex-direction:' + V.asideDir + ";gap:" + V.asideGap + ";padding:" + V.asidePad + ';position:sticky;top:0;height:' + V.asideH + ";z-index:5;overflow-x:" + V.asideOv + ";overflow-y:" + V.asideOvY + ';scrollbar-width:none;align-items:' + V.asideAlign + '">'
       + resizeHandle
       + '<div style="display:flex;flex-direction:column;gap:14px;flex:none">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 0 0 6px"><a href="index.html" style="line-height:0"><img src="' + logoSrc + '" alt="buov.ai" style="height:34px;width:auto"></a>' + collapseBtn + "</div>"
