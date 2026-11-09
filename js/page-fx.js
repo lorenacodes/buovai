@@ -474,7 +474,15 @@
       if (visible && !st.pl && target && !mob) {
         const t = now - st.t0, r = target.getBoundingClientRect(), pad = 18;
         const x0 = r.left - pad, y0 = r.top - pad, x1 = r.left + Math.min(r.width, target.scrollWidth) + pad, y1 = r.bottom + pad;
-        const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = 1 - cl((t - 2000) / 600);
+        // Nos títulos (h2) o colchete sempre foi um flash rápido: aparece
+        // e some de novo em ~2.6s, porque o robô não fica muito tempo
+        // "pousado" ali. No modo "apontar pro quadro" ele fica pousado
+        // o tempo todo que a seção estiver ativa — um colchete que
+        // desaparece em 2.6s e nunca mais volta dava a impressão de que
+        // não tinha colchete nenhum, pra quem olhava um instante depois
+        // (pedido da Lorena: "o robô não está com nenhum colchete como
+        // antes"). Nesse modo o colchete fica, sem apagar.
+        const col = s.dark ? "222,250,154" : "31,73,5", bp = io(cl(t / 700)), fade = s.skipLabel ? 1 : 1 - cl((t - 2000) / 600);
         if (fade > 0) {
           ctx.lineWidth = 1;
           const ex = x1, ey = r.top + r.height / 2, bx = cx + (ex - cx) * bp, by = cy + (ey - cy) * bp;
