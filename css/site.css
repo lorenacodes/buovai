@@ -212,6 +212,23 @@ html.no-intro .site-intro {
 
 .case-scroller .case-card {
   flex: 0 0 calc(50% - 14px);
+  min-width: 0;
+  /* A causa real do card "cortado": o grid do cartão (JS) só define
+     grid-template-rows, nunca grid-template-columns — a única coluna
+     fica implícita/"auto". Uma coluna "auto" não é obrigada a herdar
+     a largura do container; com a linha do mockup contendo uma caixa
+     de aspect-ratio + container-type:inline-size (que tira o conteúdo
+     do cálculo de tamanho "intrínseco" dela), o navegador media essa
+     coluna por um valor bem maior que o cartão real — cada caso ficava
+     com uma largura diferente e errada (904px, 707px, 524px, todos
+     bem acima dos ~574px do cartão). Travar a coluna em minmax(0,1fr)
+     obriga ela a ocupar exatamente a largura do cartão, nunca mais. */
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.case-card [data-case-mockup],
+.case-card [data-case-frame] {
+  min-width: 0;
 }
 
 @media (max-width: 780px) {
