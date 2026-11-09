@@ -162,7 +162,7 @@
                   <div class="case-video-bubble" data-case-bubble>
                     <video data-case-bubble-video src="${copy.testimonialVideo.src}" poster="${copy.testimonialVideo.poster}" muted loop playsinline preload="metadata" aria-label="Depoimento em vídeo de ${escapeHtml(copy.testimonialVideo.name)}, ${escapeHtml(copy.testimonialVideo.role)}"></video>
                     <button type="button" class="case-video-bubble__sound" data-case-bubble-sound aria-label="Ativar som do depoimento" title="Ativar som">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><line class="case-mute-x" x1="16" y1="9" x2="22" y2="15"></line><line class="case-mute-x" x1="22" y1="9" x2="16" y2="15"></line></svg>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><line class="case-mute-x" x1="16" y1="9" x2="22" y2="15"></line><line class="case-mute-x" x1="22" y1="9" x2="16" y2="15"></line></svg>
                     </button>
                   </div>
                 ` : ""}
