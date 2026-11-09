@@ -200,6 +200,36 @@
     initFooterBot();
   }
 
+  // ---- Geometria do robô (corpo, antenas, olhos) compartilhada entre o
+  // robô-guia e o robô do rodapé, que até aqui tinham a MESMA forma
+  // copiada e colada em dois lugares — qualquer ajuste no desenho exigia
+  // lembrar de mexer nos dois (risco real: o mesmo tipo de bug já foi
+  // corrigido separadamente em robôs diferentes do site nesta sessão).
+  // Cada robô continua com sua própria cor/classe/animação; só a forma
+  // em si é uma função só agora. O robô da home (#bot, em index.html) e
+  // o do modal de login (estático, cor fixa) ficam de fora por enquanto:
+  // são HTML puro manipulado por id, não geram a partir de JS, então
+  // unificar exigiria reescrever como esses dois são animados — mudança
+  // maior, sem bug ativo que justifique o risco agora.
+  function botSvg(opts) {
+    var maskId = opts.maskId, prefix = opts.prefix, color = opts.color, headY = opts.headY || 283;
+    return '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block">'
+      + '<defs><mask id="' + maskId + '" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480">'
+      + '<circle cx="170" cy="283" r="172" fill="#fff"></circle>'
+      + '<rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect>'
+      + '<path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path>'
+      + '<rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect>'
+      + '<g class="' + prefix + '-eyes"><g class="' + prefix + '-lid"><circle cx="122" cy="297" r="15" fill="#000"></circle><circle cx="218" cy="297" r="15" fill="#000"></circle></g></g>'
+      + '</mask></defs>'
+      + '<g class="' + prefix + '-head" style="transform-origin:170px ' + headY + 'px">'
+      + '<g class="' + prefix + '-antL" style="transform-origin:76px 132px"><line x1="76" y1="132" x2="18" y2="38" stroke="' + color + '" stroke-width="8" stroke-linecap="round"></line></g>'
+      + '<g class="' + prefix + '-antR" style="transform-origin:246px 126px"><line x1="246" y1="126" x2="292" y2="24" stroke="' + color + '" stroke-width="8" stroke-linecap="round"></line></g>'
+      + '<rect x="-8" y="266" width="14" height="38" rx="7" fill="' + color + '"></rect>'
+      + '<rect x="334" y="266" width="14" height="38" rx="7" fill="' + color + '"></rect>'
+      + '<rect x="-10" y="100" width="370" height="370" fill="' + color + '" mask="url(#' + maskId + ')"></rect>'
+      + '</g></svg>';
+  }
+
   // ---- initGuide: robô que acompanha a rolagem e anota a seção ativa ----
   function initGuide() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -207,8 +237,7 @@
     // (pedido da Lorena) — desativado abaixo de 640px.
     if (window.innerWidth < 640) return;
 
-    const BOT =
-      '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><defs><mask id="buov-guide-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480"><circle cx="170" cy="283" r="172" fill="#fff"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect><path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path><rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect><g class="g-eyes"><g class="g-lid"><circle cx="122" cy="297" r="15" fill="#000"></circle><circle cx="218" cy="297" r="15" fill="#000"></circle></g></g></mask></defs><g class="g-head" style="transform-origin:170px 283px"><g class="g-antL" style="transform-origin:76px 132px"><line x1="76" y1="132" x2="18" y2="38" stroke="currentColor" stroke-width="8" stroke-linecap="round"></line></g><g class="g-antR" style="transform-origin:246px 126px"><line x1="246" y1="126" x2="292" y2="24" stroke="currentColor" stroke-width="8" stroke-linecap="round"></line></g><rect x="-8" y="266" width="14" height="38" rx="7" fill="currentColor"></rect><rect x="334" y="266" width="14" height="38" rx="7" fill="currentColor"></rect><rect x="-10" y="100" width="370" height="370" fill="currentColor" mask="url(#buov-guide-mask)"></rect></g></svg>';
+    const BOT = botSvg({ maskId: "buov-guide-mask", prefix: "g", color: "currentColor", headY: 283 });
 
     const cfg = [
       ["Ponto de partida", "Todo bom sistema começa por entender a rotina.", 0],
@@ -526,8 +555,7 @@
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const box = document.createElement("div");
     box.style.cssText = "position:relative;width:72px;margin-top:28px;pointer-events:auto;cursor:pointer";
-    box.innerHTML =
-      '<svg viewBox="-20 10 390 460" style="width:100%;height:auto;overflow:visible;display:block"><defs><mask id="buov-foot-mask" maskUnits="userSpaceOnUse" x="-40" y="0" width="440" height="480"><circle cx="170" cy="283" r="172" fill="#fff"></circle><rect x="40" y="172" width="260" height="236" rx="104" fill="#000"></rect><path d="M132 146 Q170 136 208 146" stroke="#000" stroke-width="5" fill="none" stroke-linecap="round"></path><rect x="66" y="230" width="208" height="134" rx="67" fill="#fff"></rect><g class="f-eyes"><g class="f-lid"><circle cx="122" cy="297" r="15" fill="#000"></circle><circle cx="218" cy="297" r="15" fill="#000"></circle></g></g></mask></defs><g class="f-head" style="transform-origin:170px 440px"><g class="f-antL" style="transform-origin:76px 132px"><line x1="76" y1="132" x2="18" y2="38" stroke="#fffceb" stroke-width="8" stroke-linecap="round"></line></g><g class="f-antR" style="transform-origin:246px 126px"><line x1="246" y1="126" x2="292" y2="24" stroke="#fffceb" stroke-width="8" stroke-linecap="round"></line></g><rect x="-8" y="266" width="14" height="38" rx="7" fill="#fffceb"></rect><rect x="334" y="266" width="14" height="38" rx="7" fill="#fffceb"></rect><rect x="-10" y="100" width="370" height="370" fill="#fffceb" mask="url(#buov-foot-mask)"></rect></g></svg>';
+    box.innerHTML = botSvg({ maskId: "buov-foot-mask", prefix: "f", color: "#fffceb", headY: 440 });
     const zz = document.createElement("div");
     zz.style.cssText = "position:absolute;left:70%;top:-10px;font-family:'Lexend Exa',sans-serif;font-size:13px;color:#fffceb;pointer-events:none";
     const bub = document.createElement("div");

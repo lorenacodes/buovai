@@ -2,7 +2,25 @@
    Buovai — estilos globais e estados (:hover/:focus) que HTML inline não
    consegue expressar. Todo o resto do visual vem de style="" inline nos
    elementos, copiado literalmente do arquivo "Buov Site v2" enviado.
+
+   As cores da marca abaixo viravam hex repetido hardcoded dezenas de
+   vezes (aqui e, principalmente, no style="" de cada elemento do
+   index.html) — qualquer troca de tom exigia achar e trocar cada
+   ocorrência na mão. As variáveis abaixo são a fonte única dessas cores
+   NESTE arquivo; o index.html ainda usa hex direto no style="" inline
+   (são centenas de ocorrências espalhadas — migrar tudo de uma vez é
+   risco real de regressão visual pra um ganho que só aparece quando a
+   cor realmente precisar mudar). Útil migrar aos poucos, trecho por
+   trecho, sempre que for mexer numa área por outro motivo.
    ========================================================================== */
+:root {
+  --ink: #0e0f0b;       /* texto/UI escuro — preto da marca */
+  --cream: #fffceb;      /* fundo/texto claro — creme da marca */
+  --panel-alt: #efeedb;  /* variação do creme usada em cards de case */
+  --accent-dark: #1f4905; /* verde escuro — links, destaques em fundo claro */
+  --accent: #457528;      /* verde médio — hover, textos secundários de destaque */
+  --accent-bright: #defa9a; /* lima — destaque forte em fundo escuro */
+}
 
 * {
   box-sizing: border-box;
@@ -10,19 +28,19 @@
 
 body {
   margin: 0;
-  background: #fffceb;
+  background: var(--cream);
   font-family: 'Open Sans', sans-serif;
-  color: #0e0f0b;
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: #1f4905;
+  color: var(--accent-dark);
   text-decoration: none;
 }
 
 a:hover {
-  color: #457528;
+  color: var(--accent);
 }
 
 img, svg {
@@ -95,7 +113,7 @@ button {
               box-shadow .3s ease, border-color .3s ease;
 }
 .case-card:hover {
-  border-color: #1f4905;
+  border-color: var(--accent-dark);
   box-shadow: 0 18px 36px rgba(14, 15, 11, .1);
 }
 
@@ -107,7 +125,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fffceb;
+  background: var(--cream);
   opacity: 1;
   transition: opacity 650ms cubic-bezier(.16,.84,.24,1), visibility 0ms linear 650ms;
 }
@@ -249,7 +267,7 @@ html.no-intro .site-intro {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid #0e0f0b;
+  border: 1px solid var(--ink);
   display: grid;
   place-items: center;
   font-size: 14px;
@@ -259,14 +277,14 @@ html.no-intro .site-intro {
 
 .case-arrow--prev {
   left: 8px;
-  background: #fffceb;
-  color: #0e0f0b;
+  background: var(--cream);
+  color: var(--ink);
 }
 
 .case-arrow--next {
   right: 8px;
-  background: #0e0f0b;
-  color: #fffceb;
+  background: var(--ink);
+  color: var(--cream);
 }
 
 @media (max-width: 780px) {
@@ -298,7 +316,7 @@ html.no-intro .site-intro {
   right: 0;
   bottom: 0;
   width: 28px;
-  background: linear-gradient(90deg, rgba(239, 238, 219, 0), #efeedb);
+  background: linear-gradient(90deg, rgba(239, 238, 219, 0), var(--panel-alt));
   pointer-events: none;
 }
 
@@ -330,7 +348,7 @@ html.no-intro .site-intro {
   line-height: 1;
   cursor: pointer;
   background: rgba(14, 15, 11, 0.32);
-  color: #fffceb;
+  color: var(--cream);
   opacity: 0.5;
   transition: opacity 0.2s ease, background 0.2s ease;
 }
@@ -369,9 +387,9 @@ html.no-intro .site-intro {
   aspect-ratio: 9 / 16;
   border-radius: 16px;
   overflow: hidden;
-  border: 3px solid #fffceb;
+  border: 3px solid var(--cream);
   box-shadow: 0 10px 26px rgba(14, 15, 11, 0.35);
-  background: #0e0f0b;
+  background: var(--ink);
   transform-origin: bottom left;
   transition: transform 0.4s cubic-bezier(0.16, 0.84, 0.24, 1), box-shadow 0.4s ease;
 }
@@ -409,12 +427,12 @@ html.no-intro .site-intro {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 2px solid #fffceb;
+  border: 2px solid var(--cream);
   display: grid;
   place-items: center;
   cursor: pointer;
   background: rgba(14, 15, 11, 0.85);
-  color: #fffceb;
+  color: var(--cream);
   box-shadow: 0 4px 10px rgba(14, 15, 11, 0.3);
   flex: none;
 }
@@ -451,7 +469,7 @@ html.no-intro .site-intro {
   width: min(420px, 88vw);
   max-height: 88vh;
   aspect-ratio: 9 / 16;
-  background: #0e0f0b;
+  background: var(--ink);
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55);
@@ -472,9 +490,9 @@ html.no-intro .site-intro {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 2px solid #fffceb;
+  border: 2px solid var(--cream);
   background: rgba(14, 15, 11, 0.85);
-  color: #fffceb;
+  color: var(--cream);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -489,8 +507,8 @@ html.no-intro .site-intro {
   top: -100px;
   left: 1rem;
   z-index: 50;
-  background: #0e0f0b;
-  color: #fffceb;
+  background: var(--ink);
+  color: var(--cream);
   padding: 0.6em 1.1em;
   font-weight: 700;
 }
@@ -500,7 +518,7 @@ html.no-intro .site-intro {
 }
 
 :focus-visible {
-  outline: 2px solid #457528;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -528,22 +546,22 @@ html.no-intro .site-intro {
   }
 }
 
-.nav-a:hover { color: #457528; }
-.hdr-ghost:hover { background: #0e0f0b; color: #fffceb; }
-.hdr-primary:hover { background: #1f4905; color: #fffceb; }
-.case-link:hover { color: #fffceb; border-color: #fffceb; }
-.faq-q:hover { color: #457528; }
-.submit-btn:hover { background: #1f4905; }
-.login-submit-btn:hover { background: #1f4905; }
-.footer-link:hover { color: #0e0f0b; }
-.fab:hover { background: #1f4905; color: #fffceb; }
+.nav-a:hover { color: var(--accent); }
+.hdr-ghost:hover { background: var(--ink); color: var(--cream); }
+.hdr-primary:hover { background: var(--accent-dark); color: var(--cream); }
+.case-link:hover { color: var(--cream); border-color: var(--cream); }
+.faq-q:hover { color: var(--accent); }
+.submit-btn:hover { background: var(--accent-dark); }
+.login-submit-btn:hover { background: var(--accent-dark); }
+.footer-link:hover { color: var(--ink); }
+.fab:hover { background: var(--accent-dark); color: var(--cream); }
 .case-tab-btn:hover { opacity: 0.85; }
-.area-opt-btn:hover { background: #defa9a !important; color: #0e0f0b !important; }
-.area-chip-btn:hover { background: #1f4905; }
-.area-chip-close:hover { background: #1f4905; color: #fffceb; }
+.area-opt-btn:hover { background: var(--accent-bright) !important; color: var(--ink) !important; }
+.area-chip-btn:hover { background: var(--accent-dark); }
+.area-chip-close:hover { background: var(--accent-dark); color: var(--cream); }
 
-.field-line:focus { border-bottom-color: #457528; outline: none; }
-.field-box:focus { border-color: #457528; outline: none; }
+.field-line:focus { border-bottom-color: var(--accent); outline: none; }
+.field-box:focus { border-color: var(--accent); outline: none; }
 
 .case-modal.is-open {
   display: flex !important;

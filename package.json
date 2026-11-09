@@ -1,0 +1,9 @@
+{
+  "name": "buovai-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Site institucional e portal do cliente da buov.ai.",
+  "scripts": {
+    "test": "node tests/smoke.js"
+  }
+}
