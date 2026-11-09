@@ -28,7 +28,7 @@
     { key: "obras", label: "Obras", src: "assets/caso-mila-obras-v1.png", caption: "Kanban de obras por etapa do funil comercial e produtivo, com KPIs de total, em andamento e orçamento no topo." },
     { key: "detalhe", label: "Ficha da obra", src: "assets/caso-mila-obra-detalhe-v1.png", caption: "Cada obra reúne valor, prazos, endereço de entrega com mapa, empresas vinculadas e um checklist do que falta para avançar de etapa." },
     { key: "frota", label: "Frota", src: "assets/caso-mila-frota-v1.png", caption: "Planejamento de rota de entrega: distância, tempo total, paradas e os trechos da viagem calculados automaticamente." },
-    { key: "tarefas", label: "Tarefas de TI", src: "assets/caso-mila-tarefas-v1.png", caption: "Até a manutenção do próprio sistema roda dentro dele: backlog, tarefas em andamento e concluídas, com subtarefas e anexos." },
+    { key: "tarefas", label: "Tarefas", src: "assets/caso-mila-tarefas-v1.png", caption: "Até a manutenção do próprio sistema roda dentro dele: backlog, tarefas em andamento e concluídas, com subtarefas e anexos." },
     { key: "rh", label: "Colaboradores", src: "assets/caso-mila-rh-v1.png", caption: "Módulo de RH com dados do colaborador, férias e atestados, com pendências de cadastro sinalizadas automaticamente." },
     { key: "producao", label: "Produção", src: "assets/caso-mila-producao-v1.png", caption: "Ordens de produção por obra, com quantidade, pedido vinculado, status e entrega ligada a cada uma." },
     { key: "estoque", label: "Estoque", src: "assets/caso-mila-estoque-v1.png", caption: "Acompanha o estoque em cada etapa da fábrica, do rolo de aço até a entrega, com o total fabricado no mês e no ano." },
