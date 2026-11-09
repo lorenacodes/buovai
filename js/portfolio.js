@@ -53,32 +53,32 @@
   // nome, então client_name e title ficam genéricos e nada disso aparece
   // legível nas imagens).
   const MILA_SHOTS = [
-    { key: "obras", label: "Obras", src: "assets/caso-mila-obras-v1.png", caption: "Kanban de obras por etapa do funil comercial e produtivo, com KPIs de total, em andamento e orçamento no topo." },
-    { key: "detalhe", label: "Ficha da obra", src: "assets/caso-mila-obra-detalhe-v1.png", caption: "Cada obra reúne valor, prazos, endereço de entrega com mapa, empresas vinculadas e um checklist do que falta para avançar de etapa." },
-    { key: "frota", label: "Frota", src: "assets/caso-mila-frota-v1.png", caption: "Planejamento de rota de entrega: distância, tempo total, paradas e os trechos da viagem calculados automaticamente." },
-    { key: "tarefas", label: "Tarefas", src: "assets/caso-mila-tarefas-v1.png", caption: "Até a manutenção do próprio sistema roda dentro dele: backlog, tarefas em andamento e concluídas, com subtarefas e anexos." },
-    { key: "rh", label: "Colaboradores", src: "assets/caso-mila-rh-v1.png", caption: "Módulo de RH com dados do colaborador, férias e atestados, com pendências de cadastro sinalizadas automaticamente." },
-    { key: "producao", label: "Produção", src: "assets/caso-mila-producao-v1.png", caption: "Ordens de produção por obra, com quantidade, pedido vinculado, status e entrega ligada a cada uma." },
-    { key: "estoque", label: "Estoque", src: "assets/caso-mila-estoque-v1.png", caption: "Acompanha o estoque em cada etapa da fábrica, do rolo de aço até a entrega, com o total fabricado no mês e no ano." },
-    { key: "permissoes", label: "Permissões", src: "assets/caso-mila-permissoes-v1.png", caption: "Controle de acesso por colaborador: cada um só vê as abas liberadas pra sua função, módulo por módulo." },
-    { key: "perfil", label: "Meu perfil", src: "assets/caso-mila-perfil-v1.png", caption: "Painel personalizável: cada usuário ajusta tema, cor do sistema e os próprios dados de cadastro." },
+    { key: "obras", label: "Obras", src: "assets/caso-mila-obras-v1.jpg", caption: "Kanban de obras por etapa do funil comercial e produtivo, com KPIs de total, em andamento e orçamento no topo." },
+    { key: "detalhe", label: "Ficha da obra", src: "assets/caso-mila-obra-detalhe-v1.jpg", caption: "Cada obra reúne valor, prazos, endereço de entrega com mapa, empresas vinculadas e um checklist do que falta para avançar de etapa." },
+    { key: "frota", label: "Frota", src: "assets/caso-mila-frota-v1.jpg", caption: "Planejamento de rota de entrega: distância, tempo total, paradas e os trechos da viagem calculados automaticamente." },
+    { key: "tarefas", label: "Tarefas", src: "assets/caso-mila-tarefas-v1.jpg", caption: "Até a manutenção do próprio sistema roda dentro dele: backlog, tarefas em andamento e concluídas, com subtarefas e anexos." },
+    { key: "rh", label: "Colaboradores", src: "assets/caso-mila-rh-v1.jpg", caption: "Módulo de RH com dados do colaborador, férias e atestados, com pendências de cadastro sinalizadas automaticamente." },
+    { key: "producao", label: "Produção", src: "assets/caso-mila-producao-v1.jpg", caption: "Ordens de produção por obra, com quantidade, pedido vinculado, status e entrega ligada a cada uma." },
+    { key: "estoque", label: "Estoque", src: "assets/caso-mila-estoque-v1.jpg", caption: "Acompanha o estoque em cada etapa da fábrica, do rolo de aço até a entrega, com o total fabricado no mês e no ano." },
+    { key: "permissoes", label: "Permissões", src: "assets/caso-mila-permissoes-v1.jpg", caption: "Controle de acesso por colaborador: cada um só vê as abas liberadas pra sua função, módulo por módulo." },
+    { key: "perfil", label: "Meu perfil", src: "assets/caso-mila-perfil-v1.jpg", caption: "Painel personalizável: cada usuário ajusta tema, cor do sistema e os próprios dados de cadastro." },
   ];
 
   // Site institucional público, com a marca da própria empresa borrada
   // (mesmo motivo do case de gestão de obras: uso do nome não autorizado).
   const MILATEC_SITE_SHOTS = [
-    { key: "inicio", label: "Início", src: "assets/caso-milatec-inicio-v1.png", caption: "Página inicial com os números da empresa e chamada direta pra pedir orçamento." },
-    { key: "solar", label: "Energia solar", src: "assets/caso-milatec-solar-v1.png", caption: "Linha de produtos de estruturas solares, com os mesmos números de credibilidade da home." },
-    { key: "solucoes", label: "Soluções", src: "assets/caso-milatec-solucoes-v1.png", caption: "Catálogo de soluções com foto real de obra, não imagem de banco de imagens." },
-    { key: "modular", label: "Modular", src: "assets/caso-milatec-modular-v1.png", caption: "Linha de produtos modulares (escritórios, tiny houses, banheiros de obra), cada um com sua própria página." },
-    { key: "steelframe", label: "Steel Frame", src: "assets/caso-milatec-steelframe-v1.png", caption: "Lançamento de uma nova linha de produto, com a mesma identidade visual do restante do site." },
+    { key: "inicio", label: "Início", src: "assets/caso-milatec-inicio-v1.jpg", caption: "Página inicial com os números da empresa e chamada direta pra pedir orçamento." },
+    { key: "solar", label: "Energia solar", src: "assets/caso-milatec-solar-v1.jpg", caption: "Linha de produtos de estruturas solares, com os mesmos números de credibilidade da home." },
+    { key: "solucoes", label: "Soluções", src: "assets/caso-milatec-solucoes-v1.jpg", caption: "Catálogo de soluções com foto real de obra, não imagem de banco de imagens." },
+    { key: "modular", label: "Modular", src: "assets/caso-milatec-modular-v1.jpg", caption: "Linha de produtos modulares (escritórios, tiny houses, banheiros de obra), cada um com sua própria página." },
+    { key: "steelframe", label: "Steel Frame", src: "assets/caso-milatec-steelframe-v1.jpg", caption: "Lançamento de uma nova linha de produto, com a mesma identidade visual do restante do site." },
   ];
 
   const TRILHAR_SHOTS = [
-    { key: "vg", label: "Visão geral", src: "assets/caso-contab-visao-geral-v3.png", caption: "O escritório acompanha clientes, documentos e financeiro num só painel." },
-    { key: "cl", label: "Ficha do cliente", src: "assets/caso-contab-cliente-v3.png", caption: "Cada cliente reúne dados cadastrais, boletos, documentos, pendências e histórico." },
-    { key: "fin", label: "Financeiro", src: "assets/caso-contab-financeiro-v3.png", caption: "Boletos organizados por ano, mês e dia, com status e vencimento de cada um." },
-    { key: "cat", label: "Categorias personalizáveis", src: "assets/caso-contab-categorias-v2.png", caption: "O escritório cria as próprias categorias de documentos, define quem pode enviar cada uma e quais têm valor financeiro." },
+    { key: "vg", label: "Visão geral", src: "assets/caso-contab-visao-geral-v3.jpg", caption: "O escritório acompanha clientes, documentos e financeiro num só painel." },
+    { key: "cl", label: "Ficha do cliente", src: "assets/caso-contab-cliente-v3.jpg", caption: "Cada cliente reúne dados cadastrais, boletos, documentos, pendências e histórico." },
+    { key: "fin", label: "Financeiro", src: "assets/caso-contab-financeiro-v3.jpg", caption: "Boletos organizados por ano, mês e dia, com status e vencimento de cada um." },
+    { key: "cat", label: "Categorias personalizáveis", src: "assets/caso-contab-categorias-v2.jpg", caption: "O escritório cria as próprias categorias de documentos, define quem pode enviar cada uma e quais têm valor financeiro." },
     { key: "pc", label: "Portal do cliente", illustration: true, caption: "Cada cliente entra com o próprio acesso e vê só o que é dele: boletos em aberto e pagos, comprovantes e documentos fixos. Ilustração, pois o sistema está em produção." },
   ];
 

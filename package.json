@@ -5,5 +5,8 @@
   "description": "Site institucional e portal do cliente da buov.ai.",
   "scripts": {
     "test": "node tests/smoke.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
   }
 }

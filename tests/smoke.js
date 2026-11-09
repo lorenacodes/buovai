@@ -54,6 +54,7 @@ function stubClient() {
   const projects = [
     { id: "p1", title: "Portal do Cliente", client_name: "Cliente de teste", published: true, display_order: 1 },
     { id: "p2", title: "Sistema de Gestão de Obras", client_name: "Cliente de teste 2", published: true, display_order: 2 },
+    { id: "p3", title: "Site Institucional", client_name: "Cliente de teste 3", published: true, display_order: 3 },
   ];
   window.buovaiClient = {
     from: () => ({ select: () => ({ eq: () => ({ order: () => Promise.resolve({ data: projects, error: null }) }) }) }),
@@ -147,7 +148,7 @@ async function main() {
     });
     await page.waitForTimeout(600);
     const caseCount = await page.evaluate(() => document.querySelectorAll("[data-case-title]").length);
-    check("cases do portfólio renderizam (stub com 2 projetos)", caseCount === 2, caseCount + " case(s)");
+    check("cases do portfólio renderizam (stub com 3 projetos)", caseCount === 3, caseCount + " case(s)");
 
     const tabSwitch = await page.evaluate(async () => {
       const panel = document.querySelector('[data-case-title="Portal do Cliente"]');
