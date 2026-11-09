@@ -359,9 +359,15 @@ html.no-intro .site-intro {
   left: 14px;
   bottom: 14px;
   z-index: 4;
-  width: clamp(104px, 24cqw, 190px);
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
+  width: clamp(92px, 17cqw, 150px);
+  /* Um círculo cortava bordas do vídeo (inclusive a legenda, que fica
+     perto da borda inferior do quadro) — como a 1:1 nunca bate com a
+     proporção vertical do vídeo (9:16), sempre sobrava recorte em
+     algum lado. Agora a bolha usa a MESMA proporção do vídeo, então
+     "cover" mostra o quadro inteiro, sem cortar nada, legenda incluída
+     (pedido da Lorena). */
+  aspect-ratio: 9 / 16;
+  border-radius: 16px;
   overflow: hidden;
   border: 3px solid #fffceb;
   box-shadow: 0 10px 26px rgba(14, 15, 11, 0.35);
@@ -377,17 +383,18 @@ html.no-intro .site-intro {
 
 .case-video-bubble__sound {
   position: absolute;
-  right: 4px;
-  bottom: 4px;
+  right: 6px;
+  top: 6px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 0;
+  border: 2px solid #fffceb;
   display: grid;
   place-items: center;
   cursor: pointer;
-  background: rgba(14, 15, 11, 0.7);
+  background: rgba(14, 15, 11, 0.85);
   color: #fffceb;
+  box-shadow: 0 4px 10px rgba(14, 15, 11, 0.3);
 }
 
 .case-video-bubble.is-unmuted .case-mute-x {
