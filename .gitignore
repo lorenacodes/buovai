@@ -1,3 +1,7 @@
 .DS_Store
 *.log
 node_modules/
+
+# Material bruto e saídas de vídeo (não publicar no site)
+EVENTO/
+saida/
