@@ -150,16 +150,25 @@ async function main() {
     const caseCount = await page.evaluate(() => document.querySelectorAll("[data-case-title]").length);
     check("cases do portfólio renderizam (stub com 3 projetos)", caseCount === 3, caseCount + " case(s)");
 
+    // Espera ativa (até 2s) em vez de um sleep fixo — num runner de CI
+    // mais lento/frio, 150ms às vezes não bastava pro clique terminar de
+    // processar, dando falso negativo (visto num push real: passou no
+    // commit no `main`, falhou no mesmo commit minutos antes na branch,
+    // puro timing de ambiente, não bug do site).
     const tabSwitch = await page.evaluate(async () => {
       const panel = document.querySelector('[data-case-title="Portal do Cliente"]');
       if (!panel) return null;
       const tabs = panel.querySelectorAll("[data-case-tab]");
       if (tabs.length < 2) return null;
       tabs[1].click();
-      await new Promise((r) => setTimeout(r, 150));
       const activeKey = tabs[1].getAttribute("data-case-tab");
       const shot = panel.querySelector(`[data-case-shot="${activeKey}"]`);
-      return shot ? shot.style.opacity : null;
+      if (!shot) return null;
+      const deadline = Date.now() + 2000;
+      while (shot.style.opacity !== "1" && Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 30));
+      }
+      return shot.style.opacity;
     });
     check("troca de aba do mockup interativo funciona", tabSwitch === "1", "opacidade da tela ativa: " + tabSwitch);
 
