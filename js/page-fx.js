@@ -322,13 +322,18 @@
     const cl = (v) => Math.max(0, Math.min(1, v));
 
     const frame = (now) => {
-      // O robô "flutua" na margem ao lado do conteúdo (max-width:1320px +
-      // 28px de cada lado = 1376px) — abaixo disso não sobra margem
-      // nenhuma, e ele caía sobreposto em cima do próprio texto/mockup em
-      // telas de laptop/tablet (ex. 900–1300px), não só no celular. O
-      // corte de "modo compacto" (docado no canto, sem seguir o alvo)
-      // agora cobre essa faixa inteira também (pedido da Lorena).
-      const W = innerWidth, H = innerHeight, mob = W < 1380, S = mob ? 48 : 64;
+      // O robô "flutua" na margem ao lado do conteúdo — mas em notebooks
+      // comuns (~1366px) o conteúdo já ocupa quase a tela inteira e não
+      // sobra margem nenhuma, então ele voltava a ficar parado no canto
+      // o tempo todo, nunca voando nem enquadrando nada (pedido da
+      // Lorena: "não era assim"). Em vez de só travar nesses tamanhos
+      // de tela, ele volta a voar e enquadrar sempre — e quando isso
+      // faz ele passar por cima de um texto que não é o alvo, fica
+      // translúcido (ver textOverlap abaixo) em vez de tampar de vez
+      // (pedido da Lorena: prefere ele "vivo" a ele seguro no canto).
+      // O modo compacto (sem seguir alvo nenhum) fica só pro celular,
+      // onde o robô-guia já nem aparece de jeito nenhum.
+      const W = innerWidth, H = innerHeight, mob = W < 640, S = mob ? 48 : 64;
       wrap.style.width = S + "px";
       const hero = document.getElementById("inicio");
       const hb = hero ? hero.getBoundingClientRect().bottom : 0;
@@ -416,6 +421,23 @@
       st.x += st.vx; st.y += st.vy;
       st.sv += (scrollY - st.lastY - st.sv) * 0.2; st.lastY = scrollY;
       wrap.style.transform = "translate(" + st.x.toFixed(1) + "px," + st.y.toFixed(1) + "px)";
+      // Fica translúcido quando o corpo do robô está em cima de um texto
+      // que NÃO é o alvo em si (o alvo ele pode cobrir — é o que ele tá
+      // explicando) — permite voar por cima do conteúdo sem esconder o
+      // resto da leitura, em vez de só evitar a área inteira (pedido da
+      // Lorena, ver comentário do "mob" acima).
+      st.textOverlap = 0;
+      if (s && visible && !targetHidden) {
+        if (!s._textEls) s._textEls = Array.from(s.el.querySelectorAll("h2, p"));
+        const bx0 = st.x, by0 = st.y, bx1 = st.x + S, by1 = st.y + S * 1.2;
+        for (let i = 0; i < s._textEls.length; i++) {
+          const el = s._textEls[i];
+          if (el === target) continue;
+          const tr = el.getBoundingClientRect();
+          if (bx0 < tr.right && bx1 > tr.left && by0 < tr.bottom && by1 > tr.top) { st.textOverlap = 1; break; }
+        }
+      }
+      wrap.style.opacity = targetHidden ? "0" : visible ? (st.textOverlap ? "0.4" : "1") : "0";
       head.style.transform = "rotate(" + Math.max(-14, Math.min(14, st.vy * 0.6)).toFixed(2) + "deg)";
       const sw = Math.max(-40, Math.min(40, -st.vy * 2.2 - st.sv * 0.8));
       aL.style.transform = "rotate(" + sw.toFixed(1) + "deg)";
