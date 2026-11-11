@@ -412,7 +412,17 @@
             if (nr.top < r.bottom && nr.bottom > r.top && nr.left > r.left) rightBound = Math.min(rightBound, nr.left);
           }
           const rightSide = r.right + S + 64 < rightBound;
-          tx = rightSide ? Math.min(rightBound - S - 10, r.right + 64) : Math.max(secR.left + 10, r.left - S - 64);
+          // Quando também não sobra espaço à esquerda (ex. Portal do
+          // cliente em notebook comum: só uns 28px antes do quadro), o
+          // antigo fallback mandava o robô pra fora do quadro mesmo assim
+          // — ele acabava preso na beirada entre o fundo da página e o
+          // fundo do quadro, metade visível, metade sumida (pedido da
+          // Lorena, mesmo relato do robô invisível em cima do print).
+          // Se não cabe nem à esquerda, encosta pra DENTRO do quadro em
+          // vez de ficar na emenda entre os dois fundos — a cor dele já
+          // se ajusta à cor real do quadro (ver effDark acima).
+          const leftSide = r.left - S - 64 > secR.left + 10;
+          tx = rightSide ? Math.min(rightBound - S - 10, r.right + 64) : leftSide ? r.left - S - 64 : r.left + 8;
         }
       }
       if (!visible || targetHidden) ty = -S * 2;
@@ -465,11 +475,25 @@
         // já são pretas/escuras (ex. "Quem faz"), sobrando só o texto solto
         // por cima do conteúdo, sem caixa nenhuma por trás (bug real, não
         // só estético). Inverte as cores nas seções escuras.
-        const overBox = !!(tlWindow && (() => {
-          const tr = tlWindow.getBoundingClientRect();
-          return st.x + S > tr.left && st.x < tr.right && st.y + S > tr.top && st.y < tr.bottom;
-        })());
-        const effDark = s.dark && !overBox;
+        const overlapsRect = (tr) => st.x + S > tr.left && st.x < tr.right && st.y + S > tr.top && st.y < tr.bottom;
+        let effDark = !!s.dark;
+        if (tlWindow && overlapsRect(tlWindow.getBoundingClientRect())) effDark = false;
+        // No modo "apontar pro quadro" (cases/Portal do cliente), o quadro
+        // pode ser claro OU escuro dependendo do print em si, não da cor
+        // "oficial" da seção — o quadro do Portal é escuro (tema escuro do
+        // print) numa seção clara (s.dark=0), então o robô ficava preto
+        // (cor certa pra seção) em cima de um fundo quase preto (cor
+        // errada ali) e sumia de vez (pedido da Lorena: "o robô fica
+        // invisível em cima do print da tela do cliente"). Decide pela
+        // cor de fundo real do próprio quadro, não pela seção.
+        if (target && s.skipLabel && overlapsRect(target.getBoundingClientRect())) {
+          const bg = getComputedStyle(target).backgroundColor;
+          const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(bg || "");
+          if (m) {
+            const lum = 0.2126 * +m[1] + 0.7152 * +m[2] + 0.0722 * +m[3];
+            effDark = lum < 100;
+          }
+        }
         bub.style.background = effDark ? "#fffceb" : "#0e0f0b";
         bub.style.color = effDark ? "#1f4905" : "#defa9a";
         // O robô em si também era sempre preto (#0e0f0b) — o mesmo bug do
