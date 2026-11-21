@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Gera o carrossel de feed (5 posts, 1080x1350, formato 4:5) da minha programação no Reload Sebrae Aracaju.
+"""Gera as imagens da minha programação no Reload Sebrae Aracaju.
 
 Uso (a partir da raiz do repositório ou de qualquer lugar):
     pip install pillow cairosvg fonttools brotli
-    python3 stories-reload/make.py
+    python3 stories-reload/make.py          # 4 stories, 1080x1920 (padrão)
+    python3 stories-reload/make.py feed     # carrossel de feed, 5 posts, 1080x1350
 
 Entradas opcionais (se faltarem, o layout se adapta):
     photos/<slug>.png   fotos dos palestrantes
@@ -12,6 +13,7 @@ Entradas opcionais (se faltarem, o layout se adapta):
 from pathlib import Path
 import io
 import os
+import sys
 
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 
@@ -21,8 +23,15 @@ FONT_CACHE = ROOT / "stories-reload" / ".fonts"
 PHOTOS = Path(os.environ.get("STORIES_PHOTOS", ROOT / "photos"))
 RELOAD_LOGO = Path(os.environ.get("STORIES_RELOAD_LOGO", ROOT / "reload-logo.png"))
 
-W, H = 1080, 1350
-SAFE_TOP, SAFE_BOTTOM = 80, 80  # margens de cima e de baixo
+FORMAT = sys.argv[1] if len(sys.argv) > 1 else "stories"
+if FORMAT == "stories":
+    W, H = 1080, 1920
+    SAFE_TOP, SAFE_BOTTOM = 250, 250  # área segura do Instagram nos stories
+elif FORMAT == "feed":
+    W, H = 1080, 1350
+    SAFE_TOP, SAFE_BOTTOM = 80, 80    # margens de cima e de baixo
+else:
+    raise SystemExit("formato desconhecido: use 'stories' ou 'feed'")
 MX = 72  # margem lateral
 
 CREAM = "#fffceb"
@@ -362,8 +371,16 @@ if __name__ == "__main__":
         print("fotos ausentes (linha só com texto):", ", ".join(missing))
     if not RELOAD_LOGO.exists():
         print("reload-logo.png ausente: usando texto")
-    save(cover(), "post-1-capa.png")
-    save(day_story("Sexta, 27/11", None, STORY2), "post-2-sexta.png")
-    save(day_story("Sábado, 28/11", "Manhã", STORY3), "post-3-sabado-manha.png")
-    save(day_story("Sábado, 28/11", "Tarde", STORY4), "post-4-sabado-tarde.png")
-    save(day_story("Sábado, 28/11", "Tarde · *horário a confirmar", STORY5), "post-5-sabado-fim-de-tarde.png")
+    if FORMAT == "stories":
+        save(cover(), "story-1-capa.png")
+        save(day_story("Sexta, 27/11", None, STORY2), "story-2-sexta.png")
+        save(day_story("Sábado, 28/11", "Manhã", STORY3), "story-3-sabado-manha.png")
+        save(day_story("Sábado, 28/11", "Tarde · *horário a confirmar", STORY4 + STORY5),
+             "story-4-sabado-tarde.png")
+    else:
+        save(cover(), "post-1-capa.png")
+        save(day_story("Sexta, 27/11", None, STORY2), "post-2-sexta.png")
+        save(day_story("Sábado, 28/11", "Manhã", STORY3), "post-3-sabado-manha.png")
+        save(day_story("Sábado, 28/11", "Tarde", STORY4), "post-4-sabado-tarde.png")
+        save(day_story("Sábado, 28/11", "Tarde · *horário a confirmar", STORY5),
+             "post-5-sabado-fim-de-tarde.png")
