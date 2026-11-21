@@ -120,6 +120,7 @@ def png_logo(path, height):
 # Fotos sem entrada aqui usam o recorte padrão (centro/topo).
 FOCUS = {
     "borja": (0.52, 0.26, 0.55), "branco": (0.48, 0.21, 0.55),
+    "gusttavo": (0.40, 0.24, 0.55),
     "danvelly": (0.42, 0.26, 0.64), "diretoria": (0.48, 0.24, 0.55),
     "gil": (0.50, 0.28, 0.60), "keven": (0.52, 0.22, 0.55),
     "kiso": (0.51, 0.18, 0.55), "rapha": (0.51, 0.28, 0.55),
