@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera os 4 stories (1080x1920) do roteiro no Reload Sebrae Aracaju.
+"""Gera o carrossel de feed (5 posts, 1080x1350, formato 4:5) do roteiro no Reload Sebrae Aracaju.
 
 Uso (a partir da raiz do repositório ou de qualquer lugar):
     pip install pillow cairosvg fonttools brotli
@@ -21,8 +21,8 @@ FONT_CACHE = ROOT / "stories-reload" / ".fonts"
 PHOTOS = Path(os.environ.get("STORIES_PHOTOS", ROOT / "photos"))
 RELOAD_LOGO = Path(os.environ.get("STORIES_RELOAD_LOGO", ROOT / "reload-logo.png"))
 
-W, H = 1080, 1920
-SAFE_TOP, SAFE_BOTTOM = 250, 250
+W, H = 1080, 1350
+SAFE_TOP, SAFE_BOTTOM = 80, 80  # margens de cima e de baixo
 MX = 72  # margem lateral
 
 CREAM = "#fffceb"
@@ -196,7 +196,7 @@ def cover():
     fs = font("j", 500, 40)
     title_h = lh * len(lines)
     block_h = title_h + 56 + text_h(fs) * 2 + 12
-    y = 860 - block_h // 2 + 120
+    y = round(H * 0.5 - block_h / 2) + 40
     for l in lines:
         d.text((MX, y), l, font=ft, fill=CREAM)
         y += lh
@@ -212,7 +212,7 @@ def cover():
     return img
 
 
-# ---------------------------------------------------------------- stories 2-4
+# ---------------------------------------------------------------- posts 2-5
 TIME_X = MX
 TEXT_X = 268
 RIGHT = W - MX
@@ -327,7 +327,7 @@ STORY3 = [
          arena="Arena Aplicação", photos=["keven"]),
     dict(time="11:00", title="Storytelling em vídeo", speaker="Daniel Danvelly",
          arena="Arena Criatividade", photos=["danvelly"]),
-    dict(time="12:00", title="Intervalo e networking", speaker="Até 13:30"),
+    dict(time="12:00", title="Pausa para o almoço", speaker="Até 13:30"),
 ]
 STORY4 = [
     dict(time="13:30", title="O novo mapa das mídias sociais", speaker="Rafael Kiso",
@@ -336,6 +336,8 @@ STORY4 = [
          arena="Arena Futuro", photos=["rapha"]),
     dict(time="15:30", title="Você aparece, a empresa cresce", speaker="Marcus Tonin",
          arena="Arena Conexão", photos=["tonin"]),
+]
+STORY5 = [
     dict(time="16:30*", title="Marketing e vendas de alto impacto",
          speaker="Rene Soares e Tony Tonete", arena="Arena Aplicação",
          photos=["rene", "tony"]),
@@ -353,13 +355,14 @@ def save(img, name):
 
 
 if __name__ == "__main__":
-    missing = [s for st in (STORY2, STORY3, STORY4) for it in st for s in it.get("photos", [])
+    missing = [s for st in (STORY2, STORY3, STORY4, STORY5) for it in st for s in it.get("photos", [])
                if not (PHOTOS / f"{s}.png").exists()]
     if missing:
         print("fotos ausentes (linha só com texto):", ", ".join(missing))
     if not RELOAD_LOGO.exists():
         print("reload-logo.png ausente: usando texto")
-    save(cover(), "story-1-capa.png")
-    save(day_story("Sexta, 27/11", None, STORY2), "story-2-sexta.png")
-    save(day_story("Sábado, 28/11", "Manhã", STORY3), "story-3-sabado-manha.png")
-    save(day_story("Sábado, 28/11", "Tarde · *horário a confirmar", STORY4), "story-4-sabado-tarde.png")
+    save(cover(), "post-1-capa.png")
+    save(day_story("Sexta, 27/11", None, STORY2), "post-2-sexta.png")
+    save(day_story("Sábado, 28/11", "Manhã", STORY3), "post-3-sabado-manha.png")
+    save(day_story("Sábado, 28/11", "Tarde", STORY4), "post-4-sabado-tarde.png")
+    save(day_story("Sábado, 28/11", "Tarde · *horário a confirmar", STORY5), "post-5-sabado-fim-de-tarde.png")
