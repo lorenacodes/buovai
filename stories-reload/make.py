@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera o carrossel de feed (5 posts, 1080x1350, formato 4:5) do roteiro no Reload Sebrae Aracaju.
+"""Gera o carrossel de feed (5 posts, 1080x1350, formato 4:5) da minha programação no Reload Sebrae Aracaju.
 
 Uso (a partir da raiz do repositório ou de qualquer lugar):
     pip install pillow cairosvg fonttools brotli
@@ -187,7 +187,7 @@ def cover():
     d = ImageDraw.Draw(img)
     paste_logos(img, dark_bg=True)
 
-    lines = ["Meu roteiro", "no Reload", "Aracaju"]
+    lines = ["Minha", "programação", "no Reload", "Aracaju"]
     size = 132
     while max(font("u", 700, size).getlength(l) for l in lines) > W - 2 * MX:
         size -= 2
