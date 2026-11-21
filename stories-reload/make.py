@@ -115,15 +115,36 @@ def png_logo(path, height):
     return im.resize((w, height), Image.LANCZOS)
 
 
+# Enquadramento de cada foto: (centro x do rosto, centro y do rosto, lado do recorte),
+# em fração da largura (x, lado) e da altura (y) da imagem original.
+# Fotos sem entrada aqui usam o recorte padrão (centro/topo).
+FOCUS = {
+    "borja": (0.52, 0.26, 0.55), "branco": (0.48, 0.21, 0.55),
+    "danvelly": (0.42, 0.26, 0.64), "diretoria": (0.48, 0.24, 0.55),
+    "gil": (0.50, 0.28, 0.60), "keven": (0.52, 0.22, 0.55),
+    "kiso": (0.51, 0.18, 0.55), "rapha": (0.51, 0.28, 0.55),
+    "rene": (0.52, 0.18, 0.42), "sacani": (0.51, 0.20, 0.58),
+    "tonin": (0.50, 0.27, 0.60), "tony": (0.52, 0.36, 0.72),
+}
+
+
 def circle_photo(slug, size=PHOTO):
     p = PHOTOS / f"{slug}.png"
     if not p.exists():
         return None
     im = Image.open(p).convert("RGB")
-    side = min(im.size)
-    left = (im.width - side) // 2
-    top = int((im.height - side) * 0.2)  # puxa para cima: rosto fica no centro/topo
-    im = im.crop((left, top, left + side, top + side)).resize((size, size), Image.LANCZOS)
+    w, h = im.size
+    if slug in FOCUS:
+        cx, cy, z = FOCUS[slug]
+        side = min(z * w, w, h)
+        x0 = min(max(0, cx * w - side / 2), w - side)
+        y0 = min(max(0, cy * h - side * 0.42), h - side)  # rosto um pouco acima do centro
+    else:
+        side = min(w, h)
+        x0 = (w - side) / 2
+        y0 = (h - side) * 0.2
+    im = im.crop((round(x0), round(y0), round(x0 + side), round(y0 + side)))
+    im = im.resize((size, size), Image.LANCZOS)
     ss = 4
     mask = Image.new("L", (size * ss, size * ss), 0)
     ImageDraw.Draw(mask).ellipse((0, 0, size * ss - 1, size * ss - 1), fill=255)
@@ -132,13 +153,21 @@ def circle_photo(slug, size=PHOTO):
     return out
 
 
+def tint(im, color):
+    """Pinta um logo monocromático numa cor só, mantendo a transparência."""
+    solid = Image.new("RGBA", im.size, color)
+    solid.putalpha(im.getchannel("A"))
+    return solid
+
+
 def paste_logos(img, dark_bg):
     """Buovai à esquerda, Reload à direita, centralizados no mesmo eixo vertical."""
     d = ImageDraw.Draw(img)
     logo = svg_logo(ROOT / "brand" / ("logo-wordmark-light.svg" if dark_bg else "logo-wordmark-dark.svg"), BUOVAI_H)
     img.alpha_composite(logo, (MX, LOGO_CY - logo.height // 2))
     if RELOAD_LOGO.exists():
-        r = png_logo(RELOAD_LOGO, LOGO_H)
+        # o logo do Reload é branco: creme no fundo verde, preto no fundo creme
+        r = tint(png_logo(RELOAD_LOGO, LOGO_H), CREAM if dark_bg else BLACK)
         img.alpha_composite(r, (W - MX - r.width, LOGO_CY - r.height // 2))
     else:
         f = font("j", 600, 26)
