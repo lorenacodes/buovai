@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cofre de acessos | buov.ai</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0f0b;--panel:#15170e;--field:#0a0b07;--line:rgba(255,252,235,.08);--line2:rgba(255,252,235,.17);--ink:#fffceb;--ink2:#e6e8d4;--mute:#a3a693;--acc:#defa9a;--accSoft:rgba(222,250,154,.12);--warn:#f2c46b;--bad:#ff8f7a}
+@media (prefers-color-scheme: light){:root{--bg:#fffceb;--panel:#f8f5e2;--field:#fffef7;--line:rgba(14,15,11,.09);--line2:rgba(14,15,11,.2);--ink:#0e0f0b;--ink2:#2b2e24;--mute:#5c5f50;--acc:#1f4905;--accSoft:rgba(31,73,5,.1);--warn:#8a5a00;--bad:#a3341f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Open Sans',sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--acc);text-decoration:none}
+main{max-width:980px;margin:0 auto;padding:28px 16px 80px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:6px}
+h1{font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:22px;margin:0}
+.sub{color:var(--mute);font-size:14px;margin:0 0 22px;max-width:62ch}
+.btn{font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line2);background:transparent;color:var(--ink);padding:9px 14px;border-radius:8px;cursor:pointer}
+.btn:hover{border-color:var(--acc)}
+.btn.primary{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+.btn.small{padding:6px 10px;font-size:13px}
+.btn.danger{color:var(--bad)}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.grupo{margin-bottom:26px}
+.grupo h2{font-family:'Lexend Exa',sans-serif;font-weight:400;font-size:15px;margin:0 0 10px;color:var(--ink2)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:10px 16px}
+.card strong{font-size:15px}
+.meta{color:var(--mute);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:4px}
+.obs{color:var(--ink2);font-size:13px;margin-top:6px;white-space:pre-wrap}
+.acoes{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;justify-content:flex-end}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px;border:1px solid var(--line2);color:var(--mute);white-space:nowrap}
+.chip.ok{color:var(--acc);border-color:var(--acc)}
+.chip.warn{color:var(--warn);border-color:var(--warn)}
+.chip.bad{color:var(--bad);border-color:var(--bad)}
+.senha{grid-column:1/-1;display:none;gap:8px;align-items:center;background:var(--field);border:1px dashed var(--line2);border-radius:8px;padding:8px 10px;font-family:ui-monospace,Consolas,monospace;font-size:14px;word-break:break-all}
+.senha.on{display:flex}
+.vazio{color:var(--mute);padding:30px 0;text-align:center}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.overlay.on{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:20px;width:100%;max-width:480px;max-height:92vh;overflow:auto}
+.modal h3{font-family:'Lexend Exa',sans-serif;font-weight:400;margin:0 0 14px;font-size:17px}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+input,select,textarea{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--field);border:1px solid var(--line2);border-radius:8px;padding:9px 10px}
+textarea{resize:vertical;min-height:70px}
+.linha{display:flex;gap:8px}
+.rodape{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.erro{color:var(--bad);font-size:13px;margin-top:10px;min-height:1em}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;display:none;z-index:60}
+.toast.on{display:block}
+@media (max-width:560px){.card{grid-template-columns:1fr}.acoes{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Cofre de acessos</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn" href="portal.html">Voltar ao portal</a>
+      <button class="btn primary" id="btn-novo" type="button" disabled>Novo acesso</button>
+    </div>
+  </header>
+  <p class="sub">Logins e senhas dos serviços dos clientes (registro.br, hospedagem, e-mail) e as datas de renovação. As senhas ficam cifradas e só aparecem quando você clica em Mostrar. Cada visualização fica registrada.</p>
+  <div id="lista"><p class="vazio">Carregando...</p></div>
+</main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+  <form class="modal" id="form" autocomplete="off">
+    <h3 id="modal-titulo">Novo acesso</h3>
+    <label for="f-cliente">Cliente</label>
+    <select id="f-cliente" required></select>
+    <label for="f-servico">Serviço</label>
+    <input id="f-servico" required maxlength="80" placeholder="Ex.: registro.br, hospedagem, e-mail do domínio">
+    <label for="f-url">Endereço de acesso (opcional)</label>
+    <input id="f-url" maxlength="200" placeholder="https://registro.br">
+    <label for="f-usuario">Usuário / login</label>
+    <input id="f-usuario" maxlength="120" autocomplete="off">
+    <label for="f-senha">Senha</label>
+    <div class="linha">
+      <input id="f-senha" type="password" autocomplete="new-password" maxlength="300">
+      <button type="button" class="btn small" id="f-ver">Ver</button>
+    </div>
+    <div class="meta" id="f-senha-dica" style="margin-top:4px"></div>
+    <label for="f-renovacao">Data de renovação (opcional)</label>
+    <input id="f-renovacao" type="date">
+    <label for="f-obs">Observações (opcional)</label>
+    <textarea id="f-obs" maxlength="1000"></textarea>
+    <p class="erro" id="f-erro" role="alert"></p>
+    <div class="rodape">
+      <button type="button" class="btn" id="f-cancelar">Cancelar</button>
+      <button type="submit" class="btn primary" id="f-salvar">Salvar</button>
+    </div>
+  </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script>
+(function () {
+  var sb = window.buovaiClient;
+  var $ = function (id) { return document.getElementById(id); };
+  var CLIENTES = [], ACESSOS = [], editandoId = null, toastT = null, ocultarT = {};
+
+  function toast(msg) {
+    var t = $("toast"); t.textContent = msg; t.classList.add("on");
+    clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("on"); }, 2600);
+  }
+  function el(tag, cls, txt) {
+    var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e;
+  }
+  function diasAte(iso) {
+    var p = iso.split("-"), alvo = new Date(+p[0], +p[1] - 1, +p[2]), h = new Date(); h.setHours(0, 0, 0, 0);
+    return Math.round((alvo - h) / 86400000);
+  }
+  function fmtData(iso) { var p = iso.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
+  function chipRenovacao(iso) {
+    if (!iso) return null;
+    var d = diasAte(iso), c, t;
+    if (d < 0) { c = "bad"; t = "Venceu há " + (-d) + (d === -1 ? " dia" : " dias"); }
+    else if (d === 0) { c = "bad"; t = "Vence hoje"; }
+    else if (d <= 30) { c = "warn"; t = "Vence em " + d + (d === 1 ? " dia" : " dias"); }
+    else { c = "ok"; t = "Renova em " + fmtData(iso); }
+    var s = el("span", "chip " + c, t); return s;
+  }
+
+  function render() {
+    var wrap = $("lista"); wrap.textContent = "";
+    if (!ACESSOS.length) { wrap.appendChild(el("p", "vazio", "Nenhum acesso cadastrado ainda. Clique em Novo acesso.")); return; }
+    var porCliente = {};
+    ACESSOS.forEach(function (a) { (porCliente[a.client_id] = porCliente[a.client_id] || []).push(a); });
+    CLIENTES.filter(function (c) { return porCliente[c.id]; }).forEach(function (c) {
+      var g = el("section", "grupo"); g.appendChild(el("h2", null, c.nome));
+      porCliente[c.id].sort(function (a, b) { return (a.renovacao || "9999").localeCompare(b.renovacao || "9999"); }).forEach(function (a) {
+        var card = el("div", "card"), info = el("div");
+        var topo = el("div"); topo.appendChild(el("strong", null, a.servico));
+        var ch = chipRenovacao(a.renovacao); if (ch) { topo.appendChild(document.createTextNode(" ")); topo.appendChild(ch); }
+        info.appendChild(topo);
+        var meta = el("div", "meta");
+        if (a.usuario) meta.appendChild(el("span", null, "Usuário: " + a.usuario));
+        if (a.url) { var l = el("a", null, a.url); if (/^https?:\/\//i.test(a.url)) { l.href = a.url; l.target = "_blank"; l.rel = "noopener noreferrer"; } meta.appendChild(l); }
+        if (a.renovacao && !ch) meta.appendChild(el("span", null, "Renovação: " + fmtData(a.renovacao)));
+        info.appendChild(meta);
+        if (a.observacoes) info.appendChild(el("div", "obs", a.observacoes));
+        card.appendChild(info);
+        var ac = el("div", "acoes");
+        if (a.secret_id) {
+          var bm = el("button", "btn small", "Mostrar"); bm.type = "button"; bm.onclick = function () { mostrar(a, box, bm); }; ac.appendChild(bm);
+          var bc = el("button", "btn small", "Copiar"); bc.type = "button"; bc.onclick = function () { copiar(a); }; ac.appendChild(bc);
+        } else ac.appendChild(el("span", "chip", "Sem senha salva"));
+        var be = el("button", "btn small", "Editar"); be.type = "button"; be.onclick = function () { abrirForm(a); }; ac.appendChild(be);
+        var bd = el("button", "btn small danger", "Apagar"); bd.type = "button"; bd.onclick = function () { apagar(a); }; ac.appendChild(bd);
+        card.appendChild(ac);
+        var box = el("div", "senha"); card.appendChild(box);
+        g.appendChild(card);
+      });
+      wrap.appendChild(g);
+    });
+  }
+
+  async function revelar(a) {
+    var r = await sb.rpc("credential_reveal", { p_id: a.id });
+    if (r.error) { toast("Não foi possível revelar a senha agora."); return null; }
+    return r.data;
+  }
+  async function mostrar(a, box, btn) {
+    if (box.classList.contains("on")) { esconder(box, btn); return; }
+    var s = await revelar(a); if (s == null) return;
+    box.textContent = s; box.classList.add("on"); btn.textContent = "Ocultar";
+    clearTimeout(ocultarT[a.id]); ocultarT[a.id] = setTimeout(function () { esconder(box, btn); }, 20000);
+  }
+  function esconder(box, btn) { box.textContent = ""; box.classList.remove("on"); btn.textContent = "Mostrar"; }
+  async function copiar(a) {
+    var s = await revelar(a); if (s == null) return;
+    try { await navigator.clipboard.writeText(s); toast("Senha copiada"); } catch (e) { toast("Não foi possível copiar. Use Mostrar."); }
+  }
+  async function apagar(a) {
+    if (!window.confirm('Apagar o acesso "' + a.servico + '" e a senha guardada? Isso não pode ser desfeito.')) return;
+    var r = await sb.rpc("credential_delete", { p_id: a.id });
+    if (r.error) { toast("Não foi possível apagar agora."); return; }
+    toast("Acesso apagado"); carregar();
+  }
+
+  function abrirForm(a) {
+    editandoId = a ? a.id : null;
+    $("modal-titulo").textContent = a ? "Editar acesso" : "Novo acesso";
+    var sel = $("f-cliente"); sel.textContent = "";
+    CLIENTES.forEach(function (c) { var o = el("option", null, c.nome); o.value = c.id; sel.appendChild(o); });
+    sel.value = a ? a.client_id : (CLIENTES[0] ? CLIENTES[0].id : "");
+    sel.disabled = !!a;
+    $("f-servico").value = a ? a.servico : "";
+    $("f-url").value = a && a.url ? a.url : "";
+    $("f-usuario").value = a && a.usuario ? a.usuario : "";
+    $("f-senha").value = ""; $("f-senha").type = "password"; $("f-ver").textContent = "Ver";
+    $("f-senha-dica").textContent = a && a.secret_id ? "Deixe em branco para manter a senha atual." : "";
+    $("f-renovacao").value = a && a.renovacao ? a.renovacao : "";
+    $("f-obs").value = a && a.observacoes ? a.observacoes : "";
+    $("f-erro").textContent = "";
+    $("overlay").classList.add("on"); $("f-servico").focus();
+  }
+  function fecharForm() { $("overlay").classList.remove("on"); $("f-senha").value = ""; }
+
+  $("btn-novo").onclick = function () { abrirForm(null); };
+  $("f-cancelar").onclick = fecharForm;
+  $("overlay").addEventListener("mousedown", function (e) { if (e.target === $("overlay")) fecharForm(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") fecharForm(); });
+  $("f-ver").onclick = function () {
+    var i = $("f-senha"), mostrando = i.type === "text"; i.type = mostrando ? "password" : "text"; this.textContent = mostrando ? "Ver" : "Esconder";
+  };
+  $("form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var btn = $("f-salvar"); btn.disabled = true; $("f-erro").textContent = "";
+    var r = await sb.rpc("credential_save", {
+      p_id: editandoId, p_client_id: $("f-cliente").value, p_servico: $("f-servico").value, p_url: $("f-url").value,
+      p_usuario: $("f-usuario").value, p_senha: $("f-senha").value, p_renovacao: $("f-renovacao").value || null, p_observacoes: $("f-obs").value
+    });
+    btn.disabled = false;
+    if (r.error) { $("f-erro").textContent = "Não foi possível salvar: " + (r.error.message || "tente de novo."); return; }
+    fecharForm(); toast("Acesso salvo"); carregar();
+  });
+
+  async function carregar() {
+    var res = await Promise.all([
+      sb.from("clients").select("id, nome").order("nome"),
+      sb.from("client_credentials").select("id, client_id, servico, url, usuario, secret_id, renovacao, observacoes").order("servico")
+    ]);
+    if (res[0].error || res[1].error) { $("lista").textContent = ""; $("lista").appendChild(el("p", "vazio", "Não foi possível carregar os acessos. Atualize a página.")); return; }
+    CLIENTES = res[0].data || []; ACESSOS = res[1].data || [];
+    $("btn-novo").disabled = !CLIENTES.length;
+    render();
+  }
+
+  (async function boot() {
+    var s = await sb.auth.getSession();
+    if (!s.data.session) { window.location.href = "login.html"; return; }
+    var adm = await sb.rpc("is_admin");
+    if (adm.error) { $("lista").textContent = ""; $("lista").appendChild(el("p", "vazio", "Não foi possível confirmar seu acesso. Atualize a página.")); return; }
+    if (!adm.data) { window.location.href = "portal.html"; return; }
+    carregar();
+  })();
+})();
+</script>
+</body>
+</html>
