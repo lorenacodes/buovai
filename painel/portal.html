@@ -659,7 +659,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       ["Comercial", [item("funil", "Funil", leadsOpen), item("prospeccao", "Prospecção", D.prospects.filter(function (z) { return z.status !== "Convertido" && z.status !== "Sem interesse"; }).length), item("propostas", "Propostas e contratos")]],
       ["Financeiro", [item("financeiro", "Recebimentos", atras.length || "")]],
       ["Configuração", [item("modelos", "Modelos de projeto"), item("equipe", "Equipe e permissões")]]
-    ] : [["Seu projeto", [item("andamento", "Andamento"), item("documentos", "Documentos e entregas", pendProps), item("cobrancas", "Cobranças"), item("suporte", "Suporte")]]];
+    ] : [["Seu projeto", [item("andamento", "Andamento"), item("documentos", "Documentos e entregas", pendProps), item("cobrancas", "Cobranças"), (function () { var a = item("acessos", "Senhas e acessos"); a.h = reg(function () { window.location.href = "acessos.html" + (S.preview ? "?cliente=" + encodeURIComponent((D.clients[0] || {}).id || "") : ""); }); return a; })(), item("suporte", "Suporte")]]];
     var navGroups = groups.map(function (g) { return { label: g[0], items: g[1], showLabel: !narrow }; });
 
     var title = "", kicker = admin ? dateLine : (myProj0 ? myProj0.clienteNome : S.email) + " · portal do cliente", sub = "", actions = [], kpis = [], hasToolbar = false, qPh = "Buscar", tFilters = [], emptyList = false, hasViewToggle = false;

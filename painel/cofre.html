@@ -61,7 +61,7 @@ textarea{resize:vertical;min-height:70px}
       <button class="btn primary" id="btn-novo" type="button" disabled>Novo acesso</button>
     </div>
   </header>
-  <p class="sub">Logins e senhas dos serviços dos clientes (registro.br, hospedagem, e-mail) e as datas de renovação. As senhas ficam cifradas e só aparecem quando você clica em Mostrar. Cada visualização fica registrada.</p>
+  <p class="sub">Logins e senhas dos serviços de cada cliente (registro.br, hospedagem, e-mail) e as datas de renovação. Os acessos marcados com "O cliente vê" aparecem na área do próprio cliente, no portal dele. As senhas ficam cifradas e cada visualização fica registrada.</p>
   <div id="lista"><p class="vazio">Carregando...</p></div>
 </main>
 
@@ -82,6 +82,7 @@ textarea{resize:vertical;min-height:70px}
       <button type="button" class="btn small" id="f-ver">Ver</button>
     </div>
     <div class="meta" id="f-senha-dica" style="margin-top:4px"></div>
+    <label style="display:flex;align-items:center;gap:8px;color:var(--ink2);margin-top:14px"><input type="checkbox" id="f-visivel" style="width:auto"> Mostrar este acesso e a senha ao cliente, no portal dele</label>
     <label for="f-renovacao">Data de renovação (opcional)</label>
     <input id="f-renovacao" type="date">
     <label for="f-obs">Observações (opcional)</label>
@@ -143,6 +144,7 @@ textarea{resize:vertical;min-height:70px}
         var card = el("div", "card"), info = el("div");
         var topo = el("div"); topo.appendChild(el("strong", null, a.servico));
         var ch = chipRenovacao(a.renovacao); if (ch) { topo.appendChild(document.createTextNode(" ")); topo.appendChild(ch); }
+        topo.appendChild(document.createTextNode(" ")); topo.appendChild(el("span", "chip " + (a.visivel_cliente ? "ok" : ""), a.visivel_cliente ? "O cliente vê" : "Só você vê"));
         info.appendChild(topo);
         var meta = el("div", "meta");
         if (a.usuario) meta.appendChild(el("span", null, "Usuário: " + a.usuario));
@@ -202,6 +204,7 @@ textarea{resize:vertical;min-height:70px}
     $("f-senha").value = ""; $("f-senha").type = "password"; $("f-ver").textContent = "Ver";
     $("f-senha-dica").textContent = a && a.secret_id ? "Deixe em branco para manter a senha atual." : "";
     $("f-renovacao").value = a && a.renovacao ? a.renovacao : "";
+    $("f-visivel").checked = a ? !!a.visivel_cliente : true;
     $("f-obs").value = a && a.observacoes ? a.observacoes : "";
     $("f-erro").textContent = "";
     $("overlay").classList.add("on"); $("f-servico").focus();
@@ -220,7 +223,8 @@ textarea{resize:vertical;min-height:70px}
     var btn = $("f-salvar"); btn.disabled = true; $("f-erro").textContent = "";
     var r = await sb.rpc("credential_save", {
       p_id: editandoId, p_client_id: $("f-cliente").value, p_servico: $("f-servico").value, p_url: $("f-url").value,
-      p_usuario: $("f-usuario").value, p_senha: $("f-senha").value, p_renovacao: $("f-renovacao").value || null, p_observacoes: $("f-obs").value
+      p_usuario: $("f-usuario").value, p_senha: $("f-senha").value, p_renovacao: $("f-renovacao").value || null, p_observacoes: $("f-obs").value,
+      p_visivel_cliente: $("f-visivel").checked
     });
     btn.disabled = false;
     if (r.error) { $("f-erro").textContent = "Não foi possível salvar: " + (r.error.message || "tente de novo."); return; }
@@ -230,7 +234,7 @@ textarea{resize:vertical;min-height:70px}
   async function carregar() {
     var res = await Promise.all([
       sb.from("clients").select("id, nome").order("nome"),
-      sb.from("client_credentials").select("id, client_id, servico, url, usuario, secret_id, renovacao, observacoes").order("servico")
+      sb.from("client_credentials").select("id, client_id, servico, url, usuario, secret_id, renovacao, observacoes, visivel_cliente").order("servico")
     ]);
     if (res[0].error || res[1].error) { $("lista").textContent = ""; $("lista").appendChild(el("p", "vazio", "Não foi possível carregar os acessos. Atualize a página.")); return; }
     CLIENTES = res[0].data || []; ACESSOS = res[1].data || [];
