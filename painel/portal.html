@@ -79,7 +79,19 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   var ST_UI = { em_andamento: "Em andamento", aguardando_cliente: "Aguardando cliente", concluido: "Concluído", pausado: "Aguardando cliente" };
   var LEAD_ETAPA = ["possiveis_leads", "em_contato", "proposta_enviada", "fechado"];
   var LEAD_IDX = { possiveis_leads: 0, em_contato: 1, diagnostico: 1, proposta_enviada: 2, negociacao: 2, fechado: 3, perdido: 3 };
-  var sb = function () { return window.buovaiClient; };
+  var sb = function () { return S && S.preview ? clienteSoLeitura() : window.buovaiClient; };
+  // Durante "Ver como o cliente" nada pode ser gravado: leitura passa, escrita é recusada.
+  function clienteSoLeitura() {
+    var real = window.buovaiClient;
+    var bloqueio = {};
+    ["eq", "neq", "in", "select", "single", "maybeSingle", "match", "order", "limit"].forEach(function (m) { bloqueio[m] = function () { return bloqueio; }; });
+    bloqueio.then = function (res) { res({ data: null, error: { message: "Modo de visualização: nada é salvo." } }); };
+    return {
+      auth: real.auth, storage: real.storage,
+      rpc: function () { return Promise.resolve({ data: null, error: { message: "Modo de visualização: nada é salvo." } }); },
+      from: function (t) { var q = real.from(t); return { select: q.select.bind(q), insert: function () { return bloqueio; }, update: function () { return bloqueio; }, delete: function () { return bloqueio; }, upsert: function () { return bloqueio; } }; }
+    };
+  }
 
   var ETAPAS = ["Novo contato", "Em conversa", "Proposta enviada", "Fechado"];
   // Ícone de check desenhado em SVG — nunca o glifo de texto "✓", que
@@ -143,7 +155,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   } catch (e) {}
 
   var S = {
-    data: null, theme: theme0, role: "admin", email: "", view: "inicio",
+    data: null, theme: theme0, role: "admin", email: "", view: "inicio", preview: null, previewExtra: null,
     sideW: sideW0, sideCollapsed: sideCollapsed0,
     sel: null, zsel: null, zForm: {}, filter: null, ptab: "tarefas", itab: "resumo", msgLimit: 15, q: "", tf: "Todos", pMode: "lista", agMode: "lista", agMonth: "", tplSel: null,
     newStep: "", modal: null, f: {}, mErr: false, mErrMsg: "", wStep: 1, newTask: "", newItem: {}, newDoc: "", newDocTipo: "PDF", andOpen: {},
@@ -207,7 +219,14 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // clone já com o novo valor) e deve persistir no Supabase — só então o
   // clone vira o estado de verdade. Em caso de erro, mostra um aviso e
   // mantém o estado anterior.
+  function avisoSoVisualizacao() {
+    S.toast = "Modo de visualização: nada é salvo.";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { setState({ toast: null }); }, 2200);
+    render();
+  }
   function save(fn, toast, remote) {
+    if (S.preview) { avisoSoVisualizacao(); return; }
     var d = JSON.parse(JSON.stringify(S.data));
     fn(d);
     function apply() {
@@ -352,6 +371,65 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     return sb().from("activity_log").insert({ entity_type: "project", entity_id: projectId, action: "nota", detail: text, actor_label: S.role === "admin" ? "Lorena" : "Cliente" });
   }
 
+  // ---- "Ver como o cliente": mostra o portal do jeito que o cliente vê, só leitura ----
+  function visaoDoCliente(dados, projectId) {
+    var p = (dados.projects || []).filter(function (x) { return x.id === projectId; })[0];
+    if (!p) return dados;
+    var c = (dados.clients || []).filter(function (x) { return x.id === p.clientId; })[0] || { nome: p.clienteNome, email: "" };
+    var extra = S.previewExtra || { messages: [], tickets: [] };
+    var proj = JSON.parse(JSON.stringify(p));
+    proj.docs = proj.docs.filter(function (d) { return d.cli; });
+    proj.hist = [];
+    return {
+      templates: dados.templates, users: [], perms: {}, leads: [], prospects: [], admins: [], contactMessages: [], siteViews: [], gsc: null,
+      clients: [{ id: c.id || "c", nome: c.nome, pj: true, contato: "", email: c.email || "", tel: "", doc: "" }],
+      projects: [proj],
+      proposals: (dados.proposals || []).filter(function (x) { return c.email && x.clientId === c.email; }),
+      meetings: (dados.meetings || []).filter(function (m) { return m.cliente === p.clienteNome; }),
+      messages: extra.messages, tickets: extra.tickets
+    };
+  }
+  function entrarVisaoCliente(p) {
+    var barra = document.getElementById("previewBar");
+    if (!barra) {
+      barra = document.createElement("div");
+      barra.id = "previewBar";
+      barra.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:300;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;padding:8px 12px;background:#defa9a;color:#0e0f0b;font:600 13px 'Open Sans',sans-serif";
+      document.body.appendChild(barra);
+      document.body.style.paddingTop = "44px";
+    }
+    barra.textContent = "";
+    var t = document.createElement("span");
+    t.textContent = "Você está vendo como o cliente vê: " + p.clienteNome + ". Nada aqui é salvo.";
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = "Sair da visualização";
+    b.style.cssText = "font:inherit;border:1px solid #0e0f0b;background:#0e0f0b;color:#defa9a;border-radius:6px;padding:5px 12px;cursor:pointer";
+    b.onclick = function () { sairVisaoCliente(p.id); };
+    barra.appendChild(t); barra.appendChild(b);
+    S.previewExtra = { messages: [], tickets: [] };
+    S.preview = p.id; S.view = "andamento"; S.sel = null; S.modal = null;
+    render();
+    Promise.all([
+      window.buovaiClient.from("project_messages").select("*").eq("project_id", p.id).order("created_at"),
+      window.buovaiClient.from("support_tickets").select("*").order("numero")
+    ]).then(function (r) {
+      if (S.preview !== p.id) return;
+      S.previewExtra = {
+        messages: (r[0].data || []).map(function (m) { return { id: m.id, from: m.sender_role, text: m.body, at: m.created_at }; }),
+        tickets: (r[1].data || []).filter(function (x) { return !x.project_id || x.project_id === p.id; }).map(function (x) { return { id: x.id, num: x.numero, titulo: x.titulo, status: x.status, at: x.created_at, motivo: x.motivo || "" }; })
+      };
+      render();
+    }).catch(function () {});
+  }
+  function sairVisaoCliente(projectId) {
+    var barra = document.getElementById("previewBar");
+    if (barra) barra.remove();
+    document.body.style.paddingTop = "";
+    S.preview = null; S.previewExtra = null; S.view = "projetos"; S.sel = projectId || null; S.modal = null;
+    render();
+    try { window.scrollTo({ top: 0 }); } catch (e) {}
+  }
+
   function go(view, extra) {
     Object.assign(S, { view: view, sel: null, zsel: null, modal: null, q: "", tf: "Todos", cmdOpen: false }, extra || {});
     render();
@@ -359,6 +437,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   }
 
   function openModal(modal, f) {
+    if (S.preview) { avisoSoVisualizacao(); return; }
     setState({ modal: modal, f: f || {}, mErr: false, mErrMsg: "", cmdOpen: false, wStep: 1 });
   }
 
@@ -515,7 +594,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
   // ---- computa valores de exibição (equivalente a renderVals) ----
   function computeVals() {
-    var D = S.data, admin = S.role === "admin", T = new Date().toISOString().slice(0, 10), narrow = S.w < 760, light = S.theme === "light";
+    var D = S.preview ? visaoDoCliente(S.data, S.preview) : S.data, admin = S.preview ? false : S.role === "admin", T = new Date().toISOString().slice(0, 10), narrow = S.w < 760, light = S.theme === "light";
     // Clientes marcados como "usuário de teste" (conta de preview) somem
     // de toda MÉTRICA (KPIs, gráficos) — mas continuam aparecendo nas
     // listas normais de Clientes/Projetos (com um selo "TESTE"), senão
@@ -751,7 +830,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "projetos" && sel) {
         title = sel.nome; kicker = sel.code + " · " + cli(sel.clientId).nome; out.v_projDet = true;
-        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
+        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnS("Ver como o cliente", function () { entrarVisaoCliente(sel); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
         var pg = sel.parcelas.filter(function (q) { return q.pago; });
         out.pdInfo = [{ l: "Modelo", v: sel.tipo }, { l: "Valor", v: money(sel.valor) }, { l: "Parcelas pagas", v: pg.length + " de " + sel.parcelas.length }, { l: "Entrega", v: dt(sel.prazo) }, { l: "Progresso", v: pct(sel) + "%" }];
         // Acesso do cliente ao portal: e-mail (o mesmo que libera o link
