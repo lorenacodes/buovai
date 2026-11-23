@@ -1407,9 +1407,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         out.cp = {
           code: p0.code, nome: p0.nome, tipo: p0.tipo, pct: pct(p0), barW: pct(p0) + "%", next: nextTask(p0), prazo: dt(p0.prazo),
           diasPrazo: diasPrazo, etapasDone: p0.tasks.filter(function (t) { return t.done; }).length, etapasTotal: p0.tasks.length,
+          concluido: p0.status === "Concluído" || (p0.tasks.length > 0 && p0.tasks.every(function (t) { return t.done; })),
+          concluidoEm: (function () { var ats = p0.tasks.map(function (t) { return t.at || ""; }).filter(Boolean).sort(); return ats.length ? dt(ats[ats.length - 1]) : ""; })(),
           proxReuniaoTxt: proxReuniao ? (diasReuniao === 0 ? "Hoje" : diasReuniao === 1 ? "Amanhã" : diasReuniao + " dias") + (proxReuniao.hora ? " · " + proxReuniao.hora : "") : null,
           proxReuniaoPendente: proxReuniao ? proxReuniao.status === "pendente" : false,
-          atualizadoEm: p0.atualizadoEm ? dt(p0.atualizadoEm) + " às " + p0.atualizadoEm.slice(11, 16) : "",
+          atualizadoEm: p0.atualizadoEm ? dt(p0.atualizadoEm) + (p0.atualizadoEm.slice(11, 16) && p0.atualizadoEm.slice(11, 16) !== "00:00" ? " às " + p0.atualizadoEm.slice(11, 16) : "") : "",
           status: p0.status || ""
         };
         out.goSuporteH = reg(function () { go("suporte"); });
@@ -2499,20 +2501,23 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
   // Bloco de documentos de uma entrega: um botão por documento com
   // link/arquivo de verdade, e quando não há nenhum, um aviso discreto
   // (nunca um botão fictício) — pedido explícito da Lorena.
+  var andProjetoConcluido = false;
   var andDocsBlock = function (docs) {
     var real = (docs || []).filter(function (d) { return d.has; });
+    if (!real.length && andProjetoConcluido) return "";
     if (!real.length) return '<span style="font-size:11.5px;color:var(--mute)">Documento ainda não disponível.</span>';
     return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">' + real.map(andDocBtn).join("") + "</div>";
   };
 
   function buildAndamento(V) {
     var cp = V.cp;
-    var prazoTxt = cp.diasPrazo == null ? ""
+    andProjetoConcluido = !!cp.concluido;
+    var prazoTxt = cp.concluido ? "" : cp.diasPrazo == null ? ""
       : cp.diasPrazo > 1 ? cp.diasPrazo + " dias até a entrega"
       : cp.diasPrazo === 1 ? "Entrega amanhã"
       : cp.diasPrazo === 0 ? "Entrega é hoje"
       : Math.abs(cp.diasPrazo) + (Math.abs(cp.diasPrazo) === 1 ? " dia de atraso" : " dias de atraso");
-    var prazoColor = cp.diasPrazo != null && cp.diasPrazo < 0 ? "#b4443a" : "var(--accTxt)";
+    var prazoColor = !cp.concluido && cp.diasPrazo != null && cp.diasPrazo < 0 ? "#b4443a" : "var(--accTxt)";
 
     // ---- Resumo do projeto: nome/identificação, progresso geral,
     // etapa atual, previsão de entrega e etapas concluídas — só isso.
@@ -2520,7 +2525,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     // mais abaixo, pra não repetir o mesmo dado em dois lugares (pedido
     // da Lorena: "o prazo e o status aparecem tanto no resumo quanto
     // nos detalhes"). ----
-    var statCells = [
+    var statCells = cp.concluido ? [
+      { label: "Situação", value: "Projeto concluído", color: "var(--accTxt)" },
+      { label: "Entregue em", value: cp.concluidoEm || cp.prazo, color: "var(--accTxt)" },
+      { label: "Etapas concluídas", value: cp.etapasDone + " / " + cp.etapasTotal }
+    ] : [
       { label: "Etapa atual", value: cp.next },
       { label: "Previsão de entrega", value: cp.prazo + (prazoTxt ? " · " + prazoTxt : ""), color: prazoColor },
       { label: "Etapas concluídas", value: cp.etapasDone + " / " + cp.etapasTotal }
@@ -2565,8 +2574,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           var notesBlock = t.notes ? '<span style="font-size:12px;color:var(--ink2)">' + esc(t.notes) + "</span>" : "";
           return '<div style="display:flex;flex-direction:column;gap:4px;padding:11px 0;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="font-size:13.5px;color:' + (t.cur ? "var(--ink)" : "var(--ink2)") + '">' + esc(t.t) + '</span><span style="font-size:11px;font-weight:600;padding:3px 7px;background:' + chipBg + ";color:" + chipFg + ';white-space:nowrap">' + esc(t.st) + "</span></div>" + (t.totalCount ? '<span style="font-size:11px;color:var(--mute)">' + t.doneCount + " de " + t.totalCount + " concluídas</span>" : "") + notesBlock + "</div>";
         }).join("")
-      : '<div style="font-size:13px;color:var(--mute);padding:4px 0">Nenhuma etapa pendente — projeto concluído.</div>';
-    var proximasCard = '<section style="display:flex;flex-direction:column;gap:4px;padding:18px;background:var(--field);border:1px solid var(--line)">' + andLabel("Etapas seguintes") + proximas + "</section>";
+      : '<div style="font-size:13px;color:var(--mute);padding:4px 0">Nenhuma etapa pendente.</div>';
+    var proximasCard = cp.concluido
+      ? '<section style="display:flex;flex-direction:column;gap:8px;padding:18px;background:var(--field);border:1px solid var(--line)">' + andLabel("Projeto concluído")
+        + '<div style="font-size:13.5px;color:var(--ink)">Todas as etapas foram entregues.</div>'
+        + '<div style="font-size:12.5px;color:var(--mute)">Precisa de um ajuste ou tem uma dúvida? Abra um chamado em Suporte e a equipe responde por lá.</div></section>'
+      : '<section style="display:flex;flex-direction:column;gap:4px;padding:18px;background:var(--field);border:1px solid var(--line)">' + andLabel("Etapas seguintes") + proximas + "</section>";
 
     // ---- Informações complementares: detalhes essenciais do projeto
     // (status, tipo — sem repetir prazo, que já está no resumo) e o
