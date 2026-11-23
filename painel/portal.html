@@ -841,7 +841,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "projetos" && sel) {
         title = sel.nome; kicker = sel.code + " · " + cli(sel.clientId).nome; out.v_projDet = true;
-        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnS("Acessos e senhas", function () { go("cofre", { filter: sel.clientId || null }); }), btnS("Ver como o cliente", function () { entrarVisaoCliente(sel); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
+        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnS("Ver como o cliente", function () { entrarVisaoCliente(sel); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
         var pg = sel.parcelas.filter(function (q) { return q.pago; });
         out.pdInfo = [{ l: "Modelo", v: sel.tipo }, { l: "Valor", v: money(sel.valor) }, { l: "Parcelas pagas", v: pg.length + " de " + sel.parcelas.length }, { l: "Entrega", v: dt(sel.prazo) }, { l: "Progresso", v: pct(sel) + "%" }];
         // Acesso do cliente ao portal: e-mail (o mesmo que libera o link
@@ -922,9 +922,13 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
             render();
           });
         });
-        out.pTabs = [["tarefas", "Etapas"], ["docs", "Documentação · " + sel.docs.length], ["fin", "Parcelas"], ["hist", "Histórico"]].map(function (x) { var k = x[0], label = x[1]; return { label: label, bd: S.ptab === k ? "var(--accTxt)" : "transparent", fg: S.ptab === k ? "var(--ink)" : "var(--mute)", h: reg(function () { setState({ ptab: k }); }) }; });
+        out.pTabs = [["tarefas", "Etapas"], ["docs", "Documentação · " + sel.docs.length], ["fin", "Parcelas"], ["acessos", "Acessos e senhas"], ["hist", "Histórico"]].map(function (x) { var k = x[0], label = x[1]; return { label: label, bd: S.ptab === k ? "var(--accTxt)" : "transparent", fg: S.ptab === k ? "var(--ink)" : "var(--mute)", h: reg(function () { setState({ ptab: k }); }) }; });
         out.statusOpts = ["Em andamento", "Aguardando cliente", "Concluído"].map(function (s) { return { label: s, bd: sel.status === s ? "var(--accTxt)" : "var(--line2)", bg: sel.status === s ? "var(--accSoft)" : "transparent", fg: sel.status === s ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { save(function (d) { d.projects.filter(function (x) { return x.id === sel.id; })[0].status = s; log(d, sel.id, 'mudou o status para "' + s + '"'); }, null, function () { return sb().from("client_projects").update({ status: ST_DB[s] || "em_andamento" }).eq("id", sel.id).then(function () { return logRemote(sel.id, 'mudou o status para "' + s + '"'); }); }); }) }; });
-        out.pt_tarefas = S.ptab === "tarefas"; out.pt_docs = S.ptab === "docs"; out.pt_fin = S.ptab === "fin"; out.pt_hist = S.ptab === "hist";
+        out.pt_tarefas = S.ptab === "tarefas"; out.pt_docs = S.ptab === "docs"; out.pt_fin = S.ptab === "fin"; out.pt_hist = S.ptab === "hist"; out.pt_acessos = S.ptab === "acessos";
+        if (out.pt_acessos) {
+          out.pAcessosGroups = montarGruposCofre(D, true, sel.clientId).map(function (g) { g.nome = ""; return g; });
+          out.pAcessosNovoH = reg(function () { openModal("acesso", { clientId: sel.clientId || (D.clients[0] ? D.clients[0].id : ""), visivel: "Sim" }); });
+        }
         var newItemDrafts = S.newItem || {};
         out.tasks = sel.tasks.map(function (t, i) {
           var items = t.items || [];
@@ -2341,6 +2345,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       body = '<div style="display:flex;flex-direction:column">' + V.parcelas.map(function (q) {
         return '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;align-items:center;padding:13px 0;border-top:1px solid var(--line)"><span style="font-family:\'Lexend Exa\',sans-serif;font-size:11px;font-variant-numeric:tabular-nums">' + esc(q.n) + '</span><span style="font-size:14px;font-variant-numeric:tabular-nums">' + esc(q.valor) + '</span><span style="font-size:12px;color:var(--mute)">vence ' + esc(q.venc) + '</span><span><span style="font-size:11px;font-weight:600;padding:4px 8px;background:' + q.chipBg + ";color:" + q.chipFg + '">' + esc(q.chip) + '</span></span><button ' + h(q.h) + ' style="justify-self:end;padding:7px 11px;border:1px solid var(--line2);background:none;color:var(--ink);font-size:12px;cursor:pointer">' + esc(q.btn) + "</button></div>";
       }).join("") + "</div>";
+    } else if (V.pt_acessos) {
+      body = '<div style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><span style="font-size:13px;color:var(--mute);max-width:560px">Logins e senhas deste cliente. Os marcados com "Cliente vê" aparecem no portal dele, em Senhas e acessos.</span>'
+        + '<button ' + h(V.pAcessosNovoH) + ' style="padding:10px 14px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer">Novo acesso</button></div>'
+        + buildCofre({ cofreGroups: V.pAcessosGroups, cofreAdmin: true }) + "</div>";
     } else if (V.pt_hist) {
       body = '<div style="display:flex;flex-direction:column">' + V.hist.map(function (hh) {
         return '<div style="display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;padding:12px 0;border-top:1px solid var(--line);font-size:13px"><span style="color:var(--mute);font-variant-numeric:tabular-nums">' + esc(hh.at) + '</span><span><strong style="font-weight:600">' + esc(hh.who) + "</strong> " + esc(hh.text) + "</span></div>";
