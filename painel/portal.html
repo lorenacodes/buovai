@@ -655,10 +655,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
     var item = function (k, label, count) { return { label: label, count: count ? String(count) : "", hasCount: !!count, bd: V === k ? "var(--accTxt)" : "transparent", bg: V === k ? "var(--accSoft)" : "transparent", fg: V === k ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { go(k, { filter: null }); }) }; };
     var groups = admin ? [
-      ["Operação", [item("inicio", "Visão geral"), item("projetos", "Projetos", metricProjects.filter(function (p) { return p.status !== "Concluído"; }).length), item("clientes", "Clientes", metricClients.length), item("agenda", "Agenda", upcoming.length)]],
+      ["Operação", [item("inicio", "Visão geral"), item("projetos", "Projetos", metricProjects.filter(function (p) { return p.status !== "Concluído"; }).length), item("clientes", "Clientes", metricClients.length), (function () { var c = item("cofre", "Cofre de acessos"); c.h = reg(function () { window.location.href = "cofre.html"; }); return c; })(), item("agenda", "Agenda", upcoming.length)]],
       ["Comercial", [item("funil", "Funil", leadsOpen), item("prospeccao", "Prospecção", D.prospects.filter(function (z) { return z.status !== "Convertido" && z.status !== "Sem interesse"; }).length), item("propostas", "Propostas e contratos")]],
       ["Financeiro", [item("financeiro", "Recebimentos", atras.length || "")]],
-      ["Configuração", [item("modelos", "Modelos de projeto"), item("equipe", "Equipe e permissões"), (function () { var c = item("cofre", "Cofre de acessos"); c.h = reg(function () { window.location.href = "cofre.html"; }); return c; })()]]
+      ["Configuração", [item("modelos", "Modelos de projeto"), item("equipe", "Equipe e permissões")]]
     ] : [["Seu projeto", [item("andamento", "Andamento"), item("documentos", "Documentos e entregas", pendProps), item("cobrancas", "Cobranças"), item("suporte", "Suporte")]]];
     var navGroups = groups.map(function (g) { return { label: g[0], items: g[1], showLabel: !narrow }; });
 
@@ -830,7 +830,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "projetos" && sel) {
         title = sel.nome; kicker = sel.code + " · " + cli(sel.clientId).nome; out.v_projDet = true;
-        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnS("Ver como o cliente", function () { entrarVisaoCliente(sel); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
+        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnS("Acessos e senhas", function () { window.location.href = "cofre.html?cliente=" + encodeURIComponent(sel.clientId || ""); }), btnS("Ver como o cliente", function () { entrarVisaoCliente(sel); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
         var pg = sel.parcelas.filter(function (q) { return q.pago; });
         out.pdInfo = [{ l: "Modelo", v: sel.tipo }, { l: "Valor", v: money(sel.valor) }, { l: "Parcelas pagas", v: pg.length + " de " + sel.parcelas.length }, { l: "Entrega", v: dt(sel.prazo) }, { l: "Progresso", v: pct(sel) + "%" }];
         // Acesso do cliente ao portal: e-mail (o mesmo que libera o link

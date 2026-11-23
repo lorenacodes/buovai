@@ -102,6 +102,7 @@ textarea{resize:vertical;min-height:70px}
 (function () {
   var sb = window.buovaiClient;
   var $ = function (id) { return document.getElementById(id); };
+  var FILTRO = new URLSearchParams(location.search).get("cliente") || "";
   var CLIENTES = [], ACESSOS = [], editandoId = null, toastT = null, ocultarT = {};
 
   function toast(msg) {
@@ -128,10 +129,15 @@ textarea{resize:vertical;min-height:70px}
 
   function render() {
     var wrap = $("lista"); wrap.textContent = "";
-    if (!ACESSOS.length) { wrap.appendChild(el("p", "vazio", "Nenhum acesso cadastrado ainda. Clique em Novo acesso.")); return; }
+    var visiveis = ACESSOS.filter(function (a) { return !FILTRO || a.client_id === FILTRO; });
+    if (!visiveis.length) { wrap.appendChild(el("p", "vazio", "Nenhum acesso cadastrado ainda. Clique em Novo acesso.")); }
+    if (FILTRO) {
+      var todos = el("a", "btn small", "Ver os acessos de todos os clientes"); todos.href = "cofre.html"; todos.style.display = "inline-block"; todos.style.marginBottom = "14px"; wrap.appendChild(todos);
+    }
+    if (!visiveis.length) return;
     var porCliente = {};
     ACESSOS.forEach(function (a) { (porCliente[a.client_id] = porCliente[a.client_id] || []).push(a); });
-    CLIENTES.filter(function (c) { return porCliente[c.id]; }).forEach(function (c) {
+    CLIENTES.filter(function (c) { return porCliente[c.id] && (!FILTRO || c.id === FILTRO); }).forEach(function (c) {
       var g = el("section", "grupo"); g.appendChild(el("h2", null, c.nome));
       porCliente[c.id].sort(function (a, b) { return (a.renovacao || "9999").localeCompare(b.renovacao || "9999"); }).forEach(function (a) {
         var card = el("div", "card"), info = el("div");
@@ -188,7 +194,7 @@ textarea{resize:vertical;min-height:70px}
     $("modal-titulo").textContent = a ? "Editar acesso" : "Novo acesso";
     var sel = $("f-cliente"); sel.textContent = "";
     CLIENTES.forEach(function (c) { var o = el("option", null, c.nome); o.value = c.id; sel.appendChild(o); });
-    sel.value = a ? a.client_id : (CLIENTES[0] ? CLIENTES[0].id : "");
+    sel.value = a ? a.client_id : (FILTRO && CLIENTES.some(function (c) { return c.id === FILTRO; }) ? FILTRO : (CLIENTES[0] ? CLIENTES[0].id : ""));
     sel.disabled = !!a;
     $("f-servico").value = a ? a.servico : "";
     $("f-url").value = a && a.url ? a.url : "";
