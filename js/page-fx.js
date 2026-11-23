@@ -599,17 +599,20 @@
     const ft = document.querySelector("footer");
     if (!ft) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Fica no canto do rodapé, fora da coluna da logo/foto: evita três
+    // círculos (logo, foto, robô) empilhados na mesma posição (pedido
+    // da Lorena).
+    if (!ft.style.position) ft.style.position = "relative";
     const box = document.createElement("div");
-    box.style.cssText = "position:relative;width:72px;margin-top:28px;pointer-events:auto;cursor:pointer";
+    box.style.cssText = "position:absolute;right:28px;bottom:140px;width:72px;pointer-events:auto;cursor:pointer;z-index:2";
     box.innerHTML = botSvg({ maskId: "buov-foot-mask", prefix: "f", color: "#fffceb", headY: 440 });
     const zz = document.createElement("div");
     zz.style.cssText = "position:absolute;left:70%;top:-10px;font-family:'Lexend Exa',sans-serif;font-size:13px;color:#fffceb;pointer-events:none";
     const bub = document.createElement("div");
     bub.style.cssText =
-      "position:absolute;left:100%;top:14px;margin-left:16px;font-family:'Lexend Exa',sans-serif;font-size:11px;background:#1f4905;color:#defa9a;padding:8px 12px;white-space:nowrap;opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease";
+      "position:absolute;right:100%;top:14px;margin-right:16px;font-family:'Lexend Exa',sans-serif;font-size:11px;background:#1f4905;color:#defa9a;padding:8px 12px;white-space:nowrap;opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease";
     box.append(zz, bub);
-    const brandCol = ft.querySelector("img") ? ft.querySelector("img").parentElement : ft;
-    brandCol.appendChild(box);
+    ft.appendChild(box);
 
     const q = (s) => box.querySelector(s);
     const head = q(".f-head"), aL = q(".f-antL"), aR = q(".f-antR"), eyes = q(".f-eyes"), lid = q(".f-lid");
