@@ -386,7 +386,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       projects: [proj],
       proposals: (dados.proposals || []).filter(function (x) { return c.email && x.clientId === c.email; }),
       meetings: (dados.meetings || []).filter(function (m) { return m.cliente === p.clienteNome; }),
-      messages: extra.messages, tickets: extra.tickets
+      messages: extra.messages, tickets: extra.tickets,
+      credentials: (dados.credentials || []).filter(function (x) { return x.visivel_cliente && x.client_id === (c.id || p.clientId); })
     };
   }
   function entrarVisaoCliente(p) {
@@ -407,7 +408,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     b.onclick = function () { sairVisaoCliente(p.id); };
     barra.appendChild(t); barra.appendChild(b);
     S.previewExtra = { messages: [], tickets: [] };
-    S.preview = p.id; S.view = "andamento"; S.sel = null; S.modal = null;
+    S.cofreShown = {}; S.preview = p.id; S.view = "andamento"; S.sel = null; S.modal = null;
     render();
     Promise.all([
       window.buovaiClient.from("project_messages").select("*").eq("project_id", p.id).order("created_at"),
@@ -425,7 +426,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var barra = document.getElementById("previewBar");
     if (barra) barra.remove();
     document.body.style.paddingTop = "";
-    S.preview = null; S.previewExtra = null; S.view = "projetos"; S.sel = projectId || null; S.modal = null;
+    S.cofreShown = {}; S.preview = null; S.previewExtra = null; S.view = "projetos"; S.sel = projectId || null; S.modal = null;
     render();
     try { window.scrollTo({ top: 0 }); } catch (e) {}
   }
@@ -589,7 +590,17 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       D.proposals = (propRes2.data || []).map(function (p) { return { id: p.id, clientId: p.client_email, clienteNome: p.client_name, titulo: p.titulo, tipo: p.tipo, valor: Number(p.valor) || 0, status: p.status, data: p.data }; });
       D.meetings = (meetRes2.data || []).map(function (m) { return { id: m.id, titulo: m.titulo, data: m.data, hora: (m.hora || "").slice(0, 5), status: m.status || "confirmada", pedidoCliente: !!m.requested_by_client }; });
     }
+    D.credentials = await carregarCredenciais();
     return D;
+  }
+
+  // Acessos e senhas: admin recebe todos; cliente recebe só os marcados para ele (o banco filtra).
+  async function carregarCredenciais() {
+    try {
+      var r = await window.buovaiClient.from("client_credentials")
+        .select("id, client_id, servico, url, usuario, secret_id, renovacao, observacoes, visivel_cliente").order("servico");
+      return r.data || [];
+    } catch (e) { return []; }
   }
 
   // ---- computa valores de exibição (equivalente a renderVals) ----
@@ -655,11 +666,11 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
 
     var item = function (k, label, count) { return { label: label, count: count ? String(count) : "", hasCount: !!count, bd: V === k ? "var(--accTxt)" : "transparent", bg: V === k ? "var(--accSoft)" : "transparent", fg: V === k ? "var(--accTxt)" : "var(--ink2)", h: reg(function () { go(k, { filter: null }); }) }; };
     var groups = admin ? [
-      ["Operação", [item("inicio", "Visão geral"), item("projetos", "Projetos", metricProjects.filter(function (p) { return p.status !== "Concluído"; }).length), item("clientes", "Clientes", metricClients.length), (function () { var c = item("cofre", "Cofre de acessos"); c.h = reg(function () { window.location.href = "cofre.html"; }); return c; })(), item("agenda", "Agenda", upcoming.length)]],
+      ["Operação", [item("inicio", "Visão geral"), item("projetos", "Projetos", metricProjects.filter(function (p) { return p.status !== "Concluído"; }).length), item("clientes", "Clientes", metricClients.length), item("cofre", "Cofre de acessos"), item("agenda", "Agenda", upcoming.length)]],
       ["Comercial", [item("funil", "Funil", leadsOpen), item("prospeccao", "Prospecção", D.prospects.filter(function (z) { return z.status !== "Convertido" && z.status !== "Sem interesse"; }).length), item("propostas", "Propostas e contratos")]],
       ["Financeiro", [item("financeiro", "Recebimentos", atras.length || "")]],
       ["Configuração", [item("modelos", "Modelos de projeto"), item("equipe", "Equipe e permissões")]]
-    ] : [["Seu projeto", [item("andamento", "Andamento"), item("documentos", "Documentos e entregas", pendProps), item("cobrancas", "Cobranças"), (function () { var a = item("acessos", "Senhas e acessos"); a.h = reg(function () { window.location.href = "acessos.html" + (S.preview ? "?cliente=" + encodeURIComponent((D.clients[0] || {}).id || "") : ""); }); return a; })(), item("suporte", "Suporte")]]];
+    ] : [["Seu projeto", [item("andamento", "Andamento"), item("documentos", "Documentos e entregas", pendProps), item("cobrancas", "Cobranças"), item("acessos", "Senhas e acessos"), item("suporte", "Suporte")]]];
     var navGroups = groups.map(function (g) { return { label: g[0], items: g[1], showLabel: !narrow }; });
 
     var title = "", kicker = admin ? dateLine : (myProj0 ? myProj0.clienteNome : S.email) + " · portal do cliente", sub = "", actions = [], kpis = [], hasToolbar = false, qPh = "Buscar", tFilters = [], emptyList = false, hasViewToggle = false;
@@ -830,7 +841,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }
       if (V === "projetos" && sel) {
         title = sel.nome; kicker = sel.code + " · " + cli(sel.clientId).nome; out.v_projDet = true;
-        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnS("Acessos e senhas", function () { window.location.href = "cofre.html?cliente=" + encodeURIComponent(sel.clientId || ""); }), btnS("Ver como o cliente", function () { entrarVisaoCliente(sel); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
+        actions = [btnS("←︎ Projetos", function () { setState({ sel: null }); }), btnS("Acessos e senhas", function () { go("cofre", { filter: sel.clientId || null }); }), btnS("Ver como o cliente", function () { entrarVisaoCliente(sel); }), btnDanger("Excluir projeto", function () { deleteProject(sel); })];
         var pg = sel.parcelas.filter(function (q) { return q.pago; });
         out.pdInfo = [{ l: "Modelo", v: sel.tipo }, { l: "Valor", v: money(sel.valor) }, { l: "Parcelas pagas", v: pg.length + " de " + sel.parcelas.length }, { l: "Entrega", v: dt(sel.prazo) }, { l: "Progresso", v: pct(sel) + "%" }];
         // Acesso do cliente ao portal: e-mail (o mesmo que libera o link
@@ -1369,8 +1380,22 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           };
         });
       }
+      if (V === "cofre") {
+        title = "Cofre de acessos";
+        sub = "Logins e senhas dos serviços de cada cliente e as datas de renovação. Os acessos marcados com \"Cliente vê\" aparecem no portal do próprio cliente. As senhas ficam cifradas e cada visualização fica registrada.";
+        actions = [btnP("Novo acesso", function () { openModal("acesso", { clientId: S.filter || (D.clients[0] ? D.clients[0].id : ""), visivel: "Sim" }); })];
+        if (S.filter) actions.push(btnS("Ver todos os clientes", function () { S.filter = null; render(); }));
+        out.cofreAdmin = true;
+        out.cofreGroups = montarGruposCofre(D, true, S.filter);
+      }
     } else {
       var cps = D.projects, p0 = cps[0];
+      if (V === "acessos") {
+        title = "Senhas e acessos";
+        sub = "Logins e senhas dos serviços do seu projeto, cadastrados pela Buovai para você. A senha só aparece quando você clica em Mostrar e some sozinha em 20 segundos.";
+        out.cofreAdmin = false;
+        out.cofreGroups = montarGruposCofre(D, false, null);
+      }
       if (V === "andamento") {
         title = "Andamento do projeto";
         sub = "Acompanhe o progresso e acesse os documentos do seu projeto.";
@@ -1541,6 +1566,29 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     var sl = function (label, key, options) { return { label: label, isInput: false, isSelect: true, isArea: false, value: F[key] || "", chH: fc(key), options: options, key: key }; };
     var area = function (label, key, ph) { return { label: label, isInput: false, isSelect: false, isArea: true, ph: ph, value: F[key] || "", chH: fc(key), key: key }; };
     var MODALS = {
+      acesso: { t: F.id ? "Editar acesso" : "Novo acesso", b: "Salvar acesso",
+        fields: [
+          sl("Cliente", "clientId", cliOpts),
+          inp("Serviço *", "servico", "Ex.: registro.br, hospedagem, e-mail do domínio"),
+          inp("Endereço de acesso", "url", "https://registro.br"),
+          inp("Usuário ou login", "usuario", ""),
+          inp(F.id && F.temSenha ? "Senha (deixe em branco para manter a atual)" : "Senha", "senha", "", "password"),
+          inp("Data de renovação", "renovacao", "", "date"),
+          sl("Mostrar ao cliente, no portal dele?", "visivel", [{ v: "Sim", l: "Sim, o cliente vê este acesso e a senha" }, { v: "Não", l: "Não, só eu vejo" }]),
+          area("Observações", "obs", "")
+        ],
+        req: ["servico"],
+        go: function () {},
+        toast: "Acesso salvo",
+        remote: function (d) {
+          return sb().rpc("credential_save", {
+            p_id: F.id || null, p_client_id: F.clientId, p_servico: F.servico, p_url: F.url || "", p_usuario: F.usuario || "",
+            p_senha: F.senha || "", p_renovacao: F.renovacao || null, p_observacoes: F.obs || "", p_visivel_cliente: F.visivel !== "Não"
+          }).then(function (r) {
+            if (r.error) throw r.error;
+            return carregarCredenciais().then(function (lista) { d.credentials = lista; });
+          });
+        } },
       cliente: { t: "Cadastrar cliente", b: "Salvar cliente",
         // Usuário de teste é só uma conta de preview — a Lorena não quer
         // preencher nome, telefone, CPF etc. pra isso, só o e-mail de
@@ -1857,8 +1905,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       }),
       navGroups: navGroups, title: title, kicker: kicker, sub: sub, hasSub: !!sub, actions: actions, kpis: kpis, hasToolbar: hasToolbar, qPh: qPh, tFilters: tFilters, emptyList: emptyList, hasViewToggle: hasViewToggle,
       q: S.q, qChH: reg(function (e) { setState({ q: e.target.value }); }),
-      v_inicio: admin && V === "inicio", v_clientes: admin && V === "clientes", v_funil: admin && V === "funil", v_prospeccao: admin && V === "prospeccao", v_propostas: admin && V === "propostas", v_financeiro: admin && V === "financeiro", v_agenda: admin && V === "agenda", v_modelos: admin && V === "modelos", v_equipe: admin && V === "equipe",
-      v_andamento: !admin && V === "andamento", v_documentos: !admin && V === "documentos", v_cobrancas: !admin && V === "cobrancas", v_suporte: !admin && V === "suporte",
+      v_inicio: admin && V === "inicio", v_clientes: admin && V === "clientes", v_funil: admin && V === "funil", v_prospeccao: admin && V === "prospeccao", v_propostas: admin && V === "propostas", v_financeiro: admin && V === "financeiro", v_agenda: admin && V === "agenda", v_modelos: admin && V === "modelos", v_equipe: admin && V === "equipe", v_cofre: admin && V === "cofre",
+      v_andamento: !admin && V === "andamento", v_acessos: !admin && V === "acessos", v_documentos: !admin && V === "documentos", v_cobrancas: !admin && V === "cobrancas", v_suporte: !admin && V === "suporte",
       openCmdH: reg(function () { setState({ cmdOpen: true, cmdQ: "" }); focusCmd(); }), cmdOpen: S.cmdOpen, cmdQ: S.cmdQ, cmdChH: reg(function (e) { setState({ cmdQ: e.target.value }); }), cmdRes: cmdRes, cmdEmpty: !cmdRes.length,
       cmdKeyH: reg(function (e) { if (e.key === "Enter" && cmdRes[0]) H[cmdRes[0].h](); }), closeCmdBgH: reg(function (e) { if (e.target === e.currentTarget) setState({ cmdOpen: false }); }),
       showBot: !admin, helpOpen: !admin && S.helpOpen, helpBtnLabel: S.helpOpen ? "Fechar ajuda" : "Precisa de ajuda?", toggleHelpH: reg(function () { S.helpOpen = !S.helpOpen; render(); scrollHelp(); }),
@@ -2446,6 +2494,94 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     return nav + head + grid;
   }
 
+  // ---- Cofre de acessos (admin) e Senhas e acessos (cliente) ----
+  function montarGruposCofre(D, admin, filtroCliente) {
+    var lista = (D.credentials || []).filter(function (c) { return !filtroCliente || c.client_id === filtroCliente; });
+    var grupos = {};
+    lista.forEach(function (c) { (grupos[c.client_id] = grupos[c.client_id] || []).push(c); });
+    var shown = S.cofreShown || {};
+    var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    return Object.keys(grupos).map(function (cid) {
+      var cli = (D.clients || []).filter(function (x) { return x.id === cid; })[0];
+      return {
+        nome: admin ? (cli ? cli.nome : "Cliente") : "",
+        rows: grupos[cid].sort(function (a, b) { return (a.renovacao || "9999").localeCompare(b.renovacao || "9999"); }).map(function (c) {
+          var chips = [];
+          if (c.renovacao) {
+            var pr = c.renovacao.split("-"), dias = Math.round((new Date(+pr[0], +pr[1] - 1, +pr[2]) - hoje) / 86400000);
+            var ch = dias < 0 ? CH.bad : dias <= 30 ? CH.warn : CH.ok;
+            chips.push({ t: dias < 0 ? "Venceu em " + dt(c.renovacao) : dias === 0 ? "Vence hoje" : dias <= 30 ? "Vence em " + dias + (dias === 1 ? " dia" : " dias") : "Renova em " + dt(c.renovacao), bg: ch[0], fg: ch[1] });
+          }
+          if (admin) chips.push({ t: c.visivel_cliente ? "Cliente vê" : "Só você vê", bg: c.visivel_cliente ? CH.ok[0] : CH.neu[0], fg: c.visivel_cliente ? CH.ok[1] : CH.neu[1] });
+          var shownTxt = shown[c.id];
+          return {
+            servico: c.servico, url: c.url || "", usuario: c.usuario || "", obs: c.observacoes || "", chips: chips, temSenha: !!c.secret_id,
+            shown: shownTxt != null, shownTxt: shownTxt || "",
+            showH: reg(function () { alternarSenha(c); }),
+            copyH: reg(function () { copiarSenha(c); }),
+            editH: reg(function () { openModal("acesso", { id: c.id, clientId: c.client_id, servico: c.servico, url: c.url || "", usuario: c.usuario || "", senha: "", temSenha: !!c.secret_id, renovacao: c.renovacao || "", visivel: c.visivel_cliente ? "Sim" : "Não", obs: c.observacoes || "" }); }),
+            delH: reg(function () { apagarAcesso(c); })
+          };
+        })
+      };
+    });
+  }
+  var cofreTimers = {};
+  function pedirSenha(c) {
+    return sb().rpc("credential_reveal", { p_id: c.id }).then(function (r) {
+      if (r.error) { S.toast = S.preview ? "Modo de visualização: a senha não é mostrada." : "Não foi possível mostrar a senha agora."; clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600); render(); return null; }
+      return r.data;
+    });
+  }
+  function alternarSenha(c) {
+    S.cofreShown = S.cofreShown || {};
+    if (S.cofreShown[c.id] != null) { delete S.cofreShown[c.id]; render(); return; }
+    pedirSenha(c).then(function (v) {
+      if (v == null) return;
+      S.cofreShown[c.id] = v; render();
+      clearTimeout(cofreTimers[c.id]);
+      cofreTimers[c.id] = setTimeout(function () { if (S.cofreShown) delete S.cofreShown[c.id]; render(); }, 20000);
+    });
+  }
+  function copiarSenha(c) {
+    pedirSenha(c).then(function (v) {
+      if (v == null) return;
+      var ok = function () { S.toast = "Senha copiada"; clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2200); render(); };
+      var no = function () { S.toast = "Não foi possível copiar. Use Mostrar."; clearTimeout(toastTimer); toastTimer = setTimeout(function () { setState({ toast: null }); }, 2600); render(); };
+      try { navigator.clipboard.writeText(v).then(ok, no); } catch (e) { no(); }
+    });
+  }
+  function apagarAcesso(c) {
+    if (!window.confirm('Apagar o acesso "' + c.servico + '" e a senha guardada? Isso não pode ser desfeito.')) return;
+    save(function (d) { d.credentials = (d.credentials || []).filter(function (x) { return x.id !== c.id; }); }, "Acesso apagado", function () {
+      return sb().rpc("credential_delete", { p_id: c.id }).then(function (r) { if (r.error) throw r.error; });
+    });
+  }
+  function buildCofre(V) {
+    var btn = 'padding:7px 11px;border:1px solid var(--line2);background:none;color:var(--ink);font-family:\'Lexend Exa\',sans-serif;font-size:11px;cursor:pointer';
+    if (!V.cofreGroups.length) {
+      return '<div style="padding:30px 0;color:var(--mute);font-size:14px">' + (V.cofreAdmin ? "Nenhum acesso cadastrado ainda. Use Novo acesso." : "Ainda não há acessos cadastrados para você. Quando a Buovai cadastrar, eles aparecem aqui.") + "</div>";
+    }
+    return V.cofreGroups.map(function (g) {
+      var rows = g.rows.map(function (r) {
+        var chips = r.chips.map(function (c) { return '<span style="font-size:11px;font-weight:600;padding:3px 7px;background:' + c.bg + ";color:" + c.fg + ';white-space:nowrap">' + esc(c.t) + "</span>"; }).join("");
+        var link = r.url ? (/^https?:\/\//i.test(r.url) ? '<a href="' + esc(r.url) + '" target="_blank" rel="noopener noreferrer">' + esc(r.url) + "</a>" : "<span>" + esc(r.url) + "</span>") : "";
+        var meta = [r.usuario ? "<span>Usuário: " + esc(r.usuario) + "</span>" : "", link].filter(Boolean).join("");
+        var senha = r.shown ? '<div style="grid-column:1/-1;padding:10px 12px;background:var(--field);border:1px dashed var(--line2);font-family:ui-monospace,Consolas,monospace;font-size:14px;word-break:break-all">' + esc(r.shownTxt) + "</div>" : "";
+        var acoes = (r.temSenha
+            ? '<button ' + h(r.showH) + ' style="' + btn + '">' + (r.shown ? "Ocultar" : "Mostrar") + '</button><button ' + h(r.copyH) + ' style="' + btn + '">Copiar</button>'
+            : '<span style="font-size:12px;color:var(--mute);padding:7px 0">' + (V.cofreAdmin ? "Sem senha salva" : "Senha ainda não cadastrada") + "</span>")
+          + (V.cofreAdmin ? '<button ' + h(r.editH) + ' style="' + btn + '">Editar</button><button ' + h(r.delH) + ' style="' + btn + ';color:var(--badFg)">Apagar</button>' : "");
+        return '<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;padding:14px 0;border-top:1px solid var(--line)">'
+          + '<div style="display:flex;flex-direction:column;gap:6px;min-width:0"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-size:14px;font-weight:600">' + esc(r.servico) + "</span>" + chips + "</div>"
+          + (meta ? '<div style="display:flex;gap:6px 16px;flex-wrap:wrap;font-size:12.5px;color:var(--mute)">' + meta + "</div>" : "")
+          + (r.obs ? '<div style="font-size:12.5px;color:var(--ink2);white-space:pre-wrap">' + esc(r.obs) + "</div>" : "") + "</div>"
+          + '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;justify-content:flex-end">' + acoes + "</div>" + senha + "</div>";
+      }).join("");
+      return '<section style="display:flex;flex-direction:column;gap:2px">' + (g.nome ? andLabel(g.nome) : "") + rows + "</section>";
+    }).join("");
+  }
+
   function buildModelos(V) {
     var list = '<div style="display:flex;flex-direction:column">' + V.tplList.map(function (t) {
       return '<button ' + h(t.h) + ' style="display:flex;justify-content:space-between;gap:12px;padding:13px 12px;border:0;border-top:1px solid var(--line);border-left:2px solid ' + t.bd + ";background:" + t.bg + ';color:var(--ink);text-align:left;font:inherit;cursor:pointer"><span style="font-size:14px;font-weight:600">' + esc(t.nome) + '</span><span style="font-size:12px;color:var(--mute);white-space:nowrap">' + esc(t.meta) + "</span></button>";
@@ -2660,6 +2796,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     else if (V.v_agenda) body = buildAgenda(V);
     else if (V.v_modelos) body = buildModelos(V);
     else if (V.v_equipe) body = buildEquipe(V);
+    else if (V.v_cofre || V.v_acessos) body = buildCofre(V);
     else if (V.v_andamento) body = buildAndamento(V);
     else if (V.v_documentos) body = buildDocumentos(V);
     else if (V.v_cobrancas) body = buildCobrancas(V);
