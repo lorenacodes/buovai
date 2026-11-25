@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Proposta Comercial · buov.ai</title>
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lexend+Exa:wght@300;400;500&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<!--
+  MODELO PADRÃO DE PROPOSTA COMERCIAL — buov.ai
+
+  Como usar:
+  1. Duplique este arquivo (ex.: propostas/2026-012-cliente.html).
+  2. Abra no navegador. Todo o texto é editável direto na página
+     (clique e digite). Trechos com fundo lima são campos a preencher.
+  3. Clique em "Salvar PDF" (ou Ctrl/Cmd+P → Salvar como PDF,
+     papel A4, margens "Nenhuma", com "Gráficos de fundo" ligado).
+  Edições feitas no navegador não são salvas no arquivo: para manter,
+  edite o HTML ou salve o PDF ao terminar.
+
+  Cores e fontes seguem o site (css/site.css): tinta #0e0f0b, creme
+  #fffceb, verde escuro #1f4905, verde #457528, lima #defa9a;
+  Lexend Exa nos títulos, Open Sans no texto.
+-->
+<style>
+  :root {
+    --ink: #0e0f0b;
+    --ink-soft: #2b2e24;
+    --muted: #6b6f60;
+    --line: #c9cbb5;
+    --cream: #fffceb;
+    --panel: #efeedb;
+    --accent-dark: #1f4905;
+    --accent: #457528;
+    --lime: #defa9a;
+    --grad: linear-gradient(118deg, #1f4905 0%, #3f5204 14%, #457528 38%, #779e68 62%, #79ae4c 82%, #c6e57c 100%);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    margin: 0;
+    background: #d8d5c0;
+    color: var(--ink);
+    font: 10.5pt/1.6 'Open Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  @page { size: A4; margin: 0; }
+
+  /* ---------- Barra de ferramentas (só na tela) ---------- */
+  .toolbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    padding: 12px 16px; background: var(--ink); color: var(--cream);
+    font: 12px 'Lexend Exa', sans-serif;
+  }
+  .toolbar span { opacity: .7; margin-right: auto; }
+  .toolbar button {
+    border: 1px solid var(--cream); background: transparent; color: var(--cream);
+    padding: 8px 14px; border-radius: 999px; cursor: pointer; font: inherit;
+  }
+  .toolbar button.primary { background: var(--lime); border-color: var(--lime); color: var(--ink); }
+
+  /* ---------- Página A4 ---------- */
+  .page {
+    position: relative;
+    width: 210mm; height: 297mm;
+    margin: 24px auto;
+    padding: 22mm 20mm 26mm;
+    background: var(--cream);
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(14,15,11,.18);
+    display: flex; flex-direction: column;
+  }
+  .page-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 5mm; margin-bottom: 10mm;
+    border-bottom: 1px solid var(--ink);
+    font: 8pt 'Lexend Exa', sans-serif; letter-spacing: .02em; color: var(--muted);
+  }
+  .page-head img { height: 9mm; width: auto; }
+  .page-foot {
+    position: absolute; left: 20mm; right: 20mm; bottom: 12mm;
+    display: flex; justify-content: space-between;
+    font: 7.5pt 'Lexend Exa', sans-serif; color: var(--muted);
+  }
+
+  /* ---------- Tipografia ---------- */
+  h1, h2, h3, .lexend { font-family: 'Lexend Exa', sans-serif; font-weight: 400; letter-spacing: -.03em; margin: 0; }
+  .kicker { font: 8pt 'Lexend Exa', sans-serif; letter-spacing: .04em; color: var(--accent); margin-bottom: 3mm; }
+  h2 { font-size: 21pt; line-height: 1.18; margin-bottom: 7mm; }
+  h2 span { color: var(--accent); }
+  h3 { font-size: 11.5pt; line-height: 1.3; margin-bottom: 2mm; }
+  p { margin: 0 0 3.5mm; color: var(--ink-soft); }
+  .lead { font-size: 12pt; line-height: 1.55; color: var(--ink); }
+  section + section { margin-top: 10mm; }
+  ul.clean { list-style: none; margin: 0; padding: 0; }
+  ul.clean li { position: relative; padding-left: 6mm; margin-bottom: 2.2mm; color: var(--ink-soft); }
+  ul.clean li::before { content: ""; position: absolute; left: 0; top: .62em; width: 3mm; height: 1px; background: var(--accent); }
+  ul.clean.no li::before { background: var(--muted); }
+
+  /* Campo a preencher */
+  .fill { background: var(--lime); border-radius: 2px; padding: 0 3px; }
+  body.clean-mode .fill { background: transparent; padding: 0; }
+
+  /* ---------- Capa ---------- */
+  .cover { background: var(--grad); color: var(--cream); padding: 24mm 20mm; justify-content: space-between; }
+  .cover::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(60% 50% at 85% 90%, rgba(222,250,154,.35), transparent 70%);
+  }
+  .cover > * { position: relative; z-index: 1; }
+  .cover .logo { height: 22mm; width: auto; margin-left: -2mm; }
+  .cover .tag { font: 9pt 'Lexend Exa', sans-serif; opacity: .85; margin-top: 1mm; }
+  .cover h1 { font-size: 34pt; line-height: 1.08; margin-bottom: 6mm; font-weight: 300; }
+  .cover h1 span { color: var(--lime); }
+  .cover .sub { font-size: 12pt; max-width: 135mm; color: var(--cream); opacity: .92; }
+  .cover .fill { background: rgba(222,250,154,.28); }
+  body.clean-mode .cover .fill { background: transparent; }
+  .cover-meta {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm;
+    padding-top: 6mm; border-top: 1px solid rgba(255,252,235,.5);
+  }
+  .cover-meta div { font-size: 10pt; }
+  .cover-meta small { display: block; font: 7.5pt 'Lexend Exa', sans-serif; letter-spacing: .04em; opacity: .75; margin-bottom: 1mm; }
+
+  /* ---------- Blocos ---------- */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; }
+  .card { background: var(--panel); border-radius: 4mm; padding: 6mm; }
+  .card.dark { background: var(--ink); color: var(--cream); }
+  .card.dark p, .card.dark li { color: #e3e1cc; }
+  .card.dark h3 { color: var(--lime); }
+  .num { font: 9pt 'Lexend Exa', sans-serif; color: var(--accent); display: block; margin-bottom: 2mm; }
+
+  .deliverables { border-top: 1px solid var(--ink); }
+  .deliverables .row {
+    display: grid; grid-template-columns: 12mm 1fr; gap: 4mm;
+    padding: 4mm 0; border-bottom: 1px solid var(--line);
+  }
+  .deliverables .row p { margin: 1mm 0 0; font-size: 9.5pt; }
+
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; border-top: 1px solid var(--ink); padding-top: 5mm; }
+  .steps p { font-size: 9pt; line-height: 1.5; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  th { text-align: left; font: 7.5pt 'Lexend Exa', sans-serif; letter-spacing: .04em; color: var(--muted); font-weight: 400; padding: 0 0 2.5mm; border-bottom: 1px solid var(--ink); }
+  td { padding: 3mm 0; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-soft); }
+  td:last-child, th:last-child { text-align: right; white-space: nowrap; }
+  .timeline td:nth-child(2) { width: 34mm; text-align: left; }
+
+  .total {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 6mm; padding: 6mm 7mm; border-radius: 4mm;
+    background: var(--grad); color: var(--cream);
+  }
+  .total small { font: 8pt 'Lexend Exa', sans-serif; letter-spacing: .04em; opacity: .85; }
+  .total strong { font: 400 22pt 'Lexend Exa', sans-serif; letter-spacing: -.03em; }
+  .total .fill { background: rgba(222,250,154,.28); }
+  body.clean-mode .total .fill { background: transparent; }
+
+  .sign { display: grid; grid-template-columns: 1fr 1fr; gap: 12mm; margin-top: auto; padding-top: 10mm; }
+  .sign div { border-top: 1px solid var(--ink); padding-top: 2.5mm; font-size: 9pt; color: var(--ink-soft); }
+  .sign strong { display: block; font: 400 10pt 'Lexend Exa', sans-serif; color: var(--ink); letter-spacing: -.02em; }
+
+  /* ---------- Contracapa ---------- */
+  .back { background: var(--ink); color: var(--cream); justify-content: space-between; padding: 24mm 20mm; }
+  .back .logo { height: 18mm; width: auto; margin-left: -2mm; align-self: flex-start; }
+  .back h2 { color: var(--cream); font-size: 26pt; font-weight: 300; }
+  .back h2 span { color: var(--lime); }
+  .back p { color: #e3e1cc; }
+  .contact { display: grid; gap: 3mm; font-size: 11pt; }
+  .contact a { color: var(--cream); text-decoration: none; }
+  .contact small { display: block; font: 7.5pt 'Lexend Exa', sans-serif; letter-spacing: .04em; color: var(--lime); }
+
+  [contenteditable]:focus { outline: 1px dashed var(--accent); outline-offset: 2px; }
+
+  @media print {
+    body { background: none; }
+    .toolbar { display: none; }
+    .page { margin: 0; box-shadow: none; break-after: page; }
+    .page:last-child { break-after: auto; }
+    .fill { background: transparent !important; padding: 0; }
+  }
+  @media screen and (max-width: 840px) {
+    .page { transform-origin: top left; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span>Modelo de proposta · clique em qualquer texto para editar · campos em lima = preencher</span>
+  <button type="button" id="toggleFill">Ocultar destaques</button>
+  <button type="button" class="primary" onclick="window.print()">Salvar PDF</button>
+</div>
+
+<main contenteditable="true" spellcheck="true">
+
+<!-- ================= 1 · CAPA ================= -->
+<div class="page cover">
+  <div>
+    <img class="logo" src="../assets/img/logo-wordmark-light.svg" alt="buov.ai">
+    <div class="tag">sites, aplicativos e automações</div>
+  </div>
+
+  <div>
+    <div class="kicker" style="color:var(--lime)">// Proposta comercial</div>
+    <h1><span class="fill">Nome do projeto</span><br><span>para <span class="fill">Nome do cliente</span></span></h1>
+    <p class="sub"><span class="fill">Uma frase que resume o resultado esperado. Ex.: um sistema único para controlar pedidos, estoque e financeiro, sem planilhas paralelas.</span></p>
+  </div>
+
+  <div class="cover-meta">
+    <div><small>PROPOSTA Nº</small><span class="fill">2026-000</span></div>
+    <div><small>DATA</small><span class="fill">25 de novembro de 2026</span></div>
+    <div><small>VÁLIDA ATÉ</small><span class="fill">10 de dezembro de 2026</span></div>
+  </div>
+</div>
+
+<!-- ================= 2 · CONTEXTO E OBJETIVO ================= -->
+<div class="page">
+  <div class="page-head"><img src="../brand/logo-wordmark-dark.svg" alt="buov.ai"><span>Proposta <span class="fill">2026-000</span> · <span class="fill">Nome do cliente</span></span></div>
+
+  <section>
+    <div class="kicker">//01 · O ponto de partida</div>
+    <h2>Como a operação <span>funciona hoje.</span></h2>
+    <p class="lead"><span class="fill">Descreva, com as palavras do cliente, como o processo acontece hoje: quem faz o quê, em quais ferramentas (planilhas, WhatsApp, sistema antigo) e onde está o atrito.</span></p>
+    <p><span class="fill">Detalhe o que foi entendido na conversa inicial: volume (pedidos/mês, usuários, clientes), etapas manuais, retrabalho e riscos atuais.</span></p>
+  </section>
+
+  <section class="grid2">
+    <div class="card">
+      <h3>O que trava hoje</h3>
+      <ul class="clean no">
+        <li><span class="fill">Dor 1 — ex.: informação espalhada em várias planilhas</span></li>
+        <li><span class="fill">Dor 2 — ex.: digitação dupla entre sistemas</span></li>
+        <li><span class="fill">Dor 3 — ex.: cliente sem visibilidade do andamento</span></li>
+      </ul>
+    </div>
+    <div class="card dark">
+      <h3>O que muda com o projeto</h3>
+      <ul class="clean">
+        <li><span class="fill">Resultado 1 — ex.: um só lugar para toda a operação</span></li>
+        <li><span class="fill">Resultado 2 — ex.: integrações automáticas</span></li>
+        <li><span class="fill">Resultado 3 — ex.: portal do cliente com status em tempo real</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker">Objetivo</div>
+    <p class="lead" style="margin:0"><span class="fill">Em uma ou duas frases: o que estará funcionando ao final do projeto e como vamos saber que deu certo.</span></p>
+  </section>
+
+  <div class="page-foot"><span>buov.ai · Proposta comercial</span><span>02</span></div>
+</div>
+
+<!-- ================= 3 · SOLUÇÃO E ESCOPO ================= -->
+<div class="page">
+  <div class="page-head"><img src="../brand/logo-wordmark-dark.svg" alt="buov.ai"><span>Proposta <span class="fill">2026-000</span> · <span class="fill">Nome do cliente</span></span></div>
+
+  <section>
+    <div class="kicker">//02 · A solução</div>
+    <h2>O que será construído, <span>parte por parte.</span></h2>
+    <p><span class="fill">Visão geral da solução em um parágrafo: tipo de entrega (sistema web, aplicativo, automação, site), quem vai usar e como se conecta ao que já existe.</span></p>
+  </section>
+
+  <section class="deliverables">
+    <div class="row"><span class="num">01</span><div><h3><span class="fill">Módulo / entrega 1</span></h3><p><span class="fill">O que faz, para quem e o critério de "pronto".</span></p></div></div>
+    <div class="row"><span class="num">02</span><div><h3><span class="fill">Módulo / entrega 2</span></h3><p><span class="fill">O que faz, para quem e o critério de "pronto".</span></p></div></div>
+    <div class="row"><span class="num">03</span><div><h3><span class="fill">Módulo / entrega 3</span></h3><p><span class="fill">O que faz, para quem e o critério de "pronto".</span></p></div></div>
+    <div class="row"><span class="num">04</span><div><h3><span class="fill">Módulo / entrega 4</span></h3><p><span class="fill">O que faz, para quem e o critério de "pronto".</span></p></div></div>
+  </section>
+
+  <section class="grid2">
+    <div>
+      <h3>Incluso</h3>
+      <ul class="clean">
+        <li>Hospedagem e configuração inicial do ambiente</li>
+        <li>Migração dos dados existentes <span class="fill">(planilhas / sistema atual)</span></li>
+        <li>Treinamento de uso para a equipe</li>
+        <li><span class="fill">30 dias</span> de ajustes após a entrega</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Fora deste escopo</h3>
+      <ul class="clean no">
+        <li><span class="fill">Ex.: aplicativo nativo para lojas (iOS/Android)</span></li>
+        <li><span class="fill">Ex.: integrações não listadas acima</span></li>
+        <li>Novas funcionalidades após a aprovação do escopo, orçadas à parte</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="page-foot"><span>buov.ai · Proposta comercial</span><span>03</span></div>
+</div>
+
+<!-- ================= 4 · COMO TRABALHO E CRONOGRAMA ================= -->
+<div class="page">
+  <div class="page-head"><img src="../brand/logo-wordmark-dark.svg" alt="buov.ai"><span>Proposta <span class="fill">2026-000</span> · <span class="fill">Nome do cliente</span></span></div>
+
+  <section>
+    <div class="kicker">//03 · Como trabalho</div>
+    <h2>Direto com você, <span>em etapas curtas.</span></h2>
+    <p>Não há equipe entre o seu problema e o código. O projeto avança em ciclos curtos, e você valida cada parte pronta em vez de descobrir um desalinhamento só na entrega.</p>
+  </section>
+
+  <section class="steps">
+    <div><span class="num">01</span><h3>Conversa inicial</h3><p>Você descreve o problema e eu pergunto sobre a operação até entender como ela funciona hoje.</p></div>
+    <div><span class="num">02</span><h3>Definição do que é "pronto"</h3><p>Combinamos escopo, prioridades e o critério para considerar cada entrega concluída.</p></div>
+    <div><span class="num">03</span><h3>Construção em ciclos curtos</h3><p>Mostro cada parte funcionando e ajusto com o seu retorno antes de seguir para a próxima.</p></div>
+    <div><span class="num">04</span><h3>Entrega e acompanhamento</h3><p>Coloco o sistema no ar e continuo disponível para ajustes depois da entrega.</p></div>
+  </section>
+
+  <section>
+    <div class="kicker">Cronograma previsto</div>
+    <table class="timeline">
+      <thead><tr><th>ETAPA</th><th>DURAÇÃO</th><th>ENTREGA</th></tr></thead>
+      <tbody>
+        <tr><td>Imersão e definição do escopo</td><td><span class="fill">1 semana</span></td><td><span class="fill">Escopo aprovado</span></td></tr>
+        <tr><td><span class="fill">Ciclo 1 — Módulo 1</span></td><td><span class="fill">2 semanas</span></td><td><span class="fill">Versão para validação</span></td></tr>
+        <tr><td><span class="fill">Ciclo 2 — Módulos 2 e 3</span></td><td><span class="fill">2 semanas</span></td><td><span class="fill">Versão para validação</span></td></tr>
+        <tr><td>Migração de dados e testes finais</td><td><span class="fill">1 semana</span></td><td><span class="fill">Sistema no ar</span></td></tr>
+        <tr><td>Acompanhamento pós-entrega</td><td><span class="fill">30 dias</span></td><td>Ajustes e suporte</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:4mm;font-size:9pt;color:var(--muted)">Prazo total estimado: <span class="fill">6 semanas</span> a partir da assinatura e do envio das informações necessárias. Você acompanha cada etapa pelo portal exclusivo do cliente.</p>
+  </section>
+
+  <div class="page-foot"><span>buov.ai · Proposta comercial</span><span>04</span></div>
+</div>
+
+<!-- ================= 5 · INVESTIMENTO E ACEITE ================= -->
+<div class="page">
+  <div class="page-head"><img src="../brand/logo-wordmark-dark.svg" alt="buov.ai"><span>Proposta <span class="fill">2026-000</span> · <span class="fill">Nome do cliente</span></span></div>
+
+  <section>
+    <div class="kicker">//04 · Investimento</div>
+    <h2>Valores e <span>condições.</span></h2>
+    <table>
+      <thead><tr><th>ITEM</th><th>VALOR</th></tr></thead>
+      <tbody>
+        <tr><td><span class="fill">Desenvolvimento — módulos 01 a 04</span></td><td><span class="fill">R$ 0.000,00</span></td></tr>
+        <tr><td><span class="fill">Migração de dados</span></td><td><span class="fill">R$ 0.000,00</span></td></tr>
+        <tr><td><span class="fill">Identidade visual / site (opcional)</span></td><td><span class="fill">R$ 0.000,00</span></td></tr>
+      </tbody>
+    </table>
+    <div class="total"><small>INVESTIMENTO TOTAL</small><strong><span class="fill">R$ 00.000,00</span></strong></div>
+    <table style="margin-top:5mm">
+      <tbody>
+        <tr><td>Hospedagem, manutenção e suporte mensal</td><td><span class="fill">R$ 000,00/mês</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="grid2">
+    <div>
+      <h3>Forma de pagamento</h3>
+      <ul class="clean">
+        <li><span class="fill">40%</span> na assinatura</li>
+        <li><span class="fill">30%</span> na validação do ciclo 1</li>
+        <li><span class="fill">30%</span> na entrega final</li>
+        <li>Via PIX ou boleto</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Condições gerais</h3>
+      <ul class="clean">
+        <li>Proposta válida por <span class="fill">15 dias</span></li>
+        <li>O código e os dados pertencem ao cliente após a quitação</li>
+        <li>Mudanças de escopo são combinadas e orçadas antes de executar</li>
+        <li>Detalhes formalizados em contrato de prestação de serviço</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="sign">
+    <div><strong>Lorena Cardoso</strong>buov.ai · Arquiteta de Soluções</div>
+    <div><strong><span class="fill">Nome do responsável</span></strong><span class="fill">Empresa</span> · De acordo em ___/___/______</div>
+  </div>
+
+  <div class="page-foot"><span>buov.ai · Proposta comercial</span><span>05</span></div>
+</div>
+
+<!-- ================= 6 · CONTRACAPA ================= -->
+<div class="page back">
+  <img class="logo" src="../assets/img/logo-wordmark-light.svg" alt="buov.ai">
+
+  <div>
+    <h2>Vamos tirar isso <span>do papel?</span></h2>
+    <p style="max-width:130mm">Para aprovar, basta responder esta proposta ou assinar a página anterior. Qualquer dúvida, fale direto comigo.</p>
+  </div>
+
+  <div class="contact">
+    <div><small>LORENA CARDOSO</small>Arquiteta de Soluções &amp; Migração de Sistemas</div>
+    <div><small>WHATSAPP</small><a href="https://wa.me/5579998289485">(79) 9 9828-9485</a></div>
+    <div><small>E-MAIL</small><a href="mailto:contatobuovai@gmail.com">contatobuovai@gmail.com</a></div>
+    <div><small>SITE</small><a href="https://buovai.com.br">www.buovai.com.br</a></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+  document.getElementById('toggleFill').addEventListener('click', function () {
+    var on = document.body.classList.toggle('clean-mode');
+    this.textContent = on ? 'Mostrar destaques' : 'Ocultar destaques';
+  });
+</script>
+</body>
+</html>
