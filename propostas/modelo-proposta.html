@@ -24,6 +24,14 @@
   - Escreva como fala com o cliente, em primeira pessoa.
   - Use os termos que o cliente usou na conversa (o nome que ele dá às coisas).
   - Se uma seção não fizer sentido para o projeto, apague.
+
+  Valor sem apelo (vale para a proposta inteira):
+  - Cada parte deve responder "o que isso muda para o cliente", não só "o que eu faço".
+  - Mostre valor com fatos do próprio cliente: horas gastas, erros, vendas perdidas.
+    Use números só se vieram dele; se não tiver, descreva a situação sem inventar.
+  - Nada de superlativos ("incrível", "revolucionário"), urgência ("últimas vagas",
+    "só esta semana") ou promessas que não dependem só de você ("vai dobrar as vendas").
+  - Tom de quem recomenda, não de quem empurra: se algo não vale construir, diga.
 -->
 <style>
   :root {
@@ -121,13 +129,19 @@
   .letter img { width: 34mm; height: 34mm; object-fit: cover; border-radius: 50%; }
   .signoff { margin-top: 6mm; font-size: 10pt; color: var(--ink-soft); }
   .signoff strong { display: block; font: 400 11pt 'Lexend Exa', sans-serif; letter-spacing: -.02em; color: var(--ink); }
-  .divider { border: 0; border-top: 1px solid var(--line); margin: 11mm 0; }
+  .divider { border: 0; border-top: 1px solid var(--line); margin: 8mm 0; }
 
   /* ---------- Entregas ---------- */
   .item { display: grid; grid-template-columns: 9mm 1fr; padding: 4mm 0; border-top: 1px solid var(--line); }
   .item:last-of-type { border-bottom: 1px solid var(--line); }
   .item .n { font: 8.5pt 'Lexend Exa', sans-serif; color: var(--accent); padding-top: .5mm; }
   .item p { margin: 0; font-size: 9.8pt; }
+  .item p.gain { margin-top: 1mm; color: var(--accent-dark); }
+
+  table.compare td { width: 50%; text-align: left; white-space: normal; padding-right: 6mm; }
+  table.compare th { text-align: left; }
+  table.compare td:last-child, table.compare th:last-child { text-align: left; padding-left: 0; }
+  table.compare td:last-child { color: var(--ink); }
 
   /* ---------- Etapas ---------- */
   .stage { display: grid; grid-template-columns: 9mm 1fr; margin-bottom: 4.5mm; }
@@ -200,7 +214,7 @@
   <div class="letter">
     <div>
       <p class="hello">Olá, <span class="fill">[nome]</span>.</p>
-      <p>Obrigada pela conversa <span class="fill">[de terça]</span>. Nesta proposta reuni o diagnóstico da operação de vocês, a solução que recomendo, o prazo e o investimento.</p>
+      <p>Obrigada pela conversa <span class="fill">[de terça]</span>. Nesta proposta reuni o diagnóstico da operação de vocês, a solução que recomendo e o que ela muda no dia a dia da equipe, com prazo e investimento.</p>
       <p>Se algum ponto não refletir o que vocês precisam, me avise. Ajustamos antes do início do projeto, para que a entrega corresponda exatamente ao combinado.</p>
       <div class="signoff"><strong>Lorena Cardoso</strong>buov.ai</div>
     </div>
@@ -214,10 +228,22 @@
     <h2>Cenário atual</h2>
     <h3>Como a operação funciona hoje</h3>
     <p><span class="fill">[Ex.: os pedidos chegam pelo WhatsApp, são lançados em uma planilha e o estoque é conferido manualmente no fim do dia.]</span></p>
-    <h3 style="margin-top:5mm">Pontos de atenção</h3>
-    <p><span class="fill">[Onde o processo trava: retrabalho, erros recorrentes, tempo perdido, risco para o cliente final.]</span></p>
-    <h3 style="margin-top:5mm">Objetivo do projeto</h3>
+    <h3 style="margin-top:3.5mm">Pontos de atenção</h3>
+    <p><span class="fill">[O que isso custa hoje, com os dados que o cliente trouxe. Ex.: cerca de 2 horas por dia redigitando pedidos e vendas perdidas por item que constava na planilha, mas não estava na prateleira.]</span></p>
+    <h3 style="margin-top:3.5mm">Objetivo do projeto</h3>
     <p><span class="fill">[Ex.: consultar o estoque em tempo real e eliminar a digitação duplicada de pedidos.]</span></p>
+  </section>
+
+  <section style="margin-top:6mm">
+    <h3 style="margin-bottom:2mm">O que muda no dia a dia</h3>
+    <table class="compare">
+      <thead><tr><th>Hoje</th><th>Com o novo sistema</th></tr></thead>
+      <tbody>
+        <tr><td><span class="fill">[O pedido é digitado duas vezes]</span></td><td><span class="fill">[Lançado uma vez, por quem atende]</span></td></tr>
+        <tr><td><span class="fill">[Estoque conferido à mão no fim do dia]</span></td><td><span class="fill">[Saldo atualizado a cada venda]</span></td></tr>
+        <tr><td><span class="fill">[Cliente pergunta no WhatsApp pelo pedido]</span></td><td><span class="fill">[Cliente consulta o status sozinho]</span></td></tr>
+      </tbody>
+    </table>
   </section>
 
   <div class="page-foot"><span>buov.ai</span><span>2</span></div>
@@ -230,22 +256,22 @@
   <section>
     <div class="kicker">//02</div>
     <h2>Solução proposta</h2>
-    <p><span class="fill">[Um parágrafo curto: o que é (sistema web, app, automação, site), quem vai usar e com o que se conecta.]</span></p>
+    <p><span class="fill">[Um parágrafo curto: o que é (sistema web, app, automação, site), quem vai usar, com o que se conecta e por que esse caminho faz sentido para vocês, e não uma ferramenta pronta.]</span></p>
   </section>
 
   <section style="margin-top:6mm">
-    <div class="item"><span class="n">1</span><div><h3><span class="fill">[Cadastro de pedidos]</span></h3><p><span class="fill">[O que faz e quando considero pronto.]</span></p></div></div>
-    <div class="item"><span class="n">2</span><div><h3><span class="fill">[Controle de estoque]</span></h3><p><span class="fill">[O que faz e quando considero pronto.]</span></p></div></div>
-    <div class="item"><span class="n">3</span><div><h3><span class="fill">[Painel para o cliente acompanhar]</span></h3><p><span class="fill">[O que faz e quando considero pronto.]</span></p></div></div>
+    <div class="item"><span class="n">1</span><div><h3><span class="fill">[Cadastro de pedidos]</span></h3><p><span class="fill">[O que faz e quando considero pronto.]</span></p><p class="gain"><span class="fill">[Para vocês: o pedido entra uma vez só e já aparece para toda a equipe.]</span></p></div></div>
+    <div class="item"><span class="n">2</span><div><h3><span class="fill">[Controle de estoque]</span></h3><p><span class="fill">[O que faz e quando considero pronto.]</span></p><p class="gain"><span class="fill">[Para vocês: saber o que tem disponível antes de confirmar a venda.]</span></p></div></div>
+    <div class="item"><span class="n">3</span><div><h3><span class="fill">[Painel para o cliente acompanhar]</span></h3><p><span class="fill">[O que faz e quando considero pronto.]</span></p><p class="gain"><span class="fill">[Para vocês: menos mensagens perguntando pelo andamento.]</span></p></div></div>
   </section>
 
   <section>
     <h3>Incluso no escopo</h3>
     <ul class="plain">
-      <li>Migração dos dados existentes <span class="fill">[das planilhas]</span> para o novo sistema.</li>
-      <li>Publicação e configuração do ambiente.</li>
-      <li>Treinamento da equipe que vai utilizar o sistema.</li>
-      <li><span class="fill">[30 dias]</span> de ajustes após a entrega, sem custo adicional.</li>
+      <li>Migração dos dados existentes <span class="fill">[das planilhas]</span>, para que ninguém precise recadastrar nada.</li>
+      <li>Publicação e configuração do ambiente, sem exigir conhecimento técnico de vocês.</li>
+      <li>Treinamento da equipe, para que o sistema seja usado desde o primeiro dia.</li>
+      <li><span class="fill">[30 dias]</span> de ajustes após a entrega, sem custo adicional, para acertar o que só aparece no uso real.</li>
     </ul>
   </section>
 
@@ -264,7 +290,7 @@
   <section>
     <div class="kicker">//03</div>
     <h2>Metodologia e prazos</h2>
-    <p>O contato é direto comigo do início ao fim, sem intermediários. As entregas acontecem por etapas: cada parte concluída é validada por vocês antes de seguirmos para a próxima.</p>
+    <p>O contato é direto comigo do início ao fim, sem intermediários. As entregas acontecem por etapas: cada parte concluída é validada por vocês antes de seguirmos para a próxima. Assim vocês veem o sistema funcionando desde as primeiras semanas, e qualquer ajuste de rumo acontece cedo, quando ainda é simples.</p>
   </section>
 
   <section style="margin-top:6mm">
@@ -298,7 +324,8 @@
   <section>
     <div class="kicker">//04</div>
     <h2>Investimento e condições</h2>
-    <table>
+    <p><span class="fill">[Opcional, só com dados reais do cliente. Ex.: hoje a redigitação de pedidos ocupa cerca de 40 horas por mês da equipe. O sistema elimina essa etapa.]</span></p>
+    <table style="margin-top:4mm">
       <tbody>
         <tr><td><span class="fill">[Desenvolvimento do sistema (itens 1 a 3)]</span></td><td><span class="fill">[R$ 0.000]</span></td></tr>
         <tr><td><span class="fill">[Migração dos dados]</span></td><td><span class="fill">[R$ 0.000]</span></td></tr>
@@ -317,7 +344,7 @@
     <h3 style="margin-bottom:2mm">Condições gerais</h3>
     <ol class="terms">
       <li>Proposta válida até <span class="fill">[10 de dezembro de 2026]</span>.</li>
-      <li>Após a quitação, o código-fonte e os dados pertencem ao cliente.</li>
+      <li>Após a quitação, o código-fonte e os dados pertencem ao cliente, sem dependência da buov.ai para continuar usando o sistema.</li>
       <li>Alterações de escopo são alinhadas e orçadas antes da execução.</li>
       <li>Com o aceite, o contrato de prestação de serviço é enviado para assinatura.</li>
     </ol>
