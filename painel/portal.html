@@ -535,9 +535,10 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         pids.length ? sb().from("project_stages").select("*").in("project_id", pids).order("order_index") : Promise.resolve({ data: [] }),
         pids.length ? sb().from("project_installments").select("*").in("project_id", pids).order("numero") : Promise.resolve({ data: [] }),
         pids.length ? sb().from("project_deliveries").select("*").in("project_id", pids).order("delivered_at", { ascending: false }) : Promise.resolve({ data: [] }),
-        pids.length ? sb().from("activity_log").select("*").eq("entity_type", "project").in("entity_id", pids).order("created_at", { ascending: false }) : Promise.resolve({ data: [] })
+        pids.length ? sb().from("activity_log").select("*").eq("entity_type", "project").in("entity_id", pids).order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
+        pids.length ? sb().from("project_novidades").select("*").in("project_id", pids).order("data", { ascending: false }) : Promise.resolve({ data: [] })
       ]);
-      var stagesRes = res2[0], instRes = res2[1], delivRes = res2[2], histRes = res2[3];
+      var stagesRes = res2[0], instRes = res2[1], delivRes = res2[2], histRes = res2[3], novRes = res2[4];
       var signMap = await signDeliveryPaths((delivRes.data || []).map(function (d) { return d.file_path; }).filter(Boolean));
       D.projects = projRows.map(function (p) {
         return {
@@ -552,6 +553,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           parcelas: (instRes.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [], notes: s.notes || "" }; }),
           docs: (delivRes.data || []).filter(function (d) { return d.project_id === p.id; }).map(function (d) { return { id: d.id, nome: d.title, desc: d.description || "", tipo: d.doc_type, data: d.delivered_at, cli: d.visible_to_client, path: d.file_path || "", url: d.file_path ? (signMap[d.file_path] || "") : "", externalUrl: d.external_url || "", stageId: d.stage_id || "" }; }),
+          novidades: (novRes.data || []).filter(function (n) { return n.project_id === p.id; }).map(function (n) { return { data: n.data, itens: n.itens || [] }; }),
           hist: (histRes.data || []).filter(function (hh) { return hh.entity_id === p.id; }).map(function (hh) { return { at: hh.created_at, who: hh.actor_label, text: hh.detail }; })
         };
       });
@@ -564,11 +566,12 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
         pids2.length ? sb().from("project_installments").select("*").in("project_id", pids2).order("numero") : Promise.resolve({ data: [] }),
         pids2.length ? sb().from("project_deliveries").select("*").in("project_id", pids2).order("delivered_at", { ascending: false }) : Promise.resolve({ data: [] }),
         pids2.length ? sb().from("project_messages").select("*").in("project_id", pids2).order("created_at") : Promise.resolve({ data: [] }),
+        pids2.length ? sb().from("project_novidades").select("*").in("project_id", pids2).order("data", { ascending: false }) : Promise.resolve({ data: [] }),
         sb().from("support_tickets").select("*").order("numero"),
         sb().from("proposals").select("*").order("data", { ascending: false }),
         sb().from("calendar_events").select("*").order("data")
       ]);
-      var stagesRes2 = res3[0], instRes2 = res3[1], delivRes2 = res3[2], msgRes2 = res3[3], ticketsRes2 = res3[4], propRes2 = res3[5], meetRes2 = res3[6];
+      var stagesRes2 = res3[0], instRes2 = res3[1], delivRes2 = res3[2], msgRes2 = res3[3], novRes2 = res3[4], ticketsRes2 = res3[5], propRes2 = res3[6], meetRes2 = res3[7];
       var signMap2 = await signDeliveryPaths((delivRes2.data || []).map(function (d) { return d.file_path; }).filter(Boolean));
       D.projects = projRows2.map(function (p) {
         return {
@@ -578,6 +581,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           parcelas: (instRes2.data || []).filter(function (q) { return q.project_id === p.id; }).map(function (q) { return { id: q.id, n: q.numero, valor: Number(q.valor), venc: q.vencimento, pago: q.pago, pagoAt: q.pago_at || "", avisado: q.avisado }; }),
           tasks: (stagesRes2.data || []).filter(function (s) { return s.project_id === p.id; }).map(function (s) { return { id: s.id, t: s.title, done: s.status === "concluido", at: s.completed_at, items: s.checklist || [], notes: s.notes || "" }; }),
           docs: (delivRes2.data || []).filter(function (d) { return d.project_id === p.id && d.visible_to_client; }).map(function (d) { return { id: d.id, nome: d.title, desc: d.description || "", tipo: d.doc_type, data: d.delivered_at, cli: true, path: d.file_path || "", url: d.file_path ? (signMap2[d.file_path] || "") : "", externalUrl: d.external_url || "", stageId: d.stage_id || "" }; }),
+          novidades: (novRes2.data || []).filter(function (n) { return n.project_id === p.id; }).map(function (n) { return { data: n.data, itens: n.itens || [] }; }),
           hist: []
         };
       });
@@ -1441,7 +1445,8 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
           proxReuniaoTxt: proxReuniao ? (diasReuniao === 0 ? "Hoje" : diasReuniao === 1 ? "Amanhã" : diasReuniao + " dias") + (proxReuniao.hora ? " · " + proxReuniao.hora : "") : null,
           proxReuniaoPendente: proxReuniao ? proxReuniao.status === "pendente" : false,
           atualizadoEm: p0.atualizadoEm ? dt(p0.atualizadoEm) + (p0.atualizadoEm.slice(11, 16) && p0.atualizadoEm.slice(11, 16) !== "00:00" ? " às " + p0.atualizadoEm.slice(11, 16) : "") : "",
-          status: p0.status || ""
+          status: p0.status || "",
+          novidades: p0.novidades || []
         };
         out.goSuporteH = reg(function () { go("suporte"); });
         // "Acompanhamento e entregas": só as etapas concluídas — cada
@@ -2653,6 +2658,24 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
     return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">' + real.map(andDocBtn).join("") + "</div>";
   };
 
+  var MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  var dataLonga = function (iso) { var q = String(iso || "").slice(0, 10).split("-"); return q.length === 3 ? (+q[2]) + " de " + MESES[+q[1] - 1] + " de " + q[0] : ""; };
+  // "Novidades do sistema": a data e o que a Buovai melhorou, em linguagem simples.
+  function buildNovidades(lista) {
+    if (!lista || !lista.length) return "";
+    var bloco = function (n) {
+      return '<div style="display:flex;flex-direction:column;gap:6px;padding:13px 0;border-top:1px solid var(--line)">'
+        + '<span style="font-family:\'Lexend Exa\',sans-serif;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--accTxt)">' + esc(dataLonga(n.data)) + "</span>"
+        + '<span style="font-size:13.5px;color:var(--ink)">A Buovai melhorou o sistema adicionando:</span>'
+        + '<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--ink2)">' + (n.itens || []).map(function (i) { return "<li>" + esc(i) + "</li>"; }).join("") + "</ul></div>";
+    };
+    var recentes = lista.slice(0, 3).map(bloco).join("");
+    var antigas = lista.length > 3
+      ? '<details style="border-top:1px solid var(--line)"><summary style="cursor:pointer;padding:12px 0;font-size:12.5px;color:var(--accTxt);font-weight:600">Ver novidades anteriores</summary>' + lista.slice(3).map(bloco).join("") + "</details>"
+      : "";
+    return '<section style="display:flex;flex-direction:column;gap:4px;padding:18px;background:var(--field);border:1px solid var(--line)">' + andLabel("Novidades do sistema") + recentes + antigas + "</section>";
+  }
+
   function buildAndamento(V) {
     var cp = V.cp;
     andProjetoConcluido = !!cp.concluido;
@@ -2742,6 +2765,7 @@ a{color:var(--accTxt);text-decoration:none}a:hover{color:var(--ink)}
       + resumo
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:18px;align-items:start">' + feitasCard + proximasCard + "</div>"
       + '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:18px">' + detalhesCard + comunicacaoCard + "</div>"
+      + buildNovidades(cp.novidades)
       + "</div>";
   }
 
